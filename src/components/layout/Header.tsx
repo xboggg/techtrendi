@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Sun, Moon, ChevronDown } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, Sun, Moon, ChevronDown, User, LogOut, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navLinks = [
   {
@@ -34,6 +42,8 @@ export function Header() {
   const [isDark, setIsDark] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, subscription, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -58,6 +68,11 @@ export function Header() {
       document.documentElement.classList.add("dark");
       localStorage.setItem("theme", "dark");
     }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
   };
 
   const isActive = (href: string) => location.pathname === href || location.pathname.startsWith(href + "/");
@@ -130,9 +145,55 @@ export function Header() {
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            <Button variant="hero" size="sm" className="hidden md:inline-flex">
-              Get Premium
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">
+                      <span className="text-primary-foreground text-sm font-medium">
+                        {user.email?.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    {subscription.subscribed && (
+                      <Crown className="w-4 h-4 text-primary" />
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-3 py-2">
+                    <p className="text-sm font-medium text-foreground truncate">{user.email}</p>
+                    {subscription.subscribed ? (
+                      <p className="text-xs text-primary flex items-center gap-1">
+                        <Crown className="w-3 h-3" /> Premium Member
+                      </p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">Free Plan</p>
+                    )}
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/premium" className="cursor-pointer">
+                      <Crown className="w-4 h-4 mr-2" />
+                      {subscription.subscribed ? "Manage Subscription" : "Upgrade to Premium"}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex">
+                  <Link to="/auth">Sign In</Link>
+                </Button>
+                <Button variant="hero" size="sm" asChild className="hidden md:inline-flex">
+                  <Link to="/premium">Get Premium</Link>
+                </Button>
+              </>
+            )}
 
             {/* Mobile Menu Button */}
             <button
@@ -178,10 +239,40 @@ export function Header() {
                 )}
               </div>
             ))}
-            <div className="pt-4">
-              <Button variant="hero" className="w-full">
-                Get Premium
-              </Button>
+            <div className="pt-4 space-y-2">
+              {user ? (
+                <>
+                  <div className="px-4 py-2">
+                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                    {subscription.subscribed && (
+                      <p className="text-xs text-primary flex items-center gap-1">
+                        <Crown className="w-3 h-3" /> Premium Member
+                      </p>
+                    )}
+                  </div>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link to="/premium" onClick={() => setIsMobileMenuOpen(false)}>
+                      {subscription.subscribed ? "Manage Subscription" : "Upgrade to Premium"}
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" className="w-full" onClick={handleSignOut}>
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
+                      Sign In
+                    </Link>
+                  </Button>
+                  <Button variant="hero" className="w-full" asChild>
+                    <Link to="/premium" onClick={() => setIsMobileMenuOpen(false)}>
+                      Get Premium
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
