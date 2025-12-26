@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
-import { Star, ThumbsUp, ThumbsDown, ArrowRight, Filter, Search } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Star, ThumbsUp, ThumbsDown, ArrowRight, Filter, Search, X, BarChart3 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -12,101 +16,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 interface Review {
   id: string;
   slug: string;
   title: string;
   category: string;
-  image: string;
+  image: string | null;
   rating: number;
   verdict: string;
   pros: string[];
   cons: string[];
-  price: string;
-  releaseDate: string;
+  price: string | null;
+  release_date: string | null;
+  specs: Record<string, string>;
 }
-
-const reviews: Review[] = [
-  {
-    id: "1",
-    slug: "iphone-15-pro-max",
-    title: "iPhone 15 Pro Max",
-    category: "Smartphones",
-    image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=300&fit=crop",
-    rating: 4.8,
-    verdict: "The best iPhone yet with groundbreaking camera features and titanium design.",
-    pros: ["Excellent camera system", "Premium titanium build", "A17 Pro chip performance", "USB-C finally"],
-    cons: ["Expensive", "Heavy", "No major design changes"],
-    price: "$1,199",
-    releaseDate: "Sep 2023",
-  },
-  {
-    id: "2",
-    slug: "samsung-galaxy-s24-ultra",
-    title: "Samsung Galaxy S24 Ultra",
-    category: "Smartphones",
-    image: "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=400&h=300&fit=crop",
-    rating: 4.7,
-    verdict: "Samsung's AI-powered flagship sets new standards for smartphone intelligence.",
-    pros: ["Galaxy AI features", "S Pen included", "7-year updates", "Stunning display"],
-    cons: ["Pricey", "Large size", "Similar design to S23"],
-    price: "$1,299",
-    releaseDate: "Jan 2024",
-  },
-  {
-    id: "3",
-    slug: "macbook-pro-m3",
-    title: "MacBook Pro 14\" M3 Pro",
-    category: "Laptops",
-    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop",
-    rating: 4.9,
-    verdict: "The M3 Pro chip delivers exceptional performance for creative professionals.",
-    pros: ["Incredible performance", "All-day battery", "Beautiful display", "Excellent speakers"],
-    cons: ["Expensive", "Limited ports", "No touchscreen"],
-    price: "$1,999",
-    releaseDate: "Nov 2023",
-  },
-  {
-    id: "4",
-    slug: "sony-wh-1000xm5",
-    title: "Sony WH-1000XM5",
-    category: "Audio",
-    image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&h=300&fit=crop",
-    rating: 4.6,
-    verdict: "Industry-leading noise cancellation with exceptional sound quality.",
-    pros: ["Best-in-class ANC", "30-hour battery", "Comfortable fit", "Multi-device pairing"],
-    cons: ["No folding design", "Expensive", "Touch controls can be finicky"],
-    price: "$399",
-    releaseDate: "May 2022",
-  },
-  {
-    id: "5",
-    slug: "google-pixel-8-pro",
-    title: "Google Pixel 8 Pro",
-    category: "Smartphones",
-    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=300&fit=crop",
-    rating: 4.5,
-    verdict: "Google's AI magic shines in the best Pixel camera experience yet.",
-    pros: ["Exceptional camera AI", "7 years of updates", "Clean Android", "Tensor G3 chip"],
-    cons: ["Average battery", "Slow charging", "Limited availability"],
-    price: "$999",
-    releaseDate: "Oct 2023",
-  },
-  {
-    id: "6",
-    slug: "apple-watch-series-9",
-    title: "Apple Watch Series 9",
-    category: "Wearables",
-    image: "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=400&h=300&fit=crop",
-    rating: 4.4,
-    verdict: "The most capable Apple Watch with new gesture controls and brighter display.",
-    pros: ["Double tap gesture", "Brighter display", "Precise Find iPhone", "S9 chip"],
-    cons: ["Incremental upgrade", "Expensive", "Requires iPhone"],
-    price: "$399",
-    releaseDate: "Sep 2023",
-  },
-];
 
 const categories = ["All", "Smartphones", "Laptops", "Audio", "Wearables"];
 
@@ -125,7 +64,126 @@ function StarRating({ rating }: { rating: number }) {
           }`}
         />
       ))}
-      <span className="ml-1 text-sm font-semibold text-foreground">{rating.toFixed(1)}</span>
+      <span className="ml-1 text-sm font-semibold text-foreground">{Number(rating).toFixed(1)}</span>
+    </div>
+  );
+}
+
+function ComparisonTable({ reviews, onRemove }: { reviews: Review[]; onRemove: (id: string) => void }) {
+  if (reviews.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+        <p className="text-muted-foreground">Select products to compare them side by side</p>
+      </div>
+    );
+  }
+
+  // Get all unique spec keys from selected reviews
+  const allSpecs = new Set<string>();
+  reviews.forEach((review) => {
+    if (review.specs) {
+      Object.keys(review.specs).forEach((key) => allSpecs.add(key));
+    }
+  });
+
+  return (
+    <div className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-40">Product</TableHead>
+            {reviews.map((review) => (
+              <TableHead key={review.id} className="min-w-48">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold text-foreground">{review.title}</p>
+                    <StarRating rating={review.rating} />
+                  </div>
+                  <button
+                    onClick={() => onRemove(review.id)}
+                    className="p-1 hover:bg-muted rounded"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="font-medium">Image</TableCell>
+            {reviews.map((review) => (
+              <TableCell key={review.id}>
+                {review.image && (
+                  <img
+                    src={review.image}
+                    alt={review.title}
+                    className="w-32 h-24 object-cover rounded-lg"
+                  />
+                )}
+              </TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell className="font-medium">Price</TableCell>
+            {reviews.map((review) => (
+              <TableCell key={review.id} className="font-semibold text-primary">
+                {review.price || "N/A"}
+              </TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell className="font-medium">Category</TableCell>
+            {reviews.map((review) => (
+              <TableCell key={review.id}>
+                <Badge variant="secondary">{review.category}</Badge>
+              </TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell className="font-medium">Verdict</TableCell>
+            {reviews.map((review) => (
+              <TableCell key={review.id} className="text-sm text-muted-foreground">
+                {review.verdict}
+              </TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell className="font-medium text-green-600">Top Pro</TableCell>
+            {reviews.map((review) => (
+              <TableCell key={review.id} className="text-sm">
+                <div className="flex items-start gap-2">
+                  <ThumbsUp className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                  {review.pros[0] || "N/A"}
+                </div>
+              </TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell className="font-medium text-red-600">Top Con</TableCell>
+            {reviews.map((review) => (
+              <TableCell key={review.id} className="text-sm">
+                <div className="flex items-start gap-2">
+                  <ThumbsDown className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
+                  {review.cons[0] || "N/A"}
+                </div>
+              </TableCell>
+            ))}
+          </TableRow>
+          {Array.from(allSpecs).map((spec) => (
+            <TableRow key={spec}>
+              <TableCell className="font-medium capitalize">{spec.replace(/_/g, " ")}</TableCell>
+              {reviews.map((review) => (
+                <TableCell key={review.id} className="text-sm">
+                  {review.specs?.[spec] || "N/A"}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }
@@ -134,6 +192,21 @@ export default function Reviews() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("rating");
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+
+  const { data: reviews = [], isLoading } = useQuery({
+    queryKey: ["reviews"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("is_published", true)
+        .order("rating", { ascending: false });
+
+      if (error) throw error;
+      return data as Review[];
+    },
+  });
 
   const filteredReviews = reviews
     .filter((review) => {
@@ -142,10 +215,22 @@ export default function Reviews() {
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
-      if (sortBy === "rating") return b.rating - a.rating;
-      if (sortBy === "newest") return new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
+      if (sortBy === "rating") return Number(b.rating) - Number(a.rating);
+      if (sortBy === "newest") {
+        const dateA = a.release_date ? new Date(a.release_date).getTime() : 0;
+        const dateB = b.release_date ? new Date(b.release_date).getTime() : 0;
+        return dateB - dateA;
+      }
       return a.title.localeCompare(b.title);
     });
+
+  const compareReviews = reviews.filter((r) => compareIds.includes(r.id));
+
+  const toggleCompare = (id: string) => {
+    setCompareIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : prev.length < 4 ? [...prev, id] : prev
+    );
+  };
 
   return (
     <Layout>
@@ -206,6 +291,27 @@ export default function Reviews() {
                   <SelectItem value="name">Name A-Z</SelectItem>
                 </SelectContent>
               </Select>
+
+              {/* Compare Button */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant={compareIds.length > 0 ? "default" : "outline"} className="gap-2">
+                    <BarChart3 className="w-4 h-4" />
+                    Compare {compareIds.length > 0 && `(${compareIds.length})`}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-[80vh]">
+                  <SheetHeader>
+                    <SheetTitle>Product Comparison</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6 overflow-auto">
+                    <ComparisonTable
+                      reviews={compareReviews}
+                      onRemove={(id) => setCompareIds((prev) => prev.filter((i) => i !== id))}
+                    />
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
@@ -214,71 +320,96 @@ export default function Reviews() {
       {/* Reviews Grid */}
       <section className="py-12 md:py-16">
         <div className="container">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredReviews.map((review) => (
-              <article
-                key={review.id}
-                className="group bg-card rounded-2xl border border-border shadow-card overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all duration-300"
-              >
-                {/* Product Image */}
-                <div className="relative aspect-video overflow-hidden">
-                  <img
-                    src={review.image}
-                    alt={review.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-3 left-3">
-                    <Badge variant="secondary">{review.category}</Badge>
-                  </div>
-                  <div className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm rounded-lg px-2 py-1">
-                    <StarRating rating={review.rating} />
-                  </div>
+          {isLoading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="bg-card rounded-2xl border border-border p-6">
+                  <Skeleton className="aspect-video rounded-xl mb-4" />
+                  <Skeleton className="h-6 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-1/2" />
                 </div>
-
-                {/* Content */}
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">{review.releaseDate}</span>
-                    <span className="text-sm font-semibold text-primary">{review.price}</span>
-                  </div>
-
-                  <h2 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
-                    {review.title}
-                  </h2>
-
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                    {review.verdict}
-                  </p>
-
-                  {/* Pros & Cons Preview */}
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-start gap-2">
-                      <ThumbsUp className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
-                      <span className="text-sm text-muted-foreground line-clamp-1">
-                        {review.pros[0]}
-                      </span>
+              ))}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredReviews.map((review) => (
+                <article
+                  key={review.id}
+                  className="group bg-card rounded-2xl border border-border shadow-card overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all duration-300"
+                >
+                  {/* Product Image */}
+                  <div className="relative aspect-video overflow-hidden">
+                    {review.image && (
+                      <img
+                        src={review.image}
+                        alt={review.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    )}
+                    <div className="absolute top-3 left-3">
+                      <Badge variant="secondary">{review.category}</Badge>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <ThumbsDown className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
-                      <span className="text-sm text-muted-foreground line-clamp-1">
-                        {review.cons[0]}
-                      </span>
+                    <div className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm rounded-lg px-2 py-1">
+                      <StarRating rating={review.rating} />
+                    </div>
+                    {/* Compare Checkbox */}
+                    <div className="absolute bottom-3 left-3">
+                      <label className="flex items-center gap-2 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 cursor-pointer">
+                        <Checkbox
+                          checked={compareIds.includes(review.id)}
+                          onCheckedChange={() => toggleCompare(review.id)}
+                          disabled={!compareIds.includes(review.id) && compareIds.length >= 4}
+                        />
+                        <span className="text-xs font-medium text-foreground">Compare</span>
+                      </label>
                     </div>
                   </div>
 
-                  <Link
-                    to={`/reviews/${review.slug}`}
-                    className="inline-flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all"
-                  >
-                    Read Full Review
-                    <ArrowRight className="w-4 h-4 ml-1" />
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
+                  {/* Content */}
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">{review.release_date}</span>
+                      <span className="text-sm font-semibold text-primary">{review.price}</span>
+                    </div>
 
-          {filteredReviews.length === 0 && (
+                    <h2 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
+                      {review.title}
+                    </h2>
+
+                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                      {review.verdict}
+                    </p>
+
+                    {/* Pros & Cons Preview */}
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-start gap-2">
+                        <ThumbsUp className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                        <span className="text-sm text-muted-foreground line-clamp-1">
+                          {review.pros[0]}
+                        </span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <ThumbsDown className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
+                        <span className="text-sm text-muted-foreground line-clamp-1">
+                          {review.cons[0]}
+                        </span>
+                      </div>
+                    </div>
+
+                    <Link
+                      to={`/reviews/${review.slug}`}
+                      className="inline-flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all"
+                    >
+                      Read Full Review
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+
+          {!isLoading && filteredReviews.length === 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No reviews found matching your criteria.</p>
               <Button
