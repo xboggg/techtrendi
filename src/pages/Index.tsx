@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, Shield, Zap, BookOpen, Wrench, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
+import { useAuth } from "@/contexts/AuthContext";
 import heroBg from "@/assets/hero-bg.png";
 
 const features = [
@@ -76,6 +77,8 @@ const tools = [
 ];
 
 export default function Index() {
+  const { subscription } = useAuth();
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -255,13 +258,18 @@ export default function Index() {
             <Button
               size="xl"
               className="bg-background text-foreground hover:bg-background/90 shadow-elevated"
+              asChild
             >
-              Start Free Trial
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <Link to="/premium">
+                {subscription.subscribed ? "Manage Subscription" : "Get Premium Access"}
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Link>
             </Button>
-            <p className="text-primary-foreground/60 text-sm mt-4">
-              Just $4.99/month • Cancel anytime
-            </p>
+            {!subscription.subscribed && (
+              <p className="text-primary-foreground/60 text-sm mt-4">
+                Just $4.99/month • Cancel anytime
+              </p>
+            )}
           </div>
         </div>
       </section>
