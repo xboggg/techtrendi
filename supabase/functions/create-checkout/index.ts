@@ -49,8 +49,7 @@ serve(async (req) => {
     }
 
     // TechTrendi Premium Monthly - $4.99/month
-    // Note: You'll need to create this price in Stripe Dashboard and update the price ID
-    const PREMIUM_PRICE_ID = "price_1SiOpxBLh9K43AQk2WHcLu5v"; // Update with actual price ID
+    const PREMIUM_PRICE_ID = "price_1SiPmyBLh9K43AQkLtyfLawQ";
 
     const origin = req.headers.get("origin") || "https://lovable.dev";
     
