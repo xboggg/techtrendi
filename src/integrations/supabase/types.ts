@@ -134,6 +134,66 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          category: string
+          cons: string[]
+          created_at: string
+          full_review: string | null
+          id: string
+          image: string | null
+          is_published: boolean
+          price: string | null
+          pros: string[]
+          rating: number
+          release_date: string | null
+          slug: string
+          specs: Json | null
+          title: string
+          updated_at: string
+          verdict: string
+          views: number | null
+        }
+        Insert: {
+          category: string
+          cons?: string[]
+          created_at?: string
+          full_review?: string | null
+          id?: string
+          image?: string | null
+          is_published?: boolean
+          price?: string | null
+          pros?: string[]
+          rating: number
+          release_date?: string | null
+          slug: string
+          specs?: Json | null
+          title: string
+          updated_at?: string
+          verdict: string
+          views?: number | null
+        }
+        Update: {
+          category?: string
+          cons?: string[]
+          created_at?: string
+          full_review?: string | null
+          id?: string
+          image?: string | null
+          is_published?: boolean
+          price?: string | null
+          pros?: string[]
+          rating?: number
+          release_date?: string | null
+          slug?: string
+          specs?: Json | null
+          title?: string
+          updated_at?: string
+          verdict?: string
+          views?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
