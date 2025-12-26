@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, ThumbsUp, ThumbsDown, ArrowLeft, Calendar, DollarSign, Eye } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Star, ThumbsUp, ThumbsDown, ArrowLeft, Calendar, DollarSign, Eye, Send, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -15,6 +18,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Helmet } from "react-helmet-async";
+import { toast } from "sonner";
+import { format } from "date-fns";
 
 interface Review {
   id: string;
@@ -34,21 +39,48 @@ interface Review {
   created_at: string;
 }
 
-function StarRating({ rating, size = "default" }: { rating: number; size?: "default" | "large" }) {
+interface Comment {
+  id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  is_approved: boolean;
+  profile?: { full_name: string | null; email: string | null };
+}
+
+interface Rating {
+  id: string;
+  user_id: string;
+  rating: number;
+}
+
+function StarRating({ rating, size = "default", interactive = false, onRate }: { 
+  rating: number; 
+  size?: "default" | "large"; 
+  interactive?: boolean;
+  onRate?: (rating: number) => void;
+}) {
   const starSize = size === "large" ? "w-6 h-6" : "w-4 h-4";
   return (
     <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((star) => (
-        <Star
+        <button
           key={star}
-          className={`${starSize} ${
-            star <= rating
-              ? "fill-primary text-primary"
-              : star <= rating + 0.5
-              ? "fill-primary/50 text-primary"
-              : "text-muted-foreground"
-          }`}
-        />
+          type="button"
+          disabled={!interactive}
+          onClick={() => interactive && onRate?.(star)}
+          className={interactive ? "cursor-pointer hover:scale-110 transition-transform" : "cursor-default"}
+        >
+          <Star
+            className={`${starSize} ${
+              star <= rating
+                ? "fill-primary text-primary"
+                : star <= rating + 0.5
+                ? "fill-primary/50 text-primary"
+                : "text-muted-foreground"
+            }`}
+          />
+        </button>
       ))}
       <span className={`ml-2 font-bold text-foreground ${size === "large" ? "text-2xl" : "text-sm"}`}>
         {Number(rating).toFixed(1)}
@@ -96,6 +128,304 @@ function ProductSchema({ review }: { review: Review }) {
       <meta name="description" content={review.verdict} />
       <script type="application/ld+json">{JSON.stringify(schema)}</script>
     </Helmet>
+  );
+}
+
+function RelatedReviews({ category, currentSlug }: { category: string; currentSlug: string }) {
+  const { data: relatedReviews = [] } = useQuery({
+    queryKey: ["related-reviews", category, currentSlug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("id, slug, title, image, rating, category")
+        .eq("category", category)
+        .eq("is_published", true)
+        .neq("slug", currentSlug)
+        .limit(3);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (relatedReviews.length === 0) return null;
+
+  return (
+    <section className="py-8 md:py-12 border-t border-border">
+      <div className="container">
+        <h2 className="text-2xl font-bold text-foreground mb-6">Related Reviews</h2>
+        <div className="grid md:grid-cols-3 gap-6">
+          {relatedReviews.map((review) => (
+            <Link
+              key={review.id}
+              to={`/reviews/${review.slug}`}
+              className="group bg-card rounded-xl border border-border overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all"
+            >
+              {review.image && (
+                <div className="aspect-video overflow-hidden">
+                  <img
+                    src={review.image}
+                    alt={review.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              )}
+              <div className="p-4">
+                <Badge variant="secondary" className="mb-2">{review.category}</Badge>
+                <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                  {review.title}
+                </h3>
+                <div className="flex items-center gap-1 mt-2">
+                  <Star className="w-4 h-4 fill-primary text-primary" />
+                  <span className="text-sm font-medium">{Number(review.rating).toFixed(1)}</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CommentsSection({ reviewId }: { reviewId: string }) {
+  const { user } = useAuth();
+  const [newComment, setNewComment] = useState("");
+  const queryClient = useQueryClient();
+
+  const { data: comments = [], isLoading } = useQuery({
+    queryKey: ["review-comments", reviewId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("review_comments")
+        .select("*")
+        .eq("review_id", reviewId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      // Fetch profiles
+      const userIds = [...new Set(data.map(c => c.user_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, email")
+        .in("user_id", userIds);
+
+      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+
+      return data.map(comment => ({
+        ...comment,
+        profile: profileMap.get(comment.user_id),
+      })) as Comment[];
+    },
+  });
+
+  const addCommentMutation = useMutation({
+    mutationFn: async (content: string) => {
+      const { error } = await supabase.from("review_comments").insert({
+        review_id: reviewId,
+        user_id: user!.id,
+        content,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["review-comments", reviewId] });
+      setNewComment("");
+      toast.success("Comment submitted for moderation");
+    },
+    onError: (error) => {
+      toast.error(`Failed to post comment: ${error.message}`);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+    if (newComment.length > 1000) {
+      toast.error("Comment is too long (max 1000 characters)");
+      return;
+    }
+    addCommentMutation.mutate(newComment.trim());
+  };
+
+  const approvedComments = comments.filter(c => c.is_approved);
+  const userPendingComments = comments.filter(c => !c.is_approved && c.user_id === user?.id);
+
+  return (
+    <section className="py-8 md:py-12 border-t border-border">
+      <div className="container">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
+            <MessageSquare className="w-6 h-6" />
+            Comments ({approvedComments.length})
+          </h2>
+
+          {/* Add Comment Form */}
+          {user ? (
+            <form onSubmit={handleSubmit} className="mb-8">
+              <Textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Share your thoughts on this product..."
+                rows={3}
+                maxLength={1000}
+                className="mb-3"
+              />
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">
+                  {newComment.length}/1000 characters
+                </span>
+                <Button type="submit" disabled={!newComment.trim() || addCommentMutation.isPending}>
+                  <Send className="w-4 h-4 mr-2" />
+                  Post Comment
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div className="bg-muted/50 rounded-xl p-6 text-center mb-8">
+              <p className="text-muted-foreground mb-3">Sign in to leave a comment</p>
+              <Button asChild>
+                <Link to="/auth">Sign In</Link>
+              </Button>
+            </div>
+          )}
+
+          {/* Pending Comments */}
+          {userPendingComments.length > 0 && (
+            <div className="mb-6">
+              <p className="text-sm text-muted-foreground mb-3">Your pending comments:</p>
+              {userPendingComments.map((comment) => (
+                <div key={comment.id} className="bg-muted/30 rounded-lg p-4 mb-3 border border-dashed border-border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="secondary">Pending Approval</Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {format(new Date(comment.created_at), "MMM d, yyyy")}
+                    </span>
+                  </div>
+                  <p className="text-foreground">{comment.content}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Comments List */}
+          {isLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-card rounded-lg p-4 border border-border">
+                  <Skeleton className="h-4 w-32 mb-2" />
+                  <Skeleton className="h-16 w-full" />
+                </div>
+              ))}
+            </div>
+          ) : approvedComments.length > 0 ? (
+            <div className="space-y-4">
+              {approvedComments.map((comment) => (
+                <div key={comment.id} className="bg-card rounded-lg p-4 border border-border">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-foreground">
+                      {comment.profile?.full_name || "Anonymous"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {format(new Date(comment.created_at), "MMM d, yyyy")}
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground">{comment.content}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">
+              No comments yet. Be the first to share your thoughts!
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function UserRatingSection({ reviewId }: { reviewId: string }) {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { data: ratings = [] } = useQuery({
+    queryKey: ["review-ratings", reviewId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("review_ratings")
+        .select("*")
+        .eq("review_id", reviewId);
+
+      if (error) throw error;
+      return data as Rating[];
+    },
+  });
+
+  const userRating = ratings.find((r) => r.user_id === user?.id);
+  const averageRating = ratings.length > 0
+    ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length
+    : 0;
+
+  const rateMutation = useMutation({
+    mutationFn: async (rating: number) => {
+      if (userRating) {
+        const { error } = await supabase
+          .from("review_ratings")
+          .update({ rating })
+          .eq("id", userRating.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("review_ratings").insert({
+          review_id: reviewId,
+          user_id: user!.id,
+          rating,
+        });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["review-ratings", reviewId] });
+      toast.success("Rating submitted!");
+    },
+    onError: (error) => {
+      toast.error(`Failed to rate: ${error.message}`);
+    },
+  });
+
+  return (
+    <div className="bg-card rounded-xl border border-border p-6">
+      <h3 className="font-semibold text-foreground mb-4">User Ratings</h3>
+      
+      {ratings.length > 0 && (
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-1">
+            <StarRating rating={averageRating} />
+            <span className="text-sm text-muted-foreground">
+              ({ratings.length} {ratings.length === 1 ? "rating" : "ratings"})
+            </span>
+          </div>
+        </div>
+      )}
+
+      {user ? (
+        <div>
+          <p className="text-sm text-muted-foreground mb-2">
+            {userRating ? "Update your rating:" : "Rate this product:"}
+          </p>
+          <StarRating
+            rating={userRating?.rating || 0}
+            interactive
+            onRate={(rating) => rateMutation.mutate(rating)}
+          />
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          <Link to="/auth" className="text-primary hover:underline">Sign in</Link> to rate this product
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -247,6 +577,9 @@ export default function ReviewDetail() {
                   </ul>
                 </div>
               </div>
+
+              {/* User Rating Section */}
+              <UserRatingSection reviewId={review.id} />
             </div>
           </div>
         </div>
@@ -314,6 +647,12 @@ export default function ReviewDetail() {
           </div>
         </div>
       </section>
+
+      {/* Comments Section */}
+      <CommentsSection reviewId={review.id} />
+
+      {/* Related Reviews */}
+      <RelatedReviews category={review.category} currentSlug={review.slug} />
     </Layout>
   );
 }
