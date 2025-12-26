@@ -64,13 +64,10 @@ export default function Tools() {
         {/* Tools Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tools.map((tool) => (
-            <div
+            <Link
               key={tool.title}
-              className={`group bg-card rounded-2xl border border-border shadow-card p-6 transition-all duration-300 ${
-                tool.comingSoon
-                  ? "opacity-70"
-                  : "hover:shadow-elevated hover:border-primary/20"
-              }`}
+              to={tool.href}
+              className="group bg-card rounded-2xl border border-border shadow-card p-6 transition-all duration-300 hover:shadow-elevated hover:border-primary/20"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -88,20 +85,11 @@ export default function Tools() {
                 {tool.description}
               </p>
 
-              {tool.comingSoon ? (
-                <span className="inline-flex items-center text-muted-foreground text-sm font-medium">
-                  Coming Soon
-                </span>
-              ) : (
-                <Link
-                  to={tool.href}
-                  className="inline-flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all"
-                >
-                  Use Tool
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Link>
-              )}
-            </div>
+              <span className="inline-flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all">
+                Use Tool
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </span>
+            </Link>
           ))}
         </div>
 
