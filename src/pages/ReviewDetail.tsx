@@ -47,6 +47,7 @@ interface Comment {
   is_approved: boolean;
   profile?: { full_name: string | null; email: string | null };
   isAdmin?: boolean;
+  isModerator?: boolean;
 }
 
 interface Rating {
@@ -205,20 +206,22 @@ function CommentsSection({ reviewId }: { reviewId: string }) {
 
       if (error) throw error;
 
-      // Fetch profiles and admin roles
+      // Fetch profiles and roles (admin + moderator)
       const userIds = [...new Set(data.map(c => c.user_id))];
       const [profilesResult, rolesResult] = await Promise.all([
         supabase.from("profiles").select("user_id, full_name, email").in("user_id", userIds),
-        supabase.from("user_roles").select("user_id, role").in("user_id", userIds).eq("role", "admin")
+        supabase.from("user_roles").select("user_id, role").in("user_id", userIds).in("role", ["admin", "moderator"])
       ]);
 
       const profileMap = new Map(profilesResult.data?.map(p => [p.user_id, p]) || []);
-      const adminSet = new Set(rolesResult.data?.map(r => r.user_id) || []);
+      const adminSet = new Set(rolesResult.data?.filter(r => r.role === "admin").map(r => r.user_id) || []);
+      const moderatorSet = new Set(rolesResult.data?.filter(r => r.role === "moderator").map(r => r.user_id) || []);
 
       return data.map(comment => ({
         ...comment,
         profile: profileMap.get(comment.user_id),
         isAdmin: adminSet.has(comment.user_id),
+        isModerator: moderatorSet.has(comment.user_id),
       })) as Comment[];
     },
   });
@@ -335,6 +338,12 @@ function CommentsSection({ reviewId }: { reviewId: string }) {
                         <Badge variant="secondary" className="gap-1 text-xs bg-primary/10 text-primary border-primary/20">
                           <Shield className="w-3 h-3" />
                           Admin
+                        </Badge>
+                      )}
+                      {comment.isModerator && !comment.isAdmin && (
+                        <Badge variant="secondary" className="gap-1 text-xs bg-blue-500/10 text-blue-600 border-blue-500/20">
+                          <Shield className="w-3 h-3" />
+                          Moderator
                         </Badge>
                       )}
                     </div>
