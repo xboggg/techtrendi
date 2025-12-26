@@ -15,6 +15,10 @@ import Blog from "./pages/Blog";
 import BlogArticle from "./pages/BlogArticle";
 import Reviews from "./pages/Reviews";
 import ReviewDetail from "./pages/ReviewDetail";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminReviews from "./pages/admin/AdminReviews";
+import AdminComments from "./pages/admin/AdminComments";
+import AdminUsers from "./pages/admin/AdminUsers";
 import PasswordGenerator from "./pages/tools/PasswordGenerator";
 import QRGenerator from "./pages/tools/QRGenerator";
 import ImageCompressor from "./pages/tools/ImageCompressor";
@@ -48,6 +52,10 @@ const App = () => (
               <Route path="/blog/:slug" element={<BlogArticle />} />
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/reviews/:slug" element={<ReviewDetail />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/reviews" element={<AdminReviews />} />
+              <Route path="/admin/comments" element={<AdminComments />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/guides" element={<Guides />} />
               <Route path="/guides/:category" element={<Guides />} />
               <Route path="/about" element={<About />} />
