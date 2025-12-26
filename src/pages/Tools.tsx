@@ -30,7 +30,6 @@ const tools = [
     description: "Compare smartphone specifications side by side. Make informed decisions on your next device.",
     href: "/tools/phone-comparison",
     category: "Comparison",
-    comingSoon: true,
   },
   {
     icon: FileText,
@@ -38,7 +37,6 @@ const tools = [
     description: "AI-powered calculator to determine if upgrading your device is worth it based on your usage.",
     href: "/tools/upgrade-calculator",
     category: "AI Tools",
-    comingSoon: true,
   },
   {
     icon: Lock,
@@ -46,7 +44,6 @@ const tools = [
     description: "Check how strong your existing passwords are and get suggestions for improvement.",
     href: "/tools/password-checker",
     category: "Security",
-    comingSoon: true,
   },
 ];
 

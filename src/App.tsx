@@ -10,9 +10,14 @@ import Guides from "./pages/Guides";
 import About from "./pages/About";
 import Auth from "./pages/Auth";
 import Premium from "./pages/Premium";
+import Blog from "./pages/Blog";
+import BlogArticle from "./pages/BlogArticle";
 import PasswordGenerator from "./pages/tools/PasswordGenerator";
 import QRGenerator from "./pages/tools/QRGenerator";
 import ImageCompressor from "./pages/tools/ImageCompressor";
+import PhoneComparison from "./pages/tools/PhoneComparison";
+import PasswordChecker from "./pages/tools/PasswordChecker";
+import UpgradeCalculator from "./pages/tools/UpgradeCalculator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +37,11 @@ const App = () => (
             <Route path="/tools/password-generator" element={<PasswordGenerator />} />
             <Route path="/tools/qr-generator" element={<QRGenerator />} />
             <Route path="/tools/image-compressor" element={<ImageCompressor />} />
+            <Route path="/tools/phone-comparison" element={<PhoneComparison />} />
+            <Route path="/tools/password-checker" element={<PasswordChecker />} />
+            <Route path="/tools/upgrade-calculator" element={<UpgradeCalculator />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogArticle />} />
             <Route path="/guides" element={<Guides />} />
             <Route path="/guides/:category" element={<Guides />} />
             <Route path="/about" element={<About />} />
