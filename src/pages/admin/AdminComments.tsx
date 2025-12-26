@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Check, X, Trash2 } from "lucide-react";
+import { Check, X, Trash2, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -24,6 +24,7 @@ interface Comment {
   created_at: string;
   reviews: { title: string } | null;
   profiles: { email: string | null; full_name: string | null } | null;
+  isAdmin?: boolean;
 }
 
 export default function AdminComments() {
@@ -42,18 +43,20 @@ export default function AdminComments() {
 
       if (error) throw error;
       
-      // Fetch profiles separately since there's no direct relation
+      // Fetch profiles and admin roles separately since there's no direct relation
       const userIds = [...new Set((data || []).map(c => c.user_id))];
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, email, full_name")
-        .in("user_id", userIds);
+      const [profilesResult, rolesResult] = await Promise.all([
+        supabase.from("profiles").select("user_id, email, full_name").in("user_id", userIds),
+        supabase.from("user_roles").select("user_id, role").in("user_id", userIds).eq("role", "admin")
+      ]);
       
-      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+      const profileMap = new Map(profilesResult.data?.map(p => [p.user_id, p]) || []);
+      const adminSet = new Set(rolesResult.data?.map(r => r.user_id) || []);
       
       return (data || []).map(comment => ({
         ...comment,
         profiles: profileMap.get(comment.user_id) || null,
+        isAdmin: adminSet.has(comment.user_id),
       })) as Comment[];
     },
   });
@@ -130,7 +133,15 @@ export default function AdminComments() {
                 comments.map((comment) => (
                   <TableRow key={comment.id}>
                     <TableCell className="font-medium">
-                      {comment.profiles?.full_name || comment.profiles?.email || "Unknown"}
+                      <div className="flex items-center gap-2">
+                        {comment.profiles?.full_name || comment.profiles?.email || "Unknown"}
+                        {comment.isAdmin && (
+                          <Badge variant="secondary" className="gap-1 text-xs bg-primary/10 text-primary border-primary/20">
+                            <Shield className="w-3 h-3" />
+                            Admin
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {comment.reviews?.title || "Unknown Review"}

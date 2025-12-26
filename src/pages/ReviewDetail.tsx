@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Star, ThumbsUp, ThumbsDown, ArrowLeft, Calendar, DollarSign, Eye, Send, MessageSquare } from "lucide-react";
+import { Star, ThumbsUp, ThumbsDown, ArrowLeft, Calendar, DollarSign, Eye, Send, MessageSquare, Shield } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -46,6 +46,7 @@ interface Comment {
   created_at: string;
   is_approved: boolean;
   profile?: { full_name: string | null; email: string | null };
+  isAdmin?: boolean;
 }
 
 interface Rating {
@@ -204,18 +205,20 @@ function CommentsSection({ reviewId }: { reviewId: string }) {
 
       if (error) throw error;
 
-      // Fetch profiles
+      // Fetch profiles and admin roles
       const userIds = [...new Set(data.map(c => c.user_id))];
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, email")
-        .in("user_id", userIds);
+      const [profilesResult, rolesResult] = await Promise.all([
+        supabase.from("profiles").select("user_id, full_name, email").in("user_id", userIds),
+        supabase.from("user_roles").select("user_id, role").in("user_id", userIds).eq("role", "admin")
+      ]);
 
-      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+      const profileMap = new Map(profilesResult.data?.map(p => [p.user_id, p]) || []);
+      const adminSet = new Set(rolesResult.data?.map(r => r.user_id) || []);
 
       return data.map(comment => ({
         ...comment,
         profile: profileMap.get(comment.user_id),
+        isAdmin: adminSet.has(comment.user_id),
       })) as Comment[];
     },
   });
@@ -324,9 +327,17 @@ function CommentsSection({ reviewId }: { reviewId: string }) {
               {approvedComments.map((comment) => (
                 <div key={comment.id} className="bg-card rounded-lg p-4 border border-border">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-foreground">
-                      {comment.profile?.full_name || "Anonymous"}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-foreground">
+                        {comment.profile?.full_name || "Anonymous"}
+                      </span>
+                      {comment.isAdmin && (
+                        <Badge variant="secondary" className="gap-1 text-xs bg-primary/10 text-primary border-primary/20">
+                          <Shield className="w-3 h-3" />
+                          Admin
+                        </Badge>
+                      )}
+                    </div>
                     <span className="text-xs text-muted-foreground">
                       {format(new Date(comment.created_at), "MMM d, yyyy")}
                     </span>
