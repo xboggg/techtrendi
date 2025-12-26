@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import Premium from "./pages/Premium";
 import Blog from "./pages/Blog";
 import BlogArticle from "./pages/BlogArticle";
+import Reviews from "./pages/Reviews";
 import PasswordGenerator from "./pages/tools/PasswordGenerator";
 import QRGenerator from "./pages/tools/QRGenerator";
 import ImageCompressor from "./pages/tools/ImageCompressor";
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/tools/upgrade-calculator" element={<UpgradeCalculator />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogArticle />} />
+            <Route path="/reviews" element={<Reviews />} />
             <Route path="/guides" element={<Guides />} />
             <Route path="/guides/:category" element={<Guides />} />
             <Route path="/about" element={<About />} />
