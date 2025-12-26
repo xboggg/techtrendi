@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, Sun, Moon, ChevronDown, User, LogOut, Crown } from "lucide-react";
+import { Menu, X, Sun, Moon, ChevronDown, User, LogOut, Crown, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +45,7 @@ export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, subscription, signOut } = useAuth();
+  const { isAdmin } = useAdminCheck();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -171,6 +173,14 @@ export function Header() {
                     )}
                   </div>
                   <DropdownMenuSeparator />
+                  {isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="cursor-pointer">
+                        <Shield className="w-4 h-4 mr-2" />
+                        Admin Panel
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem asChild>
                     <Link to="/premium" className="cursor-pointer">
                       <Crown className="w-4 h-4 mr-2" />
@@ -250,6 +260,14 @@ export function Header() {
                       </p>
                     )}
                   </div>
+                  {isAdmin && (
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Shield className="w-4 h-4 mr-2" />
+                        Admin Panel
+                      </Link>
+                    </Button>
+                  )}
                   <Button variant="outline" className="w-full" asChild>
                     <Link to="/premium" onClick={() => setIsMobileMenuOpen(false)}>
                       {subscription.subscribed ? "Manage Subscription" : "Upgrade to Premium"}
