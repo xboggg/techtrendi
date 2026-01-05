@@ -2,11 +2,10 @@ import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Palette, Sparkles, Navigation, Type, MousePointer, Accessibility } from "lucide-react";
 
-// Import all design system components
+// Import design system components
 import {
   ScrollAnimation,
   StaggerAnimation,
-  ParallaxSection,
   TiltCard,
   LiftCard,
   RotateCard,
@@ -18,15 +17,11 @@ import {
   GlassButton,
   GlassInput,
   GlassBadge,
-  SmartNavbar,
   ReadingProgressBar,
-  FloatingActionButton,
   ScrollToTopButton,
-  TableOfContents,
   AlertBox,
   Blockquote,
   CodeBlock,
-  Accordion,
   Timeline,
   StatCounter,
   ImageLightbox,
@@ -35,8 +30,6 @@ import {
   ToastProvider,
   useToast,
   SkipLink,
-  FocusTrap,
-  VisuallyHidden,
   FontSizeControls,
   ReadingMode,
   Skeleton,
@@ -48,30 +41,30 @@ import { CommandPalette, useCommandPalette } from "@/components/ui/command-palet
 
 // Toast Demo Component
 function ToastDemo() {
-  const { showToast } = useToast();
+  const { success, error, warning, info } = useToast();
 
   return (
     <div className="flex flex-wrap gap-3">
       <button
-        onClick={() => showToast({ type: "success", title: "Success!", message: "Your action was completed." })}
+        onClick={() => success("Success!", "Your action was completed.")}
         className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
       >
         Success Toast
       </button>
       <button
-        onClick={() => showToast({ type: "error", title: "Error!", message: "Something went wrong." })}
+        onClick={() => error("Error!", "Something went wrong.")}
         className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
       >
         Error Toast
       </button>
       <button
-        onClick={() => showToast({ type: "warning", title: "Warning!", message: "Please review this." })}
+        onClick={() => warning("Warning!", "Please review this.")}
         className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
       >
         Warning Toast
       </button>
       <button
-        onClick={() => showToast({ type: "info", title: "Info", message: "Here's some information." })}
+        onClick={() => info("Info", "Here's some information.")}
         className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
       >
         Info Toast
@@ -82,9 +75,9 @@ function ToastDemo() {
 
 // Lightbox Demo Component
 function LightboxDemo() {
-  const { isOpen, currentImage, openLightbox, closeLightbox, next, prev } = useLightbox();
+  const { isOpen, images, initialIndex, open, close } = useLightbox();
 
-  const images = [
+  const demoImages = [
     { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800", alt: "Tech 1" },
     { src: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800", alt: "Tech 2" },
     { src: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800", alt: "Tech 3" },
@@ -93,53 +86,33 @@ function LightboxDemo() {
   return (
     <>
       <div className="grid grid-cols-3 gap-4">
-        {images.map((img, idx) => (
+        {demoImages.map((img, idx) => (
           <img
             key={idx}
             src={img.src}
             alt={img.alt}
             className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => openLightbox(images, idx)}
+            onClick={() => open(demoImages, idx)}
           />
         ))}
       </div>
       <ImageLightbox
         images={images}
-        currentIndex={currentImage}
+        initialIndex={initialIndex}
         isOpen={isOpen}
-        onClose={closeLightbox}
-        onNext={next}
-        onPrev={prev}
+        onClose={close}
       />
     </>
   );
 }
 
 export default function DesignDemo() {
-  const [accordionOpen, setAccordionOpen] = useState<string | null>("item1");
   const { isOpen: cmdOpen, open: openCmd, close: closeCmd } = useCommandPalette();
-
-  const sections = [
-    { id: "visual", title: "Visual & Animation" },
-    { id: "glassmorphism", title: "Glassmorphism" },
-    { id: "cards", title: "3D Card Effects" },
-    { id: "navigation", title: "Navigation" },
-    { id: "content", title: "Content Blocks" },
-    { id: "interactive", title: "Interactive" },
-    { id: "loading", title: "Loading States" },
-    { id: "accessibility", title: "Accessibility" },
-  ];
 
   const timelineItems = [
     { date: "Jan 2025", title: "Project Started", description: "Initial design system planning" },
     { date: "Feb 2025", title: "Components Built", description: "40 UI components created" },
     { date: "Mar 2025", title: "Testing Complete", description: "All features verified" },
-  ];
-
-  const accordionItems = [
-    { id: "item1", title: "What is this design system?", content: "A comprehensive collection of 40 reusable UI components built with React and Tailwind CSS." },
-    { id: "item2", title: "How do I use these components?", content: "Import them from @/components/ui/design-system-index and use them in your pages." },
-    { id: "item3", title: "Are they accessible?", content: "Yes! All components follow WCAG guidelines with proper ARIA attributes and keyboard navigation." },
   ];
 
   const sampleCode = `import { GlassCard, TiltCard } from '@/components/ui/design-system-index';
@@ -184,11 +157,6 @@ function MyComponent() {
           </GradientHero>
         </div>
 
-        {/* Table of Contents */}
-        <div className="container py-8">
-          <TableOfContents sections={sections} />
-        </div>
-
         <div className="container py-12 space-y-24">
 
           {/* Section 1: Visual & Animation */}
@@ -225,10 +193,10 @@ function MyComponent() {
             <div className="mb-12">
               <h3 className="text-lg font-semibold mb-4">Animated Stat Counters</h3>
               <div className="grid md:grid-cols-4 gap-6">
-                <StatCounter end={40} label="UI Components" suffix="+" />
-                <StatCounter end={100} label="Accessibility Score" suffix="%" />
-                <StatCounter end={15} label="Animation Types" />
-                <StatCounter end={5} label="Theme Variants" />
+                <StatCounter value={40} label="UI Components" suffix="+" />
+                <StatCounter value={100} label="Accessibility Score" suffix="%" />
+                <StatCounter value={15} label="Animation Types" />
+                <StatCounter value={5} label="Theme Variants" />
               </div>
             </div>
 
@@ -348,7 +316,6 @@ function MyComponent() {
                 <ul className="text-sm text-muted-foreground space-y-2">
                   <li>- Reading progress bar at top</li>
                   <li>- Scroll to top button (bottom right)</li>
-                  <li>- Table of contents with active section</li>
                   <li>- Smart navbar hides on scroll down</li>
                 </ul>
               </div>
@@ -364,7 +331,7 @@ function MyComponent() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold">Content Blocks</h2>
-                  <p className="text-muted-foreground">Alerts, quotes, code, accordions, timelines</p>
+                  <p className="text-muted-foreground">Alerts, quotes, code, timelines</p>
                 </div>
               </div>
             </ScrollAnimation>
@@ -397,19 +364,7 @@ function MyComponent() {
             {/* Code Block */}
             <div className="mb-8">
               <h3 className="text-lg font-semibold mb-4">Code Block</h3>
-              <CodeBlock language="tsx" filename="example.tsx">
-                {sampleCode}
-              </CodeBlock>
-            </div>
-
-            {/* Accordion */}
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold mb-4">Accordion</h3>
-              <Accordion
-                items={accordionItems}
-                openItem={accordionOpen}
-                onToggle={setAccordionOpen}
-              />
+              <CodeBlock code={sampleCode} language="tsx" filename="example.tsx" />
             </div>
 
             {/* Timeline */}
@@ -553,11 +508,6 @@ function MyComponent() {
 
         {/* Floating Components */}
         <ScrollToTopButton />
-        <FloatingActionButton
-          icon={<Palette className="w-5 h-5" />}
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="bottom-24"
-        />
 
         {/* Command Palette */}
         <CommandPalette isOpen={cmdOpen} onClose={closeCmd} />
