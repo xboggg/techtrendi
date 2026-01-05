@@ -79,6 +79,51 @@ const BreadcrumbEllipsis = ({ className, ...props }: React.ComponentProps<"span"
 );
 BreadcrumbEllipsis.displayName = "BreadcrumbElipssis";
 
+/**
+ * Auto-generate breadcrumbs from URL path
+ */
+interface AutoBreadcrumbProps {
+  className?: string;
+  customLabels?: Record<string, string>;
+}
+
+function AutoBreadcrumb({ className, customLabels = {} }: AutoBreadcrumbProps) {
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+  const segments = pathname.split('/').filter(Boolean);
+
+  if (segments.length === 0) return null;
+
+  return (
+    <Breadcrumb className={className}>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/">Home</BreadcrumbLink>
+        </BreadcrumbItem>
+        {segments.map((segment, index) => {
+          const href = '/' + segments.slice(0, index + 1).join('/');
+          const label =
+            customLabels[segment] ||
+            segment.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+          const isLast = index === segments.length - 1;
+
+          return (
+            <React.Fragment key={segment}>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                {isLast ? (
+                  <BreadcrumbPage>{label}</BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink href={href}>{label}</BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+            </React.Fragment>
+          );
+        })}
+      </BreadcrumbList>
+    </Breadcrumb>
+  );
+}
+
 export {
   Breadcrumb,
   BreadcrumbList,
@@ -87,4 +132,5 @@ export {
   BreadcrumbPage,
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
+  AutoBreadcrumb,
 };
