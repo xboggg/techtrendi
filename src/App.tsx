@@ -26,6 +26,7 @@ import PhoneComparison from "./pages/tools/PhoneComparison";
 import PasswordChecker from "./pages/tools/PasswordChecker";
 import UpgradeCalculator from "./pages/tools/UpgradeCalculator";
 import NotFound from "./pages/NotFound";
+import DesignDemo from "./pages/DesignDemo";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="/guides" element={<Guides />} />
               <Route path="/guides/:category" element={<Guides />} />
               <Route path="/about" element={<About />} />
+              <Route path="/design-demo" element={<DesignDemo />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
