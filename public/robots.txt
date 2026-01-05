@@ -1,3 +1,6 @@
+# robots.txt for TechTrendi
+# https://techtrendi.com
+
 User-agent: Googlebot
 Allow: /
 
@@ -12,3 +15,24 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Disallow admin and auth pages
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /auth
+Disallow: /auth/*
+
+# Disallow API endpoints
+Disallow: /api/
+Disallow: /api/*
+
+# Allow all assets
+Allow: /assets/
+Allow: /icons/
+Allow: /images/
+
+# Sitemap location
+Sitemap: https://techtrendi.com/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
