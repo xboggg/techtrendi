@@ -28,7 +28,8 @@ const navLinks = [
   { label: "Blog", href: "/blog" },
   {
     label: "Resources",
-    href: "/resources",
+    href: "#",
+    isDropdownOnly: true,
     submenu: [
       { label: "Free Tools", href: "/tools" },
       { label: "Premium Content", href: "/premium" },
@@ -106,17 +107,31 @@ export function Header() {
                 onMouseEnter={() => link.submenu && setOpenDropdown(link.label)}
                 onMouseLeave={() => setOpenDropdown(null)}
               >
-                <Link
-                  to={link.href}
-                  className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive(link.href)
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  {link.label}
-                  {link.submenu && <ChevronDown className="w-4 h-4" />}
-                </Link>
+                {link.isDropdownOnly ? (
+                  <button
+                    className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      openDropdown === link.label
+                        ? "text-primary bg-primary/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
+                    onClick={() => setOpenDropdown(openDropdown === link.label ? null : link.label)}
+                  >
+                    {link.label}
+                    {link.submenu && <ChevronDown className="w-4 h-4" />}
+                  </button>
+                ) : (
+                  <Link
+                    to={link.href}
+                    className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isActive(link.href)
+                        ? "text-primary bg-primary/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {link.label}
+                    {link.submenu && <ChevronDown className="w-4 h-4" />}
+                  </Link>
+                )}
 
                 {link.submenu && openDropdown === link.label && (
                   <div className="absolute top-full left-0 pt-2 animate-fade-in">
@@ -222,17 +237,25 @@ export function Header() {
           <div className="container py-4 space-y-2">
             {navLinks.map((link) => (
               <div key={link.label}>
-                <Link
-                  to={link.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
-                    isActive(link.href)
-                      ? "text-primary bg-primary/10"
-                      : "text-foreground hover:bg-muted"
-                  }`}
-                >
-                  {link.label}
-                </Link>
+                {link.isDropdownOnly ? (
+                  <div
+                    className="block px-4 py-3 rounded-lg font-medium text-foreground"
+                  >
+                    {link.label}
+                  </div>
+                ) : (
+                  <Link
+                    to={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
+                      isActive(link.href)
+                        ? "text-primary bg-primary/10"
+                        : "text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                )}
                 {link.submenu && (
                   <div className="ml-4 mt-1 space-y-1">
                     {link.submenu.map((sublink) => (
