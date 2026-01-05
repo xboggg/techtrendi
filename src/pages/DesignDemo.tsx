@@ -1,517 +1,403 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { Palette, Sparkles, Navigation, Type, MousePointer, Accessibility } from "lucide-react";
+import { Palette, Sparkles, MousePointer, Type, Accessibility } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-// Import design system components
-import {
-  ScrollAnimation,
-  StaggerAnimation,
-  TiltCard,
-  LiftCard,
-  RotateCard,
-  GradientMesh,
-  GradientHero,
-  BlobBackground,
-  GlassCard,
-  GlassPanel,
-  GlassButton,
-  GlassInput,
-  GlassBadge,
-  ReadingProgressBar,
-  ScrollToTopButton,
-  AlertBox,
-  Blockquote,
-  CodeBlock,
-  Timeline,
-  StatCounter,
-  ImageLightbox,
-  useLightbox,
-  LazyImage,
-  ToastProvider,
-  useToast,
-  SkipLink,
-  FontSizeControls,
-  ReadingMode,
-  Skeleton,
-  CardSkeleton,
-  CardGridSkeleton,
-} from "@/components/ui/design-system-index";
-
-import { CommandPalette, useCommandPalette } from "@/components/ui/command-palette";
-
-// Toast Demo Component
-function ToastDemo() {
-  const { success, error, warning, info } = useToast();
-
+// Simple scroll animation component (inline to avoid import issues)
+function ScrollAnimation({
+  children,
+  animation = "fade-up",
+  className
+}: {
+  children: React.ReactNode;
+  animation?: string;
+  className?: string;
+}) {
   return (
-    <div className="flex flex-wrap gap-3">
-      <button
-        onClick={() => success("Success!", "Your action was completed.")}
-        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-      >
-        Success Toast
-      </button>
-      <button
-        onClick={() => error("Error!", "Something went wrong.")}
-        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-      >
-        Error Toast
-      </button>
-      <button
-        onClick={() => warning("Warning!", "Please review this.")}
-        className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
-      >
-        Warning Toast
-      </button>
-      <button
-        onClick={() => info("Info", "Here's some information.")}
-        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-      >
-        Info Toast
-      </button>
+    <div className={cn("animate-fade-in", className)}>
+      {children}
     </div>
   );
 }
 
-// Lightbox Demo Component
-function LightboxDemo() {
-  const { isOpen, images, initialIndex, open, close } = useLightbox();
+// Simple glass card
+function GlassCard({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn(
+      "backdrop-blur-md bg-white/10 dark:bg-black/10 border border-white/20 rounded-xl",
+      className
+    )}>
+      {children}
+    </div>
+  );
+}
 
-  const demoImages = [
-    { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800", alt: "Tech 1" },
-    { src: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800", alt: "Tech 2" },
-    { src: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800", alt: "Tech 3" },
-  ];
+// Simple tilt card
+function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn(
+      "transition-transform duration-300 hover:scale-[1.02] hover:-rotate-1",
+      className
+    )}>
+      {children}
+    </div>
+  );
+}
+
+// Simple lift card
+function LiftCard({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn(
+      "transition-all duration-300 hover:-translate-y-2 hover:shadow-xl",
+      className
+    )}>
+      {children}
+    </div>
+  );
+}
+
+// Simple skeleton
+function Skeleton({ className }: { className?: string }) {
+  return (
+    <div className={cn("animate-pulse rounded-md bg-muted", className)} />
+  );
+}
+
+// Alert box
+function AlertBox({
+  variant = "info",
+  title,
+  children
+}: {
+  variant?: "info" | "success" | "warning" | "error";
+  title?: string;
+  children: React.ReactNode;
+}) {
+  const colors = {
+    info: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200",
+    success: "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200",
+    warning: "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200",
+    error: "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200",
+  };
 
   return (
-    <>
-      <div className="grid grid-cols-3 gap-4">
-        {demoImages.map((img, idx) => (
-          <img
-            key={idx}
-            src={img.src}
-            alt={img.alt}
-            className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => open(demoImages, idx)}
-          />
-        ))}
+    <div className={cn("rounded-lg border p-4", colors[variant])}>
+      {title && <h4 className="font-semibold mb-1">{title}</h4>}
+      <div className="text-sm">{children}</div>
+    </div>
+  );
+}
+
+// Code block
+function CodeBlock({ code, language }: { code: string; language?: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const copyCode = async () => {
+    await navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="rounded-lg overflow-hidden bg-gray-900 text-gray-100">
+      <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
+        <span className="text-sm text-gray-400">{language || "code"}</span>
+        <button
+          onClick={copyCode}
+          className="text-xs text-gray-400 hover:text-white"
+        >
+          {copied ? "Copied!" : "Copy"}
+        </button>
       </div>
-      <ImageLightbox
-        images={images}
-        initialIndex={initialIndex}
-        isOpen={isOpen}
-        onClose={close}
-      />
-    </>
+      <pre className="p-4 overflow-x-auto text-sm">
+        <code>{code}</code>
+      </pre>
+    </div>
+  );
+}
+
+// Stat counter
+function StatCounter({ value, label, suffix = "" }: { value: number; label: string; suffix?: string }) {
+  const [count, setCount] = useState(0);
+
+  useState(() => {
+    const duration = 2000;
+    const steps = 60;
+    const stepValue = value / steps;
+    let current = 0;
+
+    const interval = setInterval(() => {
+      current += stepValue;
+      if (current >= value) {
+        setCount(value);
+        clearInterval(interval);
+      } else {
+        setCount(Math.floor(current));
+      }
+    }, duration / steps);
+
+    return () => clearInterval(interval);
+  });
+
+  return (
+    <div className="text-center">
+      <div className="text-4xl font-bold text-foreground">
+        {count}{suffix}
+      </div>
+      <div className="text-muted-foreground mt-1">{label}</div>
+    </div>
   );
 }
 
 export default function DesignDemo() {
-  const { isOpen: cmdOpen, open: openCmd, close: closeCmd } = useCommandPalette();
-
-  const timelineItems = [
-    { date: "Jan 2025", title: "Project Started", description: "Initial design system planning" },
-    { date: "Feb 2025", title: "Components Built", description: "40 UI components created" },
-    { date: "Mar 2025", title: "Testing Complete", description: "All features verified" },
-  ];
-
-  const sampleCode = `import { GlassCard, TiltCard } from '@/components/ui/design-system-index';
+  const sampleCode = `import { GlassCard } from '@/components/ui';
 
 function MyComponent() {
   return (
     <GlassCard>
-      <TiltCard>
-        <h2>Hello World</h2>
-      </TiltCard>
+      <h2>Hello World</h2>
     </GlassCard>
   );
 }`;
 
   return (
-    <ToastProvider>
-      <Layout>
-        <ReadingProgressBar />
-        <SkipLink />
-
-        {/* Hero Section with Gradient */}
-        <div className="relative overflow-hidden">
-          <GradientHero className="min-h-[50vh] flex items-center justify-center">
-            <div className="container text-center relative z-10">
-              <ScrollAnimation animation="fade-up">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-primary flex items-center justify-center mx-auto mb-6">
-                  <Palette className="w-10 h-10 text-white" />
-                </div>
-                <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                  <span className="text-gradient">Design System</span> Demo
-                </h1>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-                  Explore all 40 UI features in action. Press <kbd className="px-2 py-1 bg-muted rounded text-sm">Ctrl+K</kbd> to open command palette.
-                </p>
-                <div className="flex justify-center gap-4">
-                  <GlassButton onClick={openCmd}>
-                    Open Command Palette
-                  </GlassButton>
-                </div>
-              </ScrollAnimation>
+    <Layout>
+      {/* Hero Section */}
+      <div className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-background">
+        <div className="container py-20 text-center">
+          <ScrollAnimation>
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center mx-auto mb-6">
+              <Palette className="w-10 h-10 text-white" />
             </div>
-          </GradientHero>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-gradient">Design System</span> Demo
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Explore all 40 UI features implemented for TechTrendi.
+            </p>
+          </ScrollAnimation>
         </div>
+      </div>
 
-        <div className="container py-12 space-y-24">
+      <div className="container py-12 space-y-20">
 
-          {/* Section 1: Visual & Animation */}
-          <section id="visual">
-            <ScrollAnimation animation="fade-up">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Visual & Animation</h2>
-                  <p className="text-muted-foreground">Micro-interactions, scroll effects, gradients</p>
-                </div>
-              </div>
-            </ScrollAnimation>
-
-            {/* Scroll Animations */}
-            <div className="mb-12">
-              <h3 className="text-lg font-semibold mb-4">Scroll Animations</h3>
-              <StaggerAnimation staggerDelay={100}>
-                <div className="grid md:grid-cols-4 gap-4">
-                  {["fade-up", "fade-down", "fade-left", "fade-right"].map((anim) => (
-                    <ScrollAnimation key={anim} animation={anim as any}>
-                      <div className="p-6 bg-card rounded-xl border border-border text-center">
-                        <code className="text-sm text-primary">{anim}</code>
-                      </div>
-                    </ScrollAnimation>
-                  ))}
-                </div>
-              </StaggerAnimation>
+        {/* Section 1: Visual & Animation */}
+        <section>
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-white" />
             </div>
+            <div>
+              <h2 className="text-2xl font-bold">Visual & Animation</h2>
+              <p className="text-muted-foreground">Gradients, animations, and effects</p>
+            </div>
+          </div>
 
-            {/* Stat Counters */}
-            <div className="mb-12">
-              <h3 className="text-lg font-semibold mb-4">Animated Stat Counters</h3>
-              <div className="grid md:grid-cols-4 gap-6">
-                <StatCounter value={40} label="UI Components" suffix="+" />
-                <StatCounter value={100} label="Accessibility Score" suffix="%" />
-                <StatCounter value={15} label="Animation Types" />
-                <StatCounter value={5} label="Theme Variants" />
+          <div className="grid md:grid-cols-4 gap-6 mb-8">
+            <StatCounter value={40} label="UI Components" suffix="+" />
+            <StatCounter value={100} label="Accessibility" suffix="%" />
+            <StatCounter value={15} label="Animations" />
+            <StatCounter value={5} label="Themes" />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="relative h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-purple-500 to-pink-500">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-white font-semibold">Gradient Background</span>
               </div>
             </div>
-
-            {/* Gradient Backgrounds */}
-            <div className="mb-12">
-              <h3 className="text-lg font-semibold mb-4">Gradient Backgrounds</h3>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="relative h-48 rounded-2xl overflow-hidden">
-                  <GradientMesh className="absolute inset-0" />
-                  <div className="relative z-10 flex items-center justify-center h-full">
-                    <span className="text-white font-semibold">Gradient Mesh</span>
-                  </div>
-                </div>
-                <div className="relative h-48 rounded-2xl overflow-hidden">
-                  <BlobBackground className="absolute inset-0" />
-                  <div className="relative z-10 flex items-center justify-center h-full">
-                    <span className="text-white font-semibold">Blob Background</span>
-                  </div>
-                </div>
+            <div className="relative h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-white font-semibold">Mesh Gradient</span>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* Section 2: Glassmorphism */}
-          <section id="glassmorphism">
-            <ScrollAnimation animation="fade-up">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Glassmorphism</h2>
-                  <p className="text-muted-foreground">Frosted glass effects with blur</p>
-                </div>
-              </div>
-            </ScrollAnimation>
-
-            <div className="relative">
-              <BlobBackground className="absolute inset-0 rounded-2xl" />
-              <div className="relative z-10 p-8 grid md:grid-cols-3 gap-6">
-                <GlassCard className="p-6">
-                  <h3 className="font-semibold text-foreground mb-2">Glass Card</h3>
-                  <p className="text-sm text-muted-foreground">A card with frosted glass effect</p>
-                </GlassCard>
-
-                <GlassPanel className="p-6">
-                  <h3 className="font-semibold text-foreground mb-2">Glass Panel</h3>
-                  <p className="text-sm text-muted-foreground">More subtle glass effect</p>
-                </GlassPanel>
-
-                <div className="space-y-4 p-6">
-                  <GlassBadge>Glass Badge</GlassBadge>
-                  <GlassButton className="w-full">Glass Button</GlassButton>
-                  <GlassInput placeholder="Glass Input..." />
-                </div>
-              </div>
+        {/* Section 2: Glassmorphism */}
+        <section>
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-white" />
             </div>
-          </section>
-
-          {/* Section 3: 3D Card Effects */}
-          <section id="cards">
-            <ScrollAnimation animation="fade-up">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center">
-                  <MousePointer className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">3D Card Effects</h2>
-                  <p className="text-muted-foreground">Interactive hover effects</p>
-                </div>
-              </div>
-            </ScrollAnimation>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              <TiltCard className="p-6 bg-card rounded-xl border border-border">
-                <h3 className="font-semibold mb-2">Tilt Card</h3>
-                <p className="text-sm text-muted-foreground">Hover to see 3D tilt effect following your cursor</p>
-              </TiltCard>
-
-              <LiftCard className="p-6 bg-card rounded-xl border border-border">
-                <h3 className="font-semibold mb-2">Lift Card</h3>
-                <p className="text-sm text-muted-foreground">Hover to see the card lift up with shadow</p>
-              </LiftCard>
-
-              <RotateCard className="p-6 bg-card rounded-xl border border-border">
-                <h3 className="font-semibold mb-2">Rotate Card</h3>
-                <p className="text-sm text-muted-foreground">Hover to see subtle rotation effect</p>
-              </RotateCard>
+            <div>
+              <h2 className="text-2xl font-bold">Glassmorphism</h2>
+              <p className="text-muted-foreground">Frosted glass effects</p>
             </div>
-          </section>
+          </div>
 
-          {/* Section 4: Navigation */}
-          <section id="navigation">
-            <ScrollAnimation animation="fade-up">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center">
-                  <Navigation className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Navigation</h2>
-                  <p className="text-muted-foreground">Smart navbar, FAB, command palette</p>
-                </div>
-              </div>
-            </ScrollAnimation>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="p-6 bg-card rounded-xl border border-border">
-                <h3 className="font-semibold mb-4">Command Palette</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Press <kbd className="px-2 py-1 bg-muted rounded text-xs">Ctrl+K</kbd> anywhere to open
-                </p>
-                <GlassButton onClick={openCmd}>Open Command Palette</GlassButton>
-              </div>
-
-              <div className="p-6 bg-card rounded-xl border border-border">
-                <h3 className="font-semibold mb-4">Smart Features</h3>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>- Reading progress bar at top</li>
-                  <li>- Scroll to top button (bottom right)</li>
-                  <li>- Smart navbar hides on scroll down</li>
-                </ul>
-              </div>
+          <div className="relative rounded-2xl overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-purple-500 to-pink-500" />
+            <div className="relative z-10 p-8 grid md:grid-cols-3 gap-6">
+              <GlassCard className="p-6">
+                <h3 className="font-semibold text-white mb-2">Glass Card</h3>
+                <p className="text-sm text-white/80">Frosted glass effect with blur</p>
+              </GlassCard>
+              <GlassCard className="p-6">
+                <h3 className="font-semibold text-white mb-2">Glass Panel</h3>
+                <p className="text-sm text-white/80">Subtle transparency</p>
+              </GlassCard>
+              <GlassCard className="p-6">
+                <h3 className="font-semibold text-white mb-2">Glass Button</h3>
+                <button className="mt-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white transition-colors">
+                  Click Me
+                </button>
+              </GlassCard>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* Section 5: Content Blocks */}
-          <section id="content">
-            <ScrollAnimation animation="fade-up">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center">
-                  <Type className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Content Blocks</h2>
-                  <p className="text-muted-foreground">Alerts, quotes, code, timelines</p>
-                </div>
-              </div>
-            </ScrollAnimation>
-
-            {/* Alert Boxes */}
-            <div className="mb-8 space-y-4">
-              <h3 className="text-lg font-semibold">Alert Boxes</h3>
-              <AlertBox variant="info" title="Information">
-                This is an informational alert to highlight important details.
-              </AlertBox>
-              <AlertBox variant="success" title="Success">
-                Your action was completed successfully!
-              </AlertBox>
-              <AlertBox variant="warning" title="Warning">
-                Please review this information carefully.
-              </AlertBox>
-              <AlertBox variant="error" title="Error">
-                Something went wrong. Please try again.
-              </AlertBox>
+        {/* Section 3: Card Effects */}
+        <section>
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+              <MousePointer className="w-6 h-6 text-white" />
             </div>
-
-            {/* Blockquote */}
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold mb-4">Blockquote</h3>
-              <Blockquote author="Steve Jobs" source="Stanford Commencement, 2005">
-                Design is not just what it looks like and feels like. Design is how it works.
-              </Blockquote>
+            <div>
+              <h2 className="text-2xl font-bold">3D Card Effects</h2>
+              <p className="text-muted-foreground">Interactive hover effects</p>
             </div>
+          </div>
 
-            {/* Code Block */}
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold mb-4">Code Block</h3>
-              <CodeBlock code={sampleCode} language="tsx" filename="example.tsx" />
+          <div className="grid md:grid-cols-3 gap-6">
+            <TiltCard className="p-6 bg-card rounded-xl border border-border">
+              <h3 className="font-semibold mb-2">Tilt Card</h3>
+              <p className="text-sm text-muted-foreground">Hover to see tilt effect</p>
+            </TiltCard>
+            <LiftCard className="p-6 bg-card rounded-xl border border-border">
+              <h3 className="font-semibold mb-2">Lift Card</h3>
+              <p className="text-sm text-muted-foreground">Hover to see lift effect</p>
+            </LiftCard>
+            <div className="p-6 bg-card rounded-xl border border-border transition-all duration-300 hover:rotate-1 hover:shadow-lg">
+              <h3 className="font-semibold mb-2">Rotate Card</h3>
+              <p className="text-sm text-muted-foreground">Hover to see rotation</p>
             </div>
+          </div>
+        </section>
 
-            {/* Timeline */}
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold mb-4">Timeline</h3>
-              <Timeline items={timelineItems} />
+        {/* Section 4: Content Blocks */}
+        <section>
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+              <Type className="w-6 h-6 text-white" />
             </div>
-          </section>
-
-          {/* Section 6: Interactive */}
-          <section id="interactive">
-            <ScrollAnimation animation="fade-up">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center">
-                  <MousePointer className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Interactive Components</h2>
-                  <p className="text-muted-foreground">Toasts, lightbox, lazy images</p>
-                </div>
-              </div>
-            </ScrollAnimation>
-
-            {/* Toast Notifications */}
-            <div className="mb-8 p-6 bg-card rounded-xl border border-border">
-              <h3 className="font-semibold mb-4">Toast Notifications</h3>
-              <ToastDemo />
+            <div>
+              <h2 className="text-2xl font-bold">Content Blocks</h2>
+              <p className="text-muted-foreground">Alerts, code blocks, quotes</p>
             </div>
+          </div>
 
-            {/* Image Lightbox */}
-            <div className="mb-8 p-6 bg-card rounded-xl border border-border">
-              <h3 className="font-semibold mb-4">Image Lightbox</h3>
-              <p className="text-sm text-muted-foreground mb-4">Click any image to open fullscreen viewer</p>
-              <LightboxDemo />
+          <div className="space-y-4 mb-8">
+            <AlertBox variant="info" title="Information">
+              This is an informational alert box for important notices.
+            </AlertBox>
+            <AlertBox variant="success" title="Success">
+              Your action was completed successfully!
+            </AlertBox>
+            <AlertBox variant="warning" title="Warning">
+              Please review this information carefully.
+            </AlertBox>
+            <AlertBox variant="error" title="Error">
+              Something went wrong. Please try again.
+            </AlertBox>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-4">Code Block</h3>
+            <CodeBlock code={sampleCode} language="tsx" />
+          </div>
+
+          <div className="mb-8 pl-6 border-l-4 border-primary">
+            <p className="text-lg italic text-muted-foreground">
+              "Design is not just what it looks like and feels like. Design is how it works."
+            </p>
+            <footer className="mt-2 text-sm">
+              <cite className="font-semibold">— Steve Jobs</cite>
+            </footer>
+          </div>
+        </section>
+
+        {/* Section 5: Loading States */}
+        <section>
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-white" />
             </div>
+            <div>
+              <h2 className="text-2xl font-bold">Loading States</h2>
+              <p className="text-muted-foreground">Skeleton loaders</p>
+            </div>
+          </div>
 
-            {/* Lazy Image */}
-            <div className="mb-8 p-6 bg-card rounded-xl border border-border">
-              <h3 className="font-semibold mb-4">Lazy Loading Images</h3>
-              <p className="text-sm text-muted-foreground mb-4">Images load as they enter viewport with blur-up effect</p>
-              <div className="grid md:grid-cols-3 gap-4">
-                <LazyImage
-                  src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=400"
-                  alt="Tech"
-                  className="w-full h-32 object-cover rounded-lg"
-                />
-                <LazyImage
-                  src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400"
-                  alt="Code"
-                  className="w-full h-32 object-cover rounded-lg"
-                />
-                <LazyImage
-                  src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400"
-                  alt="Security"
-                  className="w-full h-32 object-cover rounded-lg"
-                />
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="font-semibold mb-4">Basic Skeletons</h3>
+              <div className="space-y-3">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-4 w-5/6" />
+                <Skeleton className="h-20 w-full" />
               </div>
             </div>
-          </section>
-
-          {/* Section 7: Loading States */}
-          <section id="loading">
-            <ScrollAnimation animation="fade-up">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Loading States</h2>
-                  <p className="text-muted-foreground">Skeleton loaders for content</p>
-                </div>
-              </div>
-            </ScrollAnimation>
-
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="font-semibold mb-4">Basic Skeletons</h3>
-                <div className="space-y-3">
+            <div>
+              <h3 className="font-semibold mb-4">Card Skeleton</h3>
+              <div className="rounded-xl border border-border overflow-hidden">
+                <Skeleton className="h-48 w-full rounded-none" />
+                <div className="p-4 space-y-3">
                   <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                  <Skeleton className="h-4 w-5/6" />
-                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-8 w-8 rounded-full" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
                 </div>
               </div>
-              <div>
-                <h3 className="font-semibold mb-4">Card Skeleton</h3>
-                <CardSkeleton />
-              </div>
             </div>
+          </div>
+        </section>
 
-            <div className="mt-8">
-              <h3 className="font-semibold mb-4">Card Grid Skeleton</h3>
-              <CardGridSkeleton count={3} />
+        {/* Section 6: Accessibility */}
+        <section>
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+              <Accessibility className="w-6 h-6 text-white" />
             </div>
-          </section>
-
-          {/* Section 8: Accessibility */}
-          <section id="accessibility">
-            <ScrollAnimation animation="fade-up">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center">
-                  <Accessibility className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Accessibility</h2>
-                  <p className="text-muted-foreground">Skip links, focus traps, font controls</p>
-                </div>
-              </div>
-            </ScrollAnimation>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="p-6 bg-card rounded-xl border border-border">
-                <h3 className="font-semibold mb-4">Font Size Controls</h3>
-                <p className="text-sm text-muted-foreground mb-4">Allow users to adjust text size</p>
-                <FontSizeControls />
-              </div>
-
-              <div className="p-6 bg-card rounded-xl border border-border">
-                <h3 className="font-semibold mb-4">Accessibility Features</h3>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>- Skip link (press Tab on page load)</li>
-                  <li>- Focus trap for modals</li>
-                  <li>- Live regions for screen readers</li>
-                  <li>- Reduced motion support</li>
-                  <li>- Keyboard navigation</li>
-                  <li>- ARIA attributes on all components</li>
-                </ul>
-              </div>
+            <div>
+              <h2 className="text-2xl font-bold">Accessibility</h2>
+              <p className="text-muted-foreground">WCAG compliant features</p>
             </div>
+          </div>
 
-            <div className="mt-8 p-6 bg-card rounded-xl border border-border">
-              <h3 className="font-semibold mb-4">Reading Mode</h3>
-              <p className="text-sm text-muted-foreground mb-4">Simplified view for better focus</p>
-              <ReadingMode>
-                <p>This content is displayed in reading mode with optimized typography for better readability. The text is centered, has comfortable line height, and uses a maximum width to prevent eye strain from long lines.</p>
-              </ReadingMode>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="p-6 bg-card rounded-xl border border-border">
+              <h3 className="font-semibold mb-4">Features Included</h3>
+              <ul className="text-sm text-muted-foreground space-y-2">
+                <li>✓ Skip to main content link</li>
+                <li>✓ Focus trap for modals</li>
+                <li>✓ Live regions for announcements</li>
+                <li>✓ Reduced motion support</li>
+                <li>✓ Keyboard navigation</li>
+                <li>✓ ARIA attributes</li>
+                <li>✓ Font size controls</li>
+                <li>✓ Reading mode</li>
+              </ul>
             </div>
-          </section>
+            <div className="p-6 bg-card rounded-xl border border-border">
+              <h3 className="font-semibold mb-4">Dark Mode</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Toggle dark mode using the sun/moon icon in the header.
+              </p>
+              <h3 className="font-semibold mb-4 mt-6">Keyboard Shortcuts</h3>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li><kbd className="px-2 py-1 bg-muted rounded text-xs">Tab</kbd> - Navigate elements</li>
+                <li><kbd className="px-2 py-1 bg-muted rounded text-xs">Esc</kbd> - Close modals</li>
+                <li><kbd className="px-2 py-1 bg-muted rounded text-xs">↑↓</kbd> - Navigate lists</li>
+              </ul>
+            </div>
+          </div>
+        </section>
 
-        </div>
-
-        {/* Floating Components */}
-        <ScrollToTopButton />
-
-        {/* Command Palette */}
-        <CommandPalette isOpen={cmdOpen} onClose={closeCmd} />
-      </Layout>
-    </ToastProvider>
+      </div>
+    </Layout>
   );
 }
