@@ -4,6 +4,7 @@ import { Menu, X, Sun, Moon, ChevronDown, User, LogOut, Crown, Shield } from "lu
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { SearchButton } from "@/components/ui/search-modal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -154,6 +155,8 @@ export function Header() {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-3">
+            <SearchButton className="hidden md:flex" />
+
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
