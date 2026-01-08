@@ -3,12 +3,14 @@ import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Clock, Calendar, ArrowLeft, Crown, User, Bookmark, List } from "lucide-react";
+import { Clock, Calendar, ArrowLeft, Crown, User, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ReadingProgress, ReadingTimeWithIcon } from "@/components/ui/reading-progress";
+import { ReadingProgress } from "@/components/ui/reading-progress";
 import { ShareButtons } from "@/components/ui/share-buttons";
+import { BookmarkButton } from "@/components/ui/bookmark-system";
+import { useReadingHistory } from "@/components/ui/reading-history";
 
 interface Article {
   id: string;
@@ -41,6 +43,7 @@ export default function BlogArticle() {
   const [toc, setToc] = useState<TableOfContentsItem[]>([]);
   const { subscription, user } = useAuth();
   const { toast } = useToast();
+  const { addToHistory } = useReadingHistory();
 
   useEffect(() => {
     if (slug) {
@@ -70,12 +73,22 @@ export default function BlogArticle() {
         fetchRelatedArticles(data.category, data.id);
       }
 
-      // Increment views
+      // Increment views and add to reading history
       if (data?.id) {
         await supabase
           .from("articles")
           .update({ views: (data.views || 0) + 1 })
           .eq("id", data.id);
+
+        // Add to reading history
+        addToHistory({
+          id: data.id,
+          type: 'article',
+          title: data.title,
+          url: `/blog/${data.slug}`,
+          image: data.cover_image || undefined,
+          category: data.category,
+        });
       }
     } catch (error) {
       console.error("Error fetching article:", error);
@@ -308,10 +321,16 @@ export default function BlogArticle() {
                 description={article.excerpt || undefined}
                 variant="compact"
               />
-              <Button variant="outline" size="sm">
-                <Bookmark className="w-4 h-4 mr-2" />
-                Save
-              </Button>
+              <BookmarkButton
+                item={{
+                  id: article.id,
+                  type: 'article',
+                  title: article.title,
+                  url: `/blog/${article.slug}`,
+                  excerpt: article.excerpt || undefined,
+                  image: article.cover_image || undefined,
+                }}
+              />
             </div>
           </header>
 
