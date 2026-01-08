@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Mail, Twitter, Github, Linkedin } from "lucide-react";
+import { Twitter, Github, Linkedin } from "lucide-react";
+import { NewsletterSignup } from "@/components/ui/newsletter-signup";
 
 const footerLinks = {
   product: [
@@ -136,28 +137,11 @@ export function Footer() {
 
         {/* Newsletter Section */}
         <div className="mt-12 pt-8 border-t border-border">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div>
-              <h4 className="font-semibold text-foreground mb-1">Stay Updated</h4>
-              <p className="text-sm text-muted-foreground">Get the latest tech guides and tool updates.</p>
-            </div>
-            <form className="flex w-full md:w-auto gap-2">
-              <div className="relative flex-1 md:w-64">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                  type="email"
-                  placeholder="your@email.com"
-                  className="w-full h-10 pl-10 pr-4 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-                />
-              </div>
-              <button
-                type="submit"
-                className="h-10 px-5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
-              >
-                Subscribe
-              </button>
-            </form>
-          </div>
+          <NewsletterSignup
+            variant="inline"
+            title="Stay Updated"
+            description="Get the latest tech guides and tool updates."
+          />
         </div>
 
         {/* Copyright */}

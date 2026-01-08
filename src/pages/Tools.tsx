@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
-import { Shield, QrCode, Image, ArrowRight, Smartphone, FileText, Lock } from "lucide-react";
+import { Shield, QrCode, Image, ArrowRight, Smartphone, FileText, Lock, Braces, Binary, Palette, Scale, Type } from "lucide-react";
 
 const tools = [
   {
@@ -8,6 +8,13 @@ const tools = [
     title: "Password Generator",
     description: "Create strong, secure passwords with customizable options including length, symbols, and character types.",
     href: "/tools/password-generator",
+    category: "Security",
+  },
+  {
+    icon: Lock,
+    title: "Password Strength Checker",
+    description: "Check how strong your existing passwords are and get suggestions for improvement.",
+    href: "/tools/password-checker",
     category: "Security",
   },
   {
@@ -39,11 +46,39 @@ const tools = [
     category: "AI Tools",
   },
   {
-    icon: Lock,
-    title: "Password Strength Checker",
-    description: "Check how strong your existing passwords are and get suggestions for improvement.",
-    href: "/tools/password-checker",
-    category: "Security",
+    icon: Braces,
+    title: "JSON Formatter",
+    description: "Format, validate, and minify JSON data. Perfect for developers working with APIs and configurations.",
+    href: "/tools/json-formatter",
+    category: "Developer",
+  },
+  {
+    icon: Binary,
+    title: "Base64 Encoder/Decoder",
+    description: "Encode text to Base64 or decode Base64 strings. Useful for data encoding and APIs.",
+    href: "/tools/base64-encoder",
+    category: "Developer",
+  },
+  {
+    icon: Palette,
+    title: "Color Picker",
+    description: "Pick colors and convert between HEX, RGB, HSL formats. Generate color harmonies and save palettes.",
+    href: "/tools/color-picker",
+    category: "Design",
+  },
+  {
+    icon: Type,
+    title: "Lorem Ipsum Generator",
+    description: "Generate placeholder text for your designs. Choose paragraphs, sentences, or word count.",
+    href: "/tools/lorem-ipsum",
+    category: "Design",
+  },
+  {
+    icon: Scale,
+    title: "Unit Converter",
+    description: "Convert between units of length, weight, temperature, data, time, and area.",
+    href: "/tools/unit-converter",
+    category: "Utility",
   },
 ];
 

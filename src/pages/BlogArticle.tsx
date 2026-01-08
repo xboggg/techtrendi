@@ -3,10 +3,12 @@ import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Clock, Calendar, ArrowLeft, Crown, User, Share2, Bookmark, List } from "lucide-react";
+import { Clock, Calendar, ArrowLeft, Crown, User, Bookmark, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { ReadingProgress, ReadingTimeWithIcon } from "@/components/ui/reading-progress";
+import { ShareButtons } from "@/components/ui/share-buttons";
 
 interface Article {
   id: string;
@@ -120,18 +122,6 @@ export default function BlogArticle() {
       month: "long",
       day: "numeric",
     });
-  };
-
-  const handleShare = async () => {
-    try {
-      await navigator.share({
-        title: article?.title,
-        url: window.location.href,
-      });
-    } catch {
-      navigator.clipboard.writeText(window.location.href);
-      toast({ title: "Link copied to clipboard!" });
-    }
   };
 
   const renderContent = (content: string) => {
@@ -263,6 +253,7 @@ export default function BlogArticle() {
 
   return (
     <Layout>
+      <ReadingProgress />
       <article className="container py-12 md:py-20">
         <div className="max-w-4xl mx-auto">
           {/* Back Link */}
@@ -310,11 +301,13 @@ export default function BlogArticle() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 mt-6">
-              <Button variant="outline" size="sm" onClick={handleShare}>
-                <Share2 className="w-4 h-4 mr-2" />
-                Share
-              </Button>
+            <div className="flex items-center gap-4 mt-6">
+              <ShareButtons
+                url={window.location.href}
+                title={article.title}
+                description={article.excerpt || undefined}
+                variant="compact"
+              />
               <Button variant="outline" size="sm">
                 <Bookmark className="w-4 h-4 mr-2" />
                 Save

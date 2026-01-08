@@ -25,6 +25,11 @@ import ImageCompressor from "./pages/tools/ImageCompressor";
 import PhoneComparison from "./pages/tools/PhoneComparison";
 import PasswordChecker from "./pages/tools/PasswordChecker";
 import UpgradeCalculator from "./pages/tools/UpgradeCalculator";
+import JsonFormatter from "./pages/tools/JsonFormatter";
+import Base64Encoder from "./pages/tools/Base64Encoder";
+import ColorPicker from "./pages/tools/ColorPicker";
+import LoremIpsum from "./pages/tools/LoremIpsum";
+import UnitConverter from "./pages/tools/UnitConverter";
 import NotFound from "./pages/NotFound";
 import DesignDemo from "./pages/DesignDemo";
 
@@ -49,6 +54,11 @@ const App = () => (
               <Route path="/tools/phone-comparison" element={<PhoneComparison />} />
               <Route path="/tools/password-checker" element={<PasswordChecker />} />
               <Route path="/tools/upgrade-calculator" element={<UpgradeCalculator />} />
+              <Route path="/tools/json-formatter" element={<JsonFormatter />} />
+              <Route path="/tools/base64-encoder" element={<Base64Encoder />} />
+              <Route path="/tools/color-picker" element={<ColorPicker />} />
+              <Route path="/tools/lorem-ipsum" element={<LoremIpsum />} />
+              <Route path="/tools/unit-converter" element={<UnitConverter />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogArticle />} />
               <Route path="/reviews" element={<Reviews />} />
