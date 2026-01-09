@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
-import { Shield, QrCode, Image, ArrowRight, Smartphone, FileText, Lock, Braces, Binary, Palette, Scale, Type } from "lucide-react";
+import { Shield, QrCode, Image, ArrowRight, Smartphone, FileText, Lock, Braces, Binary, Palette, Scale, Type, Gauge, Eye, Globe, Hash, Link2, AlignJustify } from "lucide-react";
 
 const tools = [
   {
@@ -78,6 +78,48 @@ const tools = [
     title: "Unit Converter",
     description: "Convert between units of length, weight, temperature, data, time, and area.",
     href: "/tools/unit-converter",
+    category: "Utility",
+  },
+  {
+    icon: Gauge,
+    title: "Internet Speed Test",
+    description: "Test your internet connection speed including download, upload, and ping latency.",
+    href: "/tools/speed-test",
+    category: "Network",
+  },
+  {
+    icon: Eye,
+    title: "Privacy Checker",
+    description: "Analyze your browser's privacy settings and detect potential tracking vulnerabilities.",
+    href: "/tools/privacy-checker",
+    category: "Security",
+  },
+  {
+    icon: Globe,
+    title: "IP Lookup",
+    description: "Get geolocation information for any IP address including country, city, and ISP details.",
+    href: "/tools/ip-lookup",
+    category: "Network",
+  },
+  {
+    icon: Hash,
+    title: "Hash Generator",
+    description: "Generate SHA-1, SHA-256, SHA-384, and SHA-512 hashes for any text input.",
+    href: "/tools/hash-generator",
+    category: "Security",
+  },
+  {
+    icon: Link2,
+    title: "URL Parser",
+    description: "Parse and analyze URLs to extract protocol, hostname, path, query parameters, and more.",
+    href: "/tools/url-parser",
+    category: "Developer",
+  },
+  {
+    icon: AlignJustify,
+    title: "Text Counter",
+    description: "Count characters, words, sentences, and paragraphs. Calculate reading and speaking time.",
+    href: "/tools/text-counter",
     category: "Utility",
   },
 ];

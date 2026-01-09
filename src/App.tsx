@@ -33,6 +33,12 @@ import Base64Encoder from "./pages/tools/Base64Encoder";
 import ColorPicker from "./pages/tools/ColorPicker";
 import LoremIpsum from "./pages/tools/LoremIpsum";
 import UnitConverter from "./pages/tools/UnitConverter";
+import SpeedTest from "./pages/tools/SpeedTest";
+import PrivacyChecker from "./pages/tools/PrivacyChecker";
+import IPLookup from "./pages/tools/IPLookup";
+import HashGenerator from "./pages/tools/HashGenerator";
+import URLParser from "./pages/tools/URLParser";
+import TextCounter from "./pages/tools/TextCounter";
 import NotFound from "./pages/NotFound";
 import DesignDemo from "./pages/DesignDemo";
 
@@ -65,6 +71,12 @@ const App = () => (
                   <Route path="/tools/color-picker" element={<ColorPicker />} />
                   <Route path="/tools/lorem-ipsum" element={<LoremIpsum />} />
                   <Route path="/tools/unit-converter" element={<UnitConverter />} />
+                  <Route path="/tools/speed-test" element={<SpeedTest />} />
+                  <Route path="/tools/privacy-checker" element={<PrivacyChecker />} />
+                  <Route path="/tools/ip-lookup" element={<IPLookup />} />
+                  <Route path="/tools/hash-generator" element={<HashGenerator />} />
+                  <Route path="/tools/url-parser" element={<URLParser />} />
+                  <Route path="/tools/text-counter" element={<TextCounter />} />
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/blog/:slug" element={<BlogArticle />} />
                   <Route path="/reviews" element={<Reviews />} />
