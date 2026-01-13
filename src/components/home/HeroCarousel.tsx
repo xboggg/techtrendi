@@ -4,16 +4,18 @@ import { ArrowRight, ChevronLeft, ChevronRight, Smartphone, Shield, Brain, Brief
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-// Particle positions for floating effect
+// Particle positions for floating effect (start from bottom, bigger & more visible)
 const particles = [
-  { left: "10%", top: "20%", size: 4, delay: 0 },
-  { left: "25%", top: "60%", size: 6, delay: 3 },
-  { left: "50%", top: "15%", size: 3, delay: 6 },
-  { left: "70%", top: "50%", size: 5, delay: 9 },
-  { left: "85%", top: "30%", size: 4, delay: 12 },
-  { left: "15%", top: "75%", size: 3, delay: 4 },
-  { left: "40%", top: "85%", size: 5, delay: 7 },
-  { left: "80%", top: "70%", size: 4, delay: 10 },
+  { left: "5%", size: 12, delay: 0 },
+  { left: "15%", size: 10, delay: 2 },
+  { left: "25%", size: 14, delay: 4 },
+  { left: "35%", size: 8, delay: 1 },
+  { left: "45%", size: 16, delay: 3 },
+  { left: "55%", size: 10, delay: 5 },
+  { left: "65%", size: 12, delay: 2.5 },
+  { left: "75%", size: 9, delay: 4.5 },
+  { left: "85%", size: 14, delay: 1.5 },
+  { left: "95%", size: 11, delay: 3.5 },
 ];
 
 interface HeroSlide {
@@ -169,23 +171,27 @@ export function HeroCarousel() {
         </div>
       ))}
 
-      {/* Floating Particles */}
-      {particles.map((particle, i) => (
-        <div
-          key={i}
-          className="absolute rounded-full bg-white/40 backdrop-blur-sm animate-float-particle"
-          style={{
-            left: particle.left,
-            top: particle.top,
-            width: `${particle.size}px`,
-            height: `${particle.size}px`,
-            animationDelay: `${particle.delay}s`,
-          }}
-        />
-      ))}
+      {/* Floating Particles - Super Visible */}
+      <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
+        {particles.map((particle, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-gradient-to-br from-white via-blue-200 to-purple-200 animate-float-particle"
+            style={{
+              left: particle.left,
+              bottom: '-50px',
+              width: `${particle.size}px`,
+              height: `${particle.size}px`,
+              animationDelay: `${particle.delay}s`,
+              boxShadow: '0 0 30px rgba(255, 255, 255, 0.9), 0 0 60px rgba(139, 92, 246, 0.7), 0 0 90px rgba(59, 130, 246, 0.5)',
+              filter: 'blur(1px)',
+            }}
+          />
+        ))}
+      </div>
 
       {/* Content Container */}
-      <div className="container relative z-10 py-16 md:py-24">
+      <div className="container relative z-30 py-16 md:py-24">
         <div className="max-w-4xl mx-auto text-center">
           {/* Category Badge with Icon */}
           <div
