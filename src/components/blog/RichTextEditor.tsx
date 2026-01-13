@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { sanitizeHTML, sanitizeURL } from '@/lib/security';
 
 interface RichTextEditorProps {
   value: string;
@@ -80,7 +81,9 @@ export function RichTextEditor({
     document.execCommand(command, false, value);
     editorRef.current?.focus();
     if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
+      // Sanitize the HTML content before passing it to onChange
+      const sanitized = sanitizeHTML(editorRef.current.innerHTML);
+      onChange(sanitized);
     }
   }, [onChange]);
 
@@ -113,13 +116,19 @@ export function RichTextEditor({
 
   const handleInput = () => {
     if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
+      // Sanitize the HTML content before passing it to onChange
+      const sanitized = sanitizeHTML(editorRef.current.innerHTML);
+      onChange(sanitized);
     }
   };
 
   const insertLink = () => {
     if (linkUrl) {
-      executeCommand('createLink', linkUrl);
+      // Sanitize URL before inserting
+      const sanitized = sanitizeURL(linkUrl);
+      if (sanitized) {
+        executeCommand('createLink', sanitized);
+      }
       setLinkUrl('');
       setShowLinkModal(false);
     }
@@ -128,7 +137,11 @@ export function RichTextEditor({
   const insertImage = () => {
     const url = prompt('Enter image URL:');
     if (url) {
-      executeCommand('insertImage', url);
+      // Sanitize URL before inserting
+      const sanitized = sanitizeURL(url);
+      if (sanitized) {
+        executeCommand('insertImage', sanitized);
+      }
     }
   };
 

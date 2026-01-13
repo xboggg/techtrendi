@@ -1,6 +1,20 @@
 import { Link, useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
-import { BookOpen, ArrowRight, Clock, User, ChevronLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { BookOpen, ArrowRight, Clock, ChevronLeft, Loader2 } from "lucide-react";
+
+interface Guide {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  category: string;
+  cover_image: string | null;
+  read_time_minutes: number | null;
+  created_at: string;
+  author?: string;
+}
 
 const categories = [
   {
@@ -8,106 +22,83 @@ const categories = [
     description: "Expert reviews and buying guides for smartphones",
     href: "/guides/phones",
     slug: "phones",
-    count: 12,
   },
   {
     title: "Productivity Apps",
     description: "The best apps to boost your workflow",
     href: "/guides/productivity",
     slug: "productivity",
-    count: 8,
   },
   {
     title: "Security Basics",
     description: "Stay safe online with these essential tips",
     href: "/guides/security",
     slug: "security",
-    count: 15,
   },
   {
     title: "How-To Tutorials",
     description: "Step-by-step guides for common tech tasks",
-    href: "/guides/tutorials",
-    slug: "tutorials",
-    count: 20,
+    href: "/guides/how-to",
+    slug: "how-to",
   },
 ];
 
-const featuredGuides = [
-  {
-    title: "Best Smartphones of 2025: Complete Buyer's Guide",
-    excerpt: "We've tested the top smartphones of 2025 to help you find the perfect device for your needs and budget.",
-    category: "Phone Guides",
-    categorySlug: "phones",
-    author: "Tech Team",
-    readTime: "12 min read",
-    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=400&fit=crop",
-    href: "/guides/best-smartphones-2025",
-  },
-  {
-    title: "How to Create Unbreakable Passwords in 2025",
-    excerpt: "Learn the latest techniques for creating and managing passwords that hackers can't crack.",
-    category: "Security",
-    categorySlug: "security",
-    author: "Security Expert",
-    readTime: "8 min read",
-    image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=600&h=400&fit=crop",
-    href: "/guides/password-security",
-  },
-  {
-    title: "10 Productivity Apps That Will Transform Your Workflow",
-    excerpt: "Discover the apps that successful professionals use to stay organized and efficient.",
-    category: "Productivity",
-    categorySlug: "productivity",
-    author: "Productivity Coach",
-    readTime: "10 min read",
-    image: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=600&h=400&fit=crop",
-    href: "/guides/productivity-apps",
-  },
-  {
-    title: "iPhone vs Android: The Ultimate Comparison for 2025",
-    excerpt: "A comprehensive breakdown to help you choose between the two major mobile ecosystems.",
-    category: "Phone Guides",
-    categorySlug: "phones",
-    author: "Tech Team",
-    readTime: "15 min read",
-    image: "https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=600&h=400&fit=crop",
-    href: "/guides/iphone-vs-android",
-  },
-  {
-    title: "Complete Guide to Two-Factor Authentication",
-    excerpt: "Protect your accounts with 2FA. Learn how to set it up on all your important services.",
-    category: "Security",
-    categorySlug: "security",
-    author: "Security Expert",
-    readTime: "7 min read",
-    image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&h=400&fit=crop",
-    href: "/guides/two-factor-auth",
-  },
-  {
-    title: "How to Back Up Your Phone the Right Way",
-    excerpt: "Never lose your photos, contacts, or data again with our comprehensive backup guide.",
-    category: "Tutorials",
-    categorySlug: "tutorials",
-    author: "Tech Team",
-    readTime: "6 min read",
-    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop",
-    href: "/guides/phone-backup",
-  },
-];
+const categoryLabels: Record<string, string> = {
+  phones: "Phone Guides",
+  productivity: "Productivity",
+  security: "Security",
+  "how-to": "How-To",
+  "ai-tech": "AI Tech",
+  "make-money": "Side Hustles",
+};
 
 export default function Guides() {
   const { category } = useParams<{ category?: string }>();
+
+  // Fetch guides from articles table where content_type = 'guide'
+  const { data: guides = [], isLoading } = useQuery({
+    queryKey: ["guides", category],
+    queryFn: async (): Promise<Guide[]> => {
+      const { data, error } = await supabase
+        .from("articles")
+        .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
+        .match({ is_published: true, content_type: "guide" })
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      let filtered = data || [];
+      if (category) {
+        filtered = filtered.filter(item => item.category === category);
+      }
+      return filtered as Guide[];
+    },
+  });
+
+  // Get category counts
+  const { data: categoryCounts = {} } = useQuery({
+    queryKey: ["guide-category-counts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("articles")
+        .select("category")
+        .eq("is_published", true)
+        .eq("content_type", "guide");
+
+      if (error) throw error;
+
+      const counts: Record<string, number> = {};
+      data.forEach((item) => {
+        counts[item.category] = (counts[item.category] || 0) + 1;
+      });
+      return counts;
+    },
+  });
 
   // Find the current category info
   const currentCategory = category
     ? categories.find(c => c.slug === category)
     : null;
-
-  // Filter guides by category if one is selected
-  const filteredGuides = category
-    ? featuredGuides.filter(guide => guide.categorySlug === category)
-    : featuredGuides;
 
   // If viewing a specific category
   if (currentCategory) {
@@ -137,24 +128,34 @@ export default function Guides() {
           </div>
 
           {/* Guides in this category */}
-          {filteredGuides.length > 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : guides.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredGuides.map((guide) => (
+              {guides.map((guide) => (
                 <Link
-                  key={guide.title}
-                  to={guide.href}
+                  key={guide.id}
+                  to={`/blog/${guide.slug}`}
                   className="group bg-card rounded-2xl border border-border overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all"
                 >
                   <div className="aspect-video overflow-hidden">
-                    <img
-                      src={guide.image}
-                      alt={guide.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                    {guide.cover_image ? (
+                      <img
+                        src={guide.cover_image}
+                        alt={guide.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <BookOpen className="w-12 h-12 text-muted-foreground/30" />
+                      </div>
+                    )}
                   </div>
                   <div className="p-6">
                     <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-3">
-                      {guide.category}
+                      {categoryLabels[guide.category] || guide.category}
                     </span>
                     <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
                       {guide.title}
@@ -164,12 +165,8 @@ export default function Guides() {
                     </p>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
-                        <User className="w-3 h-3" />
-                        {guide.author}
-                      </span>
-                      <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        {guide.readTime}
+                        {guide.read_time_minutes || 5} min read
                       </span>
                     </div>
                   </div>
@@ -206,7 +203,9 @@ export default function Guides() {
                     {cat.title}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-3">{cat.description}</p>
-                  <span className="text-xs font-medium text-primary">{cat.count} guides</span>
+                  <span className="text-xs font-medium text-primary">
+                    {categoryCounts[cat.slug] || 0} guides
+                  </span>
                 </Link>
               ))}
             </div>
@@ -245,7 +244,9 @@ export default function Guides() {
                 {cat.title}
               </h3>
               <p className="text-sm text-muted-foreground mb-3">{cat.description}</p>
-              <span className="text-xs font-medium text-primary">{cat.count} guides</span>
+              <span className="text-xs font-medium text-primary">
+                {categoryCounts[cat.slug] || 0} guides
+              </span>
             </Link>
           ))}
         </div>
@@ -253,53 +254,71 @@ export default function Guides() {
         {/* Featured Guides */}
         <div>
           <h2 className="text-2xl font-bold text-foreground mb-8">Featured Guides</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredGuides.map((guide) => (
-              <Link
-                key={guide.title}
-                to={guide.href}
-                className="group bg-card rounded-2xl border border-border overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all"
-              >
-                <div className="aspect-video overflow-hidden">
-                  <img
-                    src={guide.image}
-                    alt={guide.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <div className="p-6">
-                  <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-3">
-                    {guide.category}
-                  </span>
-                  <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                    {guide.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                    {guide.excerpt}
-                  </p>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <User className="w-3 h-3" />
-                      {guide.author}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {guide.readTime}
-                    </span>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : guides.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {guides.map((guide) => (
+                <Link
+                  key={guide.id}
+                  to={`/blog/${guide.slug}`}
+                  className="group bg-card rounded-2xl border border-border overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all"
+                >
+                  <div className="aspect-video overflow-hidden">
+                    {guide.cover_image ? (
+                      <img
+                        src={guide.cover_image}
+                        alt={guide.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <BookOpen className="w-12 h-12 text-muted-foreground/30" />
+                      </div>
+                    )}
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                  <div className="p-6">
+                    <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-3">
+                      {categoryLabels[guide.category] || guide.category}
+                    </span>
+                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                      {guide.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {guide.excerpt}
+                    </p>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {guide.read_time_minutes || 5} min read
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <BookOpen className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-foreground mb-2">No guides yet</h3>
+              <p className="text-muted-foreground">
+                Guides will appear here once you create them in the admin panel.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Load More */}
-        <div className="text-center mt-12">
-          <button className="inline-flex items-center px-6 py-3 border border-border rounded-xl text-foreground font-medium hover:bg-muted transition-colors">
-            Load More Guides
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </button>
-        </div>
+        {guides.length > 0 && (
+          <div className="text-center mt-12">
+            <button className="inline-flex items-center px-6 py-3 border border-border rounded-xl text-foreground font-medium hover:bg-muted transition-colors">
+              Load More Guides
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </button>
+          </div>
+        )}
       </div>
     </Layout>
   );

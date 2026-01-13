@@ -198,6 +198,38 @@
   transform: translateY(calc(var(--scroll-y, 0) * 0.7));
 }
 
+/* Hero Breathing/Parallax Animation */
+@keyframes hero-breathing {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-hero-breathing {
+  animation: hero-breathing 8s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Progress bar animation for slide indicators */
+@keyframes progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-progress {
+  animation: progress linear forwards;
+}
+
 /* ============================================
    4. PAGE TRANSITIONS
    ============================================ */

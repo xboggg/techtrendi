@@ -4,6 +4,7 @@ import { Search, X, Filter, Clock, TrendingUp, ArrowRight, Sliders } from 'lucid
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { sanitizeHTML } from '@/lib/security';
 
 interface SearchResult {
   id: string;
@@ -350,7 +351,7 @@ export function AdvancedSearch({ className }: { className?: string }) {
                     {result.highlight ? (
                       <p
                         className="text-sm text-muted-foreground line-clamp-1"
-                        dangerouslySetInnerHTML={{ __html: result.highlight }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHTML(result.highlight) }}
                       />
                     ) : (
                       <p className="text-sm text-muted-foreground line-clamp-1">{result.excerpt}</p>

@@ -11,6 +11,7 @@ import { ReadingProgress } from "@/components/ui/reading-progress";
 import { ShareButtons } from "@/components/ui/share-buttons";
 import { BookmarkButton } from "@/components/ui/bookmark-system";
 import { useReadingHistory } from "@/components/ui/reading-history";
+import { sanitizeHTML, sanitizeInput } from "@/lib/security";
 
 interface Article {
   id: string;
@@ -138,17 +139,36 @@ export default function BlogArticle() {
   };
 
   const renderContent = (content: string) => {
+    // Sanitize the raw content first to prevent XSS
+    const sanitizedContent = sanitizeInput(content);
+
     // Simple markdown-like rendering
-    let html = content
+    let html = sanitizedContent
       // Headers
-      .replace(/^### (.+)$/gm, '<h3 id="$1" class="text-xl font-semibold mt-8 mb-4 text-foreground scroll-mt-20">$1</h3>')
-      .replace(/^## (.+)$/gm, '<h2 id="$1" class="text-2xl font-bold mt-10 mb-4 text-foreground scroll-mt-20">$1</h2>')
-      .replace(/^# (.+)$/gm, '<h1 id="$1" class="text-3xl font-bold mt-12 mb-6 text-foreground scroll-mt-20">$1</h1>')
+      .replace(/^### (.+)$/gm, (match, text) => {
+        const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        return `<h3 id="${id}" class="text-xl font-semibold mt-8 mb-4 text-foreground scroll-mt-20">${text}</h3>`;
+      })
+      .replace(/^## (.+)$/gm, (match, text) => {
+        const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        return `<h2 id="${id}" class="text-2xl font-bold mt-10 mb-4 text-foreground scroll-mt-20">${text}</h2>`;
+      })
+      .replace(/^# (.+)$/gm, (match, text) => {
+        const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        return `<h1 id="${id}" class="text-3xl font-bold mt-12 mb-6 text-foreground scroll-mt-20">${text}</h1>`;
+      })
       // Bold and italic
       .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      // Links
-      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-primary hover:underline">$1</a>')
+      // Links - sanitize URLs
+      .replace(/\[(.+?)\]\((.+?)\)/g, (match, linkText, url) => {
+        // Basic URL validation - only allow http/https
+        const cleanUrl = url.trim();
+        if (cleanUrl.match(/^https?:\/\//i) || cleanUrl.startsWith('/')) {
+          return `<a href="${cleanUrl}" class="text-primary hover:underline" rel="noopener noreferrer">${linkText}</a>`;
+        }
+        return linkText; // If invalid URL, just return the text
+      })
       // Code blocks
       .replace(/```(\w+)?\n([\s\S]+?)```/g, '<pre class="bg-muted p-4 rounded-lg overflow-x-auto my-4"><code>$2</code></pre>')
       .replace(/`(.+?)`/g, '<code class="bg-muted px-1.5 py-0.5 rounded text-sm">$1</code>')
@@ -159,11 +179,6 @@ export default function BlogArticle() {
       .replace(/\n\n/g, '</p><p class="text-muted-foreground leading-relaxed mb-4">')
       // Line breaks
       .replace(/\n/g, '<br />');
-
-    // Fix header IDs
-    html = html.replace(/id="(.+?)"/g, (match, text) => {
-      return `id="${text.toLowerCase().replace(/[^a-z0-9]+/g, "-")}"`;
-    });
 
     return `<p class="text-muted-foreground leading-relaxed mb-4">${html}</p>`;
   };
