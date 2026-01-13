@@ -2,9 +2,22 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+// Allowed origins for CORS - restrict to your domains only
+const ALLOWED_ORIGINS = [
+  "https://techtrendi.com",
+  "https://www.techtrendi.com",
+  "https://lovable.dev",
+  "http://localhost:5173",
+  "http://localhost:8080"
+];
+
+const getCorsHeaders = (origin: string | null) => {
+  const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+  };
 };
 
 const logStep = (step: string, details?: unknown) => {
@@ -13,6 +26,9 @@ const logStep = (step: string, details?: unknown) => {
 };
 
 serve(async (req) => {
+  const origin = req.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -51,8 +67,9 @@ serve(async (req) => {
     // TechTrendi Premium Monthly - $4.99/month
     const PREMIUM_PRICE_ID = "price_1SiPmyBLh9K43AQkLtyfLawQ";
 
-    const origin = req.headers.get("origin") || "https://lovable.dev";
-    
+    // Use validated origin from CORS headers
+    const validatedOrigin = origin && ALLOWED_ORIGINS.includes(origin) ? origin : "https://techtrendi.com";
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -63,8 +80,8 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${origin}/premium?success=true`,
-      cancel_url: `${origin}/premium?canceled=true`,
+      success_url: `${validatedOrigin}/premium?success=true`,
+      cancel_url: `${validatedOrigin}/premium?canceled=true`,
     });
 
     logStep("Checkout session created", { sessionId: session.id });

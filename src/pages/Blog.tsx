@@ -2,9 +2,12 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
-import { Clock, Calendar, ArrowRight, Search, Crown } from "lucide-react";
+import { Clock, Calendar, ArrowRight, Search, Crown, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+const ARTICLES_PER_PAGE = 9;
 
 interface Article {
   id: string;
@@ -22,18 +25,21 @@ interface Article {
 
 const categories = [
   "All",
-  "Guides",
-  "Reviews",
-  "Tutorials",
-  "News",
-  "Tips & Tricks",
+  "How-To",
+  "Security",
+  "Phones",
+  "Accessories",
+  "AI Tech",
+  "Gaming",
 ];
 
 export default function Blog() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchArticles();
@@ -41,16 +47,22 @@ export default function Blog() {
 
   const fetchArticles = async () => {
     try {
-      const { data, error } = await supabase
+      setError(null);
+      const { data, error: fetchError } = await supabase
         .from("articles")
         .select("*")
         .eq("is_published", true)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (fetchError) {
+        console.error("Supabase error:", fetchError);
+        setError(`Failed to load articles: ${fetchError.message}`);
+        return;
+      }
       setArticles(data || []);
-    } catch (error) {
-      console.error("Error fetching articles:", error);
+    } catch (err) {
+      console.error("Error fetching articles:", err);
+      setError("Failed to connect to the server. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -60,10 +72,23 @@ export default function Blog() {
     const matchesSearch =
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       article.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
+
     const matchesCategory =
-      selectedCategory === "All" || article.category === selectedCategory;
+      selectedCategory === "All" ||
+      article.category === selectedCategory;
+
     return matchesSearch && matchesCategory;
   });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredArticles.length / ARTICLES_PER_PAGE);
+  const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
+  const paginatedArticles = filteredArticles.slice(startIndex, startIndex + ARTICLES_PER_PAGE);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -118,8 +143,26 @@ export default function Blog() {
           </div>
         </div>
 
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-16 max-w-md mx-auto">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-2xl p-6">
+              <p className="text-destructive mb-4">{error}</p>
+              <button
+                onClick={() => {
+                  setLoading(true);
+                  fetchArticles();
+                }}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Articles Grid */}
-        {loading ? (
+        {!error && loading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div
@@ -136,7 +179,7 @@ export default function Blog() {
               </div>
             ))}
           </div>
-        ) : filteredArticles.length === 0 ? (
+        ) : !error && filteredArticles.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground text-lg mb-4">
               {articles.length === 0
@@ -152,9 +195,9 @@ export default function Blog() {
               </button>
             )}
           </div>
-        ) : (
+        ) : !error ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredArticles.map((article) => (
+            {paginatedArticles.map((article) => (
               <Link
                 key={article.id}
                 to={`/blog/${article.slug}`}
@@ -216,6 +259,54 @@ export default function Blog() {
               </Link>
             ))}
           </div>
+        ) : null}
+
+        {/* Pagination Controls */}
+        {!error && !loading && totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-12">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="flex items-center gap-1"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Previous
+            </Button>
+
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCurrentPage(page)}
+                  className="w-10 h-10"
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="flex items-center gap-1"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
+
+        {/* Results Info */}
+        {!error && !loading && filteredArticles.length > 0 && (
+          <p className="text-center text-sm text-muted-foreground mt-6">
+            Showing {startIndex + 1}-{Math.min(startIndex + ARTICLES_PER_PAGE, filteredArticles.length)} of {filteredArticles.length} articles
+          </p>
         )}
       </div>
     </Layout>

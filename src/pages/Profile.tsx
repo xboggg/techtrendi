@@ -68,11 +68,40 @@ export default function Profile() {
         .eq('id', user.id)
         .single();
 
-      if (error) throw error;
-      setProfile(data);
-      setEditName(data.full_name || '');
+      if (error) {
+        // If profile doesn't exist, create a default one for display
+        if (error.code === 'PGRST116') {
+          const defaultProfile: UserProfile = {
+            id: user.id,
+            email: user.email || '',
+            full_name: null,
+            avatar_url: null,
+            created_at: user.created_at || new Date().toISOString(),
+            is_premium: false,
+            subscription_status: null,
+          };
+          setProfile(defaultProfile);
+          setEditName('');
+        } else {
+          throw error;
+        }
+      } else {
+        setProfile(data);
+        setEditName(data.full_name || '');
+      }
     } catch (error) {
       console.error('Error fetching profile:', error);
+      // Still set a minimal profile so the page renders
+      const fallbackProfile: UserProfile = {
+        id: user.id,
+        email: user.email || '',
+        full_name: null,
+        avatar_url: null,
+        created_at: new Date().toISOString(),
+        is_premium: false,
+        subscription_status: null,
+      };
+      setProfile(fallbackProfile);
     } finally {
       setLoading(false);
     }
@@ -150,8 +179,23 @@ export default function Profile() {
     );
   }
 
-  if (!user || !profile) {
+  if (!user) {
     return null;
+  }
+
+  if (!profile) {
+    return (
+      <Layout>
+        <div className="container py-12 text-center">
+          <div className="max-w-md mx-auto">
+            <User className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+            <h2 className="text-xl font-semibold mb-2">Loading Profile...</h2>
+            <p className="text-muted-foreground mb-4">Setting up your profile</p>
+            <Button onClick={() => window.location.reload()}>Refresh Page</Button>
+          </div>
+        </div>
+      </Layout>
+    );
   }
 
   return (
