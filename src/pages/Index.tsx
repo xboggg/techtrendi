@@ -7,6 +7,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
+import { useInView } from "react-intersection-observer";
+import { cn } from "@/lib/utils";
+import { AnimatedCard } from "@/components/ui/animated-card";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 
 interface TrendingArticle {
   id: string;
@@ -204,40 +208,41 @@ export default function Index() {
             </div>
           ) : latestArticles.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {latestArticles.map((article) => (
-                <Link
-                  key={article.id}
-                  to={`/blog/${article.slug}`}
-                  className="group relative bg-card rounded-xl border border-border overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all duration-300"
-                >
-                  <div className="relative h-32 bg-muted overflow-hidden">
-                    {article.cover_image ? (
-                      <img
-                        src={article.cover_image}
-                        alt={article.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                        <FileText className="w-8 h-8 text-muted-foreground/30" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <Badge variant="secondary" className="text-xs mb-2">
-                      {categoryLabels[article.category] || article.category}
-                    </Badge>
-                    <h3 className="font-semibold text-foreground text-sm line-clamp-2 group-hover:text-primary transition-colors">
-                      {article.title}
-                    </h3>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {article.read_time_minutes || 5} min
-                      </span>
+              {latestArticles.map((article, index) => (
+                <AnimatedCard key={article.id} delay={index * 100} animation="fade-up">
+                  <Link
+                    to={`/blog/${article.slug}`}
+                    className="block group relative bg-card rounded-xl border border-border overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all duration-300"
+                  >
+                    <div className="relative h-32 bg-muted overflow-hidden">
+                      {article.cover_image ? (
+                        <img
+                          src={article.cover_image}
+                          alt={article.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                          <FileText className="w-8 h-8 text-muted-foreground/30" />
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </Link>
+                    <div className="p-4">
+                      <Badge variant="secondary" className="text-xs mb-2">
+                        {categoryLabels[article.category] || article.category}
+                      </Badge>
+                      <h3 className="font-semibold text-foreground text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                        {article.title}
+                      </h3>
+                      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {article.read_time_minutes || 5} min
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                </AnimatedCard>
               ))}
             </div>
           ) : (
@@ -262,17 +267,16 @@ export default function Index() {
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature) => (
-              <div
-                key={feature.title}
-                className="group p-6 rounded-2xl bg-card border border-border hover:shadow-lg hover:border-primary/20 transition-all duration-300"
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <feature.icon className="w-6 h-6 text-primary" />
+            {features.map((feature, index) => (
+              <AnimatedCard key={feature.title} delay={index * 150} animation="scale-in">
+                <div className="group p-6 rounded-2xl bg-card border border-border hover:shadow-lg hover:border-primary/20 transition-all duration-300 h-full">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
+                    <feature.icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
+                  <p className="text-muted-foreground text-sm">{feature.description}</p>
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground text-sm">{feature.description}</p>
-              </div>
+              </AnimatedCard>
             ))}
           </div>
         </div>
@@ -313,46 +317,47 @@ export default function Index() {
           ) : trendingArticles.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {trendingArticles.map((article, index) => (
-                <Link
-                  key={article.id}
-                  to={`/blog/${article.slug}`}
-                  className="group relative bg-card rounded-xl border border-border overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all duration-300"
-                >
-                  <div className="absolute top-3 left-3 z-10 w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-sm shadow-lg">
-                    {index + 1}
-                  </div>
-                  <div className="relative h-32 bg-muted overflow-hidden">
-                    {article.cover_image ? (
-                      <img
-                        src={article.cover_image}
-                        alt={article.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20" />
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <Badge variant="secondary" className="text-xs mb-2">
-                      {article.category}
-                    </Badge>
-                    <h3 className="font-semibold text-foreground text-sm line-clamp-2 group-hover:text-primary transition-colors">
-                      {article.title}
-                    </h3>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {article.read_time_minutes || 5} min
-                      </span>
-                      {article.views && (
-                        <span className="flex items-center gap-1">
-                          <Eye className="w-3 h-3" />
-                          {article.views.toLocaleString()}
-                        </span>
+                <AnimatedCard key={article.id} delay={index * 100} animation="fade-up">
+                  <Link
+                    to={`/blog/${article.slug}`}
+                    className="block group relative bg-card rounded-xl border border-border overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all duration-300"
+                  >
+                    <div className="absolute top-3 left-3 z-10 w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-sm shadow-lg group-hover:scale-110 transition-transform">
+                      {index + 1}
+                    </div>
+                    <div className="relative h-32 bg-muted overflow-hidden">
+                      {article.cover_image ? (
+                        <img
+                          src={article.cover_image}
+                          alt={article.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20" />
                       )}
                     </div>
-                  </div>
-                </Link>
+                    <div className="p-4">
+                      <Badge variant="secondary" className="text-xs mb-2">
+                        {article.category}
+                      </Badge>
+                      <h3 className="font-semibold text-foreground text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                        {article.title}
+                      </h3>
+                      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {article.read_time_minutes || 5} min
+                        </span>
+                        {article.views && (
+                          <span className="flex items-center gap-1">
+                            <Eye className="w-3 h-3" />
+                            <AnimatedCounter end={article.views} duration={2} />
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                </AnimatedCard>
               ))}
             </div>
           ) : (
@@ -377,23 +382,24 @@ export default function Index() {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
-            {tools.map((tool) => (
-              <Link
-                key={tool.title}
-                to={tool.href}
-                className="group p-6 rounded-2xl bg-card border border-border hover:shadow-lg hover:border-primary/20 transition-all duration-300 text-center"
-              >
-                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tool.gradient} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                  <tool.icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
-                  {tool.title}
-                </h3>
-                <p className="text-muted-foreground text-sm mb-4">{tool.description}</p>
-                <span className="inline-flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all duration-300">
-                  Try Now <ArrowRight className="w-4 h-4" />
-                </span>
-              </Link>
+            {tools.map((tool, index) => (
+              <AnimatedCard key={tool.title} delay={index * 150} animation="scale-in">
+                <Link
+                  to={tool.href}
+                  className="block group p-6 rounded-2xl bg-card border border-border hover:shadow-lg hover:border-primary/20 transition-all duration-300 text-center h-full"
+                >
+                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tool.gradient} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg`}>
+                    <tool.icon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                    {tool.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm mb-4">{tool.description}</p>
+                  <span className="inline-flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all duration-300">
+                    Try Now <ArrowRight className="w-4 h-4" />
+                  </span>
+                </Link>
+              </AnimatedCard>
             ))}
           </div>
           <div className="mt-10 text-center">
@@ -441,39 +447,40 @@ export default function Index() {
             </div>
           ) : featuredGuides.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredGuides.map((guide) => (
-                <Link
-                  key={guide.id}
-                  to={`/blog/${guide.slug}`}
-                  className="group bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg hover:border-primary/20 transition-all duration-300"
-                >
-                  <div className="aspect-video overflow-hidden">
-                    {guide.cover_image ? (
-                      <img
-                        src={guide.cover_image}
-                        alt={guide.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                        <BookOpen className="w-12 h-12 text-muted-foreground/30" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-5">
-                    <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-3">
-                      {categoryLabels[guide.category] || guide.category}
-                    </span>
-                    <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                      {guide.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm line-clamp-2 mb-3">{guide.excerpt}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Clock className="w-3 h-3" />
-                      {guide.read_time_minutes || 5} min read
+              {featuredGuides.map((guide, index) => (
+                <AnimatedCard key={guide.id} delay={index * 150} animation="fade-up">
+                  <Link
+                    to={`/blog/${guide.slug}`}
+                    className="block group bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg hover:border-primary/20 transition-all duration-300 h-full"
+                  >
+                    <div className="aspect-video overflow-hidden">
+                      {guide.cover_image ? (
+                        <img
+                          src={guide.cover_image}
+                          alt={guide.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                          <BookOpen className="w-12 h-12 text-muted-foreground/30" />
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </Link>
+                    <div className="p-5">
+                      <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-3">
+                        {categoryLabels[guide.category] || guide.category}
+                      </span>
+                      <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                        {guide.title}
+                      </h3>
+                      <p className="text-muted-foreground text-sm line-clamp-2 mb-3">{guide.excerpt}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Clock className="w-3 h-3" />
+                        {guide.read_time_minutes || 5} min read
+                      </div>
+                    </div>
+                  </Link>
+                </AnimatedCard>
               ))}
             </div>
           ) : (
