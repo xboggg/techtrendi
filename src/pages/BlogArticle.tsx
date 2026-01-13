@@ -12,6 +12,10 @@ import { ShareButtons } from "@/components/ui/share-buttons";
 import { BookmarkButton } from "@/components/ui/bookmark-system";
 import { useReadingHistory } from "@/components/ui/reading-history";
 import { sanitizeHTML, sanitizeInput } from "@/lib/security";
+import { ArticleReactions } from "@/components/article/ArticleReactions";
+import { SocialShare } from "@/components/article/SocialShare";
+import { CommentsSection } from "@/components/article/CommentsSection";
+import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
 
 interface Article {
   id: string;
@@ -405,6 +409,34 @@ export default function BlogArticle() {
               </div>
             </div>
           )}
+
+          {/* Article Reactions */}
+          <div className="mt-12 pt-8 border-t border-border">
+            <ArticleReactions
+              articleId={article.id}
+              articleTitle={article.title}
+            />
+          </div>
+
+          {/* Social Share */}
+          <div className="mt-8">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Share this article</h3>
+            <SocialShare
+              articleId={article.id}
+              articleTitle={article.title}
+              articleUrl={window.location.href}
+            />
+          </div>
+
+          {/* Newsletter Signup */}
+          <div className="mt-12">
+            <NewsletterForm variant="default" />
+          </div>
+
+          {/* Comments Section */}
+          <div className="mt-12 pt-8 border-t border-border">
+            <CommentsSection articleId={article.id} />
+          </div>
 
           {/* Related Articles */}
           {relatedArticles.length > 0 && (
