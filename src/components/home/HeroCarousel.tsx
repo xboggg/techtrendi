@@ -4,6 +4,18 @@ import { ArrowRight, ChevronLeft, ChevronRight, Smartphone, Shield, Brain, Brief
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+// Particle positions for floating effect
+const particles = [
+  { left: "10%", top: "20%", size: 4, delay: 0 },
+  { left: "25%", top: "60%", size: 6, delay: 3 },
+  { left: "50%", top: "15%", size: 3, delay: 6 },
+  { left: "70%", top: "50%", size: 5, delay: 9 },
+  { left: "85%", top: "30%", size: 4, delay: 12 },
+  { left: "15%", top: "75%", size: 3, delay: 4 },
+  { left: "40%", top: "85%", size: 5, delay: 7 },
+  { left: "80%", top: "70%", size: 4, delay: 10 },
+];
+
 interface HeroSlide {
   id: number;
   title: string;
@@ -128,7 +140,7 @@ export function HeroCarousel() {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Background Images with Crossfade and Breathing Effect */}
+      {/* Background Images with Ken Burns Effect */}
       {heroSlides.map((s, index) => (
         <div
           key={s.id}
@@ -137,19 +149,39 @@ export function HeroCarousel() {
             index === currentSlide ? "opacity-100" : "opacity-0"
           )}
         >
-          {/* Background Image with breathing/parallax effect */}
+          {/* Background Image with Ken Burns effect (pan + zoom) */}
           <div
             className={cn(
               "absolute inset-0 bg-cover bg-center",
-              index === currentSlide && "animate-hero-breathing"
+              index === currentSlide && "animate-ken-burns"
             )}
             style={{
               backgroundImage: `url(${s.image})`,
             }}
           />
-          {/* Dark overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+          {/* Animated Gradient Overlay */}
+          <div className={cn(
+            "absolute inset-0",
+            index === currentSlide && "animate-gradient-overlay"
+          )} />
+          {/* Dark overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
         </div>
+      ))}
+
+      {/* Floating Particles */}
+      {particles.map((particle, i) => (
+        <div
+          key={i}
+          className="absolute rounded-full bg-white/40 backdrop-blur-sm animate-float-particle"
+          style={{
+            left: particle.left,
+            top: particle.top,
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+            animationDelay: `${particle.delay}s`,
+          }}
+        />
       ))}
 
       {/* Content Container */}
