@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EC4899;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DB2777;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg6)"/>
+  <circle cx="700" cy="100" r="140" fill="#ffffff" opacity="0.08"/>
+
+  <rect x="100" y="80" width="600" height="440" rx="20" fill="#ffffff" opacity="0.15"/>
+
+  <!-- Content Calendar Preview -->
+  <rect x="130" y="110" width="380" height="150" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="150" y="135" font-family="Arial" font-size="12" font-weight="bold" fill="#1f2937">Content Calendar - January</text>
+  <!-- Mini calendar grid -->
+  <rect x="150" y="150" width="50" height="30" rx="3" fill="#EC4899" opacity="0.2"/>
+  <text x="175" y="170" font-family="Arial" font-size="9" fill="#EC4899" text-anchor="middle">YT</text>
+  <rect x="210" y="150" width="50" height="30" rx="3" fill="#e5e7eb"/>
+  <rect x="270" y="150" width="50" height="30" rx="3" fill="#1DA1F2" opacity="0.2"/>
+  <text x="295" y="170" font-family="Arial" font-size="9" fill="#1DA1F2" text-anchor="middle">TW</text>
+  <rect x="330" y="150" width="50" height="30" rx="3" fill="#e5e7eb"/>
+  <rect x="390" y="150" width="50" height="30" rx="3" fill="#E1306C" opacity="0.2"/>
+  <text x="415" y="170" font-family="Arial" font-size="9" fill="#E1306C" text-anchor="middle">IG</text>
+  <rect x="150" y="190" width="50" height="30" rx="3" fill="#e5e7eb"/>
+  <rect x="210" y="190" width="50" height="30" rx="3" fill="#EC4899" opacity="0.2"/>
+  <text x="235" y="210" font-family="Arial" font-size="9" fill="#EC4899" text-anchor="middle">Blog</text>
+  <rect x="270" y="190" width="50" height="30" rx="3" fill="#FF0000" opacity="0.2"/>
+  <text x="295" y="210" font-family="Arial" font-size="9" fill="#FF0000" text-anchor="middle">YT</text>
+  <rect x="330" y="190" width="50" height="30" rx="3" fill="#e5e7eb"/>
+  <rect x="390" y="190" width="50" height="30" rx="3" fill="#1DA1F2" opacity="0.2"/>
+  <text x="415" y="210" font-family="Arial" font-size="9" fill="#1DA1F2" text-anchor="middle">TW</text>
+
+  <!-- Platform Stats -->
+  <rect x="530" y="110" width="140" height="150" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="600" y="135" font-family="Arial" font-size="11" font-weight="bold" fill="#1f2937" text-anchor="middle">This Month</text>
+  <text x="600" y="165" font-family="Arial" font-size="10" fill="#FF0000" text-anchor="middle">YouTube: 4 videos</text>
+  <text x="600" y="185" font-family="Arial" font-size="10" fill="#E1306C" text-anchor="middle">Instagram: 12 posts</text>
+  <text x="600" y="205" font-family="Arial" font-size="10" fill="#1DA1F2" text-anchor="middle">Twitter: 30 tweets</text>
+  <text x="600" y="225" font-family="Arial" font-size="10" fill="#EC4899" text-anchor="middle">Blog: 4 articles</text>
+
+  <!-- Idea Bank -->
+  <rect x="130" y="280" width="250" height="110" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="150" y="305" font-family="Arial" font-size="12" font-weight="bold" fill="#1f2937">Idea Bank</text>
+  <text x="150" y="330" font-family="Arial" font-size="10" fill="#6b7280">💡 How to grow on YouTube in 2024</text>
+  <text x="150" y="350" font-family="Arial" font-size="10" fill="#6b7280">💡 My morning routine for productivity</text>
+  <text x="150" y="370" font-family="Arial" font-size="10" fill="#6b7280">💡 Review: Best editing software</text>
+
+  <!-- Performance -->
+  <rect x="400" y="280" width="270" height="110" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="420" y="305" font-family="Arial" font-size="12" font-weight="bold" fill="#1f2937">Top Performer</text>
+  <text x="420" y="335" font-family="Arial" font-size="11" fill="#1f2937">"10 Productivity Hacks" - YT</text>
+  <text x="420" y="360" font-family="Arial" font-size="20" font-weight="bold" fill="#10B981">125K views</text>
+  <text x="420" y="380" font-family="Arial" font-size="10" fill="#6b7280">+340% vs average</text>
+
+  <!-- Revenue -->
+  <rect x="130" y="410" width="540" height="80" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="250" y="445" font-family="Arial" font-size="12" fill="#6b7280" text-anchor="middle">Sponsorship Revenue</text>
+  <text x="250" y="475" font-family="Arial" font-size="18" font-weight="bold" fill="#10B981" text-anchor="middle">$3,200</text>
+  <text x="550" y="445" font-family="Arial" font-size="12" fill="#6b7280" text-anchor="middle">Ad Revenue</text>
+  <text x="550" y="475" font-family="Arial" font-size="18" font-weight="bold" fill="#10B981" text-anchor="middle">$1,847</text>
+
+  <text x="400" y="40" font-family="Arial" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">Content Empire Planner</text>
+</svg>
