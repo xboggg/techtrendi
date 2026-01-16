@@ -51,9 +51,9 @@ interface Product {
 }
 
 
-const categories = ["All", "Marketing", "Business", "Finance", "Security", "AI & Tech", "Productivity"];
-const types = ["All Types", "ebook", "template", "powerpoint", "excel"];
-const priceFilters = ["All Prices", "Free", "Under $5", "Under $10", "$10+"];
+const categories = ["All", "Marketing", "Business", "Finance", "Security", "AI & Tech", "Productivity", "Spreadsheets"];
+const types = ["All Types", "ebook", "template", "powerpoint", "excel", "course", "software"];
+const priceFilters = ["All Prices", "Free", "Under $5", "Under $10", "Under $20", "$20+"];
 
 const getTypeIcon = (type: string) => {
   switch (type) {
@@ -126,8 +126,10 @@ export default function DigiStore() {
       result = result.filter((p) => p.price > 0 && p.price < 5);
     } else if (selectedPrice === "Under $10") {
       result = result.filter((p) => p.price > 0 && p.price < 10);
-    } else if (selectedPrice === "$10+") {
-      result = result.filter((p) => p.price >= 10);
+    } else if (selectedPrice === "Under $20") {
+      result = result.filter((p) => p.price > 0 && p.price < 20);
+    } else if (selectedPrice === "$20+") {
+      result = result.filter((p) => p.price >= 20);
     }
 
     setFilteredProducts(result);

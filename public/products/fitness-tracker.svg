@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg9" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg9)"/>
+  <circle cx="700" cy="100" r="140" fill="#ffffff" opacity="0.08"/>
+
+  <rect x="100" y="80" width="600" height="440" rx="20" fill="#ffffff" opacity="0.15"/>
+
+  <!-- Current Stats -->
+  <rect x="130" y="110" width="170" height="100" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="215" y="140" font-family="Arial" font-size="10" fill="#6b7280" text-anchor="middle">Current Weight</text>
+  <text x="215" y="175" font-family="Arial" font-size="28" font-weight="bold" fill="#1f2937" text-anchor="middle">175 lbs</text>
+  <text x="215" y="200" font-family="Arial" font-size="10" fill="#10B981" text-anchor="middle">↓ 12 lbs from start</text>
+
+  <rect x="315" y="110" width="170" height="100" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="400" y="140" font-family="Arial" font-size="10" fill="#6b7280" text-anchor="middle">Workout Streak</text>
+  <text x="400" y="175" font-family="Arial" font-size="28" font-weight="bold" fill="#EF4444" text-anchor="middle">🔥 21</text>
+  <text x="400" y="200" font-family="Arial" font-size="10" fill="#6b7280" text-anchor="middle">days</text>
+
+  <rect x="500" y="110" width="170" height="100" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="585" y="140" font-family="Arial" font-size="10" fill="#6b7280" text-anchor="middle">This Week</text>
+  <text x="585" y="175" font-family="Arial" font-size="28" font-weight="bold" fill="#10B981" text-anchor="middle">5/6</text>
+  <text x="585" y="200" font-family="Arial" font-size="10" fill="#6b7280" text-anchor="middle">workouts</text>
+
+  <!-- PR Board -->
+  <rect x="130" y="230" width="250" height="140" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="150" y="260" font-family="Arial" font-size="12" font-weight="bold" fill="#1f2937">🏆 Recent PRs</text>
+  <text x="150" y="290" font-family="Arial" font-size="11" fill="#1f2937">Bench Press</text>
+  <text x="340" y="290" font-family="Arial" font-size="11" font-weight="bold" fill="#EF4444">185 lbs</text>
+  <text x="150" y="315" font-family="Arial" font-size="11" fill="#1f2937">Squat</text>
+  <text x="340" y="315" font-family="Arial" font-size="11" font-weight="bold" fill="#EF4444">225 lbs</text>
+  <text x="150" y="340" font-family="Arial" font-size="11" fill="#1f2937">Deadlift</text>
+  <text x="340" y="340" font-family="Arial" font-size="11" font-weight="bold" fill="#EF4444">275 lbs</text>
+
+  <!-- Body Measurements -->
+  <rect x="400" y="230" width="270" height="140" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="420" y="260" font-family="Arial" font-size="12" font-weight="bold" fill="#1f2937">Body Changes</text>
+  <text x="420" y="290" font-family="Arial" font-size="10" fill="#6b7280">Chest: 42" → 44"</text>
+  <text x="580" y="290" font-family="Arial" font-size="10" fill="#10B981">+2"</text>
+  <text x="420" y="315" font-family="Arial" font-size="10" fill="#6b7280">Waist: 36" → 33"</text>
+  <text x="580" y="315" font-family="Arial" font-size="10" fill="#10B981">-3"</text>
+  <text x="420" y="340" font-family="Arial" font-size="10" fill="#6b7280">Arms: 14" → 15.5"</text>
+  <text x="580" y="340" font-family="Arial" font-size="10" fill="#10B981">+1.5"</text>
+
+  <!-- Progress Chart -->
+  <rect x="130" y="390" width="540" height="100" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="150" y="420" font-family="Arial" font-size="12" font-weight="bold" fill="#1f2937">Weight Progress</text>
+  <!-- Simple line chart -->
+  <polyline points="180,470 230,465 280,455 330,460 380,450 430,445 480,440 530,435 580,430 630,425"
+            fill="none" stroke="#EF4444" stroke-width="3" stroke-linecap="round"/>
+  <line x1="180" y1="475" x2="630" y2="475" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="180" y="488" font-family="Arial" font-size="8" fill="#6b7280">Week 1</text>
+  <text x="630" y="488" font-family="Arial" font-size="8" fill="#6b7280">Week 12</text>
+
+  <text x="400" y="40" font-family="Arial" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">Fitness Tracker</text>
+</svg>

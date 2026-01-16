@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0EA5E9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0284C7;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg5)"/>
+  <circle cx="700" cy="100" r="140" fill="#ffffff" opacity="0.08"/>
+
+  <rect x="100" y="80" width="600" height="440" rx="20" fill="#ffffff" opacity="0.15"/>
+
+  <!-- Pipeline Funnel -->
+  <rect x="130" y="110" width="250" height="180" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="255" y="135" font-family="Arial" font-size="12" font-weight="bold" fill="#1f2937" text-anchor="middle">Client Pipeline</text>
+  <rect x="155" y="150" width="200" height="25" rx="3" fill="#94a3b8"/>
+  <text x="255" y="167" font-family="Arial" font-size="10" fill="#ffffff" text-anchor="middle">Leads: 12 ($24,000)</text>
+  <rect x="170" y="180" width="170" height="25" rx="3" fill="#0EA5E9"/>
+  <text x="255" y="197" font-family="Arial" font-size="10" fill="#ffffff" text-anchor="middle">Proposals: 5 ($18,500)</text>
+  <rect x="185" y="210" width="140" height="25" rx="3" fill="#10B981"/>
+  <text x="255" y="227" font-family="Arial" font-size="10" fill="#ffffff" text-anchor="middle">Active: 8 ($32,000)</text>
+  <rect x="200" y="240" width="110" height="25" rx="3" fill="#6366F1"/>
+  <text x="255" y="257" font-family="Arial" font-size="10" fill="#ffffff" text-anchor="middle">Complete: 45</text>
+
+  <!-- Revenue Card -->
+  <rect x="400" y="110" width="270" height="90" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="535" y="140" font-family="Arial" font-size="12" fill="#6b7280" text-anchor="middle">This Month Revenue</text>
+  <text x="535" y="175" font-family="Arial" font-size="28" font-weight="bold" fill="#10B981" text-anchor="middle">$12,450</text>
+
+  <!-- Outstanding Invoices -->
+  <rect x="400" y="210" width="270" height="80" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="535" y="240" font-family="Arial" font-size="12" fill="#6b7280" text-anchor="middle">Outstanding Invoices</text>
+  <text x="535" y="270" font-family="Arial" font-size="22" font-weight="bold" fill="#F59E0B" text-anchor="middle">$4,200</text>
+
+  <!-- Client List -->
+  <rect x="130" y="310" width="540" height="180" rx="10" fill="#ffffff" opacity="0.95"/>
+  <text x="150" y="340" font-family="Arial" font-size="12" font-weight="bold" fill="#1f2937">Recent Clients</text>
+  <rect x="150" y="355" width="500" height="1" fill="#e5e7eb"/>
+  <text x="150" y="380" font-family="Arial" font-size="11" fill="#1f2937">Acme Corp</text>
+  <text x="350" y="380" font-family="Arial" font-size="11" fill="#10B981">Active</text>
+  <text x="500" y="380" font-family="Arial" font-size="11" fill="#1f2937">$8,500</text>
+  <rect x="150" y="390" width="500" height="1" fill="#e5e7eb"/>
+  <text x="150" y="415" font-family="Arial" font-size="11" fill="#1f2937">TechStart Inc</text>
+  <text x="350" y="415" font-family="Arial" font-size="11" fill="#0EA5E9">Proposal</text>
+  <text x="500" y="415" font-family="Arial" font-size="11" fill="#1f2937">$5,200</text>
+  <rect x="150" y="425" width="500" height="1" fill="#e5e7eb"/>
+  <text x="150" y="450" font-family="Arial" font-size="11" fill="#1f2937">Design Co</text>
+  <text x="350" y="450" font-family="Arial" font-size="11" fill="#F59E0B">Follow-up Due</text>
+  <text x="500" y="450" font-family="Arial" font-size="11" fill="#1f2937">$3,000</text>
+
+  <text x="400" y="40" font-family="Arial" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">Client Command Center</text>
+</svg>
