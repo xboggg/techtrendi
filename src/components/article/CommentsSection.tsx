@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Heart, Reply, Trash2, Flag, MoreVertical } from "lucide-react";
+import { MessageCircle, Heart, Reply, Trash2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { formatDistanceToNow } from "date-fns";
@@ -16,10 +16,7 @@ interface Comment {
   created_at: string;
   updated_at: string;
   is_edited: boolean;
-  user?: {
-    name: string;
-    email: string;
-  };
+  user_name?: string;
   replies?: Comment[];
   user_has_liked?: boolean;
 }
@@ -43,53 +40,72 @@ export function CommentsSection({ articleId }: CommentsSectionProps) {
 
   const fetchComments = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch ALL comments for this article in ONE query (both parents and replies)
+      const { data: allComments, error } = await (supabase as any)
         .from("comments")
-        .select(`
-          *,
-          user:users(name, email)
-        `)
+        .select("*")
         .eq("article_id", articleId)
-        .is("parent_id", null)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true });
 
       if (error) throw error;
 
-      // Fetch replies for each comment
-      const commentsWithReplies = await Promise.all(
-        (data || []).map(async (comment) => {
-          const { data: replies } = await supabase
-            .from("comments")
-            .select(`
-              *,
-              user:users(name, email)
-            `)
-            .eq("parent_id", comment.id)
-            .order("created_at", { ascending: true });
+      if (!allComments || allComments.length === 0) {
+        setComments([]);
+        return;
+      }
 
-          // Check if user has liked each comment
-          if (user) {
-            const { data: userLikes } = await supabase
+      // Collect all unique user IDs
+      const userIds = [...new Set(allComments.map((c: any) => c.user_id))];
+      const commentIds = allComments.map((c: any) => c.id);
+
+      // Fetch profiles and likes in parallel (2 queries instead of N queries)
+      const [profilesResult, likesResult] = await Promise.all([
+        (supabase as any)
+          .from("profiles")
+          .select("user_id, full_name")
+          .in("user_id", userIds),
+        user
+          ? (supabase as any)
               .from("comment_likes")
               .select("comment_id")
-              .in("comment_id", [comment.id, ...(replies?.map(r => r.id) || [])])
-              .eq("user_id", user.id);
+              .in("comment_id", commentIds)
+              .eq("user_id", user.id)
+          : Promise.resolve({ data: [] })
+      ]);
 
-            const likedIds = new Set(userLikes?.map(l => l.comment_id) || []);
-
-            return {
-              ...comment,
-              user_has_liked: likedIds.has(comment.id),
-              replies: replies?.map(r => ({
-                ...r,
-                user_has_liked: likedIds.has(r.id)
-              })) || []
-            };
-          }
-
-          return { ...comment, replies: replies || [] };
-        })
+      // Build lookup maps
+      const profileMap = new Map(
+        (profilesResult.data || []).map((p: any) => [p.user_id, p.full_name || "Anonymous User"])
       );
+      const likedIds = new Set(
+        (likesResult.data || []).map((l: any) => l.comment_id)
+      );
+
+      // Separate parent comments and replies
+      const parentComments = allComments.filter((c: any) => c.parent_id === null);
+      const replies = allComments.filter((c: any) => c.parent_id !== null);
+
+      // Group replies by parent_id
+      const repliesByParent = new Map<string, any[]>();
+      replies.forEach((reply: any) => {
+        const existing = repliesByParent.get(reply.parent_id) || [];
+        existing.push({
+          ...reply,
+          user_name: profileMap.get(reply.user_id) || "Anonymous User",
+          user_has_liked: likedIds.has(reply.id)
+        });
+        repliesByParent.set(reply.parent_id, existing);
+      });
+
+      // Build final comments structure
+      const commentsWithReplies = parentComments
+        .map((comment: any) => ({
+          ...comment,
+          user_name: profileMap.get(comment.user_id) || "Anonymous User",
+          user_has_liked: likedIds.has(comment.id),
+          replies: repliesByParent.get(comment.id) || []
+        }))
+        .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
       setComments(commentsWithReplies);
     } catch (error) {
@@ -113,7 +129,7 @@ export function CommentsSection({ articleId }: CommentsSectionProps) {
 
     setSubmitting(true);
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("comments")
         .insert({
           article_id: articleId,
@@ -125,23 +141,17 @@ export function CommentsSection({ articleId }: CommentsSectionProps) {
       if (error) throw error;
 
       // Award XP
-      await supabase.rpc("award_xp", { user_uuid: user.id, xp_amount: 25 });
-
-      // Update user comment count
-      await supabase
-        .from("users")
-        .update({ total_comments: (user.total_comments || 0) + 1 })
-        .eq("id", user.id);
+      await (supabase as any).rpc("award_xp", { user_uuid: user.id, xp_amount: 25 });
 
       // Log activity
-      await supabase.from("user_activity").insert({
+      await (supabase as any).from("user_activity").insert({
         user_id: user.id,
         activity_type: "comment",
         article_id: articleId,
         xp_earned: 25,
       });
 
-      toast.success("Comment posted!");
+      toast.success("Comment posted! +25 XP", { icon: "💬" });
       setNewComment("");
       fetchComments();
     } catch (error) {
@@ -165,7 +175,7 @@ export function CommentsSection({ articleId }: CommentsSectionProps) {
 
     setSubmitting(true);
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("comments")
         .insert({
           article_id: articleId,
@@ -177,9 +187,9 @@ export function CommentsSection({ articleId }: CommentsSectionProps) {
       if (error) throw error;
 
       // Award XP
-      await supabase.rpc("award_xp", { user_uuid: user.id, xp_amount: 20 });
+      await (supabase as any).rpc("award_xp", { user_uuid: user.id, xp_amount: 20 });
 
-      toast.success("Reply posted!");
+      toast.success("Reply posted! +20 XP", { icon: "↩️" });
       setReplyContent("");
       setReplyingTo(null);
       fetchComments();
@@ -199,15 +209,17 @@ export function CommentsSection({ articleId }: CommentsSectionProps) {
 
     try {
       if (currentlyLiked) {
-        await supabase
+        await (supabase as any)
           .from("comment_likes")
           .delete()
           .eq("comment_id", commentId)
           .eq("user_id", user.id);
+        toast.success("Like removed");
       } else {
-        await supabase
+        await (supabase as any)
           .from("comment_likes")
           .insert({ comment_id: commentId, user_id: user.id });
+        toast.success("Liked!");
       }
 
       fetchComments();
@@ -223,7 +235,7 @@ export function CommentsSection({ articleId }: CommentsSectionProps) {
     if (!confirm("Are you sure you want to delete this comment?")) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("comments")
         .delete()
         .eq("id", commentId)
@@ -245,13 +257,13 @@ export function CommentsSection({ articleId }: CommentsSectionProps) {
         <div className="flex items-start gap-3">
           {/* Avatar */}
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-            {comment.user?.name?.charAt(0).toUpperCase() || "U"}
+            {(comment.user_name || "User").charAt(0).toUpperCase()}
           </div>
 
           <div className="flex-1 min-w-0">
             {/* Header */}
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-semibold text-foreground">{comment.user?.name || "Anonymous"}</span>
+              <span className="font-semibold text-foreground">{comment.user_name || "Anonymous User"}</span>
               <span className="text-xs text-muted-foreground">
                 {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
               </span>

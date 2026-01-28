@@ -70,8 +70,10 @@ export function ArticleReactions({ articleId, className }: ArticleReactionsProps
     }
 
     const hasReacted = userReactions.has(reactionType);
+    const currentReaction = Array.from(userReactions)[0]; // Get current reaction if any
 
     try {
+      // If clicking the same reaction, remove it (toggle off)
       if (hasReacted) {
         const { error } = await supabase
           .from("article_reactions")
@@ -82,16 +84,28 @@ export function ArticleReactions({ articleId, className }: ArticleReactionsProps
 
         if (error) throw error;
 
-        setUserReactions((prev) => {
-          const next = new Set(prev);
-          next.delete(reactionType);
-          return next;
-        });
+        setUserReactions(new Set());
         setReactionCounts((prev) => ({
           ...prev,
           [reactionType]: Math.max(0, (prev[reactionType] || 0) - 1),
         }));
+        toast.success("Reaction removed");
       } else {
+        // Remove any existing reaction first
+        if (currentReaction) {
+          await supabase
+            .from("article_reactions")
+            .delete()
+            .eq("article_id", articleId)
+            .eq("user_id", user.id);
+
+          setReactionCounts((prev) => ({
+            ...prev,
+            [currentReaction]: Math.max(0, (prev[currentReaction] || 0) - 1),
+          }));
+        }
+
+        // Add new reaction
         const { error } = await supabase
           .from("article_reactions")
           .insert({
@@ -102,17 +116,20 @@ export function ArticleReactions({ articleId, className }: ArticleReactionsProps
 
         if (error) throw error;
 
-        await supabase.rpc("award_xp", { user_uuid: user.id, xp_amount: 10 });
+        // Award XP only if this is a new reaction (not switching)
+        if (!currentReaction) {
+          await supabase.rpc("award_xp", { user_uuid: user.id, xp_amount: 10 });
 
-        await supabase.from("user_activity").insert({
-          user_id: user.id,
-          activity_type: "reaction",
-          article_id: articleId,
-          xp_earned: 10,
-          metadata: { reaction_type: reactionType },
-        });
+          await supabase.from("user_activity").insert({
+            user_id: user.id,
+            activity_type: "reaction",
+            article_id: articleId,
+            xp_earned: 10,
+            metadata: { reaction_type: reactionType },
+          });
+        }
 
-        setUserReactions((prev) => new Set(prev).add(reactionType));
+        setUserReactions(new Set([reactionType]));
         setReactionCounts((prev) => ({
           ...prev,
           [reactionType]: (prev[reactionType] || 0) + 1,
