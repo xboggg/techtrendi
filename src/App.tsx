@@ -51,6 +51,59 @@ import IPLookup from "./pages/tools/IPLookup";
 import HashGenerator from "./pages/tools/HashGenerator";
 import URLParser from "./pages/tools/URLParser";
 import TextCounter from "./pages/tools/TextCounter";
+import MeetingCostCalculator from "./pages/tools/MeetingCostCalculator";
+import EmailSubjectTester from "./pages/tools/EmailSubjectTester";
+import PomodoroTimer from "./pages/tools/PomodoroTimer";
+import SubscriptionTracker from "./pages/tools/SubscriptionTracker";
+import HabitTracker from "./pages/tools/HabitTracker";
+import JobTracker from "./pages/tools/JobTracker";
+import LinkInBio from "./pages/tools/LinkInBio";
+import InvoiceGenerator from "./pages/tools/InvoiceGenerator";
+import InvoiceChaser from "./pages/tools/InvoiceChaser";
+import ContentRepurposer from "./pages/tools/ContentRepurposer";
+import ProposalGenerator from "./pages/tools/ProposalGenerator";
+import SimpleCRM from "./pages/tools/SimpleCRM";
+import AppointmentBooking from "./pages/tools/AppointmentBooking";
+import ClientPortal from "./pages/tools/ClientPortal";
+import ResumeBuilder from "./pages/tools/ResumeBuilder";
+import NetworkCRM from "./pages/tools/NetworkCRM";
+import URLShortener from "./pages/tools/URLShortener";
+import CreatorAnalytics from "./pages/tools/CreatorAnalytics";
+import RegexTester from "./pages/tools/RegexTester";
+import CronBuilder from "./pages/tools/CronBuilder";
+import JWTDecoder from "./pages/tools/JWTDecoder";
+import MarkdownEditor from "./pages/tools/MarkdownEditor";
+import GradientGenerator from "./pages/tools/GradientGenerator";
+import TypingTest from "./pages/tools/TypingTest";
+import SalaryComparison from "./pages/tools/SalaryComparison";
+import BusinessNameGenerator from "./pages/tools/BusinessNameGenerator";
+import DecisionWheel from "./pages/tools/DecisionWheel";
+import ExpenseTracker from "./pages/tools/ExpenseTracker";
+import FaviconGenerator from "./pages/tools/FaviconGenerator";
+import MetaTagGenerator from "./pages/tools/MetaTagGenerator";
+import ContractGenerator from "./pages/tools/ContractGenerator";
+import CoverLetterGenerator from "./pages/tools/CoverLetterGenerator";
+import ColdEmailWriter from "./pages/tools/ColdEmailWriter";
+import LifeProgressBar from "./pages/tools/LifeProgressBar";
+import UsernameGenerator from "./pages/tools/UsernameGenerator";
+import ScreenTimeCalculator from "./pages/tools/ScreenTimeCalculator";
+import PricingCalculator from "./pages/tools/PricingCalculator";
+import ROICalculator from "./pages/tools/ROICalculator";
+import DailyStandup from "./pages/tools/DailyStandup";
+import TimeTracker from "./pages/tools/TimeTracker";
+import DailyJournal from "./pages/tools/DailyJournal";
+import WaterTracker from "./pages/tools/WaterTracker";
+import FocusScore from "./pages/tools/FocusScore";
+import SideHustleCalculator from "./pages/tools/SideHustleCalculator";
+import StartupValidator from "./pages/tools/StartupValidator";
+import PersonalBrandAudit from "./pages/tools/PersonalBrandAudit";
+import CarbonFootprint from "./pages/tools/CarbonFootprint";
+import CareerMatcher from "./pages/tools/CareerMatcher";
+import PlaceholderImage from "./pages/tools/PlaceholderImage";
+import ProductDescriptionGenerator from "./pages/tools/ProductDescriptionGenerator";
+import BlogOutlineGenerator from "./pages/tools/BlogOutlineGenerator";
+import SocialCaptionGenerator from "./pages/tools/SocialCaptionGenerator";
+import MeetingNotesSummarizer from "./pages/tools/MeetingNotesSummarizer";
 import NotFound from "./pages/NotFound";
 import DesignDemo from "./pages/DesignDemo";
 import Privacy from "./pages/Privacy";
@@ -114,6 +167,59 @@ const App = () => (
                   <Route path="/tools/hash-generator" element={<HashGenerator />} />
                   <Route path="/tools/url-parser" element={<URLParser />} />
                   <Route path="/tools/text-counter" element={<TextCounter />} />
+                  <Route path="/tools/meeting-cost-calculator" element={<MeetingCostCalculator />} />
+                  <Route path="/tools/email-subject-tester" element={<EmailSubjectTester />} />
+                  <Route path="/tools/pomodoro-timer" element={<PomodoroTimer />} />
+                  <Route path="/tools/subscription-tracker" element={<SubscriptionTracker />} />
+                  <Route path="/tools/habit-tracker" element={<HabitTracker />} />
+                  <Route path="/tools/job-tracker" element={<JobTracker />} />
+                  <Route path="/tools/link-in-bio" element={<LinkInBio />} />
+                  <Route path="/tools/invoice-generator" element={<InvoiceGenerator />} />
+                  <Route path="/tools/invoice-chaser" element={<InvoiceChaser />} />
+                  <Route path="/tools/content-repurposer" element={<ContentRepurposer />} />
+                  <Route path="/tools/proposal-generator" element={<ProposalGenerator />} />
+                  <Route path="/tools/simple-crm" element={<SimpleCRM />} />
+                  <Route path="/tools/appointment-booking" element={<AppointmentBooking />} />
+                  <Route path="/tools/client-portal" element={<ClientPortal />} />
+                  <Route path="/tools/resume-builder" element={<ResumeBuilder />} />
+                  <Route path="/tools/network-crm" element={<NetworkCRM />} />
+                  <Route path="/tools/url-shortener" element={<URLShortener />} />
+                  <Route path="/tools/creator-analytics" element={<CreatorAnalytics />} />
+                  <Route path="/tools/regex-tester" element={<RegexTester />} />
+                  <Route path="/tools/cron-builder" element={<CronBuilder />} />
+                  <Route path="/tools/jwt-decoder" element={<JWTDecoder />} />
+                  <Route path="/tools/markdown-editor" element={<MarkdownEditor />} />
+                  <Route path="/tools/gradient-generator" element={<GradientGenerator />} />
+                  <Route path="/tools/typing-test" element={<TypingTest />} />
+                  <Route path="/tools/salary-comparison" element={<SalaryComparison />} />
+                  <Route path="/tools/business-name-generator" element={<BusinessNameGenerator />} />
+                  <Route path="/tools/decision-wheel" element={<DecisionWheel />} />
+                  <Route path="/tools/expense-tracker" element={<ExpenseTracker />} />
+                  <Route path="/tools/favicon-generator" element={<FaviconGenerator />} />
+                  <Route path="/tools/meta-tag-generator" element={<MetaTagGenerator />} />
+                  <Route path="/tools/contract-generator" element={<ContractGenerator />} />
+                  <Route path="/tools/cover-letter-generator" element={<CoverLetterGenerator />} />
+                  <Route path="/tools/cold-email-writer" element={<ColdEmailWriter />} />
+                  <Route path="/tools/life-progress-bar" element={<LifeProgressBar />} />
+                  <Route path="/tools/username-generator" element={<UsernameGenerator />} />
+                  <Route path="/tools/screen-time-calculator" element={<ScreenTimeCalculator />} />
+                  <Route path="/tools/pricing-calculator" element={<PricingCalculator />} />
+                  <Route path="/tools/roi-calculator" element={<ROICalculator />} />
+                  <Route path="/tools/daily-standup" element={<DailyStandup />} />
+                  <Route path="/tools/time-tracker" element={<TimeTracker />} />
+                  <Route path="/tools/daily-journal" element={<DailyJournal />} />
+                  <Route path="/tools/water-tracker" element={<WaterTracker />} />
+                  <Route path="/tools/focus-score" element={<FocusScore />} />
+                  <Route path="/tools/side-hustle-calculator" element={<SideHustleCalculator />} />
+                  <Route path="/tools/startup-validator" element={<StartupValidator />} />
+                  <Route path="/tools/personal-brand-audit" element={<PersonalBrandAudit />} />
+                  <Route path="/tools/carbon-footprint" element={<CarbonFootprint />} />
+                  <Route path="/tools/career-matcher" element={<CareerMatcher />} />
+                  <Route path="/tools/placeholder-image" element={<PlaceholderImage />} />
+                  <Route path="/tools/product-description-generator" element={<ProductDescriptionGenerator />} />
+                  <Route path="/tools/blog-outline-generator" element={<BlogOutlineGenerator />} />
+                  <Route path="/tools/social-caption-generator" element={<SocialCaptionGenerator />} />
+                  <Route path="/tools/meeting-notes-summarizer" element={<MeetingNotesSummarizer />} />
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/blog/:slug" element={<BlogArticle />} />
                   <Route path="/phones" element={<Phones />} />

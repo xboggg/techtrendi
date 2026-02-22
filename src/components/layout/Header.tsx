@@ -39,7 +39,7 @@ const navLinks: NavLink[] = [
     href: "/blog",
     isMegaMenu: true,
   },
-  { label: "AI Tools", href: "/tools" },
+  { label: "Utilities", href: "/tools" },
   { label: "Reviews", href: "/reviews" },
   { label: "Blog", href: "/blog" },
   { label: "DigiStore", href: "/store", icon: ShoppingBag },
