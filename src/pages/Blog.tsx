@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
-import { supabase } from "@/integrations/supabase/client";
+import staticArticles from "@/data/articles.json";
 import { Clock, Calendar, ArrowRight, Search, Crown, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 const ARTICLES_PER_PAGE = 9;
+const SUPABASE_URL = "https://db.techtrendi.com";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNjQxNzY5MjAwLCJleHAiOjE3OTk1MzU2MDB9.lbPqMemEL_VFnCma2zeuJ1MfFLNQ7_VXRgaacXeeReQ";
 
 interface Article {
   id: string;
@@ -33,40 +35,50 @@ const categories = [
   "Gaming",
 ];
 
+// Fallback images by category when article images don't exist
+const categoryImages: Record<string, string> = {
+  "How-To": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop",
+  "Security": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=400&fit=crop",
+  "Phones": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=400&fit=crop",
+  "Accessories": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=400&fit=crop",
+  "AI Tech": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop",
+  "Gaming": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&h=400&fit=crop",
+  "default": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=400&fit=crop",
+};
+
+// Get image URL with fallback
+function getArticleImage(article: Article): string {
+  // If cover_image is a full URL (starts with http), use it
+  if (article.cover_image?.startsWith("http")) {
+    return article.cover_image;
+  }
+  // Otherwise use category fallback
+  return categoryImages[article.category] || categoryImages["default"];
+}
+
 export default function Blog() {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+  const [articles, setArticles] = useState<Article[]>(staticArticles as Article[]);
 
+  // Instant load with static data, then fetch fresh articles in background
+  // New articles appear automatically without any rebuild needed
   useEffect(() => {
-    fetchArticles();
+    const controller = new AbortController();
+    fetch(`${SUPABASE_URL}/rest/v1/articles?select=*&order=created_at.desc`, {
+      headers: { "apikey": SUPABASE_KEY },
+      signal: controller.signal,
+    })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setArticles(data);
+        }
+      })
+      .catch(() => {}); // Silent fail - static data already showing
+    return () => controller.abort();
   }, []);
-
-  const fetchArticles = async () => {
-    try {
-      setError(null);
-      const { data, error: fetchError } = await supabase
-        .from("articles")
-        .select("*")
-        .eq("is_published", true)
-        .order("created_at", { ascending: false });
-
-      if (fetchError) {
-        console.error("Supabase error:", fetchError);
-        setError(`Failed to load articles: ${fetchError.message}`);
-        return;
-      }
-      setArticles(data || []);
-    } catch (err) {
-      console.error("Error fetching articles:", err);
-      setError("Failed to connect to the server. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filteredArticles = articles.filter((article) => {
     const matchesSearch =
@@ -143,48 +155,11 @@ export default function Blog() {
           </div>
         </div>
 
-        {/* Error State */}
-        {error && (
-          <div className="text-center py-16 max-w-md mx-auto">
-            <div className="bg-destructive/10 border border-destructive/20 rounded-2xl p-6">
-              <p className="text-destructive mb-4">{error}</p>
-              <button
-                onClick={() => {
-                  setLoading(true);
-                  fetchArticles();
-                }}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-              >
-                Try Again
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Articles Grid */}
-        {!error && loading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div
-                key={i}
-                className="bg-card rounded-2xl border border-border shadow-card overflow-hidden animate-pulse"
-              >
-                <div className="h-48 bg-muted" />
-                <div className="p-6">
-                  <div className="h-4 bg-muted rounded w-1/4 mb-4" />
-                  <div className="h-6 bg-muted rounded w-3/4 mb-2" />
-                  <div className="h-4 bg-muted rounded w-full mb-4" />
-                  <div className="h-4 bg-muted rounded w-1/2" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : !error && filteredArticles.length === 0 ? (
+        {filteredArticles.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground text-lg mb-4">
-              {articles.length === 0
-                ? "No articles published yet. Check back soon!"
-                : "No articles match your search."}
+              No articles match your search.
             </p>
             {searchQuery && (
               <button
@@ -195,7 +170,7 @@ export default function Blog() {
               </button>
             )}
           </div>
-        ) : !error ? (
+        ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedArticles.map((article) => (
               <Link
@@ -205,15 +180,14 @@ export default function Blog() {
               >
                 {/* Cover Image */}
                 <div className="relative h-48 bg-muted overflow-hidden">
-                  {article.cover_image ? (
-                    <img
-                      src={article.cover_image}
-                      alt={article.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-primary opacity-20" />
-                  )}
+                  <img
+                    src={getArticleImage(article)}
+                    alt={article.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = categoryImages[article.category] || categoryImages["default"];
+                    }}
+                  />
                   {article.is_premium && (
                     <div className="absolute top-3 right-3">
                       <Badge className="bg-gradient-accent text-accent-foreground">
@@ -259,10 +233,10 @@ export default function Blog() {
               </Link>
             ))}
           </div>
-        ) : null}
+        )}
 
         {/* Pagination Controls */}
-        {!error && !loading && totalPages > 1 && (
+        {totalPages > 1 && (
           <div className="flex items-center justify-center gap-2 mt-12">
             <Button
               variant="outline"
@@ -303,7 +277,7 @@ export default function Blog() {
         )}
 
         {/* Results Info */}
-        {!error && !loading && filteredArticles.length > 0 && (
+        {filteredArticles.length > 0 && (
           <p className="text-center text-sm text-muted-foreground mt-6">
             Showing {startIndex + 1}-{Math.min(startIndex + ARTICLES_PER_PAGE, filteredArticles.length)} of {filteredArticles.length} articles
           </p>

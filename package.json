@@ -9,7 +9,9 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "publish:articles": "node scripts/publish-articles.mjs"
+    "publish:articles": "node scripts/publish-articles.mjs",
+    "refresh": "node scripts/refresh-articles.cjs && npm run build",
+    "deploy": "node deploy.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
