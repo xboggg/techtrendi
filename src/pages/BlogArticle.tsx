@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import staticArticles from "@/data/articles.json";
 import { useAuth } from "@/contexts/AuthContext";
 import { Clock, Calendar, ArrowLeft, Crown, User, List } from "lucide-react";
@@ -13,8 +14,8 @@ import { useReadingHistory } from "@/components/ui/reading-history";
 import { sanitizeInput } from "@/lib/security";
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
 
-const SUPABASE_URL = "https://db.techtrendi.com";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNjQxNzY5MjAwLCJleHAiOjE3OTk1MzU2MDB9.lbPqMemEL_VFnCma2zeuJ1MfFLNQ7_VXRgaacXeeReQ";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db.techtrendi.com";
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 
 interface Article {
   id: string;
@@ -261,6 +262,18 @@ export default function BlogArticle() {
 
   return (
     <Layout>
+      <SEOHead
+        title={article.title}
+        description={article.excerpt || `Read ${article.title} on TechTrendi`}
+        canonical={`/blog/${article.slug}`}
+        image={getArticleImage(article)}
+        type="article"
+        author={article.author || "TechTrendi Team"}
+        publishedTime={article.created_at}
+        category={article.category}
+        tags={article.tags || []}
+        keywords={article.tags || [article.category]}
+      />
       <ReadingProgress />
       <article className="container py-12 md:py-20">
         <div className="max-w-4xl mx-auto">

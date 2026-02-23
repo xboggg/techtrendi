@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import staticArticles from "@/data/articles.json";
 import { Clock, Calendar, ArrowRight, Search, Crown, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -8,8 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 const ARTICLES_PER_PAGE = 9;
-const SUPABASE_URL = "https://db.techtrendi.com";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNjQxNzY5MjAwLCJleHAiOjE3OTk1MzU2MDB9.lbPqMemEL_VFnCma2zeuJ1MfFLNQ7_VXRgaacXeeReQ";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db.techtrendi.com";
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 
 interface Article {
   id: string;
@@ -112,6 +113,12 @@ export default function Blog() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Tech Blog & Insights"
+        description="Stay updated with the latest tech trends, in-depth guides, and expert reviews. Expert technology articles covering phones, security, AI, and productivity."
+        canonical="/blog"
+        keywords={["tech blog", "technology articles", "tech guides", "smartphone reviews", "AI articles", "cybersecurity tips"]}
+      />
       <div className="container py-12 md:py-20">
         {/* Header */}
         <div className="text-center mb-12">
