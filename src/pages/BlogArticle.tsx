@@ -1,21 +1,20 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
-import { supabase } from "@/integrations/supabase/client";
+import staticArticles from "@/data/articles.json";
 import { useAuth } from "@/contexts/AuthContext";
 import { Clock, Calendar, ArrowLeft, Crown, User, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
 import { ReadingProgress } from "@/components/ui/reading-progress";
 import { ShareButtons } from "@/components/ui/share-buttons";
 import { BookmarkButton } from "@/components/ui/bookmark-system";
 import { useReadingHistory } from "@/components/ui/reading-history";
-import { sanitizeHTML, sanitizeInput } from "@/lib/security";
-import { ArticleReactions } from "@/components/article/ArticleReactions";
-import { SocialShare } from "@/components/article/SocialShare";
-import { CommentsSection } from "@/components/article/CommentsSection";
+import { sanitizeInput } from "@/lib/security";
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
+
+const SUPABASE_URL = "https://db.techtrendi.com";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNjQxNzY5MjAwLCJleHAiOjE3OTk1MzU2MDB9.lbPqMemEL_VFnCma2zeuJ1MfFLNQ7_VXRgaacXeeReQ";
 
 interface Article {
   id: string;
@@ -27,7 +26,6 @@ interface Article {
   cover_image: string | null;
   read_time_minutes: number | null;
   created_at: string;
-  updated_at: string;
   is_premium: boolean;
   tags: string[] | null;
   author: string | null;
@@ -40,84 +38,93 @@ interface TableOfContentsItem {
   level: number;
 }
 
+// Fallback images by category when article images don't exist
+const categoryImages: Record<string, string> = {
+  "How-To": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&h=600&fit=crop",
+  "Security": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=600&fit=crop",
+  "Phones": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&h=600&fit=crop",
+  "Accessories": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1200&h=600&fit=crop",
+  "AI Tech": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=600&fit=crop",
+  "Gaming": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=1200&h=600&fit=crop",
+  "default": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=600&fit=crop",
+};
+
+// Get image URL with fallback
+function getArticleImage(article: Article): string {
+  if (article.cover_image?.startsWith("http")) {
+    return article.cover_image;
+  }
+  return categoryImages[article.category] || categoryImages["default"];
+}
+
+// Get article from static data first (instant)
+function getStaticArticle(slug: string): Article | undefined {
+  return (staticArticles as Article[]).find(a => a.slug === slug);
+}
+
+// Get related articles
+function getRelatedArticles(articles: Article[], category: string, excludeId: string): Article[] {
+  return articles
+    .filter(a => a.category === category && a.id !== excludeId)
+    .slice(0, 3);
+}
+
 export default function BlogArticle() {
   const { slug } = useParams();
-  const [article, setArticle] = useState<Article | null>(null);
-  const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
   const [toc, setToc] = useState<TableOfContentsItem[]>([]);
   const { subscription, user } = useAuth();
-  const { toast } = useToast();
   const { addToHistory } = useReadingHistory();
+  const [article, setArticle] = useState<Article | undefined>(slug ? getStaticArticle(slug) : undefined);
+  const [allArticles, setAllArticles] = useState<Article[]>(staticArticles as Article[]);
 
+  // Fetch fresh article data in background
   useEffect(() => {
-    if (slug) {
-      fetchArticle();
-    }
+    if (!slug) return;
+    const controller = new AbortController();
+    fetch(`${SUPABASE_URL}/rest/v1/articles?slug=eq.${slug}&select=*`, {
+      headers: { "apikey": SUPABASE_KEY },
+      signal: controller.signal,
+    })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setArticle(data[0]);
+        }
+      })
+      .catch(() => {});
+
+    // Also fetch all articles for related
+    fetch(`${SUPABASE_URL}/rest/v1/articles?select=*&order=created_at.desc`, {
+      headers: { "apikey": SUPABASE_KEY },
+      signal: controller.signal,
+    })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setAllArticles(data);
+        }
+      })
+      .catch(() => {});
+
+    return () => controller.abort();
   }, [slug]);
 
-  const fetchArticle = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("articles")
-        .select("*")
-        .eq("slug", slug)
-        .eq("is_published", true)
-        .single();
+  const relatedArticles = article ? getRelatedArticles(allArticles, article.category, article.id) : [];
 
-      if (error) throw error;
-      setArticle(data);
-
-      // Generate TOC from content
-      if (data?.content) {
-        generateTOC(data.content);
-      }
-
-      // Fetch related articles
-      if (data?.category) {
-        fetchRelatedArticles(data.category, data.id);
-      }
-
-      // Increment views and add to reading history
-      if (data?.id) {
-        await supabase
-          .from("articles")
-          .update({ views: (data.views || 0) + 1 })
-          .eq("id", data.id);
-
-        // Add to reading history
-        addToHistory({
-          id: data.id,
-          type: 'article',
-          title: data.title,
-          url: `/blog/${data.slug}`,
-          image: data.cover_image || undefined,
-          category: data.category,
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching article:", error);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (article?.content) {
+      generateTOC(article.content);
+      // Add to reading history
+      addToHistory({
+        id: article.id,
+        type: 'article',
+        title: article.title,
+        url: `/blog/${article.slug}`,
+        image: article.cover_image || undefined,
+        category: article.category,
+      });
     }
-  };
-
-  const fetchRelatedArticles = async (category: string, currentId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from("articles")
-        .select("*")
-        .eq("category", category)
-        .eq("is_published", true)
-        .neq("id", currentId)
-        .limit(3);
-
-      if (error) throw error;
-      setRelatedArticles(data || []);
-    } catch (error) {
-      console.error("Error fetching related articles:", error);
-    }
-  };
+  }, [article]);
 
   const generateTOC = (content: string) => {
     const headingRegex = /^(#{1,3})\s+(.+)$/gm;
@@ -143,12 +150,9 @@ export default function BlogArticle() {
   };
 
   const renderContent = (content: string) => {
-    // Sanitize the raw content first to prevent XSS
     const sanitizedContent = sanitizeInput(content);
 
-    // Simple markdown-like rendering
     let html = sanitizedContent
-      // Headers
       .replace(/^### (.+)$/gm, (match, text) => {
         const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
         return `<h3 id="${id}" class="text-xl font-semibold mt-8 mb-4 text-foreground scroll-mt-20">${text}</h3>`;
@@ -161,50 +165,24 @@ export default function BlogArticle() {
         const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
         return `<h1 id="${id}" class="text-3xl font-bold mt-12 mb-6 text-foreground scroll-mt-20">${text}</h1>`;
       })
-      // Bold and italic
       .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      // Links - sanitize URLs
       .replace(/\[(.+?)\]\((.+?)\)/g, (match, linkText, url) => {
-        // Basic URL validation - only allow http/https
         const cleanUrl = url.trim();
         if (cleanUrl.match(/^https?:\/\//i) || cleanUrl.startsWith('/')) {
           return `<a href="${cleanUrl}" class="text-primary hover:underline" rel="noopener noreferrer">${linkText}</a>`;
         }
-        return linkText; // If invalid URL, just return the text
+        return linkText;
       })
-      // Code blocks
       .replace(/```(\w+)?\n([\s\S]+?)```/g, '<pre class="bg-muted p-4 rounded-lg overflow-x-auto my-4"><code>$2</code></pre>')
       .replace(/`(.+?)`/g, '<code class="bg-muted px-1.5 py-0.5 rounded text-sm">$1</code>')
-      // Lists
       .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc">$1</li>')
       .replace(/^(\d+)\. (.+)$/gm, '<li class="ml-4 list-decimal">$2</li>')
-      // Paragraphs
       .replace(/\n\n/g, '</p><p class="text-muted-foreground leading-relaxed mb-4">')
-      // Line breaks
       .replace(/\n/g, '<br />');
 
     return `<p class="text-muted-foreground leading-relaxed mb-4">${html}</p>`;
   };
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="container py-12">
-          <div className="max-w-4xl mx-auto animate-pulse">
-            <div className="h-8 bg-muted rounded w-3/4 mb-4" />
-            <div className="h-4 bg-muted rounded w-1/2 mb-8" />
-            <div className="h-64 bg-muted rounded mb-8" />
-            <div className="space-y-4">
-              <div className="h-4 bg-muted rounded" />
-              <div className="h-4 bg-muted rounded" />
-              <div className="h-4 bg-muted rounded w-3/4" />
-            </div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
 
   if (!article) {
     return (
@@ -231,7 +209,6 @@ export default function BlogArticle() {
       <Layout>
         <div className="container py-12 md:py-20">
           <div className="max-w-4xl mx-auto">
-            {/* Article Header Preview */}
             <Link
               to="/blog"
               className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
@@ -253,7 +230,6 @@ export default function BlogArticle() {
               <p className="text-lg text-muted-foreground mb-6">{article.excerpt}</p>
             )}
 
-            {/* Premium Gate */}
             <div className="bg-gradient-primary rounded-2xl p-8 md:p-12 text-center">
               <Crown className="w-12 h-12 text-primary-foreground mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-primary-foreground mb-4">
@@ -354,15 +330,16 @@ export default function BlogArticle() {
           </header>
 
           {/* Cover Image */}
-          {article.cover_image && (
-            <div className="rounded-2xl overflow-hidden mb-10">
-              <img
-                src={article.cover_image}
-                alt={article.title}
-                className="w-full h-auto"
-              />
-            </div>
-          )}
+          <div className="rounded-2xl overflow-hidden mb-10">
+            <img
+              src={getArticleImage(article)}
+              alt={article.title}
+              className="w-full h-auto"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = categoryImages[article.category] || categoryImages["default"];
+              }}
+            />
+          </div>
 
           <div className="lg:grid lg:grid-cols-[1fr_250px] lg:gap-12">
             {/* Article Content */}
@@ -410,32 +387,9 @@ export default function BlogArticle() {
             </div>
           )}
 
-          {/* Article Reactions */}
-          <div className="mt-12 pt-8 border-t border-border">
-            <ArticleReactions
-              articleId={article.id}
-              articleTitle={article.title}
-            />
-          </div>
-
-          {/* Social Share */}
-          <div className="mt-8">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Share this article</h3>
-            <SocialShare
-              articleId={article.id}
-              articleTitle={article.title}
-              articleUrl={window.location.href}
-            />
-          </div>
-
           {/* Newsletter Signup */}
           <div className="mt-12">
             <NewsletterForm variant="default" />
-          </div>
-
-          {/* Comments Section */}
-          <div className="mt-12 pt-8 border-t border-border">
-            <CommentsSection articleId={article.id} />
           </div>
 
           {/* Related Articles */}
@@ -449,15 +403,16 @@ export default function BlogArticle() {
                     to={`/blog/${related.slug}`}
                     className="group bg-card rounded-xl border border-border p-4 hover:shadow-elevated hover:border-primary/20 transition-all"
                   >
-                    {related.cover_image && (
-                      <div className="h-32 rounded-lg overflow-hidden mb-3">
-                        <img
-                          src={related.cover_image}
-                          alt={related.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      </div>
-                    )}
+                    <div className="h-32 rounded-lg overflow-hidden mb-3">
+                      <img
+                        src={getArticleImage(related)}
+                        alt={related.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = categoryImages[related.category] || categoryImages["default"];
+                        }}
+                      />
+                    </div>
                     <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
                       {related.title}
                     </h3>
