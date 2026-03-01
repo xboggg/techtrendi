@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Link, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
-import { LayoutDashboard, FileText, MessageSquare, Users, ArrowLeft, Loader2, PenSquare, Mail, Package } from "lucide-react";
+import { LayoutDashboard, FileText, MessageSquare, Users, ArrowLeft, Loader2, PenSquare, Mail, Package, Newspaper } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AdminLayoutProps {
@@ -11,6 +11,7 @@ interface AdminLayoutProps {
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "News", href: "/admin/news", icon: Newspaper },
   { label: "Articles", href: "/admin/articles", icon: PenSquare },
   { label: "Reviews", href: "/admin/reviews", icon: FileText },
   { label: "Products", href: "/admin/products", icon: Package },

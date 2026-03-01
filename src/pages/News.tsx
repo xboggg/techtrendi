@@ -1,0 +1,312 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
+import { Clock, Calendar, ArrowRight, Search, ChevronLeft, ChevronRight, Zap } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+const NEWS_PER_PAGE = 12;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db.techtrendi.com";
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
+
+interface NewsItem {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  category: string;
+  cover_image: string | null;
+  read_time_minutes: number | null;
+  created_at: string;
+  content: string | null;
+  author: string | null;
+}
+
+const newsCategories = [
+  "All",
+  "AI Tech",
+  "Big Tech",
+  "Cybersecurity",
+  "Gadgets",
+];
+
+// Fallback images by category
+const categoryImages: Record<string, string> = {
+  "AI Tech": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop",
+  "Big Tech": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=400&fit=crop",
+  "Cybersecurity": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=400&fit=crop",
+  "Gadgets": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=400&fit=crop",
+  "default": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=400&fit=crop",
+};
+
+function getNewsImage(news: NewsItem): string {
+  if (news.cover_image?.startsWith("http")) {
+    return news.cover_image;
+  }
+  return categoryImages[news.category] || categoryImages["default"];
+}
+
+export default function News() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+
+    fetch(`${SUPABASE_URL}/rest/v1/news?select=*&order=created_at.desc`, {
+      headers: { "apikey": SUPABASE_KEY },
+      signal: controller.signal,
+    })
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        if (Array.isArray(data)) {
+          setNews(data);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+
+    return () => controller.abort();
+  }, []);
+
+  const filteredNews = news.filter((item) => {
+    const matchesSearch =
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === "All" ||
+      item.category === selectedCategory;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  const totalPages = Math.ceil(filteredNews.length / NEWS_PER_PAGE);
+  const startIndex = (currentPage - 1) * NEWS_PER_PAGE;
+  const paginatedNews = filteredNews.slice(startIndex, startIndex + NEWS_PER_PAGE);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory]);
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffHours < 1) {
+      return "Just now";
+    } else if (diffHours < 24) {
+      return `${diffHours}h ago`;
+    } else if (diffDays < 7) {
+      return `${diffDays}d ago`;
+    } else {
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
+      });
+    }
+  };
+
+  return (
+    <Layout>
+      <SEOHead
+        title="Tech News - Breaking Tech Stories"
+        description="Get the latest tech news, breaking stories about AI, Big Tech, cybersecurity, and gadgets. Stay informed with TechTrendi's daily tech news updates."
+        canonical="/news"
+        keywords={["tech news", "breaking tech", "AI news", "cybersecurity news", "gadget news", "Big Tech news"]}
+      />
+      <div className="container py-12 md:py-20">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <Zap className="w-4 h-4" />
+            Breaking Tech Stories
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Tech News
+          </h1>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Stay updated with the latest breaking news in AI, cybersecurity, Big Tech, and gadgets.
+          </p>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search news..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          {/* Category Pills */}
+          <div className="flex flex-wrap gap-2">
+            {newsCategories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  selectedCategory === category
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Loading State */}
+        {loading ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-card rounded-2xl border border-border overflow-hidden animate-pulse">
+                <div className="h-48 bg-muted" />
+                <div className="p-6 space-y-3">
+                  <div className="h-4 bg-muted rounded w-20" />
+                  <div className="h-6 bg-muted rounded w-full" />
+                  <div className="h-4 bg-muted rounded w-3/4" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filteredNews.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-muted-foreground text-lg mb-4">
+              {news.length === 0
+                ? "No news articles yet. Check back soon!"
+                : "No news matches your search."}
+            </p>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="text-primary hover:underline"
+              >
+                Clear search
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedNews.map((item) => (
+              <Link
+                key={item.id}
+                to={`/news/${item.slug}`}
+                className="group bg-card rounded-2xl border border-border shadow-card overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all duration-300"
+              >
+                {/* Cover Image */}
+                <div className="relative h-48 bg-muted overflow-hidden">
+                  <img
+                    src={getNewsImage(item)}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = categoryImages["default"];
+                    }}
+                  />
+                  <div className="absolute top-3 left-3">
+                    <Badge className="bg-primary/90 text-primary-foreground">
+                      {item.category}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                    {item.title}
+                  </h3>
+
+                  {item.excerpt && (
+                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                      {item.excerpt}
+                    </p>
+                  )}
+
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {formatDate(item.created_at)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {item.read_time_minutes || 3} min
+                      </span>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-12">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="flex items-center gap-1"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Previous
+            </Button>
+
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCurrentPage(page)}
+                  className="w-10 h-10"
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="flex items-center gap-1"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
+
+        {filteredNews.length > 0 && (
+          <p className="text-center text-sm text-muted-foreground mt-6">
+            Showing {startIndex + 1}-{Math.min(startIndex + NEWS_PER_PAGE, filteredNews.length)} of {filteredNews.length} news articles
+          </p>
+        )}
+      </div>
+    </Layout>
+  );
+}

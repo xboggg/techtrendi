@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, User, LogOut, Crown, Shield, Sparkles, Flame, Smartphone, Lock, Cpu, Lightbulb, BookOpen, DollarSign, ShoppingBag } from "lucide-react";
+import { Menu, X, ChevronDown, User, LogOut, Crown, Shield, Sparkles, Flame, Smartphone, Lock, Cpu, Lightbulb, BookOpen, DollarSign, ShoppingBag, LayoutDashboard, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -39,6 +39,7 @@ const navLinks: NavLink[] = [
     href: "/blog",
     isMegaMenu: true,
   },
+  { label: "News", href: "/news", icon: Newspaper },
   { label: "Utilities", href: "/tools" },
   { label: "Reviews", href: "/reviews" },
   { label: "Blog", href: "/blog" },
@@ -204,6 +205,12 @@ export function Header() {
                     )}
                   </div>
                   <DropdownMenuSeparator className="bg-border/50" />
+                  <DropdownMenuItem asChild className="rounded-xl py-2.5 focus:bg-primary/5">
+                    <Link to="/dashboard" className="cursor-pointer">
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      My Dashboard
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem asChild className="rounded-xl py-2.5 focus:bg-primary/5">
                     <Link to="/profile" className="cursor-pointer">
                       <User className="w-4 h-4 mr-2" />

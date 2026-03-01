@@ -1,0 +1,720 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { AdminLayout } from "./AdminLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  EyeOff,
+  Image,
+  Loader2,
+  Search,
+  Newspaper,
+  Clock,
+  Calendar,
+  Zap,
+} from "lucide-react";
+
+interface NewsItem {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  category: string;
+  cover_image: string | null;
+  is_published: boolean;
+  read_time_minutes: number | null;
+  views: number | null;
+  created_at: string;
+  updated_at: string;
+  meta_description: string | null;
+  tags: string[] | null;
+  author: string | null;
+}
+
+const NEWS_CATEGORIES = [
+  { value: "AI Tech", label: "AI Tech" },
+  { value: "Big Tech", label: "Big Tech" },
+  { value: "Cybersecurity", label: "Cybersecurity" },
+  { value: "Gadgets", label: "Gadgets" },
+];
+
+const initialNewsState = {
+  title: "",
+  slug: "",
+  excerpt: "",
+  content: "",
+  category: "AI Tech",
+  cover_image: "",
+  is_published: false,
+  read_time_minutes: 3,
+  meta_description: "",
+  tags: "",
+  author: "TechTrendi Team",
+};
+
+export default function AdminNews() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingNews, setEditingNews] = useState<NewsItem | null>(null);
+  const [formData, setFormData] = useState(initialNewsState);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [uploading, setUploading] = useState(false);
+
+  // Fetch news
+  const { data: news = [], isLoading } = useQuery({
+    queryKey: ["admin-news"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("news")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data as NewsItem[];
+    },
+  });
+
+  // Create news mutation
+  const createMutation = useMutation({
+    mutationFn: async (data: typeof formData) => {
+      const { error } = await supabase.from("news").insert({
+        title: data.title,
+        slug: data.slug,
+        excerpt: data.excerpt || null,
+        content: data.content,
+        category: data.category,
+        cover_image: data.cover_image || null,
+        is_published: data.is_published,
+        read_time_minutes: data.read_time_minutes,
+        meta_description: data.meta_description || null,
+        tags: data.tags ? data.tags.split(",").map(t => t.trim()) : null,
+        author: data.author || "TechTrendi Team",
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-news"] });
+      toast({ title: "News article created successfully!" });
+      resetForm();
+    },
+    onError: (error) => {
+      toast({ title: "Error creating news", description: String(error), variant: "destructive" });
+    },
+  });
+
+  // Update news mutation
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
+      const { error } = await supabase
+        .from("news")
+        .update({
+          title: data.title,
+          slug: data.slug,
+          excerpt: data.excerpt || null,
+          content: data.content,
+          category: data.category,
+          cover_image: data.cover_image || null,
+          is_published: data.is_published,
+          read_time_minutes: data.read_time_minutes,
+          meta_description: data.meta_description || null,
+          tags: data.tags ? data.tags.split(",").map(t => t.trim()) : null,
+          author: data.author || "TechTrendi Team",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-news"] });
+      toast({ title: "News article updated successfully!" });
+      resetForm();
+    },
+    onError: (error) => {
+      toast({ title: "Error updating news", description: String(error), variant: "destructive" });
+    },
+  });
+
+  // Delete news mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("news").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-news"] });
+      toast({ title: "News article deleted successfully!" });
+    },
+    onError: (error) => {
+      toast({ title: "Error deleting news", description: String(error), variant: "destructive" });
+    },
+  });
+
+  // Toggle publish status
+  const togglePublishMutation = useMutation({
+    mutationFn: async ({ id, is_published }: { id: string; is_published: boolean }) => {
+      const { error } = await supabase
+        .from("news")
+        .update({ is_published, updated_at: new Date().toISOString() })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-news"] });
+      toast({ title: "Publication status updated!" });
+    },
+  });
+
+  const resetForm = () => {
+    setFormData(initialNewsState);
+    setEditingNews(null);
+    setIsDialogOpen(false);
+  };
+
+  const handleEdit = (item: NewsItem) => {
+    setEditingNews(item);
+    setFormData({
+      title: item.title,
+      slug: item.slug,
+      excerpt: item.excerpt || "",
+      content: item.content,
+      category: item.category,
+      cover_image: item.cover_image || "",
+      is_published: item.is_published,
+      read_time_minutes: item.read_time_minutes || 3,
+      meta_description: item.meta_description || "",
+      tags: item.tags?.join(", ") || "",
+      author: item.author || "TechTrendi Team",
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingNews) {
+      updateMutation.mutate({ id: editingNews.id, data: formData });
+    } else {
+      createMutation.mutate(formData);
+    }
+  };
+
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `news/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("images")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("images")
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({ ...prev, cover_image: publicUrl }));
+      toast({ title: "Image uploaded successfully!" });
+    } catch (error) {
+      toast({ title: "Error uploading image", variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Filter news
+  const filteredNews = news.filter((item) => {
+    const matchesSearch =
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesCategory =
+      filterCategory === "all" || item.category === filterCategory;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  return (
+    <AdminLayout
+      title="News Management"
+      description="Create and manage tech news articles"
+    >
+      <div className="space-y-6">
+        {/* Header Actions */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex flex-1 gap-4 w-full sm:w-auto">
+            <div className="relative flex-1 sm:max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search news..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Select value={filterCategory} onValueChange={setFilterCategory}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {NEWS_CATEGORIES.map((cat) => (
+                  <SelectItem key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => { resetForm(); setIsDialogOpen(true); }}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add News
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Newspaper className="w-5 h-5" />
+                  {editingNews ? "Edit News Article" : "Create News Article"}
+                </DialogTitle>
+              </DialogHeader>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Title</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => {
+                        setFormData({
+                          ...formData,
+                          title: e.target.value,
+                          slug: generateSlug(e.target.value),
+                        });
+                      }}
+                      placeholder="Enter news title"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="slug">Slug</Label>
+                    <Input
+                      id="slug"
+                      value={formData.slug}
+                      onChange={(e) =>
+                        setFormData({ ...formData, slug: e.target.value })
+                      }
+                      placeholder="url-friendly-slug"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="category">Category</Label>
+                    <Select
+                      value={formData.category}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, category: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {NEWS_CATEGORIES.map((cat) => (
+                          <SelectItem key={cat.value} value={cat.value}>
+                            {cat.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="author">Author</Label>
+                    <Input
+                      id="author"
+                      value={formData.author}
+                      onChange={(e) =>
+                        setFormData({ ...formData, author: e.target.value })
+                      }
+                      placeholder="Author name"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="read_time">Read Time (minutes)</Label>
+                    <Input
+                      id="read_time"
+                      type="number"
+                      min="1"
+                      value={formData.read_time_minutes}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          read_time_minutes: parseInt(e.target.value) || 3,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="tags">Tags (comma separated)</Label>
+                    <Input
+                      id="tags"
+                      value={formData.tags}
+                      onChange={(e) =>
+                        setFormData({ ...formData, tags: e.target.value })
+                      }
+                      placeholder="AI, technology, breaking news"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="excerpt">Excerpt / Summary</Label>
+                  <Textarea
+                    id="excerpt"
+                    value={formData.excerpt}
+                    onChange={(e) =>
+                      setFormData({ ...formData, excerpt: e.target.value })
+                    }
+                    placeholder="Brief summary of the news article"
+                    rows={2}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="meta_description">Meta Description (SEO)</Label>
+                  <Textarea
+                    id="meta_description"
+                    value={formData.meta_description}
+                    onChange={(e) =>
+                      setFormData({ ...formData, meta_description: e.target.value })
+                    }
+                    placeholder="SEO meta description (155 characters max)"
+                    rows={2}
+                    maxLength={160}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {formData.meta_description.length}/160 characters
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Cover Image</Label>
+                  <div className="flex gap-4 items-start">
+                    <div className="flex-1">
+                      <Input
+                        value={formData.cover_image}
+                        onChange={(e) =>
+                          setFormData({ ...formData, cover_image: e.target.value })
+                        }
+                        placeholder="Image URL or upload below"
+                      />
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        disabled={uploading}
+                      />
+                      <Button type="button" variant="outline" disabled={uploading}>
+                        {uploading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Image className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                  {formData.cover_image && (
+                    <img
+                      src={formData.cover_image}
+                      alt="Preview"
+                      className="mt-2 max-h-40 rounded-lg object-cover"
+                    />
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Content (HTML supported)</Label>
+                  <RichTextEditor
+                    value={formData.content}
+                    onChange={(value) => setFormData({ ...formData, content: value })}
+                    placeholder="Write your news article content..."
+                  />
+                </div>
+
+                <div className="flex items-center gap-4 pt-4 border-t">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.is_published}
+                      onChange={(e) =>
+                        setFormData({ ...formData, is_published: e.target.checked })
+                      }
+                      className="rounded"
+                    />
+                    <span className="text-sm">Publish immediately</span>
+                  </label>
+
+                  <div className="flex-1" />
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={resetForm}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={createMutation.isPending || updateMutation.isPending}
+                  >
+                    {(createMutation.isPending || updateMutation.isPending) && (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    )}
+                    {editingNews ? "Update" : "Create"}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-card border rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Newspaper className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{news.length}</p>
+                <p className="text-xs text-muted-foreground">Total News</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-card border rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-500/10 rounded-lg">
+                <Eye className="w-5 h-5 text-green-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">
+                  {news.filter((n) => n.is_published).length}
+                </p>
+                <p className="text-xs text-muted-foreground">Published</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-card border rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-yellow-500/10 rounded-lg">
+                <EyeOff className="w-5 h-5 text-yellow-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">
+                  {news.filter((n) => !n.is_published).length}
+                </p>
+                <p className="text-xs text-muted-foreground">Drafts</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-card border rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-500/10 rounded-lg">
+                <Zap className="w-5 h-5 text-blue-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">
+                  {news.filter((n) => {
+                    const date = new Date(n.created_at);
+                    const today = new Date();
+                    return date.toDateString() === today.toDateString();
+                  }).length}
+                </p>
+                <p className="text-xs text-muted-foreground">Today</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* News Table */}
+        <div className="border rounded-xl overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12"></TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                  </TableCell>
+                </TableRow>
+              ) : filteredNews.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    No news articles found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredNews.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      {item.cover_image ? (
+                        <img
+                          src={item.cover_image}
+                          alt=""
+                          className="w-10 h-10 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                          <Newspaper className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium line-clamp-1">{item.title}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-1">
+                          /news/{item.slug}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{item.category}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={item.is_published ? "default" : "outline"}
+                        className={item.is_published ? "bg-green-500" : ""}
+                      >
+                        {item.is_published ? "Published" : "Draft"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {formatDate(item.created_at)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            togglePublishMutation.mutate({
+                              id: item.id,
+                              is_published: !item.is_published,
+                            })
+                          }
+                          title={item.is_published ? "Unpublish" : "Publish"}
+                        >
+                          {item.is_published ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(item)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (confirm("Delete this news article?")) {
+                              deleteMutation.mutate(item.id);
+                            }
+                          }}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    </AdminLayout>
+  );
+}
