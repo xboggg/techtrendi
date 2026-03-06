@@ -126,11 +126,11 @@ export function FooterSitemap({
             {/* Contact Info */}
             <div className="space-y-2 text-sm">
               <a
-                href="mailto:hello@techtrendi.com"
+                href="mailto:contact@techtrendi.com"
                 className="flex items-center gap-2 hover:text-white transition-colors"
               >
                 <Mail className="w-4 h-4" />
-                hello@techtrendi.com
+                contact@techtrendi.com
               </a>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />

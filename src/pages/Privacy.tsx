@@ -200,10 +200,10 @@ export default function Privacy() {
             </p>
             <div className="bg-card border border-border rounded-xl p-6">
               <p className="text-foreground font-semibold mb-2">TechTrendi</p>
-              <p className="text-muted-foreground flex items-center gap-2">
+              <a href="mailto:privacy@techtrendi.com" className="text-muted-foreground hover:text-primary flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 privacy@techtrendi.com
-              </p>
+              </a>
               <p className="text-muted-foreground mt-2">
                 You can also reach us through our{" "}
                 <a href="/contact" className="text-primary hover:underline">Contact Page</a>.

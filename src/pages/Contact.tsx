@@ -280,8 +280,8 @@ export default function Contact() {
                   <Mail className="w-5 h-5 text-primary mt-0.5" />
                   <div>
                     <p className="font-medium text-foreground">Email</p>
-                    <a href="mailto:hello@techtrendi.com" className="text-sm text-muted-foreground hover:text-primary">
-                      hello@techtrendi.com
+                    <a href="mailto:contact@techtrendi.com" className="text-sm text-muted-foreground hover:text-primary">
+                      contact@techtrendi.com
                     </a>
                   </div>
                 </div>
@@ -310,8 +310,8 @@ export default function Contact() {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">General:</span>
-                  <a href="mailto:hello@techtrendi.com" className="text-primary hover:underline">
-                    hello@techtrendi.com
+                  <a href="mailto:contact@techtrendi.com" className="text-primary hover:underline">
+                    contact@techtrendi.com
                   </a>
                 </div>
                 <div className="flex justify-between">

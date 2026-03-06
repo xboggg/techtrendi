@@ -120,7 +120,7 @@ export default function About() {
               We'd love to hear from you. Reach out for partnerships, content suggestions, or just to say hello.
             </p>
             <a
-              href="mailto:hello@techtrendi.com"
+              href="mailto:contact@techtrendi.com"
               className="inline-flex items-center px-6 py-3 bg-background text-foreground font-semibold rounded-xl hover:bg-background/90 transition-colors"
             >
               Contact Us
