@@ -16,6 +16,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { sanitizeInput, isValidEmail } from "@/lib/security";
+import emailjs from "@emailjs/browser";
 
 interface ContactForm {
   name: string;
@@ -106,6 +107,20 @@ export default function Contact() {
         .insert(sanitizedForm);
 
       if (error) throw error;
+
+      // Send email via EmailJS
+      const categoryLabel = contactCategories.find(c => c.value === form.category)?.label || form.category;
+      await emailjs.send(
+        "service_j4xsj1m",
+        "template_maj9e6f",
+        {
+          name: sanitizedForm.name,
+          email: sanitizedForm.email,
+          title: `[${categoryLabel}] ${sanitizedForm.subject}`,
+          message: sanitizedForm.message,
+        },
+        "Y5vxXUTqZ-jkOq7fX"
+      );
 
       setIsSubmitted(true);
       toast({
