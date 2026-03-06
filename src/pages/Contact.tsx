@@ -101,14 +101,7 @@ export default function Contact() {
         message: sanitizeInput(form.message),
       };
 
-      // Save to Supabase contact_submissions table
-      const { error } = await supabase
-        .from('contact_submissions')
-        .insert(sanitizedForm);
-
-      if (error) throw error;
-
-      // Send email via EmailJS
+      // Send email via EmailJS (primary method)
       const categoryLabel = contactCategories.find(c => c.value === form.category)?.label || form.category;
       await emailjs.send(
         "service_j4xsj1m",
@@ -121,6 +114,15 @@ export default function Contact() {
         },
         "Y5vxXUTqZ-jkOq7fX"
       );
+
+      // Try to save to Supabase (optional backup, don't fail if it doesn't work)
+      try {
+        await supabase
+          .from('contact_submissions')
+          .insert(sanitizedForm);
+      } catch {
+        // Silently ignore Supabase errors - email was sent successfully
+      }
 
       setIsSubmitted(true);
       toast({

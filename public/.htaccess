@@ -10,7 +10,7 @@
 # Security Headers
 <IfModule mod_headers.c>
   # Content Security Policy - Prevents XSS attacks
-  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://db.techtrendi.com https://*.supabase.co wss://*.supabase.co wss://db.techtrendi.com https://www.google-analytics.com https://analytics.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://db.techtrendi.com https://*.supabase.co wss://*.supabase.co wss://db.techtrendi.com https://www.google-analytics.com https://analytics.google.com https://api.emailjs.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
 
   # Prevent clickjacking
   Header set X-Frame-Options "DENY"
