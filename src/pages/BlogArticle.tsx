@@ -44,17 +44,25 @@ const categoryImages: Record<string, string> = {
   "How-To": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&h=600&fit=crop",
   "Security": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=600&fit=crop",
   "Phones": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&h=600&fit=crop",
+  "phones": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&h=600&fit=crop",
   "Accessories": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1200&h=600&fit=crop",
   "AI Tech": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=600&fit=crop",
+  "ai-tech": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=600&fit=crop",
   "Gaming": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=1200&h=600&fit=crop",
+  "how-to": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&h=600&fit=crop",
+  "security": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=600&fit=crop",
+  "productivity": "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=1200&h=600&fit=crop",
+  "make-money": "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop",
   "default": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=600&fit=crop",
 };
 
-// Get image URL with fallback
+// Get image URL with fallback - ONLY use http URLs, ignore local paths from static JSON
 function getArticleImage(article: Article): string {
+  // Only use cover_image if it's a real http URL (from database)
   if (article.cover_image?.startsWith("http")) {
     return article.cover_image;
   }
+  // Otherwise use category fallback - never use local /images/ paths
   return categoryImages[article.category] || categoryImages["default"];
 }
 
@@ -78,9 +86,12 @@ export default function BlogArticle() {
   const [article, setArticle] = useState<Article | undefined>(slug ? getStaticArticle(slug) : undefined);
   const [allArticles, setAllArticles] = useState<Article[]>(staticArticles as Article[]);
 
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   // Fetch fresh article data in background
   useEffect(() => {
     if (!slug) return;
+    setImageLoaded(false); // Reset image state when slug changes
     const controller = new AbortController();
     fetch(`${SUPABASE_URL}/rest/v1/articles?slug=eq.${slug}&select=*`, {
       headers: { "apikey": SUPABASE_KEY },
@@ -343,11 +354,12 @@ export default function BlogArticle() {
           </header>
 
           {/* Cover Image */}
-          <div className="rounded-2xl overflow-hidden mb-10">
+          <div className="rounded-2xl overflow-hidden mb-10 bg-muted aspect-video">
             <img
               src={getArticleImage(article)}
               alt={article.title}
-              className="w-full h-auto"
+              className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              onLoad={() => setImageLoaded(true)}
               onError={(e) => {
                 (e.target as HTMLImageElement).src = categoryImages[article.category] || categoryImages["default"];
               }}
