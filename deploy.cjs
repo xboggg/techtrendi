@@ -2,10 +2,10 @@ const FtpDeploy = require("ftp-deploy");
 const ftpDeploy = new FtpDeploy();
 
 const config = {
-  user: "techbhyx",
-  password: "***REMOVED***",
-  host: "techtrendi.com",
-  port: 21,
+  user: process.env.FTP_USER || "",
+  password: process.env.FTP_PASSWORD || "",
+  host: process.env.FTP_HOST || "techtrendi.com",
+  port: parseInt(process.env.FTP_PORT || "21", 10),
   localRoot: __dirname + "/dist",
   remoteRoot: "/public_html/",
   include: ["*", "**/*", ".htaccess"],
@@ -14,6 +14,11 @@ const config = {
   forcePasv: true,
   sftp: false,
 };
+
+if (!config.user || !config.password) {
+  console.error("ERROR: Set FTP_USER and FTP_PASSWORD environment variables.");
+  process.exit(1);
+}
 
 ftpDeploy
   .deploy(config)
