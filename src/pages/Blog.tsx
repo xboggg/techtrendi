@@ -3,7 +3,11 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import staticArticles from "@/data/articles.json";
-import { Clock, Calendar, ArrowRight, Search, Crown, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Clock, Calendar, ArrowRight, Search, Crown, ChevronLeft, ChevronRight,
+  LayoutGrid, Lightbulb, Shield, Briefcase, Smartphone, Watch, Brain,
+  GraduationCap, DollarSign, HeartPulse, Wifi, Gamepad2, Leaf, Ghost
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,21 +30,30 @@ interface Article {
   author: string | null;
 }
 
-const categories = [
-  "All",
-  "How-To",
-  "Security",
-  "Productivity",
-  "Phones",
-  "Accessories",
-  "AI Tech",
-  "Career in Tech",
-  "Side Hustles",
-  "Health Tech",
-  "Remote Work",
-  "Gaming",
-  "Green Tech",
-  "Creepy Tech",
+interface CategoryStyle {
+  name: string;
+  icon: React.ElementType;
+  gradient: string;
+  shadowColor: string;
+  textColor: string;
+  iconColor: string;
+}
+
+const categories: CategoryStyle[] = [
+  { name: "All", icon: LayoutGrid, gradient: "from-blue-500 to-indigo-600", shadowColor: "shadow-blue-500/40", textColor: "text-blue-600 dark:text-blue-400", iconColor: "text-blue-500" },
+  { name: "How-To", icon: Lightbulb, gradient: "from-amber-500 to-orange-600", shadowColor: "shadow-amber-500/40", textColor: "text-amber-600 dark:text-amber-400", iconColor: "text-amber-500" },
+  { name: "Security", icon: Shield, gradient: "from-red-500 to-rose-600", shadowColor: "shadow-red-500/40", textColor: "text-red-600 dark:text-red-400", iconColor: "text-red-500" },
+  { name: "Productivity", icon: Briefcase, gradient: "from-orange-500 to-amber-600", shadowColor: "shadow-orange-500/40", textColor: "text-orange-600 dark:text-orange-400", iconColor: "text-orange-500" },
+  { name: "Phones", icon: Smartphone, gradient: "from-sky-500 to-blue-600", shadowColor: "shadow-sky-500/40", textColor: "text-sky-600 dark:text-sky-400", iconColor: "text-sky-500" },
+  { name: "Accessories", icon: Watch, gradient: "from-cyan-500 to-teal-600", shadowColor: "shadow-cyan-500/40", textColor: "text-cyan-600 dark:text-cyan-400", iconColor: "text-cyan-500" },
+  { name: "AI Tech", icon: Brain, gradient: "from-violet-500 to-purple-600", shadowColor: "shadow-violet-500/40", textColor: "text-violet-600 dark:text-violet-400", iconColor: "text-violet-500" },
+  { name: "Career in Tech", icon: GraduationCap, gradient: "from-emerald-500 to-green-600", shadowColor: "shadow-emerald-500/40", textColor: "text-emerald-600 dark:text-emerald-400", iconColor: "text-emerald-500" },
+  { name: "Side Hustles", icon: DollarSign, gradient: "from-green-500 to-emerald-600", shadowColor: "shadow-green-500/40", textColor: "text-green-600 dark:text-green-400", iconColor: "text-green-500" },
+  { name: "Health Tech", icon: HeartPulse, gradient: "from-rose-500 to-pink-600", shadowColor: "shadow-rose-500/40", textColor: "text-rose-600 dark:text-rose-400", iconColor: "text-rose-500" },
+  { name: "Remote Work", icon: Wifi, gradient: "from-indigo-500 to-blue-600", shadowColor: "shadow-indigo-500/40", textColor: "text-indigo-600 dark:text-indigo-400", iconColor: "text-indigo-500" },
+  { name: "Gaming", icon: Gamepad2, gradient: "from-pink-500 to-fuchsia-600", shadowColor: "shadow-pink-500/40", textColor: "text-pink-600 dark:text-pink-400", iconColor: "text-pink-500" },
+  { name: "Green Tech", icon: Leaf, gradient: "from-lime-500 to-green-600", shadowColor: "shadow-lime-500/40", textColor: "text-lime-600 dark:text-lime-400", iconColor: "text-lime-500" },
+  { name: "Creepy Tech", icon: Ghost, gradient: "from-slate-600 to-gray-800", shadowColor: "shadow-slate-500/40", textColor: "text-slate-600 dark:text-slate-400", iconColor: "text-slate-500" },
 ];
 
 // Fallback images by category when article images don't exist
@@ -100,9 +113,10 @@ export default function Blog() {
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       article.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
 
+    const selectedCat = categories.find(c => c.name === selectedCategory);
     const matchesCategory =
-      selectedCategory === "All" ||
-      article.category === selectedCategory;
+      selectedCat?.name === "All" ||
+      article.category === selectedCat?.name;
 
     return matchesSearch && matchesCategory;
   });
@@ -158,21 +172,52 @@ export default function Blog() {
             </div>
           </div>
 
-          {/* Category Pills */}
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  selectedCategory === category
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
+          {/* Category Pills - Animated with unique colors and icons */}
+          <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+            {categories.map((category) => {
+              const isSelected = selectedCategory === category.name;
+              const Icon = category.icon;
+              return (
+                <button
+                  key={category.name}
+                  onClick={() => setSelectedCategory(category.name)}
+                  className={`
+                    group relative inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold
+                    transition-all duration-300 ease-out
+                    transform hover:scale-105 hover:-translate-y-1
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background
+                    ${isSelected
+                      ? `bg-gradient-to-r ${category.gradient} text-white shadow-xl ${category.shadowColor}`
+                      : `bg-card border-2 border-border/50 ${category.textColor} hover:border-transparent hover:shadow-xl`
+                    }
+                  `}
+                  style={{
+                    boxShadow: isSelected ? `0 10px 30px -5px var(--tw-shadow-color), 0 4px 6px -2px rgba(0,0,0,0.1)` : undefined,
+                  }}
+                >
+                  {/* Animated gradient background on hover (for non-selected) */}
+                  <span
+                    className={`
+                      absolute inset-0 rounded-full transition-all duration-300 ease-out
+                      bg-gradient-to-r ${category.gradient}
+                      ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+                    `}
+                  />
+                  {/* Icon */}
+                  <Icon className={`
+                    relative z-10 w-4 h-4 transition-all duration-300
+                    ${isSelected ? 'text-white' : `${category.iconColor} group-hover:text-white`}
+                  `} />
+                  {/* Text */}
+                  <span className={`
+                    relative z-10 transition-colors duration-300
+                    ${isSelected ? 'text-white' : 'group-hover:text-white'}
+                  `}>
+                    {category.name}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 

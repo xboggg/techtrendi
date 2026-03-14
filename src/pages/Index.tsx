@@ -141,11 +141,8 @@ export default function Index() {
 
   return (
     <Layout>
-      {/* Hero Carousel Section */}
+      {/* Hero Carousel Section (includes News Ticker) */}
       <HeroCarousel />
-
-      {/* Scrolling News Ticker */}
-      <NewsTicker />
 
       {/* 1. Latest Posts Section */}
       <section className="py-16 bg-background">

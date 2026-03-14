@@ -2,11 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import {
-  MessageSquare,
   Send,
   X,
-  Minimize2,
-  Maximize2,
+  Minus,
   Bot,
   User,
   Sparkles,
@@ -14,13 +12,10 @@ import {
   ThumbsUp,
   ThumbsDown,
   Copy,
-  RefreshCw,
   Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,103 +29,68 @@ interface Message {
 
 interface SuggestedQuestion {
   text: string;
-  category: string;
+  icon: string;
 }
 
 const suggestedQuestions: SuggestedQuestion[] = [
-  { text: 'What are the best smartphones for 2024?', category: 'Reviews' },
-  { text: 'How do I improve my online privacy?', category: 'Security' },
-  { text: 'Compare iPhone 15 vs Samsung S24', category: 'Comparison' },
-  { text: 'What laptop should I buy for programming?', category: 'Guides' },
+  { text: 'Best smartphones 2024?', icon: '📱' },
+  { text: 'How to stay safe online?', icon: '🔒' },
+  { text: 'Compare iPhone vs Samsung', icon: '⚡' },
+  { text: 'Best laptop for coding?', icon: '💻' },
 ];
 
-// AI response generator (simulated - in production, connect to AI API)
-const generateAIResponse = async (message: string, history: Message[]): Promise<string> => {
-  await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1500));
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_API_KEY = 'GROQ_CHAT_KEY_REMOVED';
 
-  const lowercaseMsg = message.toLowerCase();
+const SYSTEM_PROMPT = `You are TechTrendi AI, a friendly and knowledgeable tech assistant for the TechTrendi website (techtrendi.com). You help users with:
+- Smartphone reviews, comparisons and buying advice
+- Cybersecurity and online privacy tips
+- AI and technology news
+- Productivity tools and tips
+- Laptop and gadget recommendations
+- Side hustle and tech career advice
 
-  // Context-aware responses
-  if (lowercaseMsg.includes('smartphone') || lowercaseMsg.includes('phone')) {
-    return `Based on our latest reviews, here are the top smartphones for 2024:
+Keep responses concise (under 200 words), helpful, and conversational. Use bullet points and bold text for clarity. When relevant, suggest checking out TechTrendi's tools, guides, or articles. Never make up specific product specs - be honest when unsure.`;
 
-**Flagship Picks:**
-1. **iPhone 15 Pro Max** - Best overall iOS experience with A17 Pro chip
-2. **Samsung Galaxy S24 Ultra** - Best Android with AI features and S Pen
-3. **Google Pixel 8 Pro** - Best camera and pure Android experience
+async function callGroqAI(message: string, history: Message[]): Promise<string> {
+  const messages = [
+    { role: 'system' as const, content: SYSTEM_PROMPT },
+    ...history.slice(-6).map((m) => ({
+      role: m.role as 'user' | 'assistant',
+      content: m.content,
+    })),
+    { role: 'user' as const, content: message },
+  ];
 
-**Mid-Range Value:**
-- OnePlus 12R - Great performance for the price
-- Samsung A54 - Reliable with good updates
+  try {
+    const res = await fetch(GROQ_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages,
+        temperature: 0.7,
+        max_tokens: 512,
+        stream: false,
+      }),
+    });
 
-Would you like me to compare any specific models or discuss features in detail?`;
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error('Groq API error:', errText);
+      throw new Error('API error');
+    }
+
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || "Sorry, I couldn't generate a response. Please try again.";
+  } catch (err) {
+    console.error('Groq call failed:', err);
+    return "I'm having trouble connecting right now. Please try again in a moment.";
   }
-
-  if (lowercaseMsg.includes('privacy') || lowercaseMsg.includes('security')) {
-    return `Here are essential tips to improve your online privacy:
-
-**Immediate Steps:**
-1. Use a password manager (Bitwarden, 1Password)
-2. Enable 2FA on all accounts
-3. Use a VPN for public WiFi
-4. Review app permissions regularly
-
-**Browser Security:**
-- Switch to Firefox or Brave
-- Install uBlock Origin
-- Use HTTPS Everywhere
-
-**Advanced:**
-- Consider a privacy-focused email (ProtonMail)
-- Use encrypted messaging (Signal)
-
-Check out our [Privacy Tools](/tools/privacy-checker) to scan your current setup!`;
-  }
-
-  if (lowercaseMsg.includes('compare') || lowercaseMsg.includes('vs')) {
-    return `I'd be happy to help you compare devices! To give you the most accurate comparison, please tell me:
-
-1. **Which specific models** you're considering?
-2. **Your primary use case** (gaming, productivity, photography)?
-3. **Budget range** (if applicable)?
-
-You can also use our [Phone Comparison Tool](/tools/phone-comparison) for a detailed side-by-side analysis!`;
-  }
-
-  if (lowercaseMsg.includes('laptop') || lowercaseMsg.includes('computer')) {
-    return `For laptop recommendations, I'll need to know your use case:
-
-**For Programming:**
-- MacBook Pro 14" M3 - Best for iOS/macOS dev
-- ThinkPad X1 Carbon - Best for Linux/Windows dev
-- Framework Laptop - Most repairable option
-
-**For Gaming:**
-- ASUS ROG Zephyrus G14
-- Razer Blade 15
-- Lenovo Legion Pro 7
-
-**For General Use:**
-- MacBook Air M3
-- Dell XPS 13
-- HP Spectre x360
-
-What's your primary use case and budget?`;
-  }
-
-  // Default response
-  return `Thanks for your question! I'm TechTrendi's AI assistant, here to help you with:
-
-- **Product Reviews** - Get insights on the latest tech
-- **Comparisons** - Find the best device for your needs
-- **Security Tips** - Stay safe online
-- **Buying Guides** - Make informed decisions
-
-Could you tell me more about what you're looking for? For example:
-- "Best budget phone under $500"
-- "How to secure my home network"
-- "Compare MacBook Air vs Dell XPS"`;
-};
+}
 
 export function AIChatInterface() {
   const { user } = useAuth();
@@ -142,21 +102,18 @@ export function AIChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId] = useState(() => crypto.randomUUID());
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Focus input when chat opens
   useEffect(() => {
     if (isOpen && !isMinimized) {
       inputRef.current?.focus();
     }
   }, [isOpen, isMinimized]);
 
-  // Load chat history
   useEffect(() => {
     if (user && isOpen) {
       loadChatHistory();
@@ -165,7 +122,6 @@ export function AIChatInterface() {
 
   const loadChatHistory = async () => {
     if (!user) return;
-
     try {
       const { data, error } = await supabase
         .from('chat_messages')
@@ -191,7 +147,6 @@ export function AIChatInterface() {
 
   const saveMessage = async (role: 'user' | 'assistant', content: string) => {
     if (!user) return;
-
     try {
       await supabase.from('chat_messages').insert({
         user_id: user.id,
@@ -218,13 +173,10 @@ export function AIChatInterface() {
     setInput('');
     setIsLoading(true);
 
-    // Save user message
-    if (user) {
-      saveMessage('user', userMessage.content);
-    }
+    if (user) saveMessage('user', userMessage.content);
 
     try {
-      const response = await generateAIResponse(userMessage.content, messages);
+      const response = await callGroqAI(userMessage.content, messages);
 
       const assistantMessage: Message = {
         id: crypto.randomUUID(),
@@ -234,12 +186,8 @@ export function AIChatInterface() {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-
-      // Save assistant message
-      if (user) {
-        saveMessage('assistant', assistantMessage.content);
-      }
-    } catch (error) {
+      if (user) saveMessage('assistant', assistantMessage.content);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to get response. Please try again.',
@@ -250,91 +198,114 @@ export function AIChatInterface() {
     }
   };
 
-  const handleSuggestionClick = (question: string) => {
-    setInput(question);
-    inputRef.current?.focus();
-  };
-
   const handleFeedback = (messageId: string, feedback: 'like' | 'dislike') => {
     setMessages((prev) =>
       prev.map((msg) => (msg.id === messageId ? { ...msg, feedback } : msg))
     );
-    toast({
-      title: 'Thanks for your feedback!',
-      description: 'This helps us improve our responses.',
-    });
   };
 
   const handleCopy = (content: string) => {
     navigator.clipboard.writeText(content);
-    toast({
-      title: 'Copied!',
-      description: 'Message copied to clipboard.',
-    });
+    toast({ title: 'Copied to clipboard' });
   };
 
   const handleClearChat = () => {
     setMessages([]);
-    toast({
-      title: 'Chat cleared',
-      description: 'Starting a fresh conversation.',
-    });
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  // Compact floating chat button with galaxy orbiting stars
   if (!isOpen) {
     return (
-      <Button
+      <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 z-50"
-        size="icon"
+        className="fixed bottom-6 right-6 z-50 group"
+        aria-label="Open AI Chat"
       >
-        <MessageSquare className="h-6 w-6" />
-        <span className="sr-only">Open AI Chat</span>
-      </Button>
+        <div className="relative w-14 h-14 overflow-visible">
+          {/* Ghostly emanation rings */}
+          <div className="absolute inset-0 rounded-full bg-purple-500/20 animate-ping" style={{ animationDuration: '2s' }} />
+          <div className="absolute inset-[-4px] rounded-full bg-violet-400/15 animate-ping" style={{ animationDuration: '3s', animationDelay: '0.5s' }} />
+          <div className="absolute inset-[-8px] rounded-full bg-fuchsia-400/10 animate-ping" style={{ animationDuration: '4s', animationDelay: '1s' }} />
+
+          {/* Outer glow ring */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet-500/30 to-purple-600/30 blur-md animate-pulse-slow" />
+
+          {/* Main button */}
+          <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 shadow-lg shadow-purple-500/40 group-hover:shadow-xl group-hover:shadow-purple-500/50 group-hover:scale-110 transition-all duration-300">
+            <Sparkles className="w-6 h-6 text-white" />
+          </div>
+
+          {/* Orbiting star 1 */}
+          <div className="absolute inset-[-6px] animate-spin" style={{ animationDuration: '6s' }}>
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_2px_rgba(34,211,238,0.6)]" />
+          </div>
+
+          {/* Orbiting star 2 */}
+          <div className="absolute inset-[-8px] animate-spin" style={{ animationDuration: '8s', animationDirection: 'reverse' }}>
+            <div className="absolute bottom-0 right-0 w-1.5 h-1.5 rounded-full bg-yellow-300 shadow-[0_0_6px_2px_rgba(253,224,71,0.6)]" />
+          </div>
+
+          {/* Orbiting star 3 */}
+          <div className="absolute inset-[-4px] animate-spin" style={{ animationDuration: '5s' }}>
+            <div className="absolute top-1/2 right-0 w-1 h-1 rounded-full bg-pink-400 shadow-[0_0_6px_2px_rgba(244,114,182,0.6)]" />
+          </div>
+
+          {/* Orbiting star 4 */}
+          <div className="absolute inset-[-10px] animate-spin" style={{ animationDuration: '10s', animationDirection: 'reverse' }}>
+            <div className="absolute top-1 left-1 w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_2px_rgba(52,211,153,0.5)]" />
+          </div>
+
+          {/* Tiny twinkling stars */}
+          <div className="absolute inset-[-6px] animate-spin" style={{ animationDuration: '12s' }}>
+            <div className="absolute bottom-1 left-0 w-1 h-1 rounded-full bg-white/80 animate-pulse" />
+          </div>
+          <div className="absolute inset-[-5px] animate-spin" style={{ animationDuration: '7s', animationDirection: 'reverse' }}>
+            <div className="absolute top-0 right-1 w-0.5 h-0.5 rounded-full bg-violet-300 animate-pulse" style={{ animationDelay: '1s' }} />
+          </div>
+        </div>
+
+        {/* Tooltip */}
+        <div className="absolute bottom-full right-0 mb-3 px-3 py-1.5 rounded-lg bg-card border border-border shadow-lg text-xs font-medium text-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          Ask TechTrendi AI
+        </div>
+      </button>
     );
   }
 
   return (
     <div
       className={cn(
-        'fixed bottom-6 right-6 z-50 bg-card border border-border rounded-2xl shadow-2xl transition-all duration-300',
-        isMinimized ? 'w-80 h-14' : 'w-96 h-[600px] max-h-[80vh]'
+        'fixed bottom-6 right-6 z-50 flex flex-col bg-card border border-border rounded-2xl shadow-2xl transition-all duration-300 overflow-hidden',
+        isMinimized ? 'w-72 h-12' : 'w-[360px] h-[520px] max-h-[80vh]'
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border">
+      <div className="flex items-center justify-between px-3 h-12 border-b border-border bg-muted/30 shrink-0">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-            <Bot className="w-4 h-4 text-white" />
+          <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center">
+            <Bot className="w-3.5 h-3.5 text-white" />
           </div>
-          <div>
-            <h3 className="font-semibold text-sm">TechTrendi AI</h3>
-            {!isMinimized && (
-              <p className="text-xs text-muted-foreground">Your tech assistant</p>
-            )}
-          </div>
+          <span className="font-semibold text-sm">TechTrendi AI</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
           {!isMinimized && messages.length > 0 && (
-            <Button variant="ghost" size="icon" onClick={handleClearChat} className="h-8 w-8">
-              <Trash2 className="h-4 w-4" />
+            <Button variant="ghost" size="icon" onClick={handleClearChat} className="h-7 w-7 text-muted-foreground hover:text-foreground">
+              <Trash2 className="h-3.5 w-3.5" />
             </Button>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsMinimized(!isMinimized)}
-            className="h-8 w-8"
-          >
-            {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
+          <Button variant="ghost" size="icon" onClick={() => setIsMinimized(!isMinimized)} className="h-7 w-7 text-muted-foreground hover:text-foreground">
+            <Minus className="h-3.5 w-3.5" />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsOpen(false)}
-            className="h-8 w-8"
-          >
-            <X className="h-4 w-4" />
+          <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-7 w-7 text-muted-foreground hover:text-destructive">
+            <X className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>
@@ -342,116 +313,92 @@ export function AIChatInterface() {
       {!isMinimized && (
         <>
           {/* Messages */}
-          <ScrollArea className="flex-1 h-[calc(100%-140px)] p-4">
+          <ScrollArea className="flex-1 px-3 py-3">
             {messages.length === 0 ? (
-              <div className="space-y-4">
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mx-auto mb-4">
-                    <Sparkles className="w-8 h-8 text-purple-500" />
-                  </div>
-                  <h4 className="font-medium text-foreground mb-2">How can I help you today?</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Ask me about tech products, comparisons, or security tips!
-                  </p>
+              <div className="flex flex-col items-center pt-6 pb-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/15 to-violet-500/15 flex items-center justify-center mb-3">
+                  <Sparkles className="w-6 h-6 text-primary" />
                 </div>
-
-                <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground font-medium">Suggested questions:</p>
+                <h4 className="font-semibold text-sm mb-1">How can I help?</h4>
+                <p className="text-xs text-muted-foreground mb-4 text-center">
+                  Tech advice, comparisons, security tips & more
+                </p>
+                <div className="grid grid-cols-2 gap-2 w-full">
                   {suggestedQuestions.map((q, i) => (
                     <button
                       key={i}
-                      onClick={() => handleSuggestionClick(q.text)}
-                      className="w-full text-left p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors text-sm"
+                      onClick={() => { setInput(q.text); inputRef.current?.focus(); }}
+                      className="text-left p-2.5 rounded-xl bg-muted/50 hover:bg-muted border border-transparent hover:border-border transition-all text-xs group"
                     >
-                      <Badge variant="secondary" className="mb-1 text-xs">
-                        {q.category}
-                      </Badge>
-                      <p className="text-foreground">{q.text}</p>
+                      <span className="text-sm">{q.icon}</span>
+                      <p className="text-foreground/80 group-hover:text-foreground mt-0.5 leading-snug">{q.text}</p>
                     </button>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {messages.map((message) => (
                   <div
                     key={message.id}
                     className={cn(
-                      'flex gap-3',
+                      'flex gap-2',
                       message.role === 'user' ? 'justify-end' : 'justify-start'
                     )}
                   >
                     {message.role === 'assistant' && (
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-                        <Bot className="w-4 h-4 text-white" />
+                      <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Bot className="w-3 h-3 text-white" />
                       </div>
                     )}
                     <div
                       className={cn(
-                        'max-w-[80%] rounded-2xl p-3',
+                        'max-w-[85%] rounded-xl px-3 py-2',
                         message.role === 'user'
-                          ? 'bg-primary text-primary-foreground rounded-br-md'
-                          : 'bg-muted rounded-bl-md'
+                          ? 'bg-primary text-primary-foreground rounded-br-sm'
+                          : 'bg-muted rounded-bl-sm'
                       )}
                     >
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                      <p className="text-xs opacity-60 mt-1">
-                        {message.timestamp.toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </p>
+                      <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
                       {message.role === 'assistant' && (
-                        <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border/50">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className={cn(
-                              'h-6 w-6',
-                              message.feedback === 'like' && 'text-green-500'
-                            )}
+                        <div className="flex items-center gap-0.5 mt-1.5 pt-1.5 border-t border-border/30">
+                          <button
+                            className={cn('p-1 rounded hover:bg-background/50 transition-colors', message.feedback === 'like' && 'text-green-500')}
                             onClick={() => handleFeedback(message.id, 'like')}
                           >
                             <ThumbsUp className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className={cn(
-                              'h-6 w-6',
-                              message.feedback === 'dislike' && 'text-red-500'
-                            )}
+                          </button>
+                          <button
+                            className={cn('p-1 rounded hover:bg-background/50 transition-colors', message.feedback === 'dislike' && 'text-red-500')}
                             onClick={() => handleFeedback(message.id, 'dislike')}
                           >
                             <ThumbsDown className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
+                          </button>
+                          <button
+                            className="p-1 rounded hover:bg-background/50 transition-colors"
                             onClick={() => handleCopy(message.content)}
                           >
                             <Copy className="h-3 w-3" />
-                          </Button>
+                          </button>
                         </div>
                       )}
                     </div>
                     {message.role === 'user' && (
-                      <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-                        <User className="w-4 h-4 text-primary-foreground" />
+                      <div className="w-6 h-6 rounded-md bg-primary/80 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <User className="w-3 h-3 text-primary-foreground" />
                       </div>
                     )}
                   </div>
                 ))}
                 {isLoading && (
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                      <Bot className="w-4 h-4 text-white" />
+                  <div className="flex gap-2">
+                    <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center">
+                      <Bot className="w-3 h-3 text-white" />
                     </div>
-                    <div className="bg-muted rounded-2xl rounded-bl-md p-3">
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span className="text-sm text-muted-foreground">Thinking...</span>
+                    <div className="bg-muted rounded-xl rounded-bl-sm px-3 py-2">
+                      <div className="flex items-center gap-1.5">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                        <span className="text-xs text-muted-foreground">Thinking...</span>
                       </div>
                     </div>
                   </div>
@@ -462,34 +409,34 @@ export function AIChatInterface() {
           </ScrollArea>
 
           {/* Input */}
-          <div className="p-4 border-t border-border">
+          <div className="px-3 py-2 border-t border-border shrink-0">
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSend();
-              }}
-              className="flex gap-2"
+              onSubmit={(e) => { e.preventDefault(); handleSend(); }}
+              className="flex items-end gap-2"
             >
-              <Input
+              <textarea
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask me anything about tech..."
+                onKeyDown={handleKeyDown}
+                placeholder="Ask anything..."
                 disabled={isLoading}
-                className="flex-1"
+                rows={1}
+                className="flex-1 resize-none rounded-xl border border-border bg-muted/30 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 disabled:opacity-50 max-h-20"
+                style={{ minHeight: '36px' }}
               />
-              <Button type="submit" size="icon" disabled={!input.trim() || isLoading}>
-                <Send className="h-4 w-4" />
+              <Button
+                type="submit"
+                size="icon"
+                disabled={!input.trim() || isLoading}
+                className="h-9 w-9 rounded-xl bg-primary hover:bg-primary/90 shrink-0"
+              >
+                <Send className="h-3.5 w-3.5" />
               </Button>
             </form>
-            {!user && (
-              <p className="text-xs text-muted-foreground mt-2 text-center">
-                <a href="/auth" className="text-primary hover:underline">
-                  Sign in
-                </a>{' '}
-                to save your chat history
-              </p>
-            )}
+            <p className="text-[10px] text-muted-foreground text-center mt-1.5">
+              Powered by AI · Responses may not always be accurate
+            </p>
           </div>
         </>
       )}

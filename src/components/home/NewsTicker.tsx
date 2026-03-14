@@ -12,12 +12,14 @@ interface TickerItem {
 }
 
 const categoryColors: Record<string, string> = {
-  "AI Tech": "text-violet-500",
-  Security: "text-green-500",
-  Phones: "text-blue-500",
-  Productivity: "text-amber-500",
-  "How-To": "text-cyan-500",
-  Gaming: "text-red-500",
+  "AI Tech": "text-violet-600 dark:text-violet-400",
+  Security: "text-emerald-600 dark:text-emerald-400",
+  Phones: "text-blue-600 dark:text-blue-400",
+  Productivity: "text-amber-600 dark:text-amber-400",
+  "How-To": "text-cyan-600 dark:text-cyan-400",
+  Gaming: "text-red-600 dark:text-red-400",
+  "Side Hustles": "text-pink-600 dark:text-pink-400",
+  "Health Tech": "text-teal-600 dark:text-teal-400",
   default: "text-primary",
 };
 
@@ -29,7 +31,6 @@ export function NewsTicker() {
   const pausedRef = useRef(false);
 
   useEffect(() => {
-    // Fetch latest articles and news
     Promise.all([
       supabase
         .from("articles")
@@ -51,7 +52,6 @@ export function NewsTicker() {
         ...n,
         type: "news" as const,
       }));
-      // Interleave articles and news
       const merged: TickerItem[] = [];
       const maxLen = Math.max(articles.length, news.length);
       for (let i = 0; i < maxLen; i++) {
@@ -62,14 +62,13 @@ export function NewsTicker() {
     });
   }, []);
 
-  // Auto-scroll
   useEffect(() => {
     const track = trackRef.current;
     if (!track || items.length === 0) return;
 
     const animate = () => {
       if (!pausedRef.current) {
-        offsetRef.current += 0.6;
+        offsetRef.current += 0.5;
         const halfWidth = track.scrollWidth / 2;
         if (halfWidth > 0 && offsetRef.current >= halfWidth) {
           offsetRef.current -= halfWidth;
@@ -85,42 +84,57 @@ export function NewsTicker() {
 
   if (items.length === 0) return null;
 
+  const renderItems = [...items, ...items];
+
   return (
     <div
-      className="w-full bg-card/80 backdrop-blur-sm border-b border-border overflow-hidden"
+      className="w-full bg-white dark:bg-gray-900 overflow-hidden relative"
       onMouseEnter={() => { pausedRef.current = true; }}
       onMouseLeave={() => { pausedRef.current = false; }}
     >
-      <div className="flex items-center">
-        {/* TRENDING badge */}
-        <div className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold tracking-wider z-10">
+      {/* Animated progress bar line at top */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gray-200 dark:bg-gray-800 overflow-hidden">
+        <div
+          className="absolute h-full w-full bg-gradient-to-r from-violet-500 to-fuchsia-500"
+          style={{ animation: 'progress-fill 8s linear infinite' }}
+        />
+      </div>
+      <div className="flex items-center h-10 max-w-full overflow-hidden px-3 md:px-5 gap-3 mt-[2px]">
+        {/* TRENDING pill badge */}
+        <div className="shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white text-[11px] font-bold tracking-wider uppercase shadow-sm">
           <Flame className="w-3.5 h-3.5" />
-          TRENDING
+          Trending
         </div>
 
-        {/* Scrolling track */}
-        <div className="flex-1 overflow-hidden">
+        {/* Scrolling area */}
+        <div className="relative flex-1 min-w-0 overflow-hidden">
+          <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-white dark:from-gray-900 to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-white dark:from-gray-900 to-transparent z-10 pointer-events-none" />
+
+          {/* Scrolling track */}
           <div
             ref={trackRef}
-            className="flex items-center gap-6 whitespace-nowrap will-change-transform py-2.5"
+            className="flex items-center whitespace-nowrap will-change-transform h-10"
             style={{ width: "max-content" }}
           >
-            {/* Render items twice for seamless loop */}
-            {[...items, ...items].map((item, i) => {
-              const color = categoryColors[item.category] || categoryColors.default;
+            {renderItems.map((item, i) => {
               return (
-                <Link
-                  key={`${item.id}-${i}`}
-                  to={item.type === "news" ? `/news/${item.slug}` : `/blog/${item.slug}`}
-                  className="flex items-center gap-2 text-sm hover:text-primary transition-colors shrink-0"
-                >
-                  <span className={`text-[10px] font-bold uppercase tracking-wider ${color}`}>
-                    {item.type === "news" ? "NEWS" : item.category}
-                  </span>
-                  <span className="text-foreground/80 hover:text-foreground transition-colors">
-                    {item.title.length > 55 ? item.title.slice(0, 55) + "..." : item.title}
-                  </span>
-                </Link>
+                <span key={`${item.id}-${i}`} className="inline-flex items-center">
+                  {i > 0 && (
+                    <span className="mx-3 md:mx-4 w-1 h-1 rounded-full bg-gray-300 dark:bg-white/30 shrink-0" />
+                  )}
+                  <Link
+                    to={item.type === "news" ? `/news/${item.slug}` : `/blog/${item.slug}`}
+                    className="inline-flex items-center gap-2 text-[13px] hover:text-violet-600 dark:hover:text-white transition-colors"
+                  >
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
+                      {item.type === "news" ? "News" : item.category}
+                    </span>
+                    <span className="text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors font-medium">
+                      {item.title.length > 55 ? item.title.slice(0, 55) + "\u2026" : item.title}
+                    </span>
+                  </Link>
+                </span>
               );
             })}
           </div>

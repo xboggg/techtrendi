@@ -180,6 +180,24 @@ const WifiQrGenerator = lazy(() => import("./pages/tools/WifiQrGenerator"));
 const WorldClock = lazy(() => import("./pages/tools/WorldClock"));
 const YouTubeThumbnailDownloader = lazy(() => import("./pages/tools/YouTubeThumbnailDownloader"));
 
+// New addictive tools
+const AgeCalculator = lazy(() => import("./pages/tools/AgeCalculator"));
+const CurrencyConverter = lazy(() => import("./pages/tools/CurrencyConverter"));
+const HashtagGenerator = lazy(() => import("./pages/tools/HashtagGenerator"));
+const HookGenerator = lazy(() => import("./pages/tools/HookGenerator"));
+const ThisDayInHistory = lazy(() => import("./pages/tools/ThisDayInHistory"));
+const IdeaParkingLot = lazy(() => import("./pages/tools/IdeaParkingLot"));
+const SavingsGoalVisualizer = lazy(() => import("./pages/tools/SavingsGoalVisualizer"));
+const CompoundInterestCalculator = lazy(() => import("./pages/tools/CompoundInterestCalculator"));
+const PaycheckCalculator = lazy(() => import("./pages/tools/PaycheckCalculator"));
+const ThumbnailTester = lazy(() => import("./pages/tools/ThumbnailTester"));
+const HashtagAnalyzer = lazy(() => import("./pages/tools/HashtagAnalyzer"));
+const LoanEmiCalculator = lazy(() => import("./pages/tools/LoanEmiCalculator"));
+const NetWorthTracker = lazy(() => import("./pages/tools/NetWorthTracker"));
+const CompatibilityCalculator = lazy(() => import("./pages/tools/CompatibilityCalculator"));
+const TechTriviaGenerator = lazy(() => import("./pages/tools/TechTriviaGenerator"));
+const SittingTimeCalculator = lazy(() => import("./pages/tools/SittingTimeCalculator"));
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -308,6 +326,22 @@ const App = () => (
                       <Route path="/tools/wifi-qr-generator" element={<WifiQrGenerator />} />
                       <Route path="/tools/world-clock" element={<WorldClock />} />
                       <Route path="/tools/youtube-thumbnail-downloader" element={<YouTubeThumbnailDownloader />} />
+                      <Route path="/tools/age-calculator" element={<AgeCalculator />} />
+                      <Route path="/tools/currency-converter" element={<CurrencyConverter />} />
+                      <Route path="/tools/hashtag-generator" element={<HashtagGenerator />} />
+                      <Route path="/tools/hook-generator" element={<HookGenerator />} />
+                      <Route path="/tools/this-day-in-history" element={<ThisDayInHistory />} />
+                      <Route path="/tools/idea-parking-lot" element={<IdeaParkingLot />} />
+                      <Route path="/tools/savings-goal-visualizer" element={<SavingsGoalVisualizer />} />
+                      <Route path="/tools/compound-interest-calculator" element={<CompoundInterestCalculator />} />
+                      <Route path="/tools/paycheck-calculator" element={<PaycheckCalculator />} />
+                      <Route path="/tools/thumbnail-tester" element={<ThumbnailTester />} />
+                      <Route path="/tools/hashtag-analyzer" element={<HashtagAnalyzer />} />
+                      <Route path="/tools/loan-emi-calculator" element={<LoanEmiCalculator />} />
+                      <Route path="/tools/net-worth-tracker" element={<NetWorthTracker />} />
+                      <Route path="/tools/compatibility-calculator" element={<CompatibilityCalculator />} />
+                      <Route path="/tools/tech-trivia-generator" element={<TechTriviaGenerator />} />
+                      <Route path="/tools/sitting-time-calculator" element={<SittingTimeCalculator />} />
                       <Route path="/tools/:categoryId" element={<ToolCategory />} />
                       <Route path="/blog" element={<Blog />} />
                       <Route path="/blog/:slug" element={<BlogArticle />} />

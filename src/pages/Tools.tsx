@@ -17,6 +17,7 @@ interface ToolCategoryCard {
   featured: string[];
   accentColor: string;
   darkAccent: string;
+  shadowColor: string;
 }
 
 const categories: ToolCategoryCard[] = [
@@ -27,10 +28,11 @@ const categories: ToolCategoryCard[] = [
     icon: Briefcase,
     gradient: "from-blue-500 via-blue-600 to-indigo-600",
     bgPattern: "radial-gradient(circle at 80% 20%, rgba(59,130,246,0.15) 0%, transparent 50%)",
-    toolCount: 14,
+    toolCount: 18,
     featured: ["Invoice Generator", "Proposal Generator", "Simple CRM"],
     accentColor: "text-blue-600",
     darkAccent: "dark:text-blue-400",
+    shadowColor: "shadow-blue-500/25",
   },
   {
     id: "productivity",
@@ -39,10 +41,11 @@ const categories: ToolCategoryCard[] = [
     icon: Zap,
     gradient: "from-orange-500 via-amber-500 to-yellow-500",
     bgPattern: "radial-gradient(circle at 80% 20%, rgba(245,158,11,0.15) 0%, transparent 50%)",
-    toolCount: 7,
-    featured: ["Pomodoro Timer", "Bill Splitter", "World Clock"],
+    toolCount: 24,
+    featured: ["Pomodoro Timer", "Savings Goal", "Loan EMI Calculator"],
     accentColor: "text-orange-600",
     darkAccent: "dark:text-orange-400",
+    shadowColor: "shadow-orange-500/25",
   },
   {
     id: "career",
@@ -55,6 +58,7 @@ const categories: ToolCategoryCard[] = [
     featured: ["Resume Builder", "Salary Comparison", "Career Matcher"],
     accentColor: "text-emerald-600",
     darkAccent: "dark:text-emerald-400",
+    shadowColor: "shadow-emerald-500/25",
   },
   {
     id: "creator",
@@ -63,10 +67,11 @@ const categories: ToolCategoryCard[] = [
     icon: Megaphone,
     gradient: "from-purple-500 via-violet-500 to-fuchsia-500",
     bgPattern: "radial-gradient(circle at 80% 20%, rgba(139,92,246,0.15) 0%, transparent 50%)",
-    toolCount: 14,
-    featured: ["Content Repurposer", "Link in Bio", "AI Content Ideas"],
+    toolCount: 18,
+    featured: ["AI Hashtag Generator", "Hook Generator", "Thumbnail Tester"],
     accentColor: "text-purple-600",
     darkAccent: "dark:text-purple-400",
+    shadowColor: "shadow-purple-500/25",
   },
   {
     id: "developer",
@@ -79,6 +84,7 @@ const categories: ToolCategoryCard[] = [
     featured: ["JSON Formatter", "Regex Tester", "JWT Decoder"],
     accentColor: "text-slate-600",
     darkAccent: "dark:text-slate-400",
+    shadowColor: "shadow-slate-500/25",
   },
   {
     id: "security",
@@ -91,6 +97,7 @@ const categories: ToolCategoryCard[] = [
     featured: ["Password Generator", "Privacy Checker", "Speed Test"],
     accentColor: "text-red-600",
     darkAccent: "dark:text-red-400",
+    shadowColor: "shadow-red-500/25",
   },
   {
     id: "design",
@@ -100,9 +107,10 @@ const categories: ToolCategoryCard[] = [
     gradient: "from-pink-500 via-rose-400 to-fuchsia-500",
     bgPattern: "radial-gradient(circle at 80% 20%, rgba(236,72,153,0.15) 0%, transparent 50%)",
     toolCount: 10,
-    featured: ["Color Picker", "QR Generator", "Image Compressor"],
+    featured: ["Gradient Generator", "QR Generator", "Image Compressor"],
     accentColor: "text-pink-600",
     darkAccent: "dark:text-pink-400",
+    shadowColor: "shadow-pink-500/25",
   },
   {
     id: "other",
@@ -111,12 +119,16 @@ const categories: ToolCategoryCard[] = [
     icon: Smartphone,
     gradient: "from-teal-500 via-cyan-500 to-sky-500",
     bgPattern: "radial-gradient(circle at 80% 20%, rgba(20,184,166,0.15) 0%, transparent 50%)",
-    toolCount: 9,
-    featured: ["Phone Comparison", "BMI Calculator", "Meme Generator"],
+    toolCount: 14,
+    featured: ["Age Calculator", "Currency Converter", "Tech Trivia"],
     accentColor: "text-teal-600",
     darkAccent: "dark:text-teal-400",
+    shadowColor: "shadow-teal-500/25",
   },
 ];
+
+// Calculate total tools
+const totalTools = categories.reduce((sum, cat) => sum + cat.toolCount, 0);
 
 export default function Tools() {
   return (
@@ -126,7 +138,7 @@ export default function Tools() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-purple-500/5" />
         <div className="container relative py-16 md:py-24 text-center">
           <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-6">
-            90+ Free Tools Available
+            {totalTools}+ Free Tools Available
           </span>
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
             Your Ultimate{" "}
@@ -145,7 +157,7 @@ export default function Tools() {
           {/* Stats */}
           <div className="flex justify-center gap-12 md:gap-16">
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-foreground">90+</div>
+              <div className="text-3xl md:text-4xl font-bold text-foreground">{totalTools}+</div>
               <div className="text-xs text-muted-foreground mt-1">Free Tools</div>
             </div>
             <div className="text-center">
@@ -176,86 +188,145 @@ export default function Tools() {
           </p>
         </div>
 
-        {/* Category Cards Grid */}
+        {/* Category Cards Grid - Animated */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
-          {categories.map((cat) => {
+          {categories.map((cat, index) => {
             const Icon = cat.icon;
             return (
               <Link
                 key={cat.id}
                 to={`/tools/${cat.id}`}
-                className="group relative bg-card rounded-2xl border border-border p-6 transition-all duration-300 hover:shadow-xl hover:border-primary/20 hover:-translate-y-1 overflow-hidden"
+                className={cn(
+                  "group relative bg-card rounded-2xl border border-border p-6 overflow-hidden",
+                  "transition-all duration-500 ease-out",
+                  "hover:shadow-2xl hover:border-transparent hover:-translate-y-2",
+                  cat.shadowColor
+                )}
+                style={{
+                  animationDelay: `${index * 100}ms`,
+                }}
               >
-                {/* Background pattern */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                {/* Background pattern - appears on hover */}
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500"
                   style={{ background: cat.bgPattern }}
                 />
 
-                <div className="relative">
-                  {/* Icon */}
+                {/* Gradient border effect on hover */}
+                <div className={cn(
+                  "absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+                  "bg-gradient-to-br p-[1px]",
+                  cat.gradient
+                )}>
+                  <div className="absolute inset-[1px] rounded-2xl bg-card" />
+                </div>
+
+                <div className="relative z-10">
+                  {/* Icon - with bounce animation on hover */}
                   <div className={cn(
-                    "w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center mb-4 shadow-lg transition-transform duration-300 group-hover:scale-110",
+                    "w-14 h-14 rounded-xl bg-gradient-to-br flex items-center justify-center mb-4 shadow-lg",
+                    "transition-all duration-500 ease-out",
+                    "group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-xl",
                     cat.gradient
                   )}>
-                    <Icon className="w-6 h-6 text-white" />
+                    <Icon className="w-7 h-7 text-white transition-transform duration-300 group-hover:scale-110" />
                   </div>
 
                   {/* Title & Description */}
-                  <h3 className="text-lg font-bold text-foreground mb-1.5 group-hover:text-primary transition-colors">
+                  <h3 className="text-lg font-bold text-foreground mb-1.5 group-hover:text-primary transition-colors duration-300">
                     {cat.title}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4 leading-relaxed line-clamp-2">
                     {cat.description}
                   </p>
 
-                  {/* Featured tools */}
+                  {/* Featured tools with animated stars */}
                   <div className="space-y-1.5 mb-4">
-                    {cat.featured.map((tool) => (
-                      <div key={tool} className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Star className={cn("w-3 h-3 fill-current", cat.accentColor, cat.darkAccent)} />
-                        <span>{tool}</span>
+                    {cat.featured.map((tool, i) => (
+                      <div
+                        key={tool}
+                        className="flex items-center gap-2 text-xs text-muted-foreground"
+                        style={{ transitionDelay: `${i * 50}ms` }}
+                      >
+                        <Star className={cn(
+                          "w-3 h-3 fill-current transition-all duration-300",
+                          "group-hover:scale-125 group-hover:rotate-12",
+                          cat.accentColor,
+                          cat.darkAccent
+                        )} />
+                        <span className="group-hover:text-foreground transition-colors duration-300">{tool}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                    <span className={cn("text-sm font-semibold", cat.accentColor, cat.darkAccent)}>
+                  <div className="flex items-center justify-between pt-3 border-t border-border/50 group-hover:border-transparent transition-colors duration-300">
+                    <span className={cn(
+                      "text-sm font-semibold flex items-center gap-1 transition-all duration-300",
+                      cat.accentColor,
+                      cat.darkAccent
+                    )}>
                       Explore Tools
-                      <ArrowRight className="inline w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-2" />
                     </span>
-                    <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                    <span className={cn(
+                      "text-xs font-semibold px-2.5 py-1 rounded-full transition-all duration-300",
+                      "bg-muted text-muted-foreground",
+                      "group-hover:bg-gradient-to-r group-hover:text-white",
+                      cat.gradient
+                    )}>
                       {cat.toolCount} tools
                     </span>
                   </div>
                 </div>
+
+                {/* Shine effect on hover */}
+                <div className={cn(
+                  "absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none",
+                  "bg-gradient-to-r from-transparent via-white/10 to-transparent",
+                  "-translate-x-full group-hover:translate-x-full",
+                  "transition-all duration-1000 ease-out"
+                )} />
               </Link>
             );
           })}
         </div>
+      </div>
 
-        {/* Premium CTA */}
-        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-primary via-violet-600 to-purple-600 p-10 text-center">
-          <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
-          <div className="relative">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white/90 text-xs font-medium mb-4">
-              <Crown className="w-3.5 h-3.5" />
-              Premium Features
-            </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-              Unlock the Full Power
-            </h2>
-            <p className="text-white/80 mb-6 max-w-md mx-auto">
-              Get unlimited access to Invoice Chaser, Client Portal, Content Repurposer, CRM, and all premium tools.
-            </p>
-            <Link
-              to="/premium"
-              className="inline-flex items-center px-8 py-3.5 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-100 transition-colors shadow-lg"
-            >
-              Get Premium - $4.99/month
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Link>
+      {/* Premium CTA - Full Width Edge to Edge */}
+      <div className="relative w-screen left-[50%] right-[50%] -ml-[50vw] -mr-[50vw]">
+        {/* Animated gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500" />
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/50 via-transparent to-rose-500/50" />
+
+        {/* Animated orbs */}
+        <div className="absolute top-0 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+
+        <div className="relative container py-16 md:py-20 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium mb-6">
+            <Crown className="w-4 h-4" />
+            Premium Features
           </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Unlock the Full Power
+          </h2>
+          <p className="text-white/80 mb-8 max-w-lg mx-auto text-lg">
+            Get unlimited access to Invoice Chaser, Client Portal, Content Repurposer, CRM, and all premium tools.
+          </p>
+          <Link
+            to="/premium"
+            className="inline-flex items-center px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1 group"
+          >
+            Get Premium - $4.99/month
+            <ArrowRight className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
+          </Link>
+          <p className="text-white/60 text-sm mt-4">
+            7-day free trial • Cancel anytime
+          </p>
         </div>
       </div>
     </Layout>

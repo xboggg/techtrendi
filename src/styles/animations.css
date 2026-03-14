@@ -300,6 +300,20 @@
   animation: progress linear forwards;
 }
 
+/* Animated color line below hero */
+@keyframes hero-color-line {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-hero-color-line {
+  animation: hero-color-line 4s linear infinite;
+}
+
 /* ============================================
    4. PAGE TRANSITIONS
    ============================================ */

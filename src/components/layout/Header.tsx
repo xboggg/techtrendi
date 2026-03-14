@@ -59,6 +59,8 @@ export function Header() {
   const navigate = useNavigate();
   const { user, subscription, signOut } = useAuth();
   const { isAdmin } = useAdminCheck();
+  const isHomepage = location.pathname === "/";
+  const isOverHero = isHomepage && !isScrolled;
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -75,22 +77,25 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "glass-nav shadow-glass"
-          : "bg-transparent"
+          ? "glass-nav shadow-glass border-b border-white/10"
+          : isHomepage
+            ? "bg-transparent border-b border-transparent"
+            : "glass-nav shadow-glass border-b border-white/10"
       }`}
     >
       <div className="container mx-auto">
         <nav className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="relative w-9 h-9 rounded-xl bg-gradient-primary flex items-center justify-center shadow-card group-hover:shadow-glow group-hover:scale-105 transition-all duration-300">
-              <span className="text-primary-foreground font-bold text-lg">T</span>
-              <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </div>
-            <span className="text-xl font-bold text-foreground">
-              Tech<span className="text-gradient">Trendi</span>
+          <Link to="/" className="flex items-center gap-0.5 group">
+            <img
+              src="/logo-t.png"
+              alt="TechTrendi"
+              className="h-12 w-auto group-hover:scale-105 transition-transform duration-300"
+            />
+            <span className={`text-xl font-bold ${isOverHero ? "text-white" : "text-foreground"}`}>
+              Tech<span className={isOverHero ? "text-purple-400" : "text-gradient"}>Trendi</span>
             </span>
           </Link>
 
@@ -107,8 +112,8 @@ export function Header() {
                   to={link.href}
                   className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive(link.href)
-                      ? "text-primary bg-primary/10 shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"
+                      ? isOverHero ? "text-white bg-white/20 shadow-sm" : "text-primary bg-primary/10 shadow-sm"
+                      : isOverHero ? "text-white/80 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"
                   } ${link.isHot ? "relative" : ""}`}
                 >
                   {link.icon && <link.icon className="w-4 h-4 text-orange-500" />}
@@ -177,9 +182,9 @@ export function Header() {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-2">
-            <SearchButton className="hidden md:flex" />
+            <SearchButton className="hidden md:flex" isOverHero={isOverHero} />
 
-            <ThemeToggle />
+            <ThemeToggle className={isOverHero ? "text-white hover:text-white/80 hover:bg-white/10" : ""} />
 
             {user ? (
               <DropdownMenu>
@@ -244,7 +249,7 @@ export function Header() {
               </DropdownMenu>
             ) : (
               <>
-                <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex rounded-xl hover:bg-white/50 dark:hover:bg-white/5">
+                <Button variant="ghost" size="sm" asChild className={`hidden md:inline-flex rounded-xl ${isOverHero ? "text-white hover:bg-white/10" : "hover:bg-white/50 dark:hover:bg-white/5"}`}>
                   <Link to="/auth">Sign In</Link>
                 </Button>
                 <Button size="sm" asChild className="hidden md:inline-flex btn-premium rounded-xl text-white shadow-card">
@@ -259,7 +264,7 @@ export function Header() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5 transition-all duration-200"
+              className={`lg:hidden p-2.5 rounded-xl transition-all duration-200 ${isOverHero ? "text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"}`}
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>

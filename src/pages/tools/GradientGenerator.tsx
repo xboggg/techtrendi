@@ -58,7 +58,9 @@ export default function GradientGenerator() {
   const gradient = generateGradient();
 
   const cssCode = `background: ${gradient};`;
-  const tailwindCode = `bg-gradient-to-r from-[${colorStops[0]?.color}] to-[${colorStops[colorStops.length - 1]?.color}]`;
+  const firstColor = colorStops[0]?.color || '#667eea';
+  const lastColor = colorStops[colorStops.length - 1]?.color || '#764ba2';
+  const tailwindCode = "bg-gradient-to-r from-[" + firstColor + "] to-[" + lastColor + "]";
 
   const addColorStop = () => {
     const newStop: ColorStop = {

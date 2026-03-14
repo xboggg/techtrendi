@@ -3,20 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, ChevronLeft, ChevronRight, Smartphone, Shield, Brain, Briefcase, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-// Particle positions for floating effect (start from bottom, bigger & more visible)
-const particles = [
-  { left: "5%", size: 12, delay: 0 },
-  { left: "15%", size: 10, delay: 2 },
-  { left: "25%", size: 14, delay: 4 },
-  { left: "35%", size: 8, delay: 1 },
-  { left: "45%", size: 16, delay: 3 },
-  { left: "55%", size: 10, delay: 5 },
-  { left: "65%", size: 12, delay: 2.5 },
-  { left: "75%", size: 9, delay: 4.5 },
-  { left: "85%", size: 14, delay: 1.5 },
-  { left: "95%", size: 11, delay: 3.5 },
-];
+import { NewsTicker } from "./NewsTicker";
 
 interface HeroSlide {
   id: number;
@@ -80,7 +67,7 @@ const heroSlides: HeroSlide[] = [
     id: 4,
     title: "Work Smarter",
     highlight: "Not Harder",
-    description: "Master the best apps, tools, and techniques to work smarter and achieve more every day.",
+    description: "The best apps, workflows, and free tools — tested and ranked — to help you get more done in less time.",
     cta: "Productivity Tips",
     ctaLink: "/productivity",
     secondaryCta: "Free Tools",
@@ -138,11 +125,11 @@ export function HeroCarousel() {
 
   return (
     <section
-      className="relative overflow-hidden h-[85vh] min-h-[600px] max-h-[900px] flex items-center"
+      className="relative w-full h-[100svh] min-h-[550px] overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Background Images with Ken Burns Effect */}
+      {/* Background Images */}
       {heroSlides.map((s, index) => (
         <div
           key={s.id}
@@ -151,117 +138,92 @@ export function HeroCarousel() {
             index === currentSlide ? "opacity-100" : "opacity-0"
           )}
         >
-          {/* Background Image with Ken Burns effect (pan + zoom) */}
+          {/* Background Image */}
           <div
-            className={cn(
-              "absolute inset-0 bg-cover bg-center",
-              index === currentSlide && "animate-ken-burns"
-            )}
-            style={{
-              backgroundImage: `url(${s.image})`,
-            }}
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${s.image})` }}
           />
-          {/* Animated Gradient Overlay */}
-          <div className={cn(
-            "absolute inset-0",
-            index === currentSlide && "animate-gradient-overlay"
-          )} />
           {/* Dark overlay for readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
         </div>
       ))}
 
-      {/* Floating Particles - Super Visible */}
-      <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
-        {particles.map((particle, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-gradient-to-br from-white via-blue-200 to-purple-200 animate-float-particle"
-            style={{
-              left: particle.left,
-              bottom: '-50px',
-              width: `${particle.size}px`,
-              height: `${particle.size}px`,
-              animationDelay: `${particle.delay}s`,
-              boxShadow: '0 0 30px rgba(255, 255, 255, 0.9), 0 0 60px rgba(139, 92, 246, 0.7), 0 0 90px rgba(59, 130, 246, 0.5)',
-              filter: 'blur(1px)',
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Content Container */}
-      <div className="container relative z-30 py-16 md:py-24">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Category Badge with Icon */}
-          <div
-            className={cn(
-              "inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-sm font-medium mb-6 transition-all duration-500",
-              isTransitioning ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
-            )}
-          >
-            <Icon className="w-4 h-4 text-white" />
-            <span className="text-white/90">{slide.title} {slide.highlight}</span>
-          </div>
-
-          {/* Main Title */}
-          <h1
-            className={cn(
-              "text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight transition-all duration-700",
-              isTransitioning ? "opacity-0 translate-y-8" : "opacity-100 translate-y-0"
-            )}
-            style={{ transitionDelay: '100ms' }}
-          >
-            <span className="text-white">{slide.title}</span>{" "}
-            <span className={cn("bg-gradient-to-r bg-clip-text text-transparent", slide.gradient)}>
-              {slide.highlight}
-            </span>
-          </h1>
-
-          {/* Description */}
-          <p
-            className={cn(
-              "text-base md:text-lg text-white/80 mb-8 max-w-2xl mx-auto leading-relaxed transition-all duration-700",
-              isTransitioning ? "opacity-0 translate-y-8" : "opacity-100 translate-y-0"
-            )}
-            style={{ transitionDelay: '200ms' }}
-          >
-            {slide.description}
-          </p>
-
-          {/* CTA Buttons */}
-          <div
-            className={cn(
-              "flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700",
-              isTransitioning ? "opacity-0 translate-y-8" : "opacity-100 translate-y-0"
-            )}
-            style={{ transitionDelay: '300ms' }}
-          >
-            <Button
-              size="lg"
+      {/* Content Container - Full height, centered vertically */}
+      <div className="relative z-10 h-full flex items-center">
+        <div className="container">
+          <div className="max-w-2xl">
+            {/* Category Badge with Icon */}
+            <div
               className={cn(
-                "rounded-full text-white shadow-lg px-8 py-3 bg-gradient-to-r hover:shadow-xl hover:scale-105 transition-all duration-300 font-medium",
-                slide.buttonGradient
+                "inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-sm font-medium mb-6 transition-all duration-500",
+                isTransitioning ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
               )}
-              asChild
             >
-              <Link to={slide.ctaLink} className="flex items-center gap-2">
-                {slide.cta}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </Button>
-            {slide.secondaryCta && (
+              <span className={cn("w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-r", slide.buttonGradient)}>
+                <Icon className="w-4 h-4 text-white" />
+              </span>
+              <span className="text-white">{slide.title} {slide.highlight}</span>
+            </div>
+
+            {/* Main Title - Two lines */}
+            <h1
+              className={cn(
+                "text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-[1.1] transition-all duration-700",
+                isTransitioning ? "opacity-0 translate-y-8" : "opacity-100 translate-y-0"
+              )}
+              style={{ transitionDelay: '100ms' }}
+            >
+              <span className="text-white block">{slide.title}</span>
+              <span className={cn("bg-gradient-to-r bg-clip-text text-transparent block", slide.gradient)}>
+                {slide.highlight}
+              </span>
+            </h1>
+
+            {/* Description */}
+            <p
+              className={cn(
+                "text-base md:text-lg text-white/80 mb-8 max-w-xl leading-relaxed transition-all duration-700",
+                isTransitioning ? "opacity-0 translate-y-8" : "opacity-100 translate-y-0"
+              )}
+              style={{ transitionDelay: '200ms' }}
+            >
+              {slide.description}
+            </p>
+
+            {/* CTA Buttons */}
+            <div
+              className={cn(
+                "flex flex-wrap items-center gap-4 transition-all duration-700",
+                isTransitioning ? "opacity-0 translate-y-8" : "opacity-100 translate-y-0"
+              )}
+              style={{ transitionDelay: '300ms' }}
+            >
               <Button
                 size="lg"
-                variant="outline"
-                className="rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 px-8 py-3 font-medium transition-all duration-300"
+                className={cn(
+                  "rounded-full text-white shadow-lg px-8 bg-gradient-to-r hover:shadow-xl hover:scale-105 transition-all duration-300",
+                  slide.buttonGradient
+                )}
                 asChild
               >
-                <Link to={slide.secondaryLink || "#"}>
-                  {slide.secondaryCta}
+                <Link to={slide.ctaLink} className="flex items-center gap-2">
+                  {slide.cta}
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
-            )}
+              {slide.secondaryCta && (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 px-8 transition-all duration-300"
+                  asChild
+                >
+                  <Link to={slide.secondaryLink || "#"}>
+                    {slide.secondaryCta}
+                  </Link>
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -282,29 +244,27 @@ export function HeroCarousel() {
         <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
       </button>
 
-      {/* Slide Indicators / Dots */}
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+      {/* Slide Indicators */}
+      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
         {heroSlides.map((s, index) => (
           <button
             key={s.id}
             onClick={() => goToSlide(index)}
             className={cn(
-              "relative h-2 rounded-full transition-all duration-500 overflow-hidden",
-              index === currentSlide ? "w-8 bg-white" : "w-2 bg-white/40 hover:bg-white/60"
+              "h-2 rounded-full transition-all duration-500",
+              index === currentSlide
+                ? "w-8 bg-white"
+                : "w-2 bg-white/40 hover:bg-white/60"
             )}
             aria-label={`Go to slide ${index + 1}`}
-          >
-            {/* Progress bar for active slide */}
-            {index === currentSlide && !isPaused && (
-              <div
-                className="absolute inset-0 bg-white/50 origin-left animate-progress"
-                style={{ animationDuration: '6s' }}
-              />
-            )}
-          </button>
+          />
         ))}
       </div>
 
+      {/* News Ticker at bottom of hero */}
+      <div className="absolute bottom-0 left-0 right-0 z-20">
+        <NewsTicker />
+      </div>
     </section>
   );
 }

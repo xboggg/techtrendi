@@ -296,7 +296,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 }
 
 // Search Button/Trigger
-export function SearchButton({ className }: { className?: string }) {
+export function SearchButton({ className, isOverHero = false }: { className?: string; isOverHero?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
 
   // Global keyboard shortcut
@@ -317,13 +317,21 @@ export function SearchButton({ className }: { className?: string }) {
       <button
         onClick={() => setIsOpen(true)}
         className={cn(
-          'flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground bg-muted/50 hover:bg-muted rounded-lg transition-colors',
+          'flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors backdrop-blur-md',
+          isOverHero
+            ? 'text-white/80 bg-white/10 hover:bg-white/20 border border-white/20'
+            : 'text-gray-700 dark:text-white/80 bg-white/80 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 shadow-sm',
           className
         )}
       >
-        <Search className="w-4 h-4" />
+        <Search className={cn("w-4 h-4", isOverHero ? "text-white/70" : "text-gray-600 dark:text-white/70")} />
         <span className="hidden sm:inline">Search...</span>
-        <kbd className="hidden md:inline-flex px-1.5 py-0.5 text-xs bg-background rounded border border-border">
+        <kbd className={cn(
+          "hidden md:inline-flex px-1.5 py-0.5 text-xs rounded border font-medium",
+          isOverHero
+            ? "text-white/70 bg-white/10 border-white/20"
+            : "text-gray-600 dark:text-white/70 bg-gray-100 dark:bg-white/10 border-gray-300 dark:border-white/20"
+        )}>
           ⌘K
         </kbd>
       </button>

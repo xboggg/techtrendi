@@ -61,15 +61,16 @@ const tourSteps: TourStep[] = [
 const STORAGE_KEY = 'techtrendi_tour_completed';
 
 export function OnboardingTour() {
+  // Tour disabled - return null immediately
+  return null;
+
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [hasCompleted, setHasCompleted] = useState(true); // Default to true to avoid flash
+  const [hasCompleted, setHasCompleted] = useState(true);
 
   useEffect(() => {
-    // Check if tour was completed
     const completed = localStorage.getItem(STORAGE_KEY);
     if (!completed) {
-      // Delay showing tour to let the page load
       const timer = setTimeout(() => {
         setHasCompleted(false);
         setIsOpen(true);
