@@ -36,8 +36,8 @@ interface HeroSlide {
 const heroSlides: HeroSlide[] = [
   {
     id: 1,
-    title: "Latest",
-    highlight: "Smartphones",
+    title: "Find Your Next",
+    highlight: "Smartphone",
     description: "In-depth reviews, comparisons, and buying guides for the newest phones. Find your perfect device.",
     cta: "Explore Phones",
     ctaLink: "/phones",
@@ -50,8 +50,8 @@ const heroSlides: HeroSlide[] = [
   },
   {
     id: 2,
-    title: "AI &",
-    highlight: "Technology",
+    title: "AI That Actually",
+    highlight: "Works for You",
     description: "Discover the latest in artificial intelligence, machine learning, and cutting-edge tech innovations.",
     cta: "Explore AI Tech",
     ctaLink: "/ai-tech",
@@ -64,8 +64,8 @@ const heroSlides: HeroSlide[] = [
   },
   {
     id: 3,
-    title: "Cybersecurity &",
-    highlight: "Privacy",
+    title: "Stay Safe",
+    highlight: "Online",
     description: "Protect your digital life with expert security guides, tools, and best practices for staying safe online.",
     cta: "Security Guides",
     ctaLink: "/security",
@@ -78,8 +78,8 @@ const heroSlides: HeroSlide[] = [
   },
   {
     id: 4,
-    title: "Boost Your",
-    highlight: "Productivity",
+    title: "Work Smarter",
+    highlight: "Not Harder",
     description: "Master the best apps, tools, and techniques to work smarter and achieve more every day.",
     cta: "Productivity Tips",
     ctaLink: "/productivity",
@@ -92,8 +92,8 @@ const heroSlides: HeroSlide[] = [
   },
   {
     id: 5,
-    title: "Online",
-    highlight: "Side Hustles",
+    title: "Turn Skills Into",
+    highlight: "Income",
     description: "Learn proven strategies to earn money online, from freelancing to passive income and digital entrepreneurship.",
     cta: "Start Earning",
     ctaLink: "/make-money",

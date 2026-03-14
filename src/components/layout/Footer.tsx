@@ -41,32 +41,29 @@ const socialLinks = [
 ];
 
 const footerLinks = {
-  product: [
-    { label: "AI Tools", href: "/tools" },
-    { label: "Reviews", href: "/reviews" },
-    { label: "Premium", href: "/premium" },
-    { label: "Free Tools", href: "/tools" },
+  explore: [
+    { label: "TechTrendi Guides", href: "/guides" },
+    { label: "TechTrendi News", href: "/blog" },
+    { label: "TechTrendi Tools", href: "/tools" },
+    { label: "Creepy Tech", href: "/creepy-tech" },
+    { label: "Cyber Awareness", href: "/cyber-awareness" },
+    { label: "DigiStore", href: "/store" },
   ],
-  categories: [
-    { label: "Phones", href: "/phones" },
+  topics: [
     { label: "Security", href: "/security" },
     { label: "AI Tech", href: "/ai-tech" },
-    { label: "Productivity", href: "/productivity" },
+    { label: "Phones & Gadgets", href: "/phones" },
     { label: "How-To", href: "/how-to" },
     { label: "Side Hustles", href: "/make-money" },
+    { label: "Productivity", href: "/productivity" },
     { label: "Gaming", href: "/gaming" },
-    { label: "Accessories", href: "/accessories" },
     { label: "Career in Tech", href: "/career-in-tech" },
-    { label: "Health Tech", href: "/health-tech" },
-    { label: "Remote Work", href: "/remote-work" },
-    { label: "Green Tech", href: "/green-tech" },
   ],
   company: [
     { label: "About", href: "/about" },
-    { label: "Blog", href: "/blog" },
-    { label: "News", href: "/news" },
     { label: "Contact", href: "/contact" },
-    { label: "DigiStore", href: "/store" },
+    { label: "Reviews", href: "/reviews" },
+    { label: "Premium", href: "/premium" },
   ],
   legal: [
     { label: "Privacy Policy", href: "/privacy" },
@@ -108,11 +105,11 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Product Links */}
+          {/* Explore Links */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Product</h4>
+            <h4 className="font-semibold text-foreground mb-4">Explore</h4>
             <ul className="space-y-3">
-              {footerLinks.product.map((link) => (
+              {footerLinks.explore.map((link) => (
                 <li key={link.label}>
                   <Link
                     to={link.href}
@@ -125,11 +122,11 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Categories Links */}
+          {/* Topics Links */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Categories</h4>
+            <h4 className="font-semibold text-foreground mb-4">Topics</h4>
             <ul className="space-y-3">
-              {footerLinks.categories.map((link) => (
+              {footerLinks.topics.map((link) => (
                 <li key={link.label}>
                   <Link
                     to={link.href}

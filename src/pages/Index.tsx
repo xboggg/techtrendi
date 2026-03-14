@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, Shield, Zap, BookOpen, Wrench, Star, TrendingUp, Clock, Eye, FileText } from "lucide-react";
+import {
+  ArrowRight, Sparkles, Shield, Zap, BookOpen, Star, TrendingUp, Clock, Eye, FileText,
+  Briefcase, GraduationCap, Megaphone, Braces, PenTool, Smartphone,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
-import { useInView } from "react-intersection-observer";
+import { WaveFeatureCarousel } from "@/components/ui/wave-feature-carousel";
+import { CreepyTechHomeSection } from "@/components/home/CreepyTechCarousel";
+import { FeaturedSection } from "@/components/content/EditorsPicks";
 import { cn } from "@/lib/utils";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
@@ -44,29 +49,6 @@ interface LatestArticle {
   created_at: string;
 }
 
-const features = [
-  {
-    icon: Sparkles,
-    title: "AI-Powered Insights",
-    description: "Get smart recommendations powered by advanced AI technology.",
-  },
-  {
-    icon: Shield,
-    title: "Security First",
-    description: "Expert advice on keeping your digital life safe and secure.",
-  },
-  {
-    icon: Zap,
-    title: "Quick Tools",
-    description: "Free utilities that save you time and boost productivity.",
-  },
-  {
-    icon: BookOpen,
-    title: "Expert Guides",
-    description: "Comprehensive tutorials written by technology professionals.",
-  },
-];
-
 const categoryLabels: Record<string, string> = {
   phones: "Phone Guides",
   productivity: "Productivity",
@@ -76,28 +58,15 @@ const categoryLabels: Record<string, string> = {
   "make-money": "Side Hustles",
 };
 
-const tools = [
-  {
-    icon: Shield,
-    title: "Password Generator",
-    description: "Create strong, secure passwords instantly",
-    href: "/tools/password-generator",
-    gradient: "from-blue-500 to-cyan-500",
-  },
-  {
-    icon: Wrench,
-    title: "QR Code Generator",
-    description: "Generate QR codes for any URL or text",
-    href: "/tools/qr-generator",
-    gradient: "from-purple-500 to-pink-500",
-  },
-  {
-    icon: Zap,
-    title: "Image Compressor",
-    description: "Compress images without losing quality",
-    href: "/tools/image-compressor",
-    gradient: "from-orange-500 to-red-500",
-  },
+const toolCategories = [
+  { id: "business", title: "Business & Freelancer", icon: Briefcase, gradient: "from-blue-500 via-blue-600 to-indigo-600", count: 14 },
+  { id: "productivity", title: "Productivity", icon: Zap, gradient: "from-orange-500 via-amber-500 to-yellow-500", count: 7 },
+  { id: "career", title: "Career", icon: GraduationCap, gradient: "from-emerald-500 via-green-500 to-teal-500", count: 6 },
+  { id: "creator", title: "Creator & Marketing", icon: Megaphone, gradient: "from-purple-500 via-violet-500 to-fuchsia-500", count: 14 },
+  { id: "developer", title: "Developer Tools", icon: Braces, gradient: "from-slate-600 via-gray-600 to-zinc-700", count: 10 },
+  { id: "security", title: "Security & Privacy", icon: Shield, gradient: "from-red-500 via-rose-500 to-pink-500", count: 5 },
+  { id: "design", title: "Design & Writing", icon: PenTool, gradient: "from-pink-500 via-rose-400 to-fuchsia-500", count: 10 },
+  { id: "other", title: "Lifestyle & Fun", icon: Smartphone, gradient: "from-teal-500 via-cyan-500 to-sky-500", count: 9 },
 ];
 
 export default function Index() {
@@ -254,35 +223,13 @@ export default function Index() {
         </div>
       </section>
 
-      {/* 2. Why Choose TechTrendi Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="container">
-          <div className="text-center mb-12">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-4">Why Choose Us</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Why Choose <span className="text-primary">TechTrendi</span>?
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              We combine AI intelligence with expert knowledge to deliver the most accurate and helpful tech guidance.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <AnimatedCard key={feature.title} delay={index * 150} animation="scale-in">
-                <div className="group p-6 rounded-2xl bg-card border border-border hover:shadow-lg hover:border-primary/20 transition-all duration-300 h-full">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
-                    <feature.icon className="w-6 h-6 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground text-sm">{feature.description}</p>
-                </div>
-              </AnimatedCard>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* 2. Why Choose TechTrendi - Wave Feature Carousel */}
+      <WaveFeatureCarousel />
 
-      {/* 3. Trending Now Section */}
+      {/* 3. Creepy Tech & Cyber Awareness */}
+      <CreepyTechHomeSection />
+
+      {/* 4. Trending Now Section */}
       <section className="py-16 bg-background">
         <div className="container">
           <div className="flex items-center justify-between mb-8">
@@ -369,40 +316,43 @@ export default function Index() {
         </div>
       </section>
 
-      {/* 4. Free AI-Powered Tools Section */}
-      <section className="py-20 bg-muted/30">
+      {/* 5. Explore Tool Categories Section */}
+      <section className="py-16 bg-muted/30">
         <div className="container">
-          <div className="text-center mb-12">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-4">Productivity Boosters</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Free <span className="text-primary">AI-Powered</span> Tools
+          <div className="text-center mb-10">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-4">90+ Free Tools</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+              Explore Our <span className="text-primary">Tool Categories</span>
             </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Powerful utilities to boost your productivity and keep you secure online.
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              From business essentials to developer utilities, find the perfect tool for any task.
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {tools.map((tool, index) => (
-              <AnimatedCard key={tool.title} delay={index * 150} animation="scale-in">
-                <Link
-                  to={tool.href}
-                  className="block group p-6 rounded-2xl bg-card border border-border hover:shadow-lg hover:border-primary/20 transition-all duration-300 text-center h-full"
-                >
-                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tool.gradient} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg`}>
-                    <tool.icon className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
-                    {tool.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm mb-4">{tool.description}</p>
-                  <span className="inline-flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all duration-300">
-                    Try Now <ArrowRight className="w-4 h-4" />
-                  </span>
-                </Link>
-              </AnimatedCard>
-            ))}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {toolCategories.map((cat, index) => {
+              const Icon = cat.icon;
+              return (
+                <AnimatedCard key={cat.id} delay={index * 80} animation="fade-up">
+                  <Link
+                    to={`/tools/${cat.id}`}
+                    className="group flex flex-col items-center p-5 rounded-2xl bg-card border border-border hover:shadow-lg hover:border-primary/20 hover:-translate-y-1 transition-all duration-300"
+                  >
+                    <div className={cn(
+                      "w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform",
+                      cat.gradient
+                    )}>
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-foreground text-center group-hover:text-primary transition-colors">
+                      {cat.title}
+                    </h3>
+                    <span className="text-xs text-muted-foreground mt-1">{cat.count} tools</span>
+                  </Link>
+                </AnimatedCard>
+              );
+            })}
           </div>
-          <div className="mt-10 text-center">
+          <div className="mt-8 text-center">
             <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-8" asChild>
               <Link to="/tools" className="flex items-center gap-2">
                 <Zap className="w-5 h-5" />
@@ -414,7 +364,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* 5. Featured Guides Section */}
+      {/* 6. Featured Guides Section */}
       <section className="py-16 bg-background">
         <div className="container">
           <div className="flex items-center justify-between mb-8">
@@ -503,6 +453,13 @@ export default function Index() {
               </Link>
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* 7. Featured Reviews */}
+      <section className="py-16 bg-muted/30">
+        <div className="container">
+          <FeaturedSection />
         </div>
       </section>
 
