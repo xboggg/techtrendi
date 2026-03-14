@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Link, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
-import { LayoutDashboard, FileText, MessageSquare, Users, ArrowLeft, Loader2, PenSquare, Mail, Package, Newspaper } from "lucide-react";
+import { LayoutDashboard, FileText, MessageSquare, Users, ArrowLeft, Loader2, PenSquare, Mail, Package, Newspaper, BookOpen, BarChart3, Ghost, Shield, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AdminLayoutProps {
@@ -13,11 +13,16 @@ const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "News", href: "/admin/news", icon: Newspaper },
   { label: "Articles", href: "/admin/articles", icon: PenSquare },
+  { label: "Guides", href: "/admin/guides", icon: BookOpen },
   { label: "Reviews", href: "/admin/reviews", icon: FileText },
   { label: "Products", href: "/admin/products", icon: Package },
   { label: "Comments", href: "/admin/comments", icon: MessageSquare },
   { label: "Users", href: "/admin/users", icon: Users },
   { label: "Messages", href: "/admin/messages", icon: Mail },
+  { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+  { label: "Creepy Tech", href: "/admin/creepy-tech", icon: Ghost },
+  { label: "Cyber Awareness", href: "/admin/cyber-awareness", icon: Shield },
+  { label: "Tool Feedback", href: "/admin/tool-feedback", icon: Wrench },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {
