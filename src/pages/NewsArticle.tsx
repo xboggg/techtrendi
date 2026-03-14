@@ -10,6 +10,7 @@ import { ShareButtons } from "@/components/ui/share-buttons";
 import { BookmarkButton } from "@/components/ui/bookmark-system";
 import { useReadingHistory } from "@/components/ui/reading-history";
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
+import DOMPurify from "dompurify";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db.techtrendi.com";
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
@@ -270,7 +271,7 @@ export default function NewsArticle() {
               prose-table:w-full prose-table:my-6
               prose-th:bg-muted prose-th:p-3 prose-th:text-left prose-th:font-semibold
               prose-td:p-3 prose-td:border-b prose-td:border-border"
-            dangerouslySetInnerHTML={{ __html: news.content }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(news.content, { ADD_ATTR: ['target', 'rel', 'class'], ADD_TAGS: ['iframe'] }) }}
           />
 
           {/* Tags */}

@@ -12,6 +12,7 @@ import { ShareButtons } from "@/components/ui/share-buttons";
 import { BookmarkButton } from "@/components/ui/bookmark-system";
 import { useReadingHistory } from "@/components/ui/reading-history";
 import { sanitizeInput } from "@/lib/security";
+import DOMPurify from "dompurify";
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db.techtrendi.com";
@@ -370,7 +371,7 @@ export default function BlogArticle() {
             {/* Article Content */}
             <div
               className="prose prose-lg max-w-none"
-              dangerouslySetInnerHTML={{ __html: renderContent(article.content) }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(renderContent(article.content), { ADD_ATTR: ['target', 'rel', 'class'], ADD_TAGS: ['iframe'] }) }}
             />
 
             {/* Sidebar - Table of Contents */}
