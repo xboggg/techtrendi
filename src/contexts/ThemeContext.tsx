@@ -14,7 +14,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('techtrendi-theme') as Theme;
-      return stored || 'system';
+      return stored || 'light';
     }
     return 'system';
   });

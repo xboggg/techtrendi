@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { SearchButton } from "@/components/ui/search-modal";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { ThemeToggleSimple as ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   DropdownMenu,
   DropdownMenuContent,

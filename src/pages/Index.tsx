@@ -13,6 +13,7 @@ import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { WaveFeatureCarousel } from "@/components/ui/wave-feature-carousel";
 import { CreepyTechHomeSection } from "@/components/home/CreepyTechCarousel";
 import { FeaturedSection } from "@/components/content/EditorsPicks";
+import { NewsTicker } from "@/components/home/NewsTicker";
 import { cn } from "@/lib/utils";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
@@ -142,6 +143,9 @@ export default function Index() {
     <Layout>
       {/* Hero Carousel Section */}
       <HeroCarousel />
+
+      {/* Scrolling News Ticker */}
+      <NewsTicker />
 
       {/* 1. Latest Posts Section */}
       <section className="py-16 bg-background">
