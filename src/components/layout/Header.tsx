@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, User, LogOut, Crown, Shield, Sparkles, Flame, Smartphone, Lock, Cpu, Lightbulb, BookOpen, DollarSign, ShoppingBag, LayoutDashboard, Newspaper } from "lucide-react";
+import { Menu, X, ChevronDown, User, LogOut, Crown, Shield, Sparkles, Flame, Smartphone, Lock, Cpu, Lightbulb, BookOpen, DollarSign, ShoppingBag, LayoutDashboard, Newspaper, Gamepad2, Watch, Briefcase, HeartPulse, Wifi, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -22,6 +22,12 @@ const exploreCategories = [
   { label: "Productivity", href: "/productivity", icon: Lightbulb, description: "Apps & tools to boost workflow" },
   { label: "How-To", href: "/how-to", icon: BookOpen, description: "Step-by-step tutorials" },
   { label: "Side Hustles", href: "/make-money", icon: DollarSign, description: "Earn money online & passive income" },
+  { label: "Gaming", href: "/gaming", icon: Gamepad2, description: "Games, consoles & PC builds" },
+  { label: "Accessories", href: "/accessories", icon: Watch, description: "Gadgets, wearables & peripherals" },
+  { label: "Career in Tech", href: "/career-in-tech", icon: Briefcase, description: "Jobs, interviews & career growth" },
+  { label: "Health Tech", href: "/health-tech", icon: HeartPulse, description: "Wellness devices & health apps" },
+  { label: "Remote Work", href: "/remote-work", icon: Wifi, description: "WFH tools, tips & productivity" },
+  { label: "Green Tech", href: "/green-tech", icon: Leaf, description: "Sustainable tech & eco innovation" },
 ];
 
 interface NavLink {
@@ -35,16 +41,14 @@ interface NavLink {
 
 const navLinks: NavLink[] = [
   {
-    label: "Explore",
+    label: "Blog",
     href: "/blog",
     isMegaMenu: true,
   },
   { label: "News", href: "/news", icon: Newspaper },
-  { label: "Utilities", href: "/tools" },
+  { label: "Toolbox", href: "/tools" },
   { label: "Reviews", href: "/reviews" },
-  { label: "Blog", href: "/blog" },
   { label: "DigiStore", href: "/store", icon: ShoppingBag },
-  { label: "Deals", href: "/deals", icon: Flame, isHot: true },
 ];
 
 export function Header() {
@@ -120,8 +124,8 @@ export function Header() {
                 {/* Mega Menu for Explore */}
                 {link.isMegaMenu && openDropdown === link.label && (
                   <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 animate-scale-in">
-                    <div className="glass-strong rounded-2xl shadow-elevated p-4 min-w-[580px] border border-white/20 dark:border-white/10">
-                      <div className="grid grid-cols-2 gap-2">
+                    <div className="glass-strong rounded-2xl shadow-elevated p-4 min-w-[700px] border border-white/20 dark:border-white/10">
+                      <div className="grid grid-cols-3 gap-2">
                         {exploreCategories.map((category) => (
                           <Link
                             key={category.label}

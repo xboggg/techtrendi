@@ -1,0 +1,18 @@
+[Unit]
+Description=TechTrendi Phone Compare API (port 5116)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/tech-news
+ExecStart=/usr/bin/python3 /opt/tech-news/phone_compare_api.py
+Restart=always
+RestartSec=5
+EnvironmentFile=/opt/tech-news/.env
+EnvironmentFile=/opt/supabase/docker/.env
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

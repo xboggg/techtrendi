@@ -1,0 +1,171 @@
+// Centralized tools data for search, favorites, and recently used features
+import {
+  Shield, QrCode, Image, Smartphone, FileText, Lock, Braces, Binary,
+  Palette, Scale, Type, Gauge, Eye, Globe, Hash, Link2, AlignJustify, DollarSign,
+  Calculator, Mail, Clock, CreditCard, CheckSquare, Briefcase, LinkIcon, Crown,
+  Receipt, FileSignature, Users, Calendar, Zap, Building, PenTool, Share2,
+  BarChart3, Megaphone, GraduationCap, Code, Timer, KeyRound, FileCode, Paintbrush,
+  Keyboard, TrendingUp, Lightbulb, Disc3, Wallet, ImageIcon, Tags, ScrollText,
+  Send, Hourglass, AtSign, Monitor, CircleDollarSign, PieChart, MessageSquare,
+  Droplets, Target, BookOpen, Rocket, User, Leaf, Compass, SquareAsterisk,
+  ShoppingBag, List, Instagram, ClipboardList, LucideIcon, Wifi, Receipt as ReceiptIcon,
+  Database, Globe2, Heart, Home, Timer as TimerIcon, Volume2, Pipette, FileImage,
+  Sparkles, Wand2, ArrowRightLeft, Youtube, Brain, MousePointer
+} from "lucide-react";
+
+export type ToolTier = "free" | "free-account" | "premium";
+
+export interface Tool {
+  id: string;
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  href: string;
+  tier: ToolTier;
+  category: string;
+  categoryId: string;
+  isNew?: boolean;
+  gradient: string;
+  keywords: string[];
+}
+
+export const allTools: Tool[] = [
+  // Business & Freelancer
+  { id: "invoice-generator", icon: Receipt, title: "Invoice Generator", description: "Create professional invoices in minutes with customizable templates", href: "/tools/invoice-generator", tier: "premium", category: "Business & Freelancer", categoryId: "business", gradient: "from-blue-500 to-indigo-600", keywords: ["invoice", "billing", "payment", "business"] },
+  { id: "invoice-chaser", icon: DollarSign, title: "Invoice Chaser", description: "Automated payment reminders that chase late-paying clients", href: "/tools/invoice-chaser", tier: "premium", category: "Business & Freelancer", categoryId: "business", gradient: "from-green-500 to-emerald-600", keywords: ["invoice", "payment", "reminder", "clients"] },
+  { id: "proposal-generator", icon: FileSignature, title: "Proposal Generator", description: "Create professional proposals and quotes that win clients", href: "/tools/proposal-generator", tier: "premium", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-purple-500 to-violet-600", keywords: ["proposal", "quote", "client", "business"] },
+  { id: "simple-crm", icon: Users, title: "Simple CRM", description: "Track customers, deals, and follow-ups in one dashboard", href: "/tools/simple-crm", tier: "premium", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-pink-500 to-rose-600", keywords: ["crm", "customers", "deals", "sales"] },
+  { id: "appointment-booking", icon: Calendar, title: "Appointment Booking", description: "Let clients book appointments with WhatsApp confirmations", href: "/tools/appointment-booking", tier: "premium", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-orange-500 to-red-600", keywords: ["appointment", "booking", "calendar", "scheduling"] },
+  { id: "client-portal", icon: Building, title: "Client Portal", description: "Share files, invoices, and messages with clients in one place", href: "/tools/client-portal", tier: "premium", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-teal-500 to-cyan-600", keywords: ["client", "portal", "files", "sharing"] },
+  { id: "contract-generator", icon: ScrollText, title: "Contract Generator", description: "Generate professional contracts, NDAs, service agreements", href: "/tools/contract-generator", tier: "free-account", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-slate-500 to-zinc-600", keywords: ["contract", "nda", "legal", "agreement"] },
+  { id: "pricing-calculator", icon: CircleDollarSign, title: "Pricing Calculator", description: "Calculate your freelance rates or product pricing", href: "/tools/pricing-calculator", tier: "free", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-emerald-500 to-green-600", keywords: ["pricing", "rates", "freelance", "calculator"] },
+  { id: "roi-calculator", icon: PieChart, title: "ROI Calculator", description: "Calculate return on investment for business decisions", href: "/tools/roi-calculator", tier: "free", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-amber-500 to-yellow-600", keywords: ["roi", "investment", "return", "calculator"] },
+  { id: "business-name-generator", icon: Lightbulb, title: "Business Name Generator", description: "Generate creative business names with domain checks", href: "/tools/business-name-generator", tier: "free", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-yellow-500 to-orange-600", keywords: ["business", "name", "generator", "startup"] },
+  { id: "side-hustle-calculator", icon: CircleDollarSign, title: "Side Hustle Calculator", description: "Calculate your side hustle income potential", href: "/tools/side-hustle-calculator", tier: "free", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-lime-500 to-green-600", keywords: ["side hustle", "income", "money", "calculator"] },
+  { id: "startup-validator", icon: Rocket, title: "Startup Idea Validator", description: "Score your startup idea across key factors", href: "/tools/startup-validator", tier: "free", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-red-500 to-pink-600", keywords: ["startup", "idea", "validator", "business"] },
+  { id: "personal-brand-audit", icon: User, title: "Personal Brand Audit", description: "Audit your personal brand and online presence", href: "/tools/personal-brand-audit", tier: "free", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-violet-500 to-purple-600", keywords: ["personal brand", "audit", "online", "presence"] },
+
+  // Productivity
+  { id: "meeting-cost-calculator", icon: Calculator, title: "Meeting Cost Calculator", description: "See the real cost of meetings based on attendee salaries", href: "/tools/meeting-cost-calculator", tier: "free", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-orange-500 to-red-600", keywords: ["meeting", "cost", "salary", "calculator"] },
+  { id: "pomodoro-timer", icon: Clock, title: "Pomodoro Timer", description: "Stay focused with timed work sessions and breaks", href: "/tools/pomodoro-timer", tier: "free", category: "Productivity", categoryId: "productivity", gradient: "from-red-500 to-rose-600", keywords: ["pomodoro", "timer", "focus", "productivity"] },
+  { id: "subscription-tracker", icon: CreditCard, title: "Subscription Tracker", description: "Track all your subscriptions and monthly spending", href: "/tools/subscription-tracker", tier: "free-account", category: "Productivity", categoryId: "productivity", gradient: "from-purple-500 to-violet-600", keywords: ["subscription", "tracker", "spending", "monthly"] },
+  { id: "habit-tracker", icon: CheckSquare, title: "Habit Tracker", description: "Build better habits with daily tracking and streaks", href: "/tools/habit-tracker", tier: "free-account", category: "Productivity", categoryId: "productivity", gradient: "from-green-500 to-emerald-600", keywords: ["habit", "tracker", "daily", "streaks"] },
+  { id: "unit-converter", icon: Scale, title: "Unit Converter", description: "Convert between units of length, weight, temperature", href: "/tools/unit-converter", tier: "free", category: "Productivity", categoryId: "productivity", gradient: "from-blue-500 to-indigo-600", keywords: ["unit", "converter", "length", "weight"] },
+  { id: "expense-tracker", icon: Wallet, title: "Expense Tracker", description: "Track your daily expenses by category", href: "/tools/expense-tracker", tier: "free-account", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-emerald-500 to-teal-600", keywords: ["expense", "tracker", "budget", "money"] },
+  { id: "typing-test", icon: Keyboard, title: "Typing Speed Test", description: "Test your typing speed in WPM with friends", href: "/tools/typing-test", tier: "free", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-pink-500 to-rose-600", keywords: ["typing", "speed", "test", "wpm"] },
+  { id: "decision-wheel", icon: Disc3, title: "Decision Wheel", description: "Spin the wheel to make random decisions", href: "/tools/decision-wheel", tier: "free", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-amber-500 to-orange-600", keywords: ["decision", "wheel", "random", "spinner"] },
+  { id: "daily-standup", icon: MessageSquare, title: "Daily Standup Generator", description: "Generate formatted standup notes for your team", href: "/tools/daily-standup", tier: "free-account", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-blue-500 to-cyan-600", keywords: ["standup", "daily", "team", "notes"] },
+  { id: "time-tracker", icon: Timer, title: "Time Tracker", description: "Track billable hours and see your earnings", href: "/tools/time-tracker", tier: "free-account", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-indigo-500 to-purple-600", keywords: ["time", "tracker", "billable", "hours"] },
+  { id: "daily-journal", icon: BookOpen, title: "Daily Journal", description: "Gratitude journal with mood tracking", href: "/tools/daily-journal", tier: "free-account", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-rose-500 to-pink-600", keywords: ["journal", "daily", "gratitude", "mood"] },
+  { id: "water-tracker", icon: Droplets, title: "Water Tracker", description: "Track your daily water intake and build streaks", href: "/tools/water-tracker", tier: "free-account", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-cyan-500 to-blue-600", keywords: ["water", "tracker", "hydration", "health"] },
+  { id: "focus-score", icon: Target, title: "Focus Score", description: "Rate your daily productivity over time", href: "/tools/focus-score", tier: "free-account", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-violet-500 to-indigo-600", keywords: ["focus", "score", "productivity", "daily"] },
+
+  // Career
+  { id: "job-tracker", icon: Briefcase, title: "Job Application Tracker", description: "Track applications, statuses, and follow-ups", href: "/tools/job-tracker", tier: "free-account", category: "Career", categoryId: "career", gradient: "from-blue-500 to-indigo-600", keywords: ["job", "application", "tracker", "career"] },
+  { id: "resume-builder", icon: FileText, title: "Resume Builder", description: "Create professional resumes with beautiful templates", href: "/tools/resume-builder", tier: "free-account", category: "Career", categoryId: "career", isNew: true, gradient: "from-emerald-500 to-green-600", keywords: ["resume", "builder", "cv", "job"] },
+  { id: "network-crm", icon: Users, title: "Network CRM", description: "Keep in touch with your professional network", href: "/tools/network-crm", tier: "free-account", category: "Career", categoryId: "career", isNew: true, gradient: "from-purple-500 to-violet-600", keywords: ["network", "crm", "professional", "contacts"] },
+  { id: "cover-letter-generator", icon: ScrollText, title: "Cover Letter Generator", description: "Create professional cover letters for applications", href: "/tools/cover-letter-generator", tier: "free-account", category: "Career", categoryId: "career", isNew: true, gradient: "from-pink-500 to-rose-600", keywords: ["cover letter", "job", "application", "writing"] },
+  { id: "salary-comparison", icon: TrendingUp, title: "Salary Comparison", description: "Compare your salary to market rates", href: "/tools/salary-comparison", tier: "free", category: "Career", categoryId: "career", isNew: true, gradient: "from-green-500 to-teal-600", keywords: ["salary", "comparison", "market", "wages"] },
+  { id: "career-matcher", icon: Compass, title: "Career Matcher", description: "Find careers that match your skills and interests", href: "/tools/career-matcher", tier: "free", category: "Career", categoryId: "career", isNew: true, gradient: "from-orange-500 to-amber-600", keywords: ["career", "matcher", "skills", "job"] },
+
+  // Creator & Marketing
+  { id: "content-repurposer", icon: Share2, title: "Content Repurposer", description: "Turn one blog post into tweets, LinkedIn posts, and more", href: "/tools/content-repurposer", tier: "premium", category: "Creator & Marketing", categoryId: "creator", gradient: "from-purple-500 to-violet-600", keywords: ["content", "repurpose", "social media", "marketing"] },
+  { id: "link-in-bio", icon: LinkIcon, title: "Link in Bio", description: "Create a beautiful link page for your social profiles", href: "/tools/link-in-bio", tier: "free-account", category: "Creator & Marketing", categoryId: "creator", gradient: "from-pink-500 to-rose-600", keywords: ["link", "bio", "social", "profile"] },
+  { id: "url-shortener", icon: Link2, title: "URL Shortener", description: "Shorten URLs and track clicks and devices", href: "/tools/url-shortener", tier: "free-account", category: "Creator & Marketing", categoryId: "creator", isNew: true, gradient: "from-blue-500 to-indigo-600", keywords: ["url", "shortener", "link", "tracking"] },
+  { id: "email-subject-tester", icon: Mail, title: "Email Subject Tester", description: "Test your email subject lines for open rates", href: "/tools/email-subject-tester", tier: "free", category: "Creator & Marketing", categoryId: "creator", gradient: "from-amber-500 to-orange-600", keywords: ["email", "subject", "marketing", "open rate"] },
+  { id: "creator-analytics", icon: BarChart3, title: "Creator Analytics", description: "Unified dashboard for YouTube, Instagram, Twitter", href: "/tools/creator-analytics", tier: "premium", category: "Creator & Marketing", categoryId: "creator", isNew: true, gradient: "from-green-500 to-emerald-600", keywords: ["analytics", "creator", "youtube", "instagram"] },
+  { id: "cold-email-writer", icon: Send, title: "Cold Email Writer", description: "Write effective cold emails that get responses", href: "/tools/cold-email-writer", tier: "free-account", category: "Creator & Marketing", categoryId: "creator", isNew: true, gradient: "from-red-500 to-rose-600", keywords: ["cold email", "outreach", "sales", "marketing"] },
+  { id: "username-generator", icon: AtSign, title: "Username Generator", description: "Generate unique usernames for social media", href: "/tools/username-generator", tier: "free", category: "Creator & Marketing", categoryId: "creator", isNew: true, gradient: "from-cyan-500 to-blue-600", keywords: ["username", "generator", "social media", "handle"] },
+  { id: "product-description-generator", icon: ShoppingBag, title: "Product Description Generator", description: "Generate compelling product descriptions", href: "/tools/product-description-generator", tier: "free", category: "Creator & Marketing", categoryId: "creator", isNew: true, gradient: "from-teal-500 to-emerald-600", keywords: ["product", "description", "ecommerce", "copywriting"] },
+  { id: "blog-outline-generator", icon: List, title: "Blog Outline Generator", description: "Create structured blog outlines for any topic", href: "/tools/blog-outline-generator", tier: "free", category: "Creator & Marketing", categoryId: "creator", isNew: true, gradient: "from-violet-500 to-purple-600", keywords: ["blog", "outline", "writing", "content"] },
+  { id: "social-caption-generator", icon: Instagram, title: "Social Caption Generator", description: "Generate captions for Instagram, Twitter, LinkedIn", href: "/tools/social-caption-generator", tier: "free", category: "Creator & Marketing", categoryId: "creator", isNew: true, gradient: "from-pink-500 to-fuchsia-600", keywords: ["caption", "social media", "instagram", "twitter"] },
+  { id: "meeting-notes-summarizer", icon: ClipboardList, title: "Meeting Notes Summarizer", description: "Turn messy notes into structured summaries", href: "/tools/meeting-notes-summarizer", tier: "free", category: "Creator & Marketing", categoryId: "creator", isNew: true, gradient: "from-slate-500 to-zinc-600", keywords: ["meeting", "notes", "summary", "productivity"] },
+
+  // Developer Tools
+  { id: "json-formatter", icon: Braces, title: "JSON Formatter", description: "Format, validate, and minify JSON data", href: "/tools/json-formatter", tier: "free", category: "Developer Tools", categoryId: "developer", gradient: "from-slate-500 to-zinc-600", keywords: ["json", "formatter", "validate", "developer"] },
+  { id: "base64-encoder", icon: Binary, title: "Base64 Encoder", description: "Encode text to Base64 or decode Base64 strings", href: "/tools/base64-encoder", tier: "free", category: "Developer Tools", categoryId: "developer", gradient: "from-green-500 to-emerald-600", keywords: ["base64", "encoder", "decoder", "developer"] },
+  { id: "hash-generator", icon: Hash, title: "Hash Generator", description: "Generate SHA-1, SHA-256, SHA-384, SHA-512 hashes", href: "/tools/hash-generator", tier: "free", category: "Developer Tools", categoryId: "developer", gradient: "from-blue-500 to-indigo-600", keywords: ["hash", "sha", "generator", "security"] },
+  { id: "url-parser", icon: Link2, title: "URL Parser", description: "Parse URLs to extract protocol, hostname, path", href: "/tools/url-parser", tier: "free", category: "Developer Tools", categoryId: "developer", gradient: "from-purple-500 to-violet-600", keywords: ["url", "parser", "web", "developer"] },
+  { id: "regex-tester", icon: Code, title: "Regex Tester", description: "Test and debug regular expressions with highlighting", href: "/tools/regex-tester", tier: "free", category: "Developer Tools", categoryId: "developer", isNew: true, gradient: "from-orange-500 to-red-600", keywords: ["regex", "tester", "regular expression", "developer"] },
+  { id: "cron-builder", icon: Timer, title: "Cron Builder", description: "Build and test cron expressions visually", href: "/tools/cron-builder", tier: "free", category: "Developer Tools", categoryId: "developer", isNew: true, gradient: "from-cyan-500 to-blue-600", keywords: ["cron", "builder", "scheduler", "developer"] },
+  { id: "jwt-decoder", icon: KeyRound, title: "JWT Decoder", description: "Decode and inspect JWT tokens", href: "/tools/jwt-decoder", tier: "free", category: "Developer Tools", categoryId: "developer", isNew: true, gradient: "from-yellow-500 to-amber-600", keywords: ["jwt", "decoder", "token", "authentication"] },
+  { id: "markdown-editor", icon: FileCode, title: "Markdown Editor", description: "Write markdown with live preview", href: "/tools/markdown-editor", tier: "free", category: "Developer Tools", categoryId: "developer", isNew: true, gradient: "from-pink-500 to-rose-600", keywords: ["markdown", "editor", "writing", "developer"] },
+
+  // Security & Privacy
+  { id: "password-generator", icon: Shield, title: "Password Generator", description: "Create strong, secure passwords with options", href: "/tools/password-generator", tier: "free", category: "Security & Privacy", categoryId: "security", gradient: "from-red-500 to-rose-600", keywords: ["password", "generator", "security", "strong"] },
+  { id: "password-checker", icon: Lock, title: "Password Checker", description: "Check password strength and get suggestions", href: "/tools/password-checker", tier: "free", category: "Security & Privacy", categoryId: "security", gradient: "from-orange-500 to-red-600", keywords: ["password", "checker", "strength", "security"] },
+  { id: "privacy-checker", icon: Eye, title: "Privacy Checker", description: "Analyze your browser's privacy settings", href: "/tools/privacy-checker", tier: "free", category: "Security & Privacy", categoryId: "security", gradient: "from-purple-500 to-violet-600", keywords: ["privacy", "checker", "browser", "security"] },
+  { id: "ip-lookup", icon: Globe, title: "IP Lookup", description: "Get geolocation for any IP address", href: "/tools/ip-lookup", tier: "free", category: "Security & Privacy", categoryId: "security", gradient: "from-blue-500 to-indigo-600", keywords: ["ip", "lookup", "geolocation", "address"] },
+  { id: "speed-test", icon: Gauge, title: "Speed Test", description: "Test your internet download, upload, and ping", href: "/tools/speed-test", tier: "free", category: "Security & Privacy", categoryId: "security", gradient: "from-green-500 to-emerald-600", keywords: ["speed", "test", "internet", "download"] },
+
+  // Design & Writing
+  { id: "color-picker", icon: Palette, title: "Color Picker", description: "Pick colors and convert between HEX, RGB, HSL", href: "/tools/color-picker", tier: "free", category: "Design & Writing", categoryId: "design", gradient: "from-pink-500 to-rose-600", keywords: ["color", "picker", "hex", "rgb"] },
+  { id: "lorem-ipsum", icon: Type, title: "Lorem Ipsum", description: "Generate placeholder text for your designs", href: "/tools/lorem-ipsum", tier: "free", category: "Design & Writing", categoryId: "design", gradient: "from-purple-500 to-violet-600", keywords: ["lorem ipsum", "placeholder", "text", "design"] },
+  { id: "text-counter", icon: AlignJustify, title: "Text Counter", description: "Count characters, words, sentences", href: "/tools/text-counter", tier: "free", category: "Design & Writing", categoryId: "design", gradient: "from-blue-500 to-indigo-600", keywords: ["text", "counter", "words", "characters"] },
+  { id: "qr-generator", icon: QrCode, title: "QR Generator", description: "Generate QR codes for URLs, text, WiFi", href: "/tools/qr-generator", tier: "free", category: "Design & Writing", categoryId: "design", gradient: "from-slate-500 to-zinc-600", keywords: ["qr", "generator", "code", "barcode"] },
+  { id: "image-compressor", icon: Image, title: "Image Compressor", description: "Compress images without losing quality", href: "/tools/image-compressor", tier: "free", category: "Design & Writing", categoryId: "design", gradient: "from-green-500 to-emerald-600", keywords: ["image", "compressor", "optimize", "photo"] },
+  { id: "gradient-generator", icon: Paintbrush, title: "Gradient Generator", description: "Create beautiful CSS gradients with visual controls", href: "/tools/gradient-generator", tier: "free", category: "Design & Writing", categoryId: "design", isNew: true, gradient: "from-orange-500 to-red-600", keywords: ["gradient", "css", "generator", "design"] },
+  { id: "favicon-generator", icon: ImageIcon, title: "Favicon Generator", description: "Create favicons from text or images", href: "/tools/favicon-generator", tier: "free", category: "Design & Writing", categoryId: "design", isNew: true, gradient: "from-amber-500 to-yellow-600", keywords: ["favicon", "icon", "generator", "website"] },
+  { id: "meta-tag-generator", icon: Tags, title: "Meta Tag Generator", description: "Generate SEO meta tags with OpenGraph support", href: "/tools/meta-tag-generator", tier: "free", category: "Design & Writing", categoryId: "design", isNew: true, gradient: "from-cyan-500 to-blue-600", keywords: ["meta tag", "seo", "opengraph", "website"] },
+
+  // Lifestyle & Fun
+  { id: "phone-comparison", icon: Smartphone, title: "Phone Comparison", description: "Compare smartphone specs side by side", href: "/tools/phone-comparison", tier: "free", category: "Lifestyle & Fun", categoryId: "other", gradient: "from-slate-500 to-zinc-600", keywords: ["phone", "comparison", "specs", "smartphone"] },
+  { id: "upgrade-calculator", icon: FileText, title: "Should I Upgrade?", description: "AI-powered calculator to determine if upgrading is worth it", href: "/tools/upgrade-calculator", tier: "free", category: "Lifestyle & Fun", categoryId: "other", gradient: "from-blue-500 to-indigo-600", keywords: ["upgrade", "calculator", "phone", "device"] },
+  { id: "life-progress-bar", icon: Hourglass, title: "Life Progress Bar", description: "See your life in perspective with fascinating stats", href: "/tools/life-progress-bar", tier: "free", category: "Lifestyle & Fun", categoryId: "other", isNew: true, gradient: "from-purple-500 to-violet-600", keywords: ["life", "progress", "stats", "age"] },
+  { id: "screen-time-calculator", icon: Monitor, title: "Screen Time Calculator", description: "Calculate how much time you spend on screens", href: "/tools/screen-time-calculator", tier: "free", category: "Lifestyle & Fun", categoryId: "other", isNew: true, gradient: "from-red-500 to-rose-600", keywords: ["screen time", "calculator", "digital", "health"] },
+  { id: "carbon-footprint", icon: Leaf, title: "Carbon Footprint Calculator", description: "Calculate your annual carbon emissions", href: "/tools/carbon-footprint", tier: "free", category: "Lifestyle & Fun", categoryId: "other", isNew: true, gradient: "from-green-500 to-emerald-600", keywords: ["carbon", "footprint", "environment", "emissions"] },
+  { id: "placeholder-image", icon: SquareAsterisk, title: "Placeholder Image Generator", description: "Generate placeholder images for designs", href: "/tools/placeholder-image", tier: "free", category: "Lifestyle & Fun", categoryId: "other", isNew: true, gradient: "from-amber-500 to-orange-600", keywords: ["placeholder", "image", "generator", "design"] },
+  { id: "wifi-qr-generator", icon: Wifi, title: "WiFi QR Generator", description: "Generate QR codes that connect phones to your WiFi instantly", href: "/tools/wifi-qr-generator", tier: "free", category: "Lifestyle & Fun", categoryId: "other", isNew: true, gradient: "from-blue-500 to-cyan-600", keywords: ["wifi", "qr", "network", "connect", "password"] },
+  { id: "bill-splitter", icon: ReceiptIcon, title: "Bill Splitter", description: "Split bills and expenses among friends fairly", href: "/tools/bill-splitter", tier: "free", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-green-500 to-teal-600", keywords: ["bill", "splitter", "split", "receipt", "friends", "expenses"] },
+  { id: "fake-data-generator", icon: Database, title: "Fake Data Generator", description: "Generate realistic test data: names, emails, addresses, UUIDs", href: "/tools/fake-data-generator", tier: "free", category: "Developer Tools", categoryId: "developer", isNew: true, gradient: "from-violet-500 to-purple-600", keywords: ["fake", "data", "test", "generator", "mock", "names", "email"] },
+  { id: "world-clock", icon: Globe2, title: "World Clock", description: "Live clocks, timezone converter, and meeting planner", href: "/tools/world-clock", tier: "free", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-indigo-500 to-blue-600", keywords: ["world", "clock", "timezone", "converter", "meeting", "planner"] },
+  { id: "bmi-calculator", icon: Heart, title: "BMI & Health Calculator", description: "BMI, body fat, calories, and waist-to-hip ratio calculator", href: "/tools/bmi-calculator", tier: "free", category: "Lifestyle & Fun", categoryId: "other", isNew: true, gradient: "from-rose-500 to-pink-600", keywords: ["bmi", "health", "calculator", "body", "fat", "calories", "fitness"] },
+  { id: "meme-generator", icon: ImageIcon, title: "Meme Generator", description: "Create hilarious memes with templates, custom images, and Impact text", href: "/tools/meme-generator", tier: "free", category: "Lifestyle & Fun", categoryId: "other", isNew: true, gradient: "from-yellow-500 to-orange-600", keywords: ["meme", "generator", "image", "funny", "template", "caption"] },
+  { id: "mortgage-calculator", icon: Home, title: "Mortgage Calculator", description: "Calculate mortgage payments, compare loans, amortization schedule", href: "/tools/mortgage-calculator", tier: "free", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-sky-500 to-blue-600", keywords: ["mortgage", "loan", "calculator", "payment", "amortization", "interest"] },
+  { id: "countdown-timer", icon: TimerIcon, title: "Countdown Timer", description: "Beautiful countdowns to any event with themes and sharing", href: "/tools/countdown-timer", tier: "free", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-orange-500 to-amber-600", keywords: ["countdown", "timer", "event", "new year", "birthday"] },
+  { id: "text-to-speech", icon: Volume2, title: "Text to Speech", description: "Convert text to speech and speech to text in your browser", href: "/tools/text-to-speech", tier: "free", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-emerald-500 to-green-600", keywords: ["text", "speech", "voice", "tts", "dictation", "microphone"] },
+  { id: "color-palette-extractor", icon: Pipette, title: "Color Palette Extractor", description: "Extract dominant colors from any image with export options", href: "/tools/color-palette-extractor", tier: "free", category: "Design & Writing", categoryId: "design", isNew: true, gradient: "from-fuchsia-500 to-pink-600", keywords: ["color", "palette", "extract", "image", "design", "dominant"] },
+  { id: "image-converter", icon: FileImage, title: "Image Converter", description: "Convert images between PNG, JPG, WebP, BMP with resize options", href: "/tools/image-converter", tier: "free", category: "Design & Writing", categoryId: "design", isNew: true, gradient: "from-teal-500 to-emerald-600", keywords: ["image", "converter", "png", "jpg", "webp", "resize", "format"] },
+
+  // AI Tools
+  { id: "ai-prompt-generator", icon: Wand2, title: "AI Prompt Generator", description: "Craft optimized prompts for ChatGPT, Claude, Midjourney, and more", href: "/tools/ai-prompt-generator", tier: "free", category: "Creator & Marketing", categoryId: "creator", isNew: true, gradient: "from-purple-500 to-pink-600", keywords: ["ai", "prompt", "generator", "chatgpt", "claude", "midjourney"] },
+  { id: "ai-content-idea-generator", icon: Lightbulb, title: "AI Content Idea Generator", description: "Generate content ideas for blogs, YouTube, TikTok, and more", href: "/tools/ai-content-idea-generator", tier: "free", category: "Creator & Marketing", categoryId: "creator", isNew: true, gradient: "from-amber-500 to-orange-600", keywords: ["ai", "content", "idea", "generator", "blog", "youtube", "tiktok"] },
+  { id: "ai-startup-name-generator", icon: Rocket, title: "AI Startup Name Generator", description: "Generate creative startup names with taglines and domain hints", href: "/tools/ai-startup-name-generator", tier: "free", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-indigo-500 to-violet-600", keywords: ["ai", "startup", "name", "generator", "business", "domain"] },
+
+  // Tech Tools
+  { id: "file-converter", icon: ArrowRightLeft, title: "File Converter", description: "Convert between JSON, CSV, YAML, Markdown, HTML and more", href: "/tools/file-converter", tier: "free", category: "Developer Tools", categoryId: "developer", isNew: true, gradient: "from-blue-500 to-indigo-600", keywords: ["file", "converter", "json", "csv", "yaml", "markdown", "html"] },
+  { id: "youtube-thumbnail-downloader", icon: Youtube, title: "YouTube Thumbnail Downloader", description: "Download YouTube video thumbnails in all resolutions", href: "/tools/youtube-thumbnail-downloader", tier: "free", category: "Creator & Marketing", categoryId: "creator", isNew: true, gradient: "from-red-500 to-rose-600", keywords: ["youtube", "thumbnail", "downloader", "video", "image"] },
+
+  // Money Tools
+  { id: "adsense-calculator", icon: MousePointer, title: "AdSense Revenue Calculator", description: "Estimate your Google AdSense earnings with traffic projections", href: "/tools/adsense-calculator", tier: "free", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-green-500 to-emerald-600", keywords: ["adsense", "revenue", "calculator", "earnings", "cpc", "rpm"] },
+  { id: "freelance-rate-calculator", icon: DollarSign, title: "Freelance Rate Calculator", description: "Calculate your ideal hourly and project rates as a freelancer", href: "/tools/freelance-rate-calculator", tier: "free", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-cyan-500 to-blue-600", keywords: ["freelance", "rate", "calculator", "hourly", "pricing"] },
+  { id: "startup-cost-calculator", icon: Rocket, title: "Startup Cost Calculator", description: "Estimate startup costs, runway, and break-even with presets", href: "/tools/startup-cost-calculator", tier: "free", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-violet-500 to-purple-600", keywords: ["startup", "cost", "calculator", "runway", "business", "funding"] },
+];
+
+// Helper functions
+export function getToolById(id: string): Tool | undefined {
+  return allTools.find(tool => tool.id === id);
+}
+
+export function getToolsByCategory(categoryId: string): Tool[] {
+  return allTools.filter(tool => tool.categoryId === categoryId);
+}
+
+export function searchTools(query: string): Tool[] {
+  const searchTerms = query.toLowerCase().split(' ').filter(Boolean);
+  return allTools.filter(tool => {
+    const searchText = `${tool.title} ${tool.description} ${tool.category} ${tool.keywords.join(' ')}`.toLowerCase();
+    return searchTerms.every(term => searchText.includes(term));
+  });
+}
+
+export const categories = [
+  { id: "business", title: "Business & Freelancer", icon: Briefcase },
+  { id: "productivity", title: "Productivity", icon: Zap },
+  { id: "career", title: "Career", icon: GraduationCap },
+  { id: "creator", title: "Creator & Marketing", icon: Megaphone },
+  { id: "developer", title: "Developer Tools", icon: Braces },
+  { id: "security", title: "Security & Privacy", icon: Shield },
+  { id: "design", title: "Design & Writing", icon: PenTool },
+  { id: "other", title: "Lifestyle & Fun", icon: Smartphone },
+];

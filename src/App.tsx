@@ -64,6 +64,11 @@ const AdminComments = lazy(() => import("./pages/admin/AdminComments"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 const AdminMessages = lazy(() => import("./pages/admin/AdminMessages"));
 const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
+const AdminCreepyTech = lazy(() => import("./pages/admin/AdminCreepyTech"));
+const AdminCyberAwareness = lazy(() => import("./pages/admin/AdminCyberAwareness"));
+const AdminGuides = lazy(() => import("./pages/admin/AdminGuides"));
+const AdminToolFeedback = lazy(() => import("./pages/admin/AdminToolFeedback"));
 
 // Category pages
 const Phones = lazy(() => import("./pages/categories/Phones"));
@@ -72,6 +77,17 @@ const Productivity = lazy(() => import("./pages/categories/Productivity"));
 const HowTo = lazy(() => import("./pages/categories/HowTo"));
 const AITech = lazy(() => import("./pages/categories/AITech"));
 const MakeMoney = lazy(() => import("./pages/categories/MakeMoney"));
+const Gaming = lazy(() => import("./pages/categories/Gaming"));
+const Accessories = lazy(() => import("./pages/categories/Accessories"));
+const CareerInTech = lazy(() => import("./pages/categories/CareerInTech"));
+const HealthTech = lazy(() => import("./pages/categories/HealthTech"));
+const RemoteWork = lazy(() => import("./pages/categories/RemoteWork"));
+const GreenTech = lazy(() => import("./pages/categories/GreenTech"));
+
+// Special pages
+const CreepyTech = lazy(() => import("./pages/CreepyTech"));
+const CyberAwareness = lazy(() => import("./pages/CyberAwareness"));
+const StartHere = lazy(() => import("./pages/StartHere"));
 
 // Tool pages - all lazy loaded
 const PasswordGenerator = lazy(() => import("./pages/tools/PasswordGenerator"));
@@ -144,6 +160,25 @@ const ProductDescriptionGenerator = lazy(() => import("./pages/tools/ProductDesc
 const BlogOutlineGenerator = lazy(() => import("./pages/tools/BlogOutlineGenerator"));
 const SocialCaptionGenerator = lazy(() => import("./pages/tools/SocialCaptionGenerator"));
 const MeetingNotesSummarizer = lazy(() => import("./pages/tools/MeetingNotesSummarizer"));
+const AIContentIdeaGenerator = lazy(() => import("./pages/tools/AIContentIdeaGenerator"));
+const AIPromptGenerator = lazy(() => import("./pages/tools/AIPromptGenerator"));
+const AIStartupNameGenerator = lazy(() => import("./pages/tools/AIStartupNameGenerator"));
+const AdSenseCalculator = lazy(() => import("./pages/tools/AdSenseCalculator"));
+const BillSplitter = lazy(() => import("./pages/tools/BillSplitter"));
+const BmiCalculator = lazy(() => import("./pages/tools/BmiCalculator"));
+const ColorPaletteExtractor = lazy(() => import("./pages/tools/ColorPaletteExtractor"));
+const CountdownTimer = lazy(() => import("./pages/tools/CountdownTimer"));
+const FakeDataGenerator = lazy(() => import("./pages/tools/FakeDataGenerator"));
+const FileConverter = lazy(() => import("./pages/tools/FileConverter"));
+const FreelanceRateCalculator = lazy(() => import("./pages/tools/FreelanceRateCalculator"));
+const ImageConverter = lazy(() => import("./pages/tools/ImageConverter"));
+const MemeGenerator = lazy(() => import("./pages/tools/MemeGenerator"));
+const MortgageCalculator = lazy(() => import("./pages/tools/MortgageCalculator"));
+const StartupCostCalculator = lazy(() => import("./pages/tools/StartupCostCalculator"));
+const TextToSpeech = lazy(() => import("./pages/tools/TextToSpeech"));
+const WifiQrGenerator = lazy(() => import("./pages/tools/WifiQrGenerator"));
+const WorldClock = lazy(() => import("./pages/tools/WorldClock"));
+const YouTubeThumbnailDownloader = lazy(() => import("./pages/tools/YouTubeThumbnailDownloader"));
 
 const queryClient = new QueryClient();
 
@@ -254,6 +289,25 @@ const App = () => (
                       <Route path="/tools/blog-outline-generator" element={<BlogOutlineGenerator />} />
                       <Route path="/tools/social-caption-generator" element={<SocialCaptionGenerator />} />
                       <Route path="/tools/meeting-notes-summarizer" element={<MeetingNotesSummarizer />} />
+                      <Route path="/tools/ai-content-idea-generator" element={<AIContentIdeaGenerator />} />
+                      <Route path="/tools/ai-prompt-generator" element={<AIPromptGenerator />} />
+                      <Route path="/tools/ai-startup-name-generator" element={<AIStartupNameGenerator />} />
+                      <Route path="/tools/adsense-calculator" element={<AdSenseCalculator />} />
+                      <Route path="/tools/bill-splitter" element={<BillSplitter />} />
+                      <Route path="/tools/bmi-calculator" element={<BmiCalculator />} />
+                      <Route path="/tools/color-palette-extractor" element={<ColorPaletteExtractor />} />
+                      <Route path="/tools/countdown-timer" element={<CountdownTimer />} />
+                      <Route path="/tools/fake-data-generator" element={<FakeDataGenerator />} />
+                      <Route path="/tools/file-converter" element={<FileConverter />} />
+                      <Route path="/tools/freelance-rate-calculator" element={<FreelanceRateCalculator />} />
+                      <Route path="/tools/image-converter" element={<ImageConverter />} />
+                      <Route path="/tools/meme-generator" element={<MemeGenerator />} />
+                      <Route path="/tools/mortgage-calculator" element={<MortgageCalculator />} />
+                      <Route path="/tools/startup-cost-calculator" element={<StartupCostCalculator />} />
+                      <Route path="/tools/text-to-speech" element={<TextToSpeech />} />
+                      <Route path="/tools/wifi-qr-generator" element={<WifiQrGenerator />} />
+                      <Route path="/tools/world-clock" element={<WorldClock />} />
+                      <Route path="/tools/youtube-thumbnail-downloader" element={<YouTubeThumbnailDownloader />} />
                       <Route path="/tools/:categoryId" element={<ToolCategory />} />
                       <Route path="/blog" element={<Blog />} />
                       <Route path="/blog/:slug" element={<BlogArticle />} />
@@ -266,6 +320,15 @@ const App = () => (
                       <Route path="/ai-tech" element={<AITech />} />
                       <Route path="/make-money" element={<MakeMoney />} />
                       <Route path="/deals" element={<MakeMoney />} />
+                      <Route path="/gaming" element={<Gaming />} />
+                      <Route path="/accessories" element={<Accessories />} />
+                      <Route path="/career-in-tech" element={<CareerInTech />} />
+                      <Route path="/health-tech" element={<HealthTech />} />
+                      <Route path="/remote-work" element={<RemoteWork />} />
+                      <Route path="/green-tech" element={<GreenTech />} />
+                      <Route path="/creepy-tech" element={<CreepyTech />} />
+                      <Route path="/cyber-awareness" element={<CyberAwareness />} />
+                      <Route path="/start-here" element={<StartHere />} />
                       <Route path="/reviews" element={<Reviews />} />
                       <Route path="/reviews/:slug" element={<ReviewDetail />} />
                       <Route path="/admin" element={<AdminDashboard />} />
@@ -276,6 +339,11 @@ const App = () => (
                       <Route path="/admin/users" element={<AdminUsers />} />
                       <Route path="/admin/messages" element={<AdminMessages />} />
                       <Route path="/admin/products" element={<AdminProducts />} />
+                      <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                      <Route path="/admin/creepy-tech" element={<AdminCreepyTech />} />
+                      <Route path="/admin/cyber-awareness" element={<AdminCyberAwareness />} />
+                      <Route path="/admin/guides" element={<AdminGuides />} />
+                      <Route path="/admin/tool-feedback" element={<AdminToolFeedback />} />
                       <Route path="/guides" element={<Guides />} />
                       <Route path="/guides/:category" element={<Guides />} />
                       <Route path="/about" element={<About />} />
