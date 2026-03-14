@@ -181,6 +181,7 @@ export default function Guides() {
                   <Link
                     key={guide.id}
                     to={`/blog/${guide.slug}`}
+                    state={{ from: 'guides' }}
                     className="group bg-card rounded-2xl border border-border overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all"
                   >
                     <div className="aspect-video overflow-hidden">
@@ -346,6 +347,7 @@ export default function Guides() {
                   <Link
                     key={guide.id}
                     to={`/blog/${guide.slug}`}
+                    state={{ from: 'guides' }}
                     className="group bg-card rounded-2xl border border-border overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all"
                   >
                     <div className="aspect-video overflow-hidden relative">

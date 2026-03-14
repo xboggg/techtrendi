@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import staticArticles from "@/data/articles.json";
@@ -81,6 +81,7 @@ function getRelatedArticles(articles: Article[], category: string, excludeId: st
 
 export default function BlogArticle() {
   const { slug } = useParams();
+  const location = useLocation();
   const [toc, setToc] = useState<TableOfContentsItem[]>([]);
   const { subscription, user } = useAuth();
   const { addToHistory } = useReadingHistory();
@@ -88,6 +89,12 @@ export default function BlogArticle() {
   const [allArticles, setAllArticles] = useState<Article[]>(staticArticles as Article[]);
 
   const [imageLoaded, setImageLoaded] = useState(false);
+
+  // Check if user came from guides section
+  const cameFromGuides = location.state?.from === 'guides' ||
+    (typeof document !== 'undefined' && document.referrer.includes('/guides'));
+  const backLink = cameFromGuides ? '/guides' : '/blog';
+  const backLabel = cameFromGuides ? 'Back to Guides' : 'Back to Blog';
 
   // Fetch fresh article data in background
   useEffect(() => {
@@ -205,10 +212,10 @@ export default function BlogArticle() {
           <p className="text-muted-foreground mb-6">
             The article you're looking for doesn't exist or has been removed.
           </p>
-          <Link to="/blog">
+          <Link to={backLink}>
             <Button>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Blog
+              {backLabel}
             </Button>
           </Link>
         </div>
@@ -223,11 +230,11 @@ export default function BlogArticle() {
         <div className="container py-12 md:py-20">
           <div className="max-w-4xl mx-auto">
             <Link
-              to="/blog"
+              to={backLink}
               className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Blog
+              {backLabel}
             </Link>
 
             <Badge className="bg-gradient-accent text-accent-foreground mb-4">
@@ -291,11 +298,11 @@ export default function BlogArticle() {
         <div className="max-w-4xl mx-auto">
           {/* Back Link */}
           <Link
-            to="/blog"
+            to={backLink}
             className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Blog
+            {backLabel}
           </Link>
 
           {/* Article Header */}
