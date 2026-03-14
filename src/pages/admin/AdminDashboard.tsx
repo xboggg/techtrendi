@@ -3,9 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdminLayout } from "./AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  FileText, MessageSquare, Star, Eye, Newspaper, BookOpen,
-  Users, Package, TrendingUp, ArrowUpRight, ArrowDownRight,
-  BarChart3, Clock, Activity
+  FileText, MessageSquare, Star, Newspaper, BookOpen,
+  Users, Package, Activity
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -21,26 +20,19 @@ export default function AdminDashboard() {
         commentsRes,
         usersRes,
         messagesRes,
-        pageViewsRes,
         recentArticlesRes,
         recentNewsRes,
       ] = await Promise.all([
-        supabase.from("articles").select("id, views, is_published", { count: "exact" }),
-        supabase.from("news").select("id, views, is_published", { count: "exact" }),
-        supabase.from("reviews").select("id, views", { count: "exact" }),
+        supabase.from("articles").select("id, is_published", { count: "exact" }),
+        supabase.from("news").select("id, is_published", { count: "exact" }),
+        supabase.from("reviews").select("id", { count: "exact" }),
         supabase.from("products").select("id", { count: "exact" }),
         supabase.from("review_comments").select("id", { count: "exact" }),
         supabase.from("profiles").select("id", { count: "exact" }),
         supabase.from("contact_messages").select("id, is_read", { count: "exact" }),
-        supabase.from("page_views").select("id", { count: "exact" }),
-        supabase.from("articles").select("id, title, slug, views, created_at, category").order("created_at", { ascending: false }).limit(5),
-        supabase.from("news").select("id, title, slug, views, created_at, category").order("created_at", { ascending: false }).limit(5),
+        supabase.from("articles").select("id, title, slug, created_at, category").order("created_at", { ascending: false }).limit(5),
+        supabase.from("news").select("id, title, slug, created_at, category").order("created_at", { ascending: false }).limit(5),
       ]);
-
-      // Calculate total views
-      const articleViews = articlesRes.data?.reduce((sum, a) => sum + (a.views || 0), 0) || 0;
-      const newsViews = newsRes.data?.reduce((sum, n) => sum + (n.views || 0), 0) || 0;
-      const reviewViews = reviewsRes.data?.reduce((sum, r) => sum + (r.views || 0), 0) || 0;
 
       // Published counts
       const publishedArticles = articlesRes.data?.filter(a => a.is_published).length || 0;
@@ -53,17 +45,12 @@ export default function AdminDashboard() {
         articles: {
           total: articlesRes.count || 0,
           published: publishedArticles,
-          views: articleViews,
         },
         news: {
           total: newsRes.count || 0,
           published: publishedNews,
-          views: newsViews,
         },
-        reviews: {
-          total: reviewsRes.count || 0,
-          views: reviewViews,
-        },
+        reviews: reviewsRes.count || 0,
         products: productsRes.count || 0,
         comments: commentsRes.count || 0,
         users: usersRes.count || 0,
@@ -71,8 +58,6 @@ export default function AdminDashboard() {
           total: messagesRes.count || 0,
           unread: unreadMessages,
         },
-        pageViews: pageViewsRes.count || 0,
-        totalViews: articleViews + newsViews + reviewViews,
         recentArticles: recentArticlesRes.data || [],
         recentNews: recentNewsRes.data || [],
       };
@@ -100,8 +85,8 @@ export default function AdminDashboard() {
     },
     {
       label: "Reviews",
-      value: stats?.reviews.total || 0,
-      subtext: `${stats?.reviews.views.toLocaleString()} views`,
+      value: stats?.reviews || 0,
+      subtext: "product reviews",
       icon: Star,
       color: "text-yellow-500",
       bgColor: "bg-yellow-500/10",
@@ -120,20 +105,6 @@ export default function AdminDashboard() {
 
   const secondaryStats = [
     {
-      label: "Total Views",
-      value: stats?.totalViews || 0,
-      icon: Eye,
-      color: "text-indigo-500",
-      bgColor: "bg-indigo-500/10",
-    },
-    {
-      label: "Page Views",
-      value: stats?.pageViews || 0,
-      icon: BarChart3,
-      color: "text-cyan-500",
-      bgColor: "bg-cyan-500/10",
-    },
-    {
       label: "Users",
       value: stats?.users || 0,
       icon: Users,
@@ -146,6 +117,20 @@ export default function AdminDashboard() {
       icon: MessageSquare,
       color: "text-orange-500",
       bgColor: "bg-orange-500/10",
+    },
+    {
+      label: "Messages",
+      value: stats?.messages.total || 0,
+      icon: MessageSquare,
+      color: "text-cyan-500",
+      bgColor: "bg-cyan-500/10",
+    },
+    {
+      label: "Unread",
+      value: stats?.messages.unread || 0,
+      icon: MessageSquare,
+      color: "text-red-500",
+      bgColor: "bg-red-500/10",
     },
   ];
 
@@ -241,12 +226,10 @@ export default function AdminDashboard() {
                       <p className="font-medium text-foreground truncate">{article.title}</p>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                         <span className="px-2 py-0.5 bg-muted rounded">{article.category}</span>
-                        <span>{formatDate(article.created_at)}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground ml-4">
-                      <Eye className="w-3 h-3" />
-                      {(article.views || 0).toLocaleString()}
+                    <div className="text-xs text-muted-foreground ml-4">
+                      {formatDate(article.created_at)}
                     </div>
                   </div>
                 ))}
@@ -276,12 +259,10 @@ export default function AdminDashboard() {
                       <p className="font-medium text-foreground truncate">{news.title}</p>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                         <span className="px-2 py-0.5 bg-muted rounded">{news.category}</span>
-                        <span>{formatDate(news.created_at)}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground ml-4">
-                      <Eye className="w-3 h-3" />
-                      {(news.views || 0).toLocaleString()}
+                    <div className="text-xs text-muted-foreground ml-4">
+                      {formatDate(news.created_at)}
                     </div>
                   </div>
                 ))}
