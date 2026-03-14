@@ -30,20 +30,34 @@ const categories = [
   "All",
   "How-To",
   "Security",
+  "Productivity",
   "Phones",
   "Accessories",
   "AI Tech",
+  "Career in Tech",
+  "Side Hustles",
+  "Health Tech",
+  "Remote Work",
   "Gaming",
+  "Green Tech",
+  "Creepy Tech",
 ];
 
 // Fallback images by category when article images don't exist
 const categoryImages: Record<string, string> = {
   "How-To": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop",
   "Security": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=400&fit=crop",
+  "Productivity": "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=400&fit=crop",
   "Phones": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=400&fit=crop",
   "Accessories": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=400&fit=crop",
   "AI Tech": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop",
+  "Career in Tech": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&h=400&fit=crop",
+  "Side Hustles": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&h=400&fit=crop",
+  "Health Tech": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=400&fit=crop",
+  "Remote Work": "https://images.unsplash.com/photo-1587825140708-dfaf18c4c5ad?w=800&h=400&fit=crop",
   "Gaming": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&h=400&fit=crop",
+  "Green Tech": "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&h=400&fit=crop",
+  "Creepy Tech": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=400&fit=crop",
   "default": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=400&fit=crop",
 };
 

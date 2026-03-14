@@ -30,6 +30,13 @@ const newsCategories = [
   "Big Tech",
   "Cybersecurity",
   "Gadgets",
+  "Phones",
+  "Productivity",
+  "Security",
+  "Gaming",
+  "Side Hustles",
+  "Remote Work",
+  "Green Tech",
 ];
 
 // Fallback images by category
@@ -38,6 +45,13 @@ const categoryImages: Record<string, string> = {
   "Big Tech": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=400&fit=crop",
   "Cybersecurity": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=400&fit=crop",
   "Gadgets": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=400&fit=crop",
+  "Phones": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=400&fit=crop",
+  "Productivity": "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=400&fit=crop",
+  "Security": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=400&fit=crop",
+  "Gaming": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&h=400&fit=crop",
+  "Side Hustles": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&h=400&fit=crop",
+  "Remote Work": "https://images.unsplash.com/photo-1587825140708-dfaf18c4c5ad?w=800&h=400&fit=crop",
+  "Green Tech": "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&h=400&fit=crop",
   "default": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=400&fit=crop",
 };
 
