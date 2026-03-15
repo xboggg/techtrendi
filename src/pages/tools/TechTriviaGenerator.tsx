@@ -49,7 +49,7 @@ const categories = [
   "General Knowledge",
 ];
 
-const GROQ_API_KEY = "GROQ_KEY_REMOVED";
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
 export default function TechTriviaGenerator() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Programming");

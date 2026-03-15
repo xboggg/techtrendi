@@ -40,7 +40,7 @@ const suggestedQuestions: SuggestedQuestion[] = [
 ];
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_API_KEY = 'GROQ_CHAT_KEY_REMOVED';
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_CHAT_API_KEY;
 
 const SYSTEM_PROMPT = `You are TechTrendi AI, a friendly and knowledgeable tech assistant for the TechTrendi website (techtrendi.com). You help users with:
 - Smartphone reviews, comparisons and buying advice

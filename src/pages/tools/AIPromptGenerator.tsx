@@ -13,7 +13,7 @@ import {
   Sparkles, Copy, Check, RefreshCw, Wand2, Brain, Loader2, Clipboard
 } from "lucide-react";
 
-const GROQ_API_KEY = "GROQ_KEY_REMOVED";
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 

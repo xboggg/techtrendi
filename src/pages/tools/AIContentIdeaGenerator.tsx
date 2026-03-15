@@ -39,7 +39,7 @@ interface ContentIdea {
   format: string;
 }
 
-const GROQ_API_KEY = "GROQ_KEY_REMOVED";
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 export default function AIContentIdeaGenerator() {
