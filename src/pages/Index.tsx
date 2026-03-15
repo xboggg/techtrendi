@@ -214,7 +214,7 @@ export default function Index() {
         .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
         .eq("is_published", true)
         .order("created_at", { ascending: false })
-        .limit(6);
+        .limit(5);
 
       if (error) throw error;
       setLatestNews(data || []);
@@ -276,17 +276,17 @@ export default function Index() {
 
           {loadingNews ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
+              {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className={cn(
                   "rounded-2xl overflow-hidden animate-pulse bg-muted",
-                  i === 2 || i === 5 ? "md:row-span-2 aspect-[3/4]" : "aspect-[16/10]"
+                  i === 2 ? "md:row-span-2 aspect-[3/4]" : "aspect-[16/10]"
                 )} />
               ))}
             </div>
           ) : latestNews.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {latestNews.map((news, index) => {
-                const isLarge = index === 1 || index === 4;
+                const isLarge = index === 1;
                 return (
                   <Link
                     key={news.id}
