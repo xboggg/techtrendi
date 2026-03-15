@@ -898,3 +898,20 @@ body {
     margin: 1in;
   }
 }
+
+/* Article content - tighter list spacing override */
+.article-content li {
+  margin-top: 0.125em !important;
+  margin-bottom: 0.125em !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.article-content ul,
+.article-content ol {
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+}
+.article-content li > p {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}

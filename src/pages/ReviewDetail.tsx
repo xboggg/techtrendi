@@ -389,19 +389,19 @@ export default function ReviewDetail() {
             <div className="max-w-3xl mx-auto">
               <h2 className="text-2xl font-bold text-foreground mb-6">Full Review</h2>
               <div
-                className="prose prose-lg max-w-none
+                className="prose max-w-none text-lg article-content
                   prose-headings:text-foreground prose-headings:font-bold
-                  prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-                  prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
-                  prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4
+                  prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-3
+                  prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-2
+                  prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-3
                   prose-a:text-primary prose-a:no-underline hover:prose-a:underline
                   prose-strong:text-foreground prose-strong:font-semibold
                   prose-ul:my-3 prose-ul:list-disc prose-ul:pl-6
                   prose-ol:my-3 prose-ol:list-decimal prose-ol:pl-6
-                  prose-li:text-muted-foreground prose-li:mb-1 prose-li:leading-relaxed
+                  prose-li:text-muted-foreground prose-li:my-0.5 prose-li:leading-normal
                   prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic
                   prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
-                  prose-hr:my-8 prose-hr:border-border"
+                  prose-hr:my-6 prose-hr:border-border"
                 dangerouslySetInnerHTML={{ __html: renderReviewContent(review.full_review) }}
               />
 

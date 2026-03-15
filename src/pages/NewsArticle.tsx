@@ -306,23 +306,23 @@ export default function NewsArticle() {
 
           {/* Article Content - Renders HTML or Markdown */}
           <div
-            className="prose prose-lg max-w-none
+            className="prose max-w-none text-lg article-content
               prose-headings:text-foreground prose-headings:font-bold
-              prose-h1:text-3xl prose-h1:mt-12 prose-h1:mb-6
-              prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-              prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
-              prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4
+              prose-h1:text-3xl prose-h1:mt-10 prose-h1:mb-4
+              prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-3
+              prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-2
+              prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-3
               prose-a:text-primary prose-a:no-underline hover:prose-a:underline
               prose-strong:text-foreground prose-strong:font-semibold
               prose-ul:my-3 prose-ul:list-disc prose-ul:pl-6
               prose-ol:my-3 prose-ol:list-decimal prose-ol:pl-6
-              prose-li:text-muted-foreground prose-li:mb-1 prose-li:leading-relaxed
+              prose-li:text-muted-foreground prose-li:my-0.5 prose-li:leading-normal
               prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-muted-foreground
               prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
               prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-x-auto
-              prose-img:rounded-xl prose-img:my-6
-              prose-hr:my-8 prose-hr:border-border
-              prose-table:w-full prose-table:my-6
+              prose-img:rounded-xl prose-img:my-4
+              prose-hr:my-6 prose-hr:border-border
+              prose-table:w-full prose-table:my-4
               prose-th:bg-muted prose-th:p-3 prose-th:text-left prose-th:font-semibold
               prose-td:p-3 prose-td:border-b prose-td:border-border"
             dangerouslySetInnerHTML={{ __html: renderContent(news.content) }}
