@@ -15,4 +15,13 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Single JS bundle - no chunk splitting = no missing chunk errors
+        manualChunks: undefined,
+        inlineDynamicImports: true,
+      },
+    },
+  },
 }));
