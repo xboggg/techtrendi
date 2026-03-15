@@ -19,7 +19,7 @@ interface SEOHeadProps {
 
 const SITE_NAME = 'TechTrendi';
 const SITE_URL = 'https://techtrendi.com';
-const DEFAULT_IMAGE = '/og-default.jpg';
+const DEFAULT_IMAGE = '/og-image.jpg';
 const TWITTER_HANDLE = '@techtrendi';
 
 export function SEOHead({

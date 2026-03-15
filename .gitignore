@@ -33,3 +33,4 @@ dist-ssr
 *.pem
 *.key
 *.crt
+.deploy-manifest

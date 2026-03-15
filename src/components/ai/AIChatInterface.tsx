@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -13,6 +13,7 @@ import {
   ThumbsDown,
   Copy,
   Trash2,
+  ArrowDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -33,10 +34,12 @@ interface SuggestedQuestion {
 }
 
 const suggestedQuestions: SuggestedQuestion[] = [
-  { text: 'Best smartphones 2024?', icon: '📱' },
+  { text: 'Best smartphones 2025?', icon: '📱' },
   { text: 'How to stay safe online?', icon: '🔒' },
   { text: 'Compare iPhone vs Samsung', icon: '⚡' },
   { text: 'Best laptop for coding?', icon: '💻' },
+  { text: 'AI tools for productivity?', icon: '🤖' },
+  { text: 'How to start a tech career?', icon: '🚀' },
 ];
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
@@ -45,17 +48,19 @@ const GROQ_API_KEY = import.meta.env.VITE_GROQ_CHAT_API_KEY;
 const SYSTEM_PROMPT = `You are TechTrendi AI, a friendly and knowledgeable tech assistant for the TechTrendi website (techtrendi.com). You help users with:
 - Smartphone reviews, comparisons and buying advice
 - Cybersecurity and online privacy tips
-- AI and technology news
-- Productivity tools and tips
-- Laptop and gadget recommendations
+- AI and technology news and trends
+- Productivity tools, apps and workflow tips
+- Laptop, tablet and gadget recommendations
 - Side hustle and tech career advice
+- Gaming recommendations and PC builds
+- Health tech and wearable devices
 
-Keep responses concise (under 200 words), helpful, and conversational. Use bullet points and bold text for clarity. When relevant, suggest checking out TechTrendi's tools, guides, or articles. Never make up specific product specs - be honest when unsure.`;
+Keep responses concise (under 300 words), helpful, and conversational. Use bullet points and bold text for clarity. Format with markdown when helpful. When relevant, suggest checking out TechTrendi's tools, guides, or articles. Never make up specific product specs - be honest when unsure.`;
 
 async function callGroqAI(message: string, history: Message[]): Promise<string> {
   const messages = [
     { role: 'system' as const, content: SYSTEM_PROMPT },
-    ...history.slice(-6).map((m) => ({
+    ...history.slice(-10).map((m) => ({
       role: m.role as 'user' | 'assistant',
       content: m.content,
     })),
@@ -73,7 +78,7 @@ async function callGroqAI(message: string, history: Message[]): Promise<string> 
         model: 'llama-3.3-70b-versatile',
         messages,
         temperature: 0.7,
-        max_tokens: 512,
+        max_tokens: 1024,
         stream: false,
       }),
     });
@@ -92,6 +97,31 @@ async function callGroqAI(message: string, history: Message[]): Promise<string> 
   }
 }
 
+// Simple markdown-like rendering for bold and bullet points
+function renderContent(text: string) {
+  return text.split('\n').map((line, i) => {
+    // Bold text
+    const parts = line.split(/(\*\*[^*]+\*\*)/g).map((part, j) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={j} className="font-semibold">{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+
+    // Bullet points
+    if (line.trim().startsWith('- ') || line.trim().startsWith('• ')) {
+      return (
+        <div key={i} className="flex gap-1.5 ml-1">
+          <span className="text-primary shrink-0 mt-0.5">•</span>
+          <span>{parts.slice(0).map((p, idx) => typeof p === 'string' ? p.replace(/^[-•]\s*/, '') : p)}</span>
+        </div>
+      );
+    }
+
+    return <p key={i} className={line.trim() === '' ? 'h-2' : ''}>{parts}</p>;
+  });
+}
+
 export function AIChatInterface() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -101,18 +131,26 @@ export function AIChatInterface() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId] = useState(() => crypto.randomUUID());
+  const [showScrollDown, setShowScrollDown] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-  useEffect(() => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, []);
 
   useEffect(() => {
-    if (isOpen && !isMinimized) {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
+
+  // Don't auto-focus on mobile to prevent keyboard from opening
+  useEffect(() => {
+    if (isOpen && !isMinimized && !isMobile) {
       inputRef.current?.focus();
     }
-  }, [isOpen, isMinimized]);
+  }, [isOpen, isMinimized, isMobile]);
 
   useEffect(() => {
     if (user && isOpen) {
@@ -232,7 +270,6 @@ export function AIChatInterface() {
           {/* Ghostly emanation rings */}
           <div className="absolute inset-0 rounded-full bg-purple-500/20 animate-ping" style={{ animationDuration: '2s' }} />
           <div className="absolute inset-[-4px] rounded-full bg-violet-400/15 animate-ping" style={{ animationDuration: '3s', animationDelay: '0.5s' }} />
-          <div className="absolute inset-[-8px] rounded-full bg-fuchsia-400/10 animate-ping" style={{ animationDuration: '4s', animationDelay: '1s' }} />
 
           {/* Outer glow ring */}
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet-500/30 to-purple-600/30 blur-md animate-pulse-slow" />
@@ -256,19 +293,6 @@ export function AIChatInterface() {
           <div className="absolute inset-[-4px] animate-spin" style={{ animationDuration: '5s' }}>
             <div className="absolute top-1/2 right-0 w-1 h-1 rounded-full bg-pink-400 shadow-[0_0_6px_2px_rgba(244,114,182,0.6)]" />
           </div>
-
-          {/* Orbiting star 4 */}
-          <div className="absolute inset-[-10px] animate-spin" style={{ animationDuration: '10s', animationDirection: 'reverse' }}>
-            <div className="absolute top-1 left-1 w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_2px_rgba(52,211,153,0.5)]" />
-          </div>
-
-          {/* Tiny twinkling stars */}
-          <div className="absolute inset-[-6px] animate-spin" style={{ animationDuration: '12s' }}>
-            <div className="absolute bottom-1 left-0 w-1 h-1 rounded-full bg-white/80 animate-pulse" />
-          </div>
-          <div className="absolute inset-[-5px] animate-spin" style={{ animationDuration: '7s', animationDirection: 'reverse' }}>
-            <div className="absolute top-0 right-1 w-0.5 h-0.5 rounded-full bg-violet-300 animate-pulse" style={{ animationDelay: '1s' }} />
-          </div>
         </div>
 
         {/* Tooltip */}
@@ -282,29 +306,36 @@ export function AIChatInterface() {
   return (
     <div
       className={cn(
-        'fixed bottom-6 right-6 z-50 flex flex-col bg-card border border-border rounded-2xl shadow-2xl transition-all duration-300 overflow-hidden',
-        isMinimized ? 'w-72 h-12' : 'w-[360px] h-[520px] max-h-[80vh]'
+        'fixed z-50 flex flex-col bg-card/95 backdrop-blur-xl border border-border/50 shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] overflow-hidden',
+        isMinimized
+          ? 'bottom-6 right-6 w-72 h-12 rounded-2xl'
+          : 'bottom-4 right-4 md:bottom-6 md:right-6 w-[calc(100vw-2rem)] md:w-[400px] h-[min(480px,70dvh)] md:h-[600px] md:max-h-[85vh] rounded-2xl'
       )}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 h-12 border-b border-border bg-muted/30 shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center">
-            <Bot className="w-3.5 h-3.5 text-white" />
+      {/* Header — gradient accent */}
+      <div className="flex items-center justify-between px-4 h-14 border-b border-border/50 bg-gradient-to-r from-violet-600/5 via-purple-600/5 to-fuchsia-600/5 shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="relative">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-sm">
+              <Bot className="w-4 h-4 text-white" />
+            </div>
+            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-card" />
           </div>
-          <span className="font-semibold text-sm">TechTrendi AI</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+          <div>
+            <span className="font-semibold text-sm">TechTrendi AI</span>
+            <p className="text-[10px] text-muted-foreground leading-none">Powered by Groq</p>
+          </div>
         </div>
         <div className="flex items-center gap-0.5">
           {!isMinimized && messages.length > 0 && (
-            <Button variant="ghost" size="icon" onClick={handleClearChat} className="h-7 w-7 text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" size="icon" onClick={handleClearChat} className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-xl">
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
           )}
-          <Button variant="ghost" size="icon" onClick={() => setIsMinimized(!isMinimized)} className="h-7 w-7 text-muted-foreground hover:text-foreground">
+          <Button variant="ghost" size="icon" onClick={() => setIsMinimized(!isMinimized)} className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-xl">
             <Minus className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-7 w-7 text-muted-foreground hover:text-destructive">
+          <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-8 w-8 text-muted-foreground hover:text-destructive rounded-xl">
             <X className="h-3.5 w-3.5" />
           </Button>
         </div>
@@ -313,69 +344,79 @@ export function AIChatInterface() {
       {!isMinimized && (
         <>
           {/* Messages */}
-          <ScrollArea className="flex-1 px-3 py-3">
+          <ScrollArea className="flex-1 px-4 py-3" ref={scrollAreaRef}>
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center pt-6 pb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/15 to-violet-500/15 flex items-center justify-center mb-3">
-                  <Sparkles className="w-6 h-6 text-primary" />
+              <div className="flex flex-col items-center pt-8 pb-4">
+                {/* Animated gradient icon */}
+                <div className="relative mb-4">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600/15 to-fuchsia-600/15 flex items-center justify-center">
+                    <Sparkles className="w-8 h-8 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-violet-600/10 to-fuchsia-600/10 animate-pulse" />
                 </div>
-                <h4 className="font-semibold text-sm mb-1">How can I help?</h4>
-                <p className="text-xs text-muted-foreground mb-4 text-center">
-                  Tech advice, comparisons, security tips & more
+                <h4 className="font-bold text-lg mb-1">Hey! How can I help?</h4>
+                <p className="text-sm text-muted-foreground mb-6 text-center max-w-[260px]">
+                  Ask me anything about tech — gadgets, security, AI, careers & more
                 </p>
                 <div className="grid grid-cols-2 gap-2 w-full">
                   {suggestedQuestions.map((q, i) => (
                     <button
                       key={i}
-                      onClick={() => { setInput(q.text); inputRef.current?.focus(); }}
-                      className="text-left p-2.5 rounded-xl bg-muted/50 hover:bg-muted border border-transparent hover:border-border transition-all text-xs group"
+                      onClick={() => {
+                        setInput(q.text);
+                        if (!isMobile) inputRef.current?.focus();
+                      }}
+                      className="text-left p-3 rounded-xl bg-muted/40 hover:bg-muted border border-transparent hover:border-border/50 transition-all duration-200 text-xs group active:scale-[0.98]"
                     >
-                      <span className="text-sm">{q.icon}</span>
-                      <p className="text-foreground/80 group-hover:text-foreground mt-0.5 leading-snug">{q.text}</p>
+                      <span className="text-base">{q.icon}</span>
+                      <p className="text-foreground/80 group-hover:text-foreground mt-1 leading-snug">{q.text}</p>
                     </button>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="space-y-3">
-                {messages.map((message) => (
+              <div className="space-y-4">
+                {messages.map((message, idx) => (
                   <div
                     key={message.id}
                     className={cn(
-                      'flex gap-2',
+                      'flex gap-2.5 animate-in fade-in-0 slide-in-from-bottom-2 duration-300',
                       message.role === 'user' ? 'justify-end' : 'justify-start'
                     )}
+                    style={{ animationDelay: `${idx * 30}ms` }}
                   >
                     {message.role === 'assistant' && (
-                      <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Bot className="w-3 h-3 text-white" />
+                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                        <Bot className="w-3.5 h-3.5 text-white" />
                       </div>
                     )}
                     <div
                       className={cn(
-                        'max-w-[85%] rounded-xl px-3 py-2',
+                        'max-w-[85%] rounded-2xl px-3.5 py-2.5',
                         message.role === 'user'
-                          ? 'bg-primary text-primary-foreground rounded-br-sm'
-                          : 'bg-muted rounded-bl-sm'
+                          ? 'bg-gradient-to-br from-violet-600 to-purple-700 text-white rounded-br-md shadow-sm'
+                          : 'bg-muted/60 border border-border/30 rounded-bl-md'
                       )}
                     >
-                      <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                      <div className="text-[13px] leading-relaxed space-y-1">
+                        {renderContent(message.content)}
+                      </div>
                       {message.role === 'assistant' && (
-                        <div className="flex items-center gap-0.5 mt-1.5 pt-1.5 border-t border-border/30">
+                        <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border/20">
                           <button
-                            className={cn('p-1 rounded hover:bg-background/50 transition-colors', message.feedback === 'like' && 'text-green-500')}
+                            className={cn('p-1 rounded-md hover:bg-background/50 transition-colors', message.feedback === 'like' && 'text-green-500')}
                             onClick={() => handleFeedback(message.id, 'like')}
                           >
                             <ThumbsUp className="h-3 w-3" />
                           </button>
                           <button
-                            className={cn('p-1 rounded hover:bg-background/50 transition-colors', message.feedback === 'dislike' && 'text-red-500')}
+                            className={cn('p-1 rounded-md hover:bg-background/50 transition-colors', message.feedback === 'dislike' && 'text-red-500')}
                             onClick={() => handleFeedback(message.id, 'dislike')}
                           >
                             <ThumbsDown className="h-3 w-3" />
                           </button>
                           <button
-                            className="p-1 rounded hover:bg-background/50 transition-colors"
+                            className="p-1 rounded-md hover:bg-background/50 transition-colors"
                             onClick={() => handleCopy(message.content)}
                           >
                             <Copy className="h-3 w-3" />
@@ -384,21 +425,25 @@ export function AIChatInterface() {
                       )}
                     </div>
                     {message.role === 'user' && (
-                      <div className="w-6 h-6 rounded-md bg-primary/80 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <User className="w-3 h-3 text-primary-foreground" />
+                      <div className="w-7 h-7 rounded-lg bg-primary/80 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <User className="w-3.5 h-3.5 text-primary-foreground" />
                       </div>
                     )}
                   </div>
                 ))}
                 {isLoading && (
-                  <div className="flex gap-2">
-                    <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center">
-                      <Bot className="w-3 h-3 text-white" />
+                  <div className="flex gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-sm">
+                      <Bot className="w-3.5 h-3.5 text-white" />
                     </div>
-                    <div className="bg-muted rounded-xl rounded-bl-sm px-3 py-2">
-                      <div className="flex items-center gap-1.5">
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-                        <span className="text-xs text-muted-foreground">Thinking...</span>
+                    <div className="bg-muted/60 border border-border/30 rounded-2xl rounded-bl-md px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-1">
+                          <div className="w-2 h-2 rounded-full bg-violet-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <div className="w-2 h-2 rounded-full bg-fuchsia-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                        <span className="text-xs text-muted-foreground ml-1">Thinking...</span>
                       </div>
                     </div>
                   </div>
@@ -408,8 +453,8 @@ export function AIChatInterface() {
             )}
           </ScrollArea>
 
-          {/* Input */}
-          <div className="px-3 py-2 border-t border-border shrink-0">
+          {/* Input — enhanced */}
+          <div className="px-3 py-3 border-t border-border/50 shrink-0 bg-gradient-to-t from-card to-transparent">
             <form
               onSubmit={(e) => { e.preventDefault(); handleSend(); }}
               className="flex items-end gap-2"
@@ -419,23 +464,23 @@ export function AIChatInterface() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask anything..."
+                placeholder="Ask anything about tech..."
                 disabled={isLoading}
                 rows={1}
-                className="flex-1 resize-none rounded-xl border border-border bg-muted/30 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 disabled:opacity-50 max-h-20"
-                style={{ minHeight: '36px' }}
+                className="flex-1 resize-none rounded-xl border border-border/50 bg-muted/30 px-3.5 py-2.5 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500/50 disabled:opacity-50 max-h-24 transition-all duration-200"
+                style={{ minHeight: '40px' }}
               />
               <Button
                 type="submit"
                 size="icon"
                 disabled={!input.trim() || isLoading}
-                className="h-9 w-9 rounded-xl bg-primary hover:bg-primary/90 shrink-0"
+                className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 hover:from-violet-700 hover:to-purple-800 shrink-0 shadow-sm transition-all duration-200 disabled:opacity-40"
               >
-                <Send className="h-3.5 w-3.5" />
+                <Send className="h-4 w-4" />
               </Button>
             </form>
-            <p className="text-[10px] text-muted-foreground text-center mt-1.5">
-              Powered by AI · Responses may not always be accurate
+            <p className="text-[10px] text-muted-foreground/60 text-center mt-2">
+              Powered by Groq AI · Responses may not always be accurate
             </p>
           </div>
         </>

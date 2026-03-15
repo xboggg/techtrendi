@@ -14,6 +14,40 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Helmet } from "react-helmet-async";
+import DOMPurify from "dompurify";
+import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
+import { ShareButtons } from "@/components/ui/share-buttons";
+
+function renderReviewContent(content: string): string {
+  const hasHtmlTags = /<(h[1-6]|p|div|ul|ol|li|blockquote|strong|em|a|img|pre|code|table|br)\b/i.test(content);
+
+  if (hasHtmlTags) {
+    return DOMPurify.sanitize(content, { ADD_ATTR: ['target', 'rel', 'class'], ADD_TAGS: ['iframe'] });
+  }
+
+  let html = content
+    .replace(/^### (.+)$/gm, (_m, text) => `<h3 class="text-xl font-semibold mt-8 mb-4 text-foreground">${text}</h3>`)
+    .replace(/^## (.+)$/gm, (_m, text) => `<h2 class="text-2xl font-bold mt-10 mb-4 text-foreground">${text}</h2>`)
+    .replace(/^# (.+)$/gm, (_m, text) => `<h1 class="text-3xl font-bold mt-12 mb-6 text-foreground">${text}</h1>`)
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>')
+    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, (_m, linkText, url) => {
+      const cleanUrl = url.trim();
+      if (cleanUrl.match(/^https?:\/\//i) || cleanUrl.startsWith('/')) {
+        return `<a href="${cleanUrl}" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+      }
+      return linkText;
+    })
+    .replace(/`(.+?)`/g, '<code class="bg-muted px-1.5 py-0.5 rounded text-sm">$1</code>')
+    .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc text-muted-foreground mb-1">$1</li>')
+    .replace(/^(\d+)\. (.+)$/gm, '<li class="ml-4 list-decimal text-muted-foreground mb-1">$2</li>')
+    .replace(/^---$/gm, '<hr class="my-8 border-border" />')
+    .replace(/\n\n/g, '</p><p class="text-muted-foreground leading-relaxed mb-4">')
+    .replace(/\n/g, '<br />');
+
+  html = `<p class="text-muted-foreground leading-relaxed mb-4">${html}</p>`;
+  return DOMPurify.sanitize(html, { ADD_ATTR: ['target', 'rel', 'class'], ADD_TAGS: ['iframe'] });
+}
 
 interface Review {
   id: string;
@@ -354,12 +388,34 @@ export default function ReviewDetail() {
           <div className="container">
             <div className="max-w-3xl mx-auto">
               <h2 className="text-2xl font-bold text-foreground mb-6">Full Review</h2>
-              <div className="prose prose-lg dark:prose-invert max-w-none">
-                {review.full_review.split("\n\n").map((paragraph, index) => (
-                  <p key={index} className="text-muted-foreground mb-4 leading-relaxed">
-                    {paragraph}
-                  </p>
-                ))}
+              <div
+                className="prose prose-lg max-w-none
+                  prose-headings:text-foreground prose-headings:font-bold
+                  prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
+                  prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
+                  prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4
+                  prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                  prose-strong:text-foreground prose-strong:font-semibold
+                  prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
+                  prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
+                  prose-li:text-muted-foreground prose-li:mb-2
+                  prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic
+                  prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+                  prose-hr:my-8 prose-hr:border-border"
+                dangerouslySetInnerHTML={{ __html: renderReviewContent(review.full_review) }}
+              />
+
+              {/* Share & Newsletter */}
+              <div className="mt-10 flex items-center gap-4">
+                <ShareButtons
+                  url={window.location.href}
+                  title={review.title}
+                  description={review.verdict}
+                  variant="compact"
+                />
+              </div>
+              <div className="mt-8">
+                <NewsletterForm variant="default" />
               </div>
             </div>
           </div>

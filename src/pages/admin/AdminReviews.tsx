@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { Plus, Pencil, Trash2, Star, ChevronLeft, ChevronRight, Search, ChevronDown, ArrowUpDown } from "lucide-react";
 import {
   DropdownMenu,
@@ -292,12 +293,10 @@ function ReviewForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="full_review">Full Review</Label>
-        <Textarea
-          id="full_review"
+        <Label>Full Review</Label>
+        <RichTextEditor
           value={formData.full_review}
-          onChange={(e) => setFormData({ ...formData, full_review: e.target.value })}
-          rows={6}
+          onChange={(value) => setFormData({ ...formData, full_review: value })}
           placeholder="Write the full review here..."
         />
       </div>

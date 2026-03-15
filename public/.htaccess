@@ -1,6 +1,13 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+
+  # Social media bot detection — serve dynamic OG meta tags via PHP
+  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|Facebot|Twitterbot|WhatsApp|LinkedInBot|Pinterest|Slackbot|TelegramBot|Discordbot) [NC]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ /og-meta.php?path=$1 [L,QSA]
+
+  # Normal SPA routing
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
@@ -10,7 +17,7 @@
 # Security Headers
 <IfModule mod_headers.c>
   # Content Security Policy - Prevents XSS attacks
-  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://www.googleadservices.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://db.techtrendi.com https://*.supabase.co wss://*.supabase.co wss://db.techtrendi.com https://www.google-analytics.com https://analytics.google.com https://api.emailjs.com https://pagead2.googlesyndication.com; frame-src https://googleads.g.doubleclick.net https://www.google.com https://tpc.googlesyndication.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://www.googleadservices.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://db.techtrendi.com https://*.supabase.co wss://*.supabase.co wss://db.techtrendi.com https://www.google-analytics.com https://analytics.google.com https://api.emailjs.com https://pagead2.googlesyndication.com https://api.groq.com; frame-src https://googleads.g.doubleclick.net https://www.google.com https://tpc.googlesyndication.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
 
   # Prevent clickjacking
   Header set X-Frame-Options "DENY"

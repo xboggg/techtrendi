@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, User, LogOut, Crown, Shield, Sparkles, Flame, Smartphone, Lock, Cpu, Lightbulb, BookOpen, DollarSign, ShoppingBag, LayoutDashboard, Newspaper, Gamepad2, Watch, Briefcase, HeartPulse, Wifi, Leaf } from "lucide-react";
+import { Menu, X, ChevronDown, User, LogOut, Crown, Shield, Sparkles, Flame, Smartphone, Lock, Cpu, Lightbulb, BookOpen, DollarSign, ShoppingBag, LayoutDashboard, Newspaper, Gamepad2, Watch, Briefcase, HeartPulse, Wifi, Leaf, Zap, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -272,110 +272,161 @@ export function Header() {
         </nav>
       </div>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden glass-strong border-t border-white/10 animate-scale-in">
-          <div className="container py-6 space-y-2">
-            {navLinks.map((link) => (
-              <div key={link.label}>
-                <Link
-                  to={link.href}
-                  onClick={() => !link.isMegaMenu && setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-                    isActive(link.href)
-                      ? "text-primary bg-primary/10 shadow-sm"
-                      : "text-foreground hover:bg-white/50 dark:hover:bg-white/5"
-                  }`}
-                >
-                  {link.icon && <link.icon className="w-4 h-4 text-orange-500" />}
-                  {link.label}
-                  {link.isHot && (
-                    <span className="px-1.5 py-0.5 text-[10px] font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full">
-                      HOT
+      {/* Mobile Menu — Colorful, Animated, Compact */}
+      <div
+        className={`lg:hidden fixed inset-0 top-16 z-40 transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+          isMobileMenuOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+      >
+        {/* Backdrop */}
+        <div
+          className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-500 ${isMobileMenuOpen ? "opacity-100" : "opacity-0"}`}
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+
+        {/* Menu panel */}
+        <div
+          className={`relative h-[calc(100dvh-4rem)] overflow-y-auto bg-card/95 backdrop-blur-xl border-t border-border/50 transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+            isMobileMenuOpen ? "translate-y-0" : "-translate-y-4"
+          }`}
+        >
+          <div className="container py-5 space-y-3">
+            {/* Primary nav — colorful icon grid */}
+            <div className="grid grid-cols-3 gap-2">
+              {navLinks.map((link, i) => {
+                const colors = [
+                  "from-blue-500 to-indigo-600",
+                  "from-orange-500 to-red-500",
+                  "from-emerald-500 to-teal-600",
+                  "from-purple-500 to-pink-500",
+                  "from-amber-500 to-orange-500",
+                ];
+                return (
+                  <Link
+                    key={link.label}
+                    to={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl transition-all duration-300 ${
+                      isActive(link.href)
+                        ? "bg-primary/10 ring-1 ring-primary/30"
+                        : "hover:bg-muted/60 active:scale-95"
+                    }`}
+                    style={{ animationDelay: `${i * 50}ms` }}
+                  >
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colors[i % colors.length]} flex items-center justify-center shadow-md`}>
+                      {link.icon ? (
+                        <link.icon className="w-5 h-5 text-white" />
+                      ) : link.label === "Blog" ? (
+                        <BookOpen className="w-5 h-5 text-white" />
+                      ) : link.label === "Toolbox" ? (
+                        <Zap className="w-5 h-5 text-white" />
+                      ) : link.label === "Reviews" ? (
+                        <Star className="w-5 h-5 text-white" />
+                      ) : (
+                        <Sparkles className="w-5 h-5 text-white" />
+                      )}
+                    </div>
+                    <span className={`text-xs font-medium ${isActive(link.href) ? "text-primary" : "text-foreground"}`}>
+                      {link.label}
                     </span>
-                  )}
-                  {link.isMegaMenu && <ChevronDown className="w-4 h-4 ml-auto" />}
-                </Link>
-                {/* Mobile Mega Menu Categories */}
-                {link.isMegaMenu && (
-                  <div className="ml-4 mt-1 space-y-1">
-                    {exploreCategories.map((category) => (
-                      <Link
-                        key={category.label}
-                        to={category.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-primary/5 transition-all duration-200"
-                      >
-                        <category.icon className="w-4 h-4 text-primary" />
-                        {category.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-                {/* Regular submenu */}
-                {link.submenu && (
-                  <div className="ml-4 mt-1 space-y-1">
-                    {link.submenu.map((sublink) => (
-                      <Link
-                        key={sublink.label}
-                        to={sublink.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="block px-4 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-primary/5 transition-all duration-200"
-                      >
-                        {sublink.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+            {/* Explore categories — compact 2-column */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 px-1">Explore Topics</p>
+              <div className="grid grid-cols-2 gap-1.5">
+                {exploreCategories.map((category) => (
+                  <Link
+                    key={category.label}
+                    to={category.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm hover:bg-muted/60 active:scale-[0.98] transition-all duration-200"
+                  >
+                    <category.icon className="w-4 h-4 text-primary shrink-0" />
+                    <span className="text-foreground/80 truncate">{category.label}</span>
+                  </Link>
+                ))}
               </div>
-            ))}
-            <div className="pt-6 space-y-3">
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+            {/* User actions */}
+            <div className="space-y-2">
               {user ? (
                 <>
-                  <div className="px-4 py-3 glass rounded-2xl">
-                    <p className="text-sm font-semibold text-foreground">{user.email}</p>
-                    {subscription.subscribed && (
-                      <p className="text-xs text-gradient-accent font-medium flex items-center gap-1 mt-1">
-                        <Crown className="w-3 h-3" /> Premium Member
-                      </p>
-                    )}
+                  <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center shadow-sm">
+                      <span className="text-white text-sm font-semibold">{user.email?.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{user.email}</p>
+                      {subscription.subscribed && (
+                        <p className="text-xs text-amber-500 font-medium flex items-center gap-1">
+                          <Crown className="w-3 h-3" /> Premium
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  {isAdmin && (
-                    <Button variant="outline" className="w-full rounded-xl glass border-white/20" asChild>
-                      <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)}>
-                        <Shield className="w-4 h-4 mr-2" />
-                        Admin Panel
+                  <div className="grid grid-cols-2 gap-2">
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-muted/50 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                      >
+                        <Shield className="w-4 h-4" />
+                        Admin
                       </Link>
-                    </Button>
-                  )}
-                  <Button variant="outline" className="w-full rounded-xl glass border-white/20" asChild>
-                    <Link to="/premium" onClick={() => setIsMobileMenuOpen(false)}>
-                      {subscription.subscribed ? "Manage Subscription" : "Upgrade to Premium"}
+                    )}
+                    <Link
+                      to="/premium"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-sm font-medium text-white shadow-sm"
+                    >
+                      <Crown className="w-4 h-4" />
+                      Premium
                     </Link>
-                  </Button>
-                  <Button variant="ghost" className="w-full rounded-xl" onClick={handleSignOut}>
+                  </div>
+                  <button
+                    onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }}
+                    className="w-full px-3 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors text-center"
+                  >
                     Sign Out
-                  </Button>
+                  </button>
                 </>
               ) : (
-                <>
-                  <Button variant="outline" className="w-full rounded-xl glass border-white/20" asChild>
-                    <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
-                      Sign In
-                    </Link>
-                  </Button>
-                  <Button className="w-full btn-premium rounded-xl text-white shadow-card" asChild>
-                    <Link to="/premium" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-1.5">
-                      <Sparkles className="w-4 h-4" />
-                      Get Premium
-                    </Link>
-                  </Button>
-                </>
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    to="/auth"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-center px-3 py-2.5 rounded-xl border border-border bg-muted/30 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/premium"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-sm font-medium text-white shadow-sm"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Premium
+                  </Link>
+                </div>
               )}
             </div>
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 }

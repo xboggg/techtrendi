@@ -72,16 +72,16 @@ export function NewsletterForm({ variant = "default", className }: NewsletterFor
 
   if (variant === "footer") {
     return (
-      <form onSubmit={handleSubmit} className={cn("flex gap-2", className)}>
+      <form onSubmit={handleSubmit} className={cn("flex flex-col sm:flex-row gap-2", className)}>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
-          className="flex-1 px-4 py-2 rounded-lg bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          className="flex-1 min-w-0 px-4 py-2 rounded-lg bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           disabled={loading}
         />
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading} className="shrink-0">
           {loading ? "..." : "Subscribe"}
         </Button>
       </form>
@@ -91,16 +91,16 @@ export function NewsletterForm({ variant = "default", className }: NewsletterFor
   if (variant === "inline") {
     return (
       <form onSubmit={handleSubmit} className={cn("w-full", className)}>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email address"
-            className="flex-1 px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            className="flex-1 min-w-0 px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             disabled={loading}
           />
-          <Button type="submit" size="lg" disabled={loading} className="gap-2">
+          <Button type="submit" size="lg" disabled={loading} className="gap-2 shrink-0">
             <Mail className="w-4 h-4" />
             {loading ? "Subscribing..." : "Subscribe"}
           </Button>
@@ -120,16 +120,16 @@ export function NewsletterForm({ variant = "default", className }: NewsletterFor
           <p className="text-sm text-muted-foreground mb-4">
             Join 10,000+ readers getting expert tech insights delivered to their inbox.
           </p>
-          <form onSubmit={handleSubmit} className="flex gap-2">
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="flex-1 px-4 py-2 rounded-lg bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="flex-1 min-w-0 px-4 py-2 rounded-lg bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               disabled={loading}
             />
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="shrink-0">
               {loading ? "..." : "Subscribe"}
             </Button>
           </form>

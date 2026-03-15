@@ -12,6 +12,60 @@ import { useReadingHistory } from "@/components/ui/reading-history";
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
 import DOMPurify from "dompurify";
 
+/**
+ * Renders content that may be HTML or Markdown.
+ * If content contains HTML tags, it's rendered as-is with prose styling.
+ * If it's markdown/plain text, it's converted to formatted HTML.
+ */
+function renderContent(content: string): string {
+  // Check if content already contains HTML tags (from RichTextEditor)
+  const hasHtmlTags = /<(h[1-6]|p|div|ul|ol|li|blockquote|strong|em|a|img|pre|code|table|br)\b/i.test(content);
+
+  if (hasHtmlTags) {
+    return DOMPurify.sanitize(content, { ADD_ATTR: ['target', 'rel', 'class'], ADD_TAGS: ['iframe'] });
+  }
+
+  // Convert markdown to HTML
+  let html = content
+    .replace(/^### (.+)$/gm, (_match, text) => {
+      const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      return `<h3 id="${id}" class="text-xl font-semibold mt-8 mb-4 text-foreground scroll-mt-20">${text}</h3>`;
+    })
+    .replace(/^## (.+)$/gm, (_match, text) => {
+      const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      return `<h2 id="${id}" class="text-2xl font-bold mt-10 mb-4 text-foreground scroll-mt-20">${text}</h2>`;
+    })
+    .replace(/^# (.+)$/gm, (_match, text) => {
+      const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      return `<h1 id="${id}" class="text-3xl font-bold mt-12 mb-6 text-foreground scroll-mt-20">${text}</h1>`;
+    })
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>')
+    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, (_match, linkText, url) => {
+      const cleanUrl = url.trim();
+      if (cleanUrl.match(/^https?:\/\//i) || cleanUrl.startsWith('/')) {
+        return `<a href="${cleanUrl}" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+      }
+      return linkText;
+    })
+    .replace(/```(\w+)?\n([\s\S]+?)```/g, '<pre class="bg-muted p-4 rounded-lg overflow-x-auto my-4"><code>$2</code></pre>')
+    .replace(/`(.+?)`/g, '<code class="bg-muted px-1.5 py-0.5 rounded text-sm">$1</code>')
+    .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc text-muted-foreground mb-1">$1</li>')
+    .replace(/^(\d+)\. (.+)$/gm, '<li class="ml-4 list-decimal text-muted-foreground mb-1">$2</li>')
+    .replace(/(<li[^>]*>.*<\/li>\n?)+/g, (match) => {
+      const isOrdered = match.includes('list-decimal');
+      const tag = isOrdered ? 'ol' : 'ul';
+      return `<${tag} class="my-4 pl-2">${match}</${tag}>`;
+    })
+    .replace(/^---$/gm, '<hr class="my-8 border-border" />')
+    .replace(/\n\n/g, '</p><p class="text-muted-foreground leading-relaxed mb-4">')
+    .replace(/\n/g, '<br />');
+
+  html = `<p class="text-muted-foreground leading-relaxed mb-4">${html}</p>`;
+
+  return DOMPurify.sanitize(html, { ADD_ATTR: ['target', 'rel', 'class', 'id'], ADD_TAGS: ['iframe'] });
+}
+
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db.techtrendi.com";
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 
@@ -250,7 +304,7 @@ export default function NewsArticle() {
             />
           </div>
 
-          {/* Article Content - Renders HTML */}
+          {/* Article Content - Renders HTML or Markdown */}
           <div
             className="prose prose-lg max-w-none
               prose-headings:text-foreground prose-headings:font-bold
@@ -271,7 +325,7 @@ export default function NewsArticle() {
               prose-table:w-full prose-table:my-6
               prose-th:bg-muted prose-th:p-3 prose-th:text-left prose-th:font-semibold
               prose-td:p-3 prose-td:border-b prose-td:border-border"
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(news.content, { ADD_ATTR: ['target', 'rel', 'class'], ADD_TAGS: ['iframe'] }) }}
+            dangerouslySetInnerHTML={{ __html: renderContent(news.content) }}
           />
 
           {/* Tags */}

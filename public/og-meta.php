@@ -12,7 +12,7 @@
 $SUPABASE_URL = 'https://db.techtrendi.com';
 $SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNjQxNzY5MjAwLCJleHAiOjE3OTk1MzU2MDB9.lbPqMemEL_VFnCma2zeuJ1MfFLNQ7_VXRgaacXeeReQ';
 $SITE_URL = 'https://techtrendi.com';
-$DEFAULT_IMAGE = 'https://techtrendi.com/og-default.jpg';
+$DEFAULT_IMAGE = 'https://techtrendi.com/og-image.jpg';
 $SITE_NAME = 'TechTrendi';
 
 // Get the request path
