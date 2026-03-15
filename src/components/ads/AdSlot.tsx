@@ -140,7 +140,7 @@ export function AdSlot({
             width: dimensions.width === 'auto' ? '100%' : dimensions.width,
             height: dimensions.height === 'auto' ? 'auto' : dimensions.height,
           }}
-          data-ad-client="ca-pub-XXXXXXXXXX" // Replace with actual AdSense publisher ID
+          data-ad-client="ca-pub-3437377907350211"
           data-ad-slot={slotId}
           data-ad-format={format}
           data-full-width-responsive={size === 'responsive' ? 'true' : 'false'}

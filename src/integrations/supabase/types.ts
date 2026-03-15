@@ -212,6 +212,7 @@ export type Database = {
           full_review: string | null
           id: string
           image: string | null
+          is_featured: boolean
           is_published: boolean
           price: string | null
           pros: string[]
@@ -231,6 +232,7 @@ export type Database = {
           full_review?: string | null
           id?: string
           image?: string | null
+          is_featured?: boolean
           is_published?: boolean
           price?: string | null
           pros?: string[]
@@ -250,6 +252,7 @@ export type Database = {
           full_review?: string | null
           id?: string
           image?: string | null
+          is_featured?: boolean
           is_published?: boolean
           price?: string | null
           pros?: string[]

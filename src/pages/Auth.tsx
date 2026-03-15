@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -32,6 +33,9 @@ export default function Auth() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
   const { toast } = useToast();
   const { user, signIn, signUp } = useAuth();
   const navigate = useNavigate();
@@ -206,6 +210,16 @@ export default function Auth() {
               <Button type="submit" variant="hero" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
+
+              <div className="text-center mt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot your password?
+                </button>
+              </div>
             </form>
           )}
 
@@ -316,6 +330,74 @@ export default function Auth() {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-card border border-border rounded-2xl shadow-elevated p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold text-foreground mb-2">Reset Password</h2>
+            <p className="text-muted-foreground text-sm mb-4">
+              Enter your email address and we'll send you a link to reset your password.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="forgot-email">Email</Label>
+                <div className="relative mt-1">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="forgot-email"
+                    type="email"
+                    placeholder="you@example.com"
+                    className="pl-10"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    setForgotEmail("");
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="hero"
+                  className="flex-1"
+                  disabled={forgotLoading || !forgotEmail}
+                  onClick={async () => {
+                    setForgotLoading(true);
+                    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+                      redirectTo: `${window.location.origin}/auth`,
+                    });
+                    setForgotLoading(false);
+                    if (error) {
+                      toast({
+                        variant: "destructive",
+                        title: "Error",
+                        description: error.message,
+                      });
+                    } else {
+                      toast({
+                        title: "Email sent!",
+                        description: "Check your inbox for the password reset link.",
+                      });
+                      setShowForgotPassword(false);
+                      setForgotEmail("");
+                    }
+                  }}
+                >
+                  {forgotLoading ? "Sending..." : "Send Reset Link"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -35,6 +35,9 @@ import {
   Calendar,
   PenSquare,
   BookOpen,
+  Mail,
+  Target,
+  AlertCircle,
 } from "lucide-react";
 
 interface PageView {
@@ -61,7 +64,7 @@ interface PageView {
 }
 
 type TimeRange = "today" | "7d" | "30d" | "90d" | "all";
-type Tab = "overview" | "content" | "audience" | "acquisition" | "performance" | "engagement" | "growth";
+type Tab = "overview" | "conversions" | "content" | "audience" | "acquisition" | "performance" | "engagement" | "growth";
 
 interface ArticleRecord {
   id: string;
@@ -106,6 +109,17 @@ interface CommentRecord {
 
 interface ProfileRecord {
   id: string;
+  full_name: string | null;
+  email: string | null;
+  created_at: string;
+}
+
+interface ContactSubmission {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  category: string;
   created_at: string;
 }
 
@@ -386,10 +400,23 @@ export default function AdminAnalytics() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, created_at")
-        .order("created_at", { ascending: true });
+        .select("id, full_name, email, created_at")
+        .order("created_at", { ascending: false });
       if (error) return [];
       return (data || []) as ProfileRecord[];
+    },
+  });
+
+  // Contact form submissions (conversions)
+  const { data: contactSubmissions = [] } = useQuery({
+    queryKey: ["analytics-contact-submissions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contact_submissions")
+        .select("id, name, email, subject, category, created_at")
+        .order("created_at", { ascending: false });
+      if (error) return [];
+      return (data || []) as ContactSubmission[];
     },
   });
 
@@ -844,6 +871,81 @@ export default function AdminAnalytics() {
     };
   }, [allContent]);
 
+  // 404 Error tracking (pages starting with /404 or not found paths)
+  const errorPages = useMemo(() => {
+    const counts: Record<string, number> = {};
+    pageViews.forEach((pv) => {
+      // Track pages that might be 404s (common patterns)
+      if (pv.page_path.includes("404") || pv.page_title?.toLowerCase().includes("not found")) {
+        counts[pv.page_path] = (counts[pv.page_path] || 0) + 1;
+      }
+    });
+    return Object.entries(counts)
+      .map(([page, count]) => ({ page, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+  }, [pageViews]);
+
+  // Conversion stats
+  const conversionStats = useMemo(() => {
+    const now = Date.now();
+    const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
+    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+
+    const signupsThisMonth = profiles.filter(p => new Date(p.created_at).getTime() > thirtyDaysAgo).length;
+    const signupsThisWeek = profiles.filter(p => new Date(p.created_at).getTime() > sevenDaysAgo).length;
+    const contactsThisMonth = contactSubmissions.filter(c => new Date(c.created_at).getTime() > thirtyDaysAgo).length;
+    const contactsThisWeek = contactSubmissions.filter(c => new Date(c.created_at).getTime() > sevenDaysAgo).length;
+
+    // Conversion rate = signups / unique sessions
+    const conversionRate = stats.uniqueSessions > 0 ? ((signupsThisMonth / stats.uniqueSessions) * 100).toFixed(2) : "0";
+
+    // Contact submissions by category
+    const byCategory: Record<string, number> = {};
+    contactSubmissions.forEach(c => {
+      byCategory[c.category] = (byCategory[c.category] || 0) + 1;
+    });
+
+    return {
+      totalSignups: profiles.length,
+      signupsThisMonth,
+      signupsThisWeek,
+      totalContacts: contactSubmissions.length,
+      contactsThisMonth,
+      contactsThisWeek,
+      conversionRate,
+      contactsByCategory: Object.entries(byCategory)
+        .map(([category, count]) => ({ category, count }))
+        .sort((a, b) => b.count - a.count),
+    };
+  }, [profiles, contactSubmissions, stats.uniqueSessions]);
+
+  // Signup trend over time
+  const signupTrend = useMemo(() => {
+    const months: Record<string, number> = {};
+    profiles.forEach(p => {
+      const key = p.created_at.slice(0, 7);
+      months[key] = (months[key] || 0) + 1;
+    });
+    return Object.entries(months)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-12)
+      .map(([k, v]) => ({ label: k.slice(2), value: v }));
+  }, [profiles]);
+
+  // Contact submissions trend
+  const contactTrend = useMemo(() => {
+    const months: Record<string, number> = {};
+    contactSubmissions.forEach(c => {
+      const key = c.created_at.slice(0, 7);
+      months[key] = (months[key] || 0) + 1;
+    });
+    return Object.entries(months)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-12)
+      .map(([k, v]) => ({ label: k.slice(2), value: v }));
+  }, [contactSubmissions]);
+
   if (pvLoading) {
     return (
       <AdminLayout>
@@ -905,6 +1007,7 @@ export default function AdminAnalytics() {
         <div className="flex gap-1 bg-muted p-1 rounded-lg w-fit">
           {([
             { id: "overview", label: "Overview", icon: BarChart3 },
+            { id: "conversions", label: "Conversions", icon: UserPlus },
             { id: "content", label: "Content", icon: Newspaper },
             { id: "performance", label: "Performance", icon: TrendingUp },
             { id: "engagement", label: "Engagement", icon: MessageSquare },
@@ -1135,6 +1238,128 @@ export default function AdminAnalytics() {
               <StatCard icon={FileText} label="Reviews" value={(contentCounts?.reviews || 0).toLocaleString()} change={null} />
               <StatCard icon={Users} label="Total Users" value={userCount.toLocaleString()} change={null} />
               <StatCard icon={MessageSquare} label="Comments" value={(contentCounts?.comments || 0).toLocaleString()} change={null} />
+            </div>
+          </>
+        )}
+
+        {/* Conversions Tab */}
+        {activeTab === "conversions" && (
+          <>
+            {/* Conversion Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              <StatCard icon={UserPlus} label="Total Signups" value={conversionStats.totalSignups.toLocaleString()} change={null} />
+              <StatCard icon={UserPlus} label="Signups (30d)" value={conversionStats.signupsThisMonth.toLocaleString()} change={null} />
+              <StatCard icon={UserPlus} label="Signups (7d)" value={conversionStats.signupsThisWeek.toLocaleString()} change={null} />
+              <StatCard icon={Mail} label="Total Contacts" value={conversionStats.totalContacts.toLocaleString()} change={null} />
+              <StatCard icon={Mail} label="Contacts (30d)" value={conversionStats.contactsThisMonth.toLocaleString()} change={null} />
+              <StatCard icon={Target} label="Conversion Rate" value={`${conversionStats.conversionRate}%`} change={null} />
+            </div>
+
+            {/* Signup Trend */}
+            <div className="grid lg:grid-cols-2 gap-6">
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <UserPlus className="w-4 h-4" />
+                  User Signups Over Time
+                </h3>
+                {signupTrend.length > 0 ? (
+                  <BarChartSVG data={signupTrend} maxVal={Math.max(...signupTrend.map(d => d.value), 1)} color="hsl(142, 76%, 36%)" />
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-8">No signup data yet</p>
+                )}
+              </div>
+
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  Contact Form Submissions Over Time
+                </h3>
+                {contactTrend.length > 0 ? (
+                  <BarChartSVG data={contactTrend} maxVal={Math.max(...contactTrend.map(d => d.value), 1)} color="hsl(280, 67%, 55%)" />
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-8">No contact submissions yet</p>
+                )}
+              </div>
+            </div>
+
+            {/* Contact Submissions by Category */}
+            <div className="bg-card border border-border rounded-xl p-6">
+              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                Contact Submissions by Category
+              </h3>
+              {conversionStats.contactsByCategory.length > 0 ? (
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    {conversionStats.contactsByCategory.map((item, i) => (
+                      <BarRow key={i} label={item.category} count={item.count} pct={Math.round((item.count / Math.max(conversionStats.totalContacts, 1)) * 100)} color="bg-purple-500" />
+                    ))}
+                  </div>
+                  <div>
+                    <DonutChartSVG segments={conversionStats.contactsByCategory.map((item, i) => ({
+                      label: item.category,
+                      value: item.count,
+                      color: ["hsl(217, 91%, 60%)", "hsl(142, 76%, 36%)", "hsl(280, 67%, 55%)", "hsl(45, 93%, 47%)", "hsl(346, 87%, 50%)"][i % 5],
+                    }))} />
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">No contact submissions yet</p>
+              )}
+            </div>
+
+            {/* Recent Signups */}
+            <div className="bg-card border border-border rounded-xl p-6">
+              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                <UserPlus className="w-4 h-4" />
+                Recent Signups (Last 10)
+              </h3>
+              {profiles.length > 0 ? (
+                <div className="space-y-2">
+                  {profiles.slice(0, 10).map((profile, i) => (
+                    <div key={profile.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center justify-center">
+                          {i + 1}
+                        </span>
+                        <div className="flex flex-col">
+                          <span className="text-sm text-foreground font-medium">
+                            {profile.full_name || "Anonymous User"}
+                          </span>
+                          {profile.email && (
+                            <span className="text-xs text-muted-foreground">{profile.email}</span>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(profile.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">No users yet</p>
+              )}
+            </div>
+
+            {/* 404 Errors */}
+            <div className="bg-card border border-border rounded-xl p-6">
+              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-500" />
+                404 Error Pages
+              </h3>
+              {errorPages.length > 0 ? (
+                <div className="space-y-2">
+                  {errorPages.map((ep, i) => (
+                    <div key={i} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                      <span className="text-sm text-foreground truncate mr-4">{ep.page}</span>
+                      <span className="text-sm font-medium text-red-500">{ep.count} hits</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">No 404 errors detected. Great!</p>
+              )}
             </div>
           </>
         )}

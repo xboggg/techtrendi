@@ -10,7 +10,7 @@
 # Security Headers
 <IfModule mod_headers.c>
   # Content Security Policy - Prevents XSS attacks
-  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://db.techtrendi.com https://*.supabase.co wss://*.supabase.co wss://db.techtrendi.com https://www.google-analytics.com https://analytics.google.com https://api.emailjs.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://www.googleadservices.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://db.techtrendi.com https://*.supabase.co wss://*.supabase.co wss://db.techtrendi.com https://www.google-analytics.com https://analytics.google.com https://api.emailjs.com https://pagead2.googlesyndication.com; frame-src https://googleads.g.doubleclick.net https://www.google.com https://tpc.googlesyndication.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
 
   # Prevent clickjacking
   Header set X-Frame-Options "DENY"
@@ -35,11 +35,25 @@
   Header unset X-Powered-By
 </IfModule>
 
-# Prevent access to sensitive files
-<FilesMatch "\.(env|git|gitignore|md|json|lock|yml|yaml|config|log)$">
+# Prevent access to sensitive files (but allow manifest.json)
+<FilesMatch "\.(env|git|gitignore|md|lock|yml|yaml|config|log)$">
   Order allow,deny
   Deny from all
 </FilesMatch>
+
+# Block sensitive JSON files but allow manifest.json
+<FilesMatch "^(?!manifest\.json$).*\.json$">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
+# MIME Types
+<IfModule mod_mime.c>
+  AddType text/css .css
+  AddType application/javascript .js
+  AddType application/json .json
+  AddType application/manifest+json .webmanifest
+</IfModule>
 
 # Cache Control
 <IfModule mod_expires.c>

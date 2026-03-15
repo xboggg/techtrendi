@@ -35,6 +35,8 @@ const features = [
 export function WaveFeatureCarousel() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [active, setActive] = useState(0);
+  const [displayActive, setDisplayActive] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
   const [isDark, setIsDark] = useState(() =>
     document.documentElement.classList.contains("dark")
@@ -55,13 +57,29 @@ export function WaveFeatureCarousel() {
     return () => observer.disconnect();
   }, []);
 
+  // Smooth transition: fade out, swap content, fade in
+  const transitionTo = useCallback((nextIndex: number) => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    // After fade-out completes, swap content and fade back in
+    setTimeout(() => {
+      setDisplayActive(nextIndex);
+      setActive(nextIndex);
+      setTimeout(() => setIsTransitioning(false), 50);
+    }, 500);
+  }, [isTransitioning]);
+
   // Auto-advance carousel
   const resetTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setActive((p) => (p + 1) % features.length);
-    }, 4000);
-  }, []);
+      setActive((p) => {
+        const next = (p + 1) % features.length;
+        transitionTo(next);
+        return p; // don't change here, transitionTo handles it
+      });
+    }, 5000);
+  }, [transitionTo]);
 
   useEffect(() => {
     resetTimer();
@@ -69,7 +87,8 @@ export function WaveFeatureCarousel() {
   }, [resetTimer]);
 
   const go = (dir: number) => {
-    setActive((p) => (p + dir + features.length) % features.length);
+    const next = (active + dir + features.length) % features.length;
+    transitionTo(next);
     resetTimer();
   };
 
@@ -156,7 +175,7 @@ export function WaveFeatureCarousel() {
     };
   }, []);
 
-  const feat = features[active];
+  const feat = features[displayActive];
   const Icon = feat.icon;
 
   return (
@@ -239,7 +258,14 @@ export function WaveFeatureCarousel() {
                     }}
                   />
                   {/* Icon with glow */}
-                  <div key={active} className="relative z-10 animate-scale-in">
+                  <div
+                    className="relative z-10"
+                    style={{
+                      opacity: isTransitioning ? 0 : 1,
+                      transform: isTransitioning ? 'scale(0.92)' : 'scale(1)',
+                      transition: 'opacity 500ms cubic-bezier(0.25,0.1,0.25,1), transform 500ms cubic-bezier(0.25,0.1,0.25,1)',
+                    }}
+                  >
                     <div
                       className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${feat.gradient} flex items-center justify-center shadow-xl`}
                       style={{ boxShadow: `0 0 30px ${feat.glowColor}` }}
@@ -259,14 +285,21 @@ export function WaveFeatureCarousel() {
               <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent dark:via-white/20" />
 
               {/* Content */}
-              <div className="p-6" key={`content-${active}`}>
+              <div
+                className="p-6"
+                style={{
+                  opacity: isTransitioning ? 0 : 1,
+                  transform: isTransitioning ? 'translateY(8px)' : 'translateY(0)',
+                  transition: 'opacity 500ms cubic-bezier(0.25,0.1,0.25,1), transform 500ms cubic-bezier(0.25,0.1,0.25,1)',
+                }}
+              >
                 <span className="inline-block px-3 py-1 text-primary dark:text-indigo-300 rounded-full text-xs font-medium mb-3 border border-primary/20 bg-primary/10 dark:border-indigo-400/20 dark:bg-indigo-500/10">
-                  {String(active + 1).padStart(2, "0")} / {String(features.length).padStart(2, "0")}
+                  {String(displayActive + 1).padStart(2, "0")} / {String(features.length).padStart(2, "0")}
                 </span>
-                <h3 className="text-xl font-semibold text-foreground mb-2 animate-fade-in">
+                <h3 className="text-xl font-semibold text-foreground mb-2">
                   {feat.title}
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed animate-fade-in">
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {feat.description}
                 </p>
               </div>
@@ -288,9 +321,9 @@ export function WaveFeatureCarousel() {
           {features.map((_, i) => (
             <button
               key={i}
-              onClick={() => { setActive(i); resetTimer(); }}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                i === active
+              onClick={() => { transitionTo(i); resetTimer(); }}
+              className={`h-2 rounded-full transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+                i === displayActive
                   ? "w-8 bg-primary dark:bg-indigo-400"
                   : "w-2 bg-foreground/15 hover:bg-foreground/30 dark:bg-white/20 dark:hover:bg-white/40"
               }`}

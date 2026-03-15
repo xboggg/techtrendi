@@ -87,6 +87,7 @@ export default function BlogArticle() {
   const { addToHistory } = useReadingHistory();
   const [article, setArticle] = useState<Article | undefined>(slug ? getStaticArticle(slug) : undefined);
   const [allArticles, setAllArticles] = useState<Article[]>(staticArticles as Article[]);
+  const [loading, setLoading] = useState(!getStaticArticle(slug || "")); // Only loading if not in static data
 
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -110,8 +111,11 @@ export default function BlogArticle() {
         if (Array.isArray(data) && data.length > 0) {
           setArticle(data[0]);
         }
+        setLoading(false);
       })
-      .catch(() => {});
+      .catch(() => {
+        setLoading(false);
+      });
 
     // Also fetch all articles for related
     fetch(`${SUPABASE_URL}/rest/v1/articles?select=*&order=created_at.desc`, {
@@ -203,6 +207,29 @@ export default function BlogArticle() {
 
     return `<p class="text-muted-foreground leading-relaxed mb-4">${html}</p>`;
   };
+
+  // Show loading state while fetching
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container py-12 md:py-20">
+          <div className="max-w-4xl mx-auto">
+            <div className="animate-pulse">
+              <div className="h-6 w-24 bg-muted rounded mb-6" />
+              <div className="h-10 w-3/4 bg-muted rounded mb-4" />
+              <div className="h-6 w-1/2 bg-muted rounded mb-8" />
+              <div className="aspect-video bg-muted rounded-2xl mb-10" />
+              <div className="space-y-4">
+                <div className="h-4 bg-muted rounded w-full" />
+                <div className="h-4 bg-muted rounded w-5/6" />
+                <div className="h-4 bg-muted rounded w-4/5" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!article) {
     return (

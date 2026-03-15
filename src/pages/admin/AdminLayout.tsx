@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Link, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
-import { LayoutDashboard, FileText, MessageSquare, Users, ArrowLeft, Loader2, PenSquare, Mail, Package, Newspaper, BookOpen, BarChart3, Ghost, Shield, Wrench } from "lucide-react";
+import { LayoutDashboard, FileText, MessageSquare, Users, ArrowLeft, Loader2, PenSquare, Mail, Package, Newspaper, BookOpen, BarChart3, Ghost, Shield, Wrench, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AdminLayoutProps {
@@ -11,6 +11,7 @@ interface AdminLayoutProps {
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "News", href: "/admin/news", icon: Newspaper },
   { label: "Articles", href: "/admin/articles", icon: PenSquare },
   { label: "Guides", href: "/admin/guides", icon: BookOpen },
@@ -19,14 +20,13 @@ const navItems = [
   { label: "Comments", href: "/admin/comments", icon: MessageSquare },
   { label: "Users", href: "/admin/users", icon: Users },
   { label: "Messages", href: "/admin/messages", icon: Mail },
-  { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "Creepy Tech", href: "/admin/creepy-tech", icon: Ghost },
   { label: "Cyber Awareness", href: "/admin/cyber-awareness", icon: Shield },
   { label: "Tool Feedback", href: "/admin/tool-feedback", icon: Wrench },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const { isAdmin, isLoading: adminLoading } = useAdminCheck();
   const location = useLocation();
 
@@ -88,6 +88,17 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             );
           })}
         </nav>
+
+        {/* Sign Out Button */}
+        <div className="absolute bottom-4 left-4 right-4">
+          <button
+            onClick={() => signOut()}
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium w-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            Sign Out
+          </button>
+        </div>
       </aside>
 
       {/* Main Content */}

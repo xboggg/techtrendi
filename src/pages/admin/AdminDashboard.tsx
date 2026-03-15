@@ -4,7 +4,7 @@ import { AdminLayout } from "./AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FileText, MessageSquare, Star, Newspaper, BookOpen,
-  Users, Package, Activity
+  Users, Package, Activity, BarChart3
 } from "lucide-react";
 import { Link } from "react-router-dom";
 

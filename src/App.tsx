@@ -69,6 +69,7 @@ const AdminCreepyTech = lazy(() => import("./pages/admin/AdminCreepyTech"));
 const AdminCyberAwareness = lazy(() => import("./pages/admin/AdminCyberAwareness"));
 const AdminGuides = lazy(() => import("./pages/admin/AdminGuides"));
 const AdminToolFeedback = lazy(() => import("./pages/admin/AdminToolFeedback"));
+const AdminGuideEdit = lazy(() => import("./pages/admin/AdminGuideEdit"));
 
 // Category pages
 const Phones = lazy(() => import("./pages/categories/Phones"));
@@ -377,6 +378,7 @@ const App = () => (
                       <Route path="/admin/creepy-tech" element={<AdminCreepyTech />} />
                       <Route path="/admin/cyber-awareness" element={<AdminCyberAwareness />} />
                       <Route path="/admin/guides" element={<AdminGuides />} />
+                      <Route path="/admin/guides/edit/:id" element={<AdminGuideEdit />} />
                       <Route path="/admin/tool-feedback" element={<AdminToolFeedback />} />
                       <Route path="/guides" element={<Guides />} />
                       <Route path="/guides/:category" element={<Guides />} />

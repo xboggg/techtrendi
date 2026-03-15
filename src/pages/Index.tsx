@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight, Sparkles, Shield, Zap, BookOpen, Star, TrendingUp, Clock, Eye, FileText,
-  Briefcase, GraduationCap, Megaphone, Braces, PenTool, Smartphone,
+  ChevronLeft, ChevronRight, Gamepad2, Send,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
@@ -12,11 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { WaveFeatureCarousel } from "@/components/ui/wave-feature-carousel";
 import { CreepyTechHomeSection } from "@/components/home/CreepyTechCarousel";
-import { FeaturedSection } from "@/components/content/EditorsPicks";
-import { NewsTicker } from "@/components/home/NewsTicker";
 import { cn } from "@/lib/utils";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
 
 interface TrendingArticle {
   id: string;
@@ -50,8 +49,17 @@ interface LatestArticle {
   created_at: string;
 }
 
+interface Review {
+  id: string;
+  title: string;
+  slug: string;
+  category: string;
+  image: string | null;
+  rating: number | null;
+}
+
 const categoryLabels: Record<string, string> = {
-  phones: "Phone Guides",
+  phones: "Phones",
   productivity: "Productivity",
   security: "Security",
   "how-to": "How-To",
@@ -59,15 +67,40 @@ const categoryLabels: Record<string, string> = {
   "make-money": "Side Hustles",
 };
 
+// Tool categories matching image 5
 const toolCategories = [
-  { id: "business", title: "Business & Freelancer", icon: Briefcase, gradient: "from-blue-500 via-blue-600 to-indigo-600", count: 14 },
-  { id: "productivity", title: "Productivity", icon: Zap, gradient: "from-orange-500 via-amber-500 to-yellow-500", count: 7 },
-  { id: "career", title: "Career", icon: GraduationCap, gradient: "from-emerald-500 via-green-500 to-teal-500", count: 6 },
-  { id: "creator", title: "Creator & Marketing", icon: Megaphone, gradient: "from-purple-500 via-violet-500 to-fuchsia-500", count: 14 },
-  { id: "developer", title: "Developer Tools", icon: Braces, gradient: "from-slate-600 via-gray-600 to-zinc-700", count: 10 },
-  { id: "security", title: "Security & Privacy", icon: Shield, gradient: "from-red-500 via-rose-500 to-pink-500", count: 5 },
-  { id: "design", title: "Design & Writing", icon: PenTool, gradient: "from-pink-500 via-rose-400 to-fuchsia-500", count: 10 },
-  { id: "other", title: "Lifestyle & Fun", icon: Smartphone, gradient: "from-teal-500 via-cyan-500 to-sky-500", count: 9 },
+  {
+    id: "productivity",
+    title: "Productivity",
+    description: "Timers, trackers, journals and tools to supercharge your daily workflow",
+    icon: Zap,
+    gradient: "from-yellow-400 to-orange-500",
+    count: 13,
+  },
+  {
+    id: "creator",
+    title: "Creator & Marketing",
+    description: "Content tools, caption generators, analytics for creators",
+    icon: Send,
+    gradient: "from-purple-400 to-pink-500",
+    count: 11,
+  },
+  {
+    id: "career",
+    title: "Career",
+    description: "Resume builders, job trackers, salary tools to land your dream job",
+    icon: BookOpen,
+    gradient: "from-green-400 to-emerald-500",
+    count: 6,
+  },
+  {
+    id: "other",
+    title: "Life & Fun",
+    description: "Decision wheels, life trackers, and fun utilities",
+    icon: Gamepad2,
+    gradient: "from-red-400 to-pink-500",
+    count: 8,
+  },
 ];
 
 export default function Index() {
@@ -78,11 +111,14 @@ export default function Index() {
   const [loadingGuides, setLoadingGuides] = useState(true);
   const [latestArticles, setLatestArticles] = useState<LatestArticle[]>([]);
   const [loadingLatest, setLoadingLatest] = useState(true);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
 
   useEffect(() => {
     fetchTrendingArticles();
     fetchFeaturedGuides();
     fetchLatestArticles();
+    fetchReviews();
   }, []);
 
   const fetchTrendingArticles = async () => {
@@ -110,7 +146,7 @@ export default function Index() {
         .select("id, title, slug, excerpt, category, cover_image, read_time_minutes")
         .match({ is_published: true, content_type: "guide", is_featured: true })
         .order("created_at", { ascending: false })
-        .limit(3);
+        .limit(6);
 
       if (error) throw error;
       setFeaturedGuides(data || []);
@@ -128,7 +164,7 @@ export default function Index() {
         .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
         .match({ is_published: true, content_type: "article" })
         .order("created_at", { ascending: false })
-        .limit(4);
+        .limit(6);
 
       if (error) throw error;
       setLatestArticles(data || []);
@@ -139,15 +175,36 @@ export default function Index() {
     }
   };
 
+  const fetchReviews = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("id, title, slug, category, image, rating")
+        .match({ is_published: true, is_featured: true })
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      setReviews(data || []);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    } finally {
+      setLoadingReviews(false);
+    }
+  };
+
   return (
     <Layout>
       {/* Hero Carousel Section (includes News Ticker) */}
       <HeroCarousel />
 
-      {/* 1. Latest Posts Section */}
-      <section className="py-16 bg-background">
+      {/* 1. Why Choose TechTrendi - Wave Feature Carousel */}
+      <WaveFeatureCarousel />
+
+      {/* 2. Latest Posts Section - Animated Testimonials Style */}
+      <section className="py-16 bg-muted/30">
         <div className="container">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
                 <FileText className="w-5 h-5 text-blue-500" />
@@ -167,54 +224,25 @@ export default function Index() {
           </div>
 
           {loadingLatest ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-card rounded-xl border border-border p-4 animate-pulse">
-                  <div className="h-32 bg-muted rounded-lg mb-3" />
-                  <div className="h-4 bg-muted rounded w-1/3 mb-2" />
-                  <div className="h-5 bg-muted rounded w-full" />
-                </div>
-              ))}
+            <div className="grid md:grid-cols-2 gap-12 items-center py-20">
+              <div className="h-80 bg-muted rounded-3xl animate-pulse" />
+              <div className="space-y-4">
+                <div className="h-8 bg-muted rounded w-3/4" />
+                <div className="h-4 bg-muted rounded w-1/2" />
+                <div className="h-20 bg-muted rounded" />
+              </div>
             </div>
           ) : latestArticles.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {latestArticles.map((article, index) => (
-                <AnimatedCard key={article.id} delay={index * 100} animation="fade-up">
-                  <Link
-                    to={`/blog/${article.slug}`}
-                    className="block group relative bg-card rounded-xl border border-border overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all duration-300"
-                  >
-                    <div className="relative h-32 bg-muted overflow-hidden">
-                      {article.cover_image ? (
-                        <img
-                          src={article.cover_image}
-                          alt={article.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                          <FileText className="w-8 h-8 text-muted-foreground/30" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <Badge variant="secondary" className="text-xs mb-2">
-                        {categoryLabels[article.category] || article.category}
-                      </Badge>
-                      <h3 className="font-semibold text-foreground text-sm line-clamp-2 group-hover:text-primary transition-colors">
-                        {article.title}
-                      </h3>
-                      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {article.read_time_minutes || 5} min
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                </AnimatedCard>
-              ))}
-            </div>
+            <AnimatedTestimonials
+              testimonials={latestArticles.map((article) => ({
+                quote: article.excerpt || "Read this amazing article on TechTrendi.",
+                name: article.title,
+                designation: `${categoryLabels[article.category] || article.category} · ${article.read_time_minutes || 5} min read`,
+                src: article.cover_image || "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=500&h=500&fit=crop",
+              }))}
+              autoplay={true}
+              className="py-8"
+            />
           ) : (
             <div className="text-center py-12 text-muted-foreground">
               <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
@@ -224,140 +252,143 @@ export default function Index() {
         </div>
       </section>
 
-      {/* 2. Why Choose TechTrendi - Wave Feature Carousel */}
-      <WaveFeatureCarousel />
-
-      {/* 3. Creepy Tech & Cyber Awareness */}
-      <CreepyTechHomeSection />
-
-      {/* 4. Trending Now Section */}
+      {/* Featured Reviews - Horizontal Scroll */}
       <section className="py-16 bg-background">
         <div className="container">
           <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20">
-                <TrendingUp className="w-5 h-5 text-orange-500" />
-                <span className="font-semibold text-foreground">Trending Now</span>
-              </div>
-              <div className="hidden md:flex items-center gap-1.5 text-sm text-muted-foreground">
-                <Eye className="w-4 h-4" />
-                <span>Most viewed this week</span>
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-8 bg-primary rounded-full" />
+              <h2 className="text-2xl font-bold text-foreground">Featured Reviews</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" asChild className="text-primary hover:text-primary/80">
+                <Link to="/reviews" className="flex items-center gap-1">
+                  View All Reviews
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </Button>
+              <div className="flex gap-1">
+                <button className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
-            <Button variant="ghost" size="sm" asChild className="text-primary hover:text-primary/80">
-              <Link to="/blog" className="flex items-center gap-1">
-                View All
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </Button>
           </div>
 
-          {loadingTrending ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-card rounded-xl border border-border p-4 animate-pulse">
-                  <div className="h-32 bg-muted rounded-lg mb-3" />
-                  <div className="h-4 bg-muted rounded w-1/3 mb-2" />
-                  <div className="h-5 bg-muted rounded w-full" />
+          {loadingReviews ? (
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex-shrink-0 w-64 rounded-2xl overflow-hidden animate-pulse">
+                  <div className="aspect-[4/5] bg-muted" />
                 </div>
               ))}
             </div>
-          ) : trendingArticles.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {trendingArticles.map((article, index) => (
-                <AnimatedCard key={article.id} delay={index * 100} animation="fade-up">
-                  <Link
-                    to={`/blog/${article.slug}`}
-                    className="block group relative bg-card rounded-xl border border-border overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all duration-300"
-                  >
-                    <div className="absolute top-3 left-3 z-10 w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-sm shadow-lg group-hover:scale-110 transition-transform">
-                      {index + 1}
-                    </div>
-                    <div className="relative h-32 bg-muted overflow-hidden">
-                      {article.cover_image ? (
-                        <img
-                          src={article.cover_image}
-                          alt={article.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20" />
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <Badge variant="secondary" className="text-xs mb-2">
-                        {article.category}
+          ) : reviews.length > 0 ? (
+            <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
+              {reviews.map((review) => (
+                <Link
+                  key={review.id}
+                  to={`/reviews/${review.slug}`}
+                  className="flex-shrink-0 w-64 rounded-2xl overflow-hidden hover:shadow-xl transition-shadow group"
+                >
+                  <div className="relative aspect-[4/5] bg-muted overflow-hidden">
+                    {review.image ? (
+                      <img
+                        src={review.image}
+                        alt={review.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20" />
+                    )}
+                    {/* Category badge */}
+                    <div className="absolute top-3 left-3">
+                      <Badge className="text-xs bg-blue-500 hover:bg-blue-500 text-white border-0 rounded-full px-3 py-1">
+                        {review.category}
                       </Badge>
-                      <h3 className="font-semibold text-foreground text-sm line-clamp-2 group-hover:text-primary transition-colors">
-                        {article.title}
-                      </h3>
-                      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {article.read_time_minutes || 5} min
-                        </span>
-                        {article.views && (
-                          <span className="flex items-center gap-1">
-                            <Eye className="w-3 h-3" />
-                            <AnimatedCounter end={article.views} duration={2} />
-                          </span>
-                        )}
-                      </div>
                     </div>
-                  </Link>
-                </AnimatedCard>
+                    {/* Rating badge */}
+                    {review.rating && (
+                      <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-400 text-gray-900 text-xs font-semibold">
+                        <Star className="w-3 h-3 fill-current" />
+                        {review.rating}/10
+                      </div>
+                    )}
+                    {/* Gradient overlay and title at bottom */}
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-16 pb-4 px-4">
+                      <h4 className="font-semibold text-white text-base line-clamp-2">
+                        {review.title}
+                      </h4>
+                    </div>
+                  </div>
+                </Link>
               ))}
             </div>
           ) : (
             <div className="text-center py-12 text-muted-foreground">
-              <TrendingUp className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p>No trending articles yet.</p>
+              <Star className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p>No reviews yet.</p>
             </div>
           )}
         </div>
       </section>
 
-      {/* 5. Explore Tool Categories Section */}
-      <section className="py-16 bg-muted/30">
+      {/* 5. Creepy Tech & Cyber Awareness */}
+      <CreepyTechHomeSection />
+
+      {/* 6. Explore Tool Categories Section */}
+      <section className="py-16 bg-gradient-to-b from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
         <div className="container">
           <div className="text-center mb-10">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-4">90+ Free Tools</span>
+            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-4">Free Utilities</span>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-              Explore Our <span className="text-primary">Tool Categories</span>
+              Explore Our <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Tool Categories</span>
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              From business essentials to developer utilities, find the perfect tool for any task.
+              Free tools to boost productivity, advance your career, and have fun.
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {toolCategories.map((cat, index) => {
               const Icon = cat.icon;
               return (
                 <AnimatedCard key={cat.id} delay={index * 80} animation="fade-up">
                   <Link
                     to={`/tools/${cat.id}`}
-                    className="group flex flex-col items-center p-5 rounded-2xl bg-card border border-border hover:shadow-lg hover:border-primary/20 hover:-translate-y-1 transition-all duration-300"
+                    className="group flex flex-col p-6 rounded-2xl bg-card border border-border hover:shadow-lg hover:border-primary/20 transition-all duration-300 h-full"
                   >
                     <div className={cn(
-                      "w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform",
+                      "w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform",
                       cat.gradient
                     )}>
-                      <Icon className="w-6 h-6 text-white" />
+                      <Icon className="w-7 h-7 text-white" />
                     </div>
-                    <h3 className="text-sm font-semibold text-foreground text-center group-hover:text-primary transition-colors">
+                    <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
                       {cat.title}
                     </h3>
-                    <span className="text-xs text-muted-foreground mt-1">{cat.count} tools</span>
+                    <p className="text-sm text-muted-foreground mb-4 flex-1">
+                      {cat.description}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">{cat.count} tools</span>
+                      <span className="text-primary text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+                        Explore
+                        <ArrowRight className="w-4 h-4" />
+                      </span>
+                    </div>
                   </Link>
                 </AnimatedCard>
               );
             })}
           </div>
-          <div className="mt-8 text-center">
+          <div className="mt-10 text-center">
             <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-8" asChild>
               <Link to="/tools" className="flex items-center gap-2">
                 <Zap className="w-5 h-5" />
-                Explore All Tools
+                View All Tools
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </Button>
@@ -365,9 +396,10 @@ export default function Index() {
         </div>
       </section>
 
-      {/* 6. Featured Guides Section */}
+      {/* 7. Featured Guides Section - Magazine Layout */}
       <section className="py-16 bg-background">
         <div className="container">
+          {/* Section Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
               <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-4">Expert Content</span>
@@ -383,56 +415,104 @@ export default function Index() {
               </Link>
             </Button>
           </div>
+
           {loadingGuides ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-card rounded-xl border border-border overflow-hidden animate-pulse">
-                  <div className="aspect-video bg-muted" />
-                  <div className="p-5">
-                    <div className="h-5 bg-muted rounded w-1/4 mb-3" />
-                    <div className="h-6 bg-muted rounded w-full mb-2" />
-                    <div className="h-4 bg-muted rounded w-2/3" />
+            <div className="grid lg:grid-cols-2 gap-6">
+              <div className="bg-muted rounded-2xl aspect-[4/5] animate-pulse" />
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex gap-4 animate-pulse">
+                    <div className="w-32 h-24 bg-muted rounded-xl flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-5 bg-muted rounded w-3/4" />
+                      <div className="h-4 bg-muted rounded w-full" />
+                      <div className="h-3 bg-muted rounded w-1/4" />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ) : featuredGuides.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredGuides.map((guide, index) => (
-                <AnimatedCard key={guide.id} delay={index * 150} animation="fade-up">
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Main Featured Guide - Large Card */}
+              <Link
+                to={`/blog/${featuredGuides[0].slug}`}
+                className="group relative rounded-2xl overflow-hidden bg-muted"
+              >
+                <div className="aspect-[4/5] lg:aspect-auto lg:h-full">
+                  {featuredGuides[0].cover_image ? (
+                    <img
+                      src={featuredGuides[0].cover_image}
+                      alt={featuredGuides[0].title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                      <BookOpen className="w-16 h-16 text-muted-foreground/30" />
+                    </div>
+                  )}
+                </div>
+                {/* Overlay with content */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Badge className="bg-primary hover:bg-primary text-primary-foreground border-0 rounded-full px-3 py-1 text-xs">
+                      {categoryLabels[featuredGuides[0].category] || featuredGuides[0].category}
+                    </Badge>
+                    <span className="flex items-center gap-1 text-white/70 text-xs">
+                      <Clock className="w-3 h-3" />
+                      {featuredGuides[0].read_time_minutes || 5} Minutes
+                    </span>
+                  </div>
+                  <h2 className="text-xl md:text-2xl font-bold text-white mb-2 group-hover:text-primary/90 transition-colors line-clamp-3">
+                    {featuredGuides[0].title}
+                  </h2>
+                </div>
+              </Link>
+
+              {/* Side Cards - Stacked */}
+              <div className="flex flex-col gap-4">
+                {featuredGuides.slice(1, 4).map((guide) => (
                   <Link
+                    key={guide.id}
                     to={`/blog/${guide.slug}`}
-                    className="block group bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg hover:border-primary/20 transition-all duration-300 h-full"
+                    className="group flex gap-4 p-3 rounded-xl bg-card border border-border hover:border-primary/20 hover:shadow-md transition-all"
                   >
-                    <div className="aspect-video overflow-hidden">
+                    {/* Thumbnail */}
+                    <div className="w-28 h-20 md:w-32 md:h-24 rounded-xl overflow-hidden flex-shrink-0 bg-muted">
                       {guide.cover_image ? (
                         <img
                           src={guide.cover_image}
                           alt={guide.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                          <BookOpen className="w-12 h-12 text-muted-foreground/30" />
+                          <BookOpen className="w-6 h-6 text-muted-foreground/30" />
                         </div>
                       )}
                     </div>
-                    <div className="p-5">
-                      <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-3">
-                        {categoryLabels[guide.category] || guide.category}
-                      </span>
-                      <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-foreground text-sm md:text-base group-hover:text-primary transition-colors line-clamp-2 mb-1">
                         {guide.title}
                       </h3>
-                      <p className="text-muted-foreground text-sm line-clamp-2 mb-3">{guide.excerpt}</p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Clock className="w-3 h-3" />
-                        {guide.read_time_minutes || 5} min read
+                      <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-2">
+                        {guide.excerpt}
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                          {categoryLabels[guide.category] || guide.category}
+                        </Badge>
+                        <span className="flex items-center gap-1 text-muted-foreground text-xs">
+                          <Clock className="w-3 h-3" />
+                          {guide.read_time_minutes || 5} Minutes
+                        </span>
                       </div>
                     </div>
                   </Link>
-                </AnimatedCard>
-              ))}
+                ))}
+              </div>
             </div>
           ) : (
             <div className="text-center py-12">
@@ -446,26 +526,11 @@ export default function Index() {
               </Button>
             </div>
           )}
-          <div className="mt-8 text-center md:hidden">
-            <Button variant="outline" asChild className="rounded-xl">
-              <Link to="/guides" className="flex items-center gap-2">
-                View All Guides
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. Featured Reviews */}
-      <section className="py-16 bg-muted/30">
-        <div className="container">
-          <FeaturedSection />
         </div>
       </section>
 
       {/* CTA Section - Premium Glass Panel with Living Background */}
-      <section className="py-24 relative overflow-hidden">
+      <section className="py-12 relative overflow-hidden">
         <div className="absolute inset-0 animated-gradient-bg" />
         <div className="absolute inset-0 bg-gradient-mesh opacity-20" />
 

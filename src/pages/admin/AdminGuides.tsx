@@ -112,30 +112,32 @@ export default function AdminGuides() {
 
   const toggleHomepage = useMutation({
     mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/articles?id=eq.${id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || ""}`,
-            Prefer: "return=minimal",
-          },
-          body: JSON.stringify({ homepage_featured: value }),
-        }
-      );
-      if (!res.ok) {
-        const { error } = await supabase
-          .from("articles")
-          .update({ homepage_featured: value } as any)
-          .eq("id", id);
-        if (error) throw error;
-      }
+      const { error } = await supabase
+        .from("articles")
+        .update({ homepage_featured: value })
+        .eq("id", id);
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-guides"] });
       toast({ title: "Guide updated!" });
+    },
+    onError: (err) => {
+      toast({ title: "Update failed", description: String(err), variant: "destructive" });
+    },
+  });
+
+  const toggleFeatured = useMutation({
+    mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
+      const { error } = await supabase
+        .from("articles")
+        .update({ is_featured: value })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-guides"] });
+      toast({ title: "Featured status updated!" });
     },
     onError: (err) => {
       toast({ title: "Update failed", description: String(err), variant: "destructive" });
@@ -288,7 +290,7 @@ export default function AdminGuides() {
               <Home className="w-4 h-4 text-blue-500" />
               <span className="text-sm">On Homepage</span>
             </div>
-            <p className="text-2xl font-bold">{homepageCount}<span className="text-sm font-normal text-muted-foreground"> / 3</span></p>
+            <p className="text-2xl font-bold">{homepageCount}<span className="text-sm font-normal text-muted-foreground"> / 8</span></p>
           </div>
           <div className="bg-card border border-border rounded-lg p-4">
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
@@ -348,7 +350,7 @@ export default function AdminGuides() {
                     <th className="text-center px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Views</th>
                     <th className="text-center px-4 py-3 text-xs font-medium text-muted-foreground uppercase">
                       <span className="flex items-center justify-center gap-1">
-                        <Home className="w-3 h-3" /> Homepage
+                        <Star className="w-3 h-3" /> Featured
                       </span>
                     </th>
                     <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Actions</th>
@@ -368,7 +370,7 @@ export default function AdminGuides() {
                           )}
                           <div className="min-w-0">
                             <p className="font-medium text-foreground line-clamp-1 flex items-center gap-1">
-                              {guide.homepage_featured && <Star className="w-3 h-3 text-blue-500 fill-blue-500 shrink-0" />}
+                              {guide.is_featured && <Star className="w-3 h-3 text-yellow-500 fill-yellow-500 shrink-0" />}
                               {guide.title}
                             </p>
                             <p className="text-xs text-muted-foreground flex items-center gap-1">
@@ -386,26 +388,20 @@ export default function AdminGuides() {
                       </td>
                       <td className="px-4 py-3 text-center">
                         <button
-                          onClick={() => {
-                            if (!guide.homepage_featured && homepageCount >= 3) {
-                              toast({ title: "Maximum 3 guides on homepage", description: "Remove one first before adding another.", variant: "destructive" });
-                              return;
-                            }
-                            toggleHomepage.mutate({ id: guide.id, value: !guide.homepage_featured });
-                          }}
+                          onClick={() => toggleFeatured.mutate({ id: guide.id, value: !guide.is_featured })}
                           className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                            guide.homepage_featured
-                              ? "bg-blue-500/10 text-blue-600 border border-blue-500/30 hover:bg-blue-500/20"
+                            guide.is_featured
+                              ? "bg-yellow-500/10 text-yellow-600 border border-yellow-500/30 hover:bg-yellow-500/20"
                               : "bg-muted text-muted-foreground border border-border hover:bg-muted/80"
                           }`}
                         >
-                          <Home className="w-3 h-3" />
-                          {guide.homepage_featured ? "On Homepage" : "Add to Homepage"}
+                          <Star className={`w-3 h-3 ${guide.is_featured ? "fill-yellow-500" : ""}`} />
+                          {guide.is_featured ? "Featured" : "Set Featured"}
                         </button>
                       </td>
                       <td className="px-4 py-3 text-right">
                         <Link
-                          to={`/admin/articles?edit=${guide.id}`}
+                          to={`/admin/guides/edit/${guide.id}`}
                           className="text-xs text-primary hover:underline"
                         >
                           Edit

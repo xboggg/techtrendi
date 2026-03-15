@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminLayout } from "./AdminLayout";
@@ -46,7 +46,11 @@ import {
   Calendar,
   Star,
   BookOpen,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+
+const ITEMS_PER_PAGE = 15;
 
 interface Article {
   id: string;
@@ -100,6 +104,7 @@ export default function AdminArticles() {
   const [filterContentType, setFilterContentType] = useState<string>("all");
   const [uploading, setUploading] = useState(false);
   const [editorMode, setEditorMode] = useState<"markdown" | "richtext">("markdown");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Fetch articles
   const { data: articles = [], isLoading } = useQuery({
@@ -293,14 +298,39 @@ export default function AdminArticles() {
   };
 
   // Filter articles
-  const filteredArticles = articles.filter((article) => {
-    const matchesSearch =
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.slug.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = filterCategory === "all" || article.category === filterCategory;
-    const matchesContentType = filterContentType === "all" || (article.content_type || "article") === filterContentType;
-    return matchesSearch && matchesCategory && matchesContentType;
-  });
+  const filteredArticles = useMemo(() => {
+    return articles.filter((article) => {
+      const matchesSearch =
+        article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.slug.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = filterCategory === "all" || article.category === filterCategory;
+      const matchesContentType = filterContentType === "all" || (article.content_type || "article") === filterContentType;
+      return matchesSearch && matchesCategory && matchesContentType;
+    });
+  }, [articles, searchQuery, filterCategory, filterContentType]);
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filteredArticles.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const startIndex = (safePage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredArticles.length);
+  const paginatedArticles = filteredArticles.slice(startIndex, endIndex);
+
+  const getPageNumbers = () => {
+    const pages: (number | "...")[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (safePage > 3) pages.push("...");
+      const start = Math.max(2, safePage - 1);
+      const end = Math.min(totalPages - 1, safePage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (safePage < totalPages - 2) pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -569,11 +599,11 @@ export default function AdminArticles() {
             <Input
               placeholder="Search articles..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               className="pl-10"
             />
           </div>
-          <Select value={filterContentType} onValueChange={setFilterContentType}>
+          <Select value={filterContentType} onValueChange={(v) => { setFilterContentType(v); setCurrentPage(1); }}>
             <SelectTrigger className="w-full md:w-40">
               <SelectValue placeholder="All Types" />
             </SelectTrigger>
@@ -583,7 +613,7 @@ export default function AdminArticles() {
               <SelectItem value="guide">Guides</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={filterCategory} onValueChange={setFilterCategory}>
+          <Select value={filterCategory} onValueChange={(v) => { setFilterCategory(v); setCurrentPage(1); }}>
             <SelectTrigger className="w-full md:w-48">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
@@ -671,7 +701,7 @@ export default function AdminArticles() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredArticles.map((article) => (
+                {paginatedArticles.map((article) => (
                   <TableRow key={article.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -771,6 +801,48 @@ export default function AdminArticles() {
                 ))}
               </TableBody>
             </Table>
+          )}
+
+          {/* Pagination */}
+          {filteredArticles.length > ITEMS_PER_PAGE && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border">
+              <p className="text-sm text-muted-foreground">
+                Showing {startIndex + 1}-{endIndex} of {filteredArticles.length}
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={safePage === 1}
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-card text-foreground text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted/50 transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                {getPageNumbers().map((page, idx) =>
+                  page === "..." ? (
+                    <span key={`ellipsis-${idx}`} className="px-2 text-sm text-muted-foreground">...</span>
+                  ) : (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`inline-flex items-center justify-center w-8 h-8 rounded-md text-sm transition-colors ${
+                        safePage === page
+                          ? "bg-primary text-primary-foreground font-medium"
+                          : "border border-border bg-card text-foreground hover:bg-muted/50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={safePage === totalPages}
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-card text-foreground text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted/50 transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>

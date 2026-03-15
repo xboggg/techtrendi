@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { getReviewBySlug, getRelatedReviews, type Review } from "@/data/sampleContent";
+import { supabase } from "@/integrations/supabase/client";
 import { Star, ThumbsUp, ThumbsDown, ArrowLeft, Calendar, DollarSign, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Helmet } from "react-helmet-async";
+
+interface Review {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  image: string | null;
+  rating: number;
+  verdict: string;
+  pros: string[];
+  cons: string[];
+  price: string | null;
+  release_date: string | null;
+  full_review: string | null;
+  specs: Record<string, string> | null;
+  views: number | null;
+  is_published: boolean;
+}
 
 function StarRating({ rating, size = "default" }: { rating: number; size?: "default" | "large" }) {
   const starSize = size === "large" ? "w-6 h-6" : "w-4 h-4";
@@ -80,7 +99,22 @@ function ProductSchema({ review }: { review: Review }) {
 }
 
 function RelatedReviews({ category, currentSlug }: { category: string; currentSlug: string }) {
-  const relatedReviews = getRelatedReviews(category, currentSlug);
+  const [relatedReviews, setRelatedReviews] = useState<Review[]>([]);
+
+  useEffect(() => {
+    const fetchRelated = async () => {
+      const { data } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("is_published", true)
+        .eq("category", category)
+        .neq("slug", currentSlug)
+        .limit(3);
+
+      if (data) setRelatedReviews(data as Review[]);
+    };
+    fetchRelated();
+  }, [category, currentSlug]);
 
   if (relatedReviews.length === 0) return null;
 
@@ -124,9 +158,52 @@ function RelatedReviews({ category, currentSlug }: { category: string; currentSl
 
 export default function ReviewDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const [review, setReview] = useState<Review | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Get review directly from sample data - no loading needed
-  const review = slug ? getReviewBySlug(slug) : undefined;
+  useEffect(() => {
+    const fetchReview = async () => {
+      if (!slug) {
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("slug", slug)
+        .eq("is_published", true)
+        .single();
+
+      if (error || !data) {
+        setReview(null);
+      } else {
+        setReview(data as Review);
+        // Increment views
+        supabase
+          .from("reviews")
+          .update({ views: (data.views || 0) + 1 })
+          .eq("id", data.id)
+          .then(() => {});
+      }
+      setLoading(false);
+    };
+
+    fetchReview();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container py-24 text-center">
+          <div className="animate-pulse">
+            <div className="h-8 bg-muted rounded w-1/3 mx-auto mb-4" />
+            <div className="h-4 bg-muted rounded w-1/2 mx-auto" />
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!review) {
     return (
@@ -217,7 +294,7 @@ export default function ReviewDetail() {
                   <ul className="space-y-2">
                     {review.pros.map((pro, index) => (
                       <li key={index} className="flex items-start gap-2 text-sm text-foreground">
-                        <span className="text-green-500 mt-1">✓</span>
+                        <span className="text-green-500 mt-1">+</span>
                         {pro}
                       </li>
                     ))}
@@ -232,7 +309,7 @@ export default function ReviewDetail() {
                   <ul className="space-y-2">
                     {review.cons.map((con, index) => (
                       <li key={index} className="flex items-start gap-2 text-sm text-foreground">
-                        <span className="text-red-500 mt-1">✗</span>
+                        <span className="text-red-500 mt-1">-</span>
                         {con}
                       </li>
                     ))}

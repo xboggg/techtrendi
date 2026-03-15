@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminLayout } from "./AdminLayout";
@@ -30,7 +30,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, ChevronLeft, ChevronRight, Search, ChevronDown, ArrowUpDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const ITEMS_PER_PAGE = 15;
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -49,6 +57,7 @@ interface Review {
   full_review: string | null;
   specs: Record<string, string>;
   is_published: boolean;
+  is_featured: boolean;
   views: number | null;
 }
 
@@ -66,6 +75,7 @@ const reviewSchema = z.object({
   full_review: z.string().optional(),
   specs: z.string(),
   is_published: z.boolean(),
+  is_featured: z.boolean(),
 });
 
 const categories = ["Smartphones", "Laptops", "Audio", "Wearables", "Tablets", "Accessories"];
@@ -93,6 +103,7 @@ function ReviewForm({
     full_review: review?.full_review || "",
     specs: review?.specs ? JSON.stringify(review.specs, null, 2) : "{}",
     is_published: review?.is_published ?? true,
+    is_featured: review?.is_featured ?? false,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -128,6 +139,7 @@ function ReviewForm({
         full_review: validated.full_review || null,
         specs,
         is_published: validated.is_published,
+        is_featured: validated.is_featured,
       });
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -302,13 +314,23 @@ function ReviewForm({
         {errors.specs && <p className="text-sm text-red-500">{errors.specs}</p>}
       </div>
 
-      <div className="flex items-center gap-2">
-        <Switch
-          id="is_published"
-          checked={formData.is_published}
-          onCheckedChange={(v) => setFormData({ ...formData, is_published: v })}
-        />
-        <Label htmlFor="is_published">Published</Label>
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2">
+          <Switch
+            id="is_published"
+            checked={formData.is_published}
+            onCheckedChange={(v) => setFormData({ ...formData, is_published: v })}
+          />
+          <Label htmlFor="is_published">Published</Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <Switch
+            id="is_featured"
+            checked={formData.is_featured}
+            onCheckedChange={(v) => setFormData({ ...formData, is_featured: v })}
+          />
+          <Label htmlFor="is_featured">Featured on Homepage</Label>
+        </div>
       </div>
 
       <div className="flex gap-2 justify-end pt-4">
@@ -326,6 +348,13 @@ function ReviewForm({
 export default function AdminReviews() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | undefined>();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [featuredFilter, setFeaturedFilter] = useState<string>("all");
+  const [sortField, setSortField] = useState<string>("created_at");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const queryClient = useQueryClient();
 
   const { data: reviews = [], isLoading } = useQuery({
@@ -386,6 +415,20 @@ export default function AdminReviews() {
     },
   });
 
+  const toggleFeaturedMutation = useMutation({
+    mutationFn: async ({ id, is_featured }: { id: string; is_featured: boolean }) => {
+      const { error } = await supabase.from("reviews").update({ is_featured }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-reviews"] });
+      toast.success("Featured status updated");
+    },
+    onError: (error) => {
+      toast.error(`Failed to update: ${error.message}`);
+    },
+  });
+
   const handleSave = (data: Partial<Review>) => {
     if (editingReview) {
       updateMutation.mutate({ id: editingReview.id, data });
@@ -403,6 +446,96 @@ export default function AdminReviews() {
     if (confirm("Are you sure you want to delete this review?")) {
       deleteMutation.mutate(id);
     }
+  };
+
+  // Filter and sort reviews
+  const filteredReviews = useMemo(() => {
+    let result = reviews;
+
+    // Search filter
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(r =>
+        r.title.toLowerCase().includes(q) ||
+        r.category.toLowerCase().includes(q)
+      );
+    }
+
+    // Category filter
+    if (categoryFilter !== "all") {
+      result = result.filter(r => r.category === categoryFilter);
+    }
+
+    // Status filter
+    if (statusFilter !== "all") {
+      const isPublished = statusFilter === "published";
+      result = result.filter(r => r.is_published === isPublished);
+    }
+
+    // Featured filter
+    if (featuredFilter !== "all") {
+      const isFeatured = featuredFilter === "featured";
+      result = result.filter(r => r.is_featured === isFeatured);
+    }
+
+    // Sort
+    result = [...result].sort((a, b) => {
+      let aVal: any = a[sortField as keyof Review];
+      let bVal: any = b[sortField as keyof Review];
+
+      if (sortField === "rating" || sortField === "views") {
+        aVal = Number(aVal) || 0;
+        bVal = Number(bVal) || 0;
+      }
+
+      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+  }, [reviews, searchQuery, categoryFilter, statusFilter, featuredFilter, sortField, sortDirection]);
+
+  const toggleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("desc");
+    }
+  };
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setCategoryFilter("all");
+    setStatusFilter("all");
+    setFeaturedFilter("all");
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters = searchQuery || categoryFilter !== "all" || statusFilter !== "all" || featuredFilter !== "all";
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filteredReviews.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const startIndex = (safePage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredReviews.length);
+  const paginatedReviews = filteredReviews.slice(startIndex, endIndex);
+
+  const getPageNumbers = () => {
+    const pages: (number | "...")[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (safePage > 3) pages.push("...");
+      const start = Math.max(2, safePage - 1);
+      const end = Math.min(totalPages - 1, safePage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (safePage < totalPages - 2) pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
   };
 
   return (
@@ -442,33 +575,111 @@ export default function AdminReviews() {
           </Dialog>
         </div>
 
+        {/* Filters */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search reviews..."
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+              className="pl-10 w-64"
+            />
+          </div>
+
+          <Select value={categoryFilter} onValueChange={(v) => { setCategoryFilter(v); setCurrentPage(1); }}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setCurrentPage(1); }}>
+            <SelectTrigger className="w-36">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={featuredFilter} onValueChange={(v) => { setFeaturedFilter(v); setCurrentPage(1); }}>
+            <SelectTrigger className="w-36">
+              <SelectValue placeholder="Featured" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="featured">Featured</SelectItem>
+              <SelectItem value="not-featured">Not Featured</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              Clear filters
+            </Button>
+          )}
+        </div>
+
         <div className="bg-card rounded-xl border border-border overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Title</TableHead>
+                <TableHead>
+                  <button
+                    onClick={() => toggleSort("title")}
+                    className="flex items-center gap-1 hover:text-foreground transition-colors"
+                  >
+                    Title
+                    <ArrowUpDown className="w-3 h-3" />
+                  </button>
+                </TableHead>
                 <TableHead>Category</TableHead>
-                <TableHead>Rating</TableHead>
+                <TableHead>
+                  <button
+                    onClick={() => toggleSort("rating")}
+                    className="flex items-center gap-1 hover:text-foreground transition-colors"
+                  >
+                    Rating
+                    <ArrowUpDown className="w-3 h-3" />
+                  </button>
+                </TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Views</TableHead>
+                <TableHead>Featured</TableHead>
+                <TableHead>
+                  <button
+                    onClick={() => toggleSort("views")}
+                    className="flex items-center gap-1 hover:text-foreground transition-colors"
+                  >
+                    Views
+                    <ArrowUpDown className="w-3 h-3" />
+                  </button>
+                </TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
-              ) : reviews.length === 0 ? (
+              ) : filteredReviews.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     No reviews yet
                   </TableCell>
                 </TableRow>
               ) : (
-                reviews.map((review) => (
+                paginatedReviews.map((review) => (
                   <TableRow key={review.id}>
                     <TableCell className="font-medium">{review.title}</TableCell>
                     <TableCell>
@@ -484,6 +695,14 @@ export default function AdminReviews() {
                       <Badge variant={review.is_published ? "default" : "outline"}>
                         {review.is_published ? "Published" : "Draft"}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={review.is_featured || false}
+                        onCheckedChange={(checked) =>
+                          toggleFeaturedMutation.mutate({ id: review.id, is_featured: checked })
+                        }
+                      />
                     </TableCell>
                     <TableCell>{review.views?.toLocaleString() || 0}</TableCell>
                     <TableCell className="text-right">
@@ -510,6 +729,48 @@ export default function AdminReviews() {
               )}
             </TableBody>
           </Table>
+
+          {/* Pagination */}
+          {filteredReviews.length > ITEMS_PER_PAGE && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border">
+              <p className="text-sm text-muted-foreground">
+                Showing {startIndex + 1}-{endIndex} of {filteredReviews.length}
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={safePage === 1}
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-card text-foreground text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted/50 transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                {getPageNumbers().map((page, idx) =>
+                  page === "..." ? (
+                    <span key={`ellipsis-${idx}`} className="px-2 text-sm text-muted-foreground">...</span>
+                  ) : (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`inline-flex items-center justify-center w-8 h-8 rounded-md text-sm transition-colors ${
+                        safePage === page
+                          ? "bg-primary text-primary-foreground font-medium"
+                          : "border border-border bg-card text-foreground hover:bg-muted/50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={safePage === totalPages}
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-card text-foreground text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted/50 transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </AdminLayout>

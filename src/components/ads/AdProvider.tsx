@@ -16,7 +16,7 @@ interface AdContextType {
 
 const defaultConfig: AdConfig = {
   enabled: true,
-  publisherId: 'ca-pub-XXXXXXXXXX', // Replace with actual AdSense publisher ID
+  publisherId: 'ca-pub-3437377907350211',
   testMode: process.env.NODE_ENV === 'development',
   lazyLoadThreshold: 200,
 };

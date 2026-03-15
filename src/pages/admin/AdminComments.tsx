@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminLayout } from "./AdminLayout";
@@ -12,7 +12,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Check, X, Trash2, Shield, MessageCircle, FileText } from "lucide-react";
+import { Check, X, Trash2, Shield, MessageCircle, FileText, ChevronLeft, ChevronRight } from "lucide-react";
+
+const ITEMS_PER_PAGE = 15;
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -46,6 +48,8 @@ interface ArticleComment {
 export default function AdminComments() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"articles" | "reviews">("articles");
+  const [articlePage, setArticlePage] = useState(1);
+  const [reviewPage, setReviewPage] = useState(1);
 
   // Fetch article comments
   const { data: articleComments = [], isLoading: isLoadingArticles } = useQuery({
@@ -182,6 +186,36 @@ export default function AdminComments() {
 
   const pendingReviewCount = reviewComments.filter((c) => !c.is_approved).length;
 
+  // Article pagination
+  const articleTotalPages = Math.max(1, Math.ceil(articleComments.length / ITEMS_PER_PAGE));
+  const articleSafePage = Math.min(articlePage, articleTotalPages);
+  const articleStartIndex = (articleSafePage - 1) * ITEMS_PER_PAGE;
+  const articleEndIndex = Math.min(articleStartIndex + ITEMS_PER_PAGE, articleComments.length);
+  const paginatedArticleComments = articleComments.slice(articleStartIndex, articleEndIndex);
+
+  // Review pagination
+  const reviewTotalPages = Math.max(1, Math.ceil(reviewComments.length / ITEMS_PER_PAGE));
+  const reviewSafePage = Math.min(reviewPage, reviewTotalPages);
+  const reviewStartIndex = (reviewSafePage - 1) * ITEMS_PER_PAGE;
+  const reviewEndIndex = Math.min(reviewStartIndex + ITEMS_PER_PAGE, reviewComments.length);
+  const paginatedReviewComments = reviewComments.slice(reviewStartIndex, reviewEndIndex);
+
+  const getPageNumbers = (totalPages: number, safePage: number) => {
+    const pages: (number | "...")[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (safePage > 3) pages.push("...");
+      const start = Math.max(2, safePage - 1);
+      const end = Math.min(totalPages - 1, safePage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (safePage < totalPages - 2) pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -250,7 +284,7 @@ export default function AdminComments() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  articleComments.map((comment) => (
+                  paginatedArticleComments.map((comment) => (
                     <TableRow key={comment.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
@@ -303,6 +337,48 @@ export default function AdminComments() {
                 )}
               </TableBody>
             </Table>
+
+            {/* Article Pagination */}
+            {articleComments.length > ITEMS_PER_PAGE && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border">
+                <p className="text-sm text-muted-foreground">
+                  Showing {articleStartIndex + 1}-{articleEndIndex} of {articleComments.length}
+                </p>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setArticlePage((p) => Math.max(1, p - 1))}
+                    disabled={articleSafePage === 1}
+                    className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-card text-foreground text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted/50 transition-colors"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  {getPageNumbers(articleTotalPages, articleSafePage).map((page, idx) =>
+                    page === "..." ? (
+                      <span key={`ellipsis-${idx}`} className="px-2 text-sm text-muted-foreground">...</span>
+                    ) : (
+                      <button
+                        key={page}
+                        onClick={() => setArticlePage(page)}
+                        className={`inline-flex items-center justify-center w-8 h-8 rounded-md text-sm transition-colors ${
+                          articleSafePage === page
+                            ? "bg-primary text-primary-foreground font-medium"
+                            : "border border-border bg-card text-foreground hover:bg-muted/50"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
+                  <button
+                    onClick={() => setArticlePage((p) => Math.min(articleTotalPages, p + 1))}
+                    disabled={articleSafePage === articleTotalPages}
+                    className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-card text-foreground text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted/50 transition-colors"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -334,7 +410,7 @@ export default function AdminComments() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  reviewComments.map((comment) => (
+                  paginatedReviewComments.map((comment) => (
                     <TableRow key={comment.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
@@ -406,6 +482,48 @@ export default function AdminComments() {
                 )}
               </TableBody>
             </Table>
+
+            {/* Review Pagination */}
+            {reviewComments.length > ITEMS_PER_PAGE && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border">
+                <p className="text-sm text-muted-foreground">
+                  Showing {reviewStartIndex + 1}-{reviewEndIndex} of {reviewComments.length}
+                </p>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setReviewPage((p) => Math.max(1, p - 1))}
+                    disabled={reviewSafePage === 1}
+                    className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-card text-foreground text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted/50 transition-colors"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  {getPageNumbers(reviewTotalPages, reviewSafePage).map((page, idx) =>
+                    page === "..." ? (
+                      <span key={`ellipsis-${idx}`} className="px-2 text-sm text-muted-foreground">...</span>
+                    ) : (
+                      <button
+                        key={page}
+                        onClick={() => setReviewPage(page)}
+                        className={`inline-flex items-center justify-center w-8 h-8 rounded-md text-sm transition-colors ${
+                          reviewSafePage === page
+                            ? "bg-primary text-primary-foreground font-medium"
+                            : "border border-border bg-card text-foreground hover:bg-muted/50"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
+                  <button
+                    onClick={() => setReviewPage((p) => Math.min(reviewTotalPages, p + 1))}
+                    disabled={reviewSafePage === reviewTotalPages}
+                    className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-card text-foreground text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted/50 transition-colors"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
