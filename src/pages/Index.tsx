@@ -49,6 +49,17 @@ interface LatestArticle {
   created_at: string;
 }
 
+interface NewsItem {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  category: string;
+  cover_image: string | null;
+  read_time_minutes: number | null;
+  created_at: string;
+}
+
 interface Review {
   id: string;
   title: string;
@@ -113,12 +124,15 @@ export default function Index() {
   const [loadingLatest, setLoadingLatest] = useState(true);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
+  const [latestNews, setLatestNews] = useState<NewsItem[]>([]);
+  const [loadingNews, setLoadingNews] = useState(true);
 
   useEffect(() => {
     fetchTrendingArticles();
     fetchFeaturedGuides();
     fetchLatestArticles();
     fetchReviews();
+    fetchLatestNews();
   }, []);
 
   const fetchTrendingArticles = async () => {
@@ -193,10 +207,155 @@ export default function Index() {
     }
   };
 
+  const fetchLatestNews = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("news")
+        .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
+        .eq("is_published", true)
+        .order("created_at", { ascending: false })
+        .limit(6);
+
+      if (error) throw error;
+      setLatestNews(data || []);
+    } catch (error) {
+      console.error("Error fetching latest news:", error);
+    } finally {
+      setLoadingNews(false);
+    }
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hours ago`;
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
+  const newsCategoryColors: Record<string, string> = {
+    "AI Tech": "bg-purple-500",
+    "Big Tech": "bg-blue-600",
+    Cybersecurity: "bg-red-500",
+    Gadgets: "bg-teal-500",
+    Crypto: "bg-amber-500",
+    Gaming: "bg-rose-500",
+  };
+
   return (
     <Layout>
       {/* Hero Carousel Section (includes News Ticker) */}
       <HeroCarousel />
+
+      {/* Latest Tech News Section */}
+      <section className="py-14 md:py-20 bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
+        <div className="container">
+          {/* Section Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <span className="text-sm font-semibold tracking-wider uppercase text-blue-600 dark:text-blue-400 mb-2 block">
+                Stay Informed
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+                Latest Tech News
+              </h2>
+            </div>
+            <Button variant="ghost" size="sm" asChild className="text-blue-600 hover:text-blue-700 dark:text-blue-400">
+              <Link to="/news" className="flex items-center gap-1 font-medium">
+                View All News
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </Button>
+          </div>
+
+          {loadingNews ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className={cn(
+                  "rounded-2xl overflow-hidden animate-pulse bg-muted",
+                  i === 2 || i === 5 ? "md:row-span-2 aspect-[3/4]" : "aspect-[16/10]"
+                )} />
+              ))}
+            </div>
+          ) : latestNews.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {latestNews.map((news, index) => {
+                const isLarge = index === 1 || index === 4;
+                return (
+                  <Link
+                    key={news.id}
+                    to={`/news/${news.slug}`}
+                    className={cn(
+                      "group relative rounded-2xl overflow-hidden bg-muted",
+                      isLarge ? "md:row-span-2" : ""
+                    )}
+                  >
+                    <div className={cn(
+                      "relative w-full h-full overflow-hidden",
+                      isLarge ? "aspect-[3/4] md:aspect-auto md:h-full" : "aspect-[16/10]"
+                    )}>
+                      {news.cover_image ? (
+                        <img
+                          src={news.cover_image}
+                          alt={news.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-slate-700 to-slate-900" />
+                      )}
+
+                      {/* Dark gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+
+                      {/* Category badge */}
+                      <div className="absolute top-4 left-4">
+                        <span className={cn(
+                          "px-3 py-1 rounded-lg text-xs font-semibold text-white",
+                          newsCategoryColors[news.category] || "bg-blue-500"
+                        )}>
+                          {news.category}
+                        </span>
+                      </div>
+
+                      {/* Content at bottom */}
+                      <div className="absolute inset-x-0 bottom-0 p-4 md:p-5">
+                        <h3 className={cn(
+                          "font-bold text-white mb-2 line-clamp-2 group-hover:text-blue-300 transition-colors duration-300",
+                          isLarge ? "text-xl md:text-2xl" : "text-base md:text-lg"
+                        )}>
+                          {news.title}
+                        </h3>
+                        <div className="flex items-center gap-3 text-white/60 text-xs">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {formatTimeAgo(news.created_at)}
+                          </span>
+                          <span>·</span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {news.read_time_minutes || 3} Min Read
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">
+              <TrendingUp className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p>No news yet. Check back soon!</p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* 1. Why Choose TechTrendi - Wave Feature Carousel */}
       <WaveFeatureCarousel />
