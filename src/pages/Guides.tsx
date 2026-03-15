@@ -220,7 +220,7 @@ export default function Guides() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 mt-12">
+                <div className="flex justify-center items-center gap-2 mt-12 flex-wrap">
                   <Button
                     variant="outline"
                     size="sm"
@@ -229,23 +229,28 @@ export default function Guides() {
                     className="rounded-full"
                   >
                     <ChevronLeft className="w-4 h-4 mr-1" />
-                    Previous
+                    Prev
                   </Button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2)
-                    .map((page, idx, arr) => (
-                      <span key={page} className="flex items-center gap-2">
-                        {idx > 0 && arr[idx - 1] !== page - 1 && <span className="text-muted-foreground">...</span>}
-                        <Button
-                          variant={currentPage === page ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setCurrentPage(page)}
-                          className="w-10 h-10 rounded-full"
-                        >
-                          {page}
-                        </Button>
-                      </span>
-                    ))}
+                  <span className="text-sm text-muted-foreground sm:hidden">
+                    {currentPage} / {totalPages}
+                  </span>
+                  <div className="hidden sm:flex items-center gap-2">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
+                      .map((page, idx, arr) => (
+                        <span key={page} className="flex items-center gap-2">
+                          {idx > 0 && arr[idx - 1] !== page - 1 && <span className="text-muted-foreground">...</span>}
+                          <Button
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                            className="w-10 h-10 rounded-full"
+                          >
+                            {page}
+                          </Button>
+                        </span>
+                      ))}
+                  </div>
                   <Button
                     variant="outline"
                     size="sm"
@@ -416,7 +421,7 @@ export default function Guides() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 mt-12">
+                <div className="flex justify-center items-center gap-2 mt-12 flex-wrap">
                   <Button
                     variant="outline"
                     size="sm"
@@ -425,23 +430,28 @@ export default function Guides() {
                     className="rounded-full"
                   >
                     <ChevronLeft className="w-4 h-4 mr-1" />
-                    Previous
+                    Prev
                   </Button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2)
-                    .map((page, idx, arr) => (
-                      <span key={page} className="flex items-center gap-2">
-                        {idx > 0 && arr[idx - 1] !== page - 1 && <span className="text-muted-foreground">...</span>}
-                        <Button
-                          variant={currentPage === page ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setCurrentPage(page)}
-                          className="w-10 h-10 rounded-full"
-                        >
-                          {page}
-                        </Button>
-                      </span>
-                    ))}
+                  <span className="text-sm text-muted-foreground sm:hidden">
+                    {currentPage} / {totalPages}
+                  </span>
+                  <div className="hidden sm:flex items-center gap-2">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
+                      .map((page, idx, arr) => (
+                        <span key={page} className="flex items-center gap-2">
+                          {idx > 0 && arr[idx - 1] !== page - 1 && <span className="text-muted-foreground">...</span>}
+                          <Button
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                            className="w-10 h-10 rounded-full"
+                          >
+                            {page}
+                          </Button>
+                        </span>
+                      ))}
+                  </div>
                   <Button
                     variant="outline"
                     size="sm"
