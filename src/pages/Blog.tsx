@@ -53,7 +53,6 @@ const categories: CategoryStyle[] = [
   { name: "Remote Work", icon: Wifi, gradient: "from-indigo-500 to-blue-600", shadowColor: "shadow-indigo-500/40", textColor: "text-indigo-600 dark:text-indigo-400", iconColor: "text-indigo-500" },
   { name: "Gaming", icon: Gamepad2, gradient: "from-pink-500 to-fuchsia-600", shadowColor: "shadow-pink-500/40", textColor: "text-pink-600 dark:text-pink-400", iconColor: "text-pink-500" },
   { name: "Green Tech", icon: Leaf, gradient: "from-lime-500 to-green-600", shadowColor: "shadow-lime-500/40", textColor: "text-lime-600 dark:text-lime-400", iconColor: "text-lime-500" },
-  { name: "Creepy Tech", icon: Ghost, gradient: "from-slate-600 to-gray-800", shadowColor: "shadow-slate-500/40", textColor: "text-slate-600 dark:text-slate-400", iconColor: "text-slate-500" },
 ];
 
 // Fallback images by category when article images don't exist

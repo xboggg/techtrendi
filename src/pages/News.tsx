@@ -2,7 +2,11 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
-import { Clock, Calendar, ArrowRight, Search, ChevronLeft, ChevronRight, Zap } from "lucide-react";
+import {
+  Clock, Calendar, ArrowRight, Search, ChevronLeft, ChevronRight, Zap,
+  LayoutGrid, Brain, Building2, Shield, Cpu, Smartphone, Briefcase,
+  Gamepad2, DollarSign, Wifi, Leaf
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,19 +28,28 @@ interface NewsItem {
   author: string | null;
 }
 
-const newsCategories = [
-  "All",
-  "AI Tech",
-  "Big Tech",
-  "Cybersecurity",
-  "Gadgets",
-  "Phones",
-  "Productivity",
-  "Security",
-  "Gaming",
-  "Side Hustles",
-  "Remote Work",
-  "Green Tech",
+interface CategoryStyle {
+  name: string;
+  icon: React.ElementType;
+  gradient: string;
+  shadowColor: string;
+  textColor: string;
+  iconColor: string;
+}
+
+const newsCategories: CategoryStyle[] = [
+  { name: "All", icon: LayoutGrid, gradient: "from-blue-500 to-indigo-600", shadowColor: "shadow-blue-500/40", textColor: "text-blue-600 dark:text-blue-400", iconColor: "text-blue-500" },
+  { name: "AI Tech", icon: Brain, gradient: "from-violet-500 to-purple-600", shadowColor: "shadow-violet-500/40", textColor: "text-violet-600 dark:text-violet-400", iconColor: "text-violet-500" },
+  { name: "Big Tech", icon: Building2, gradient: "from-slate-500 to-zinc-700", shadowColor: "shadow-slate-500/40", textColor: "text-slate-600 dark:text-slate-400", iconColor: "text-slate-500" },
+  { name: "Cybersecurity", icon: Shield, gradient: "from-red-500 to-rose-600", shadowColor: "shadow-red-500/40", textColor: "text-red-600 dark:text-red-400", iconColor: "text-red-500" },
+  { name: "Gadgets", icon: Cpu, gradient: "from-cyan-500 to-teal-600", shadowColor: "shadow-cyan-500/40", textColor: "text-cyan-600 dark:text-cyan-400", iconColor: "text-cyan-500" },
+  { name: "Phones", icon: Smartphone, gradient: "from-sky-500 to-blue-600", shadowColor: "shadow-sky-500/40", textColor: "text-sky-600 dark:text-sky-400", iconColor: "text-sky-500" },
+  { name: "Productivity", icon: Briefcase, gradient: "from-orange-500 to-amber-600", shadowColor: "shadow-orange-500/40", textColor: "text-orange-600 dark:text-orange-400", iconColor: "text-orange-500" },
+  { name: "Security", icon: Shield, gradient: "from-amber-500 to-orange-600", shadowColor: "shadow-amber-500/40", textColor: "text-amber-600 dark:text-amber-400", iconColor: "text-amber-500" },
+  { name: "Gaming", icon: Gamepad2, gradient: "from-pink-500 to-fuchsia-600", shadowColor: "shadow-pink-500/40", textColor: "text-pink-600 dark:text-pink-400", iconColor: "text-pink-500" },
+  { name: "Side Hustles", icon: DollarSign, gradient: "from-green-500 to-emerald-600", shadowColor: "shadow-green-500/40", textColor: "text-green-600 dark:text-green-400", iconColor: "text-green-500" },
+  { name: "Remote Work", icon: Wifi, gradient: "from-indigo-500 to-blue-600", shadowColor: "shadow-indigo-500/40", textColor: "text-indigo-600 dark:text-indigo-400", iconColor: "text-indigo-500" },
+  { name: "Green Tech", icon: Leaf, gradient: "from-lime-500 to-green-600", shadowColor: "shadow-lime-500/40", textColor: "text-lime-600 dark:text-lime-400", iconColor: "text-lime-500" },
 ];
 
 // Fallback images by category
@@ -170,21 +183,46 @@ export default function News() {
             </div>
           </div>
 
-          {/* Category Pills */}
-          <div className="flex flex-wrap gap-2">
-            {newsCategories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  selectedCategory === category
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
+          {/* Category Pills - Animated with unique colors and icons */}
+          <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+            {newsCategories.map((category) => {
+              const isSelected = selectedCategory === category.name;
+              const Icon = category.icon;
+              return (
+                <button
+                  key={category.name}
+                  onClick={() => setSelectedCategory(category.name)}
+                  className={`
+                    group relative inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold
+                    transition-all duration-300 ease-out
+                    transform hover:scale-105 hover:-translate-y-1
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background
+                    ${isSelected
+                      ? `bg-gradient-to-r ${category.gradient} text-white shadow-xl ${category.shadowColor}`
+                      : `bg-card border-2 border-border/50 ${category.textColor} hover:border-transparent hover:shadow-xl`
+                    }
+                  `}
+                >
+                  <span
+                    className={`
+                      absolute inset-0 rounded-full transition-all duration-300 ease-out
+                      bg-gradient-to-r ${category.gradient}
+                      ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+                    `}
+                  />
+                  <Icon className={`
+                    relative z-10 w-4 h-4 transition-all duration-300
+                    ${isSelected ? 'text-white' : `${category.iconColor} group-hover:text-white`}
+                  `} />
+                  <span className={`
+                    relative z-10 transition-colors duration-300
+                    ${isSelected ? 'text-white' : 'group-hover:text-white'}
+                  `}>
+                    {category.name}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
