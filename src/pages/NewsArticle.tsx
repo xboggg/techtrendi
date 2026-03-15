@@ -25,23 +25,65 @@ function renderContent(content: string): string {
     return DOMPurify.sanitize(content, { ADD_ATTR: ['target', 'rel', 'class'], ADD_TAGS: ['iframe'] });
   }
 
-  // Convert markdown to HTML
-  let html = content
-    .replace(/^### (.+)$/gm, (_match, text) => {
-      const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      return `<h3 id="${id}" class="text-xl font-semibold mt-8 mb-4 text-foreground scroll-mt-20">${text}</h3>`;
-    })
-    .replace(/^## (.+)$/gm, (_match, text) => {
-      const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      return `<h2 id="${id}" class="text-2xl font-bold mt-10 mb-4 text-foreground scroll-mt-20">${text}</h2>`;
-    })
-    .replace(/^# (.+)$/gm, (_match, text) => {
-      const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      return `<h1 id="${id}" class="text-3xl font-bold mt-12 mb-6 text-foreground scroll-mt-20">${text}</h1>`;
-    })
-    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>')
+  // Process line by line for proper list grouping
+  const lines = content.split('\n');
+  const blocks: string[] = [];
+  let currentList: string[] = [];
+  let listType: 'ul' | 'ol' | null = null;
+
+  const flushList = () => {
+    if (currentList.length > 0 && listType) {
+      blocks.push(`<${listType} class="my-2 pl-6">${currentList.join('')}</${listType}>`);
+      currentList = [];
+      listType = null;
+    }
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const ulMatch = line.match(/^- (.+)$/);
+    const olMatch = line.match(/^(\d+)\. (.+)$/);
+
+    if (ulMatch) {
+      if (listType && listType !== 'ul') flushList();
+      listType = 'ul';
+      currentList.push(`<li>${ulMatch[1]}</li>`);
+    } else if (olMatch) {
+      if (listType && listType !== 'ol') flushList();
+      listType = 'ol';
+      currentList.push(`<li>${olMatch[2]}</li>`);
+    } else {
+      flushList();
+      if (line.trim() === '') continue;
+      let processed = line
+        .replace(/^### (.+)$/, (_m, text) => {
+          const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+          return `<h3 id="${id}">${text}</h3>`;
+        })
+        .replace(/^## (.+)$/, (_m, text) => {
+          const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+          return `<h2 id="${id}">${text}</h2>`;
+        })
+        .replace(/^# (.+)$/, (_m, text) => {
+          const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+          return `<h1 id="${id}">${text}</h1>`;
+        });
+      if (processed.startsWith('<h')) {
+        blocks.push(processed);
+      } else {
+        blocks.push(`<p>${processed}</p>`);
+      }
+    }
+  }
+  flushList();
+
+  let html = blocks.join('\n');
+
+  // Inline formatting
+  html = html
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
-    .replace(/\[(.+?)\]\((.+?)\)/g, (_match, linkText, url) => {
+    .replace(/\[(.+?)\]\((.+?)\)/g, (_m, linkText, url) => {
       const cleanUrl = url.trim();
       if (cleanUrl.match(/^https?:\/\//i) || cleanUrl.startsWith('/')) {
         return `<a href="${cleanUrl}" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
@@ -50,18 +92,7 @@ function renderContent(content: string): string {
     })
     .replace(/```(\w+)?\n([\s\S]+?)```/g, '<pre class="bg-muted p-4 rounded-lg overflow-x-auto my-4"><code>$2</code></pre>')
     .replace(/`(.+?)`/g, '<code class="bg-muted px-1.5 py-0.5 rounded text-sm">$1</code>')
-    .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc text-muted-foreground mb-1">$1</li>')
-    .replace(/^(\d+)\. (.+)$/gm, '<li class="ml-4 list-decimal text-muted-foreground mb-1">$2</li>')
-    .replace(/(<li[^>]*>.*<\/li>\n?)+/g, (match) => {
-      const isOrdered = match.includes('list-decimal');
-      const tag = isOrdered ? 'ol' : 'ul';
-      return `<${tag} class="my-4 pl-2">${match}</${tag}>`;
-    })
-    .replace(/^---$/gm, '<hr class="my-8 border-border" />')
-    .replace(/\n\n/g, '</p><p class="text-muted-foreground leading-relaxed mb-4">')
-    .replace(/\n/g, '<br />');
-
-  html = `<p class="text-muted-foreground leading-relaxed mb-4">${html}</p>`;
+    .replace(/^---$/gm, '<hr />');
 
   return DOMPurify.sanitize(html, { ADD_ATTR: ['target', 'rel', 'class', 'id'], ADD_TAGS: ['iframe'] });
 }
