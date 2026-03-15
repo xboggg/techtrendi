@@ -5,7 +5,7 @@ import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  BookOpen, ArrowRight, Clock, ChevronLeft, Loader2, LayoutGrid,
+  BookOpen, ArrowRight, Clock, ChevronLeft, ChevronRight, Loader2, LayoutGrid,
   Smartphone, Shield, Brain, Lightbulb, GraduationCap, Heart, DollarSign, Zap
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -221,17 +221,41 @@ export default function Guides() {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex justify-center items-center gap-2 mt-12">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(page)}
-                      className="w-10 h-10 rounded-full"
-                    >
-                      {page}
-                    </Button>
-                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="rounded-full"
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-1" />
+                    Previous
+                  </Button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2)
+                    .map((page, idx, arr) => (
+                      <span key={page} className="flex items-center gap-2">
+                        {idx > 0 && arr[idx - 1] !== page - 1 && <span className="text-muted-foreground">...</span>}
+                        <Button
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(page)}
+                          className="w-10 h-10 rounded-full"
+                        >
+                          {page}
+                        </Button>
+                      </span>
+                    ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="rounded-full"
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
                 </div>
               )}
             </>
@@ -393,17 +417,41 @@ export default function Guides() {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex justify-center items-center gap-2 mt-12">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(page)}
-                      className="w-10 h-10 rounded-full"
-                    >
-                      {page}
-                    </Button>
-                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="rounded-full"
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-1" />
+                    Previous
+                  </Button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2)
+                    .map((page, idx, arr) => (
+                      <span key={page} className="flex items-center gap-2">
+                        {idx > 0 && arr[idx - 1] !== page - 1 && <span className="text-muted-foreground">...</span>}
+                        <Button
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(page)}
+                          className="w-10 h-10 rounded-full"
+                        >
+                          {page}
+                        </Button>
+                      </span>
+                    ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="rounded-full"
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
                 </div>
               )}
             </>
