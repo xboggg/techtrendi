@@ -396,9 +396,9 @@ export default function ReviewDetail() {
                   prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4
                   prose-a:text-primary prose-a:no-underline hover:prose-a:underline
                   prose-strong:text-foreground prose-strong:font-semibold
-                  prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
-                  prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
-                  prose-li:text-muted-foreground prose-li:mb-2
+                  prose-ul:my-3 prose-ul:list-disc prose-ul:pl-6
+                  prose-ol:my-3 prose-ol:list-decimal prose-ol:pl-6
+                  prose-li:text-muted-foreground prose-li:mb-1 prose-li:leading-relaxed
                   prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic
                   prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
                   prose-hr:my-8 prose-hr:border-border"

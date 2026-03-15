@@ -404,7 +404,21 @@ export default function BlogArticle() {
           <div className="lg:grid lg:grid-cols-[1fr_250px] lg:gap-12">
             {/* Article Content */}
             <div
-              className="prose prose-lg max-w-none"
+              className="prose prose-lg max-w-none
+                prose-headings:text-foreground prose-headings:font-bold
+                prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-3
+                prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-2
+                prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-3
+                prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                prose-strong:text-foreground prose-strong:font-semibold
+                prose-ul:my-3 prose-ul:list-disc prose-ul:pl-6
+                prose-ol:my-3 prose-ol:list-decimal prose-ol:pl-6
+                prose-li:text-muted-foreground prose-li:mb-1 prose-li:leading-relaxed
+                prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic
+                prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+                prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg
+                prose-img:rounded-xl prose-img:my-4
+                prose-hr:my-6 prose-hr:border-border"
               dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(renderContent(article.content), { ADD_ATTR: ['target', 'rel', 'class'], ADD_TAGS: ['iframe'] }) }}
             />
 
