@@ -375,7 +375,7 @@ export default function NewsArticle() {
 
           {/* ── Sidebar ── */}
           <aside className="hidden lg:block">
-            <div className="sticky top-24 space-y-5">
+            <div className="space-y-5">
 
               {/* Ad Placeholder 1 */}
               <div className="rounded-xl border-2 border-dashed border-border bg-muted/30 flex flex-col items-center justify-center text-center p-5 min-h-[250px]">
