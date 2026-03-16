@@ -68,15 +68,18 @@ export const AnimatedTestimonials = ({
     const nextIndex = (active + 1) % total;
 
     if (index === active) {
-      return { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, zIndex: 10 };
+      // Front card: centered, pushed slightly down
+      return { x: 0, y: 25, rotate: 0, scale: 1, opacity: 1, zIndex: 10 };
     }
     if (index === prevIndex) {
-      return { x: -55, y: 20, rotate: -10, scale: 0.88, opacity: 0.9, zIndex: 5 };
+      // Back-left: up and to the left, nearly straight
+      return { x: -48, y: -8, rotate: -4, scale: 0.88, opacity: 0.9, zIndex: 5 };
     }
     if (index === nextIndex) {
-      return { x: 55, y: 20, rotate: 10, scale: 0.88, opacity: 0.9, zIndex: 5 };
+      // Back-right: up and to the right, nearly straight
+      return { x: 48, y: -8, rotate: 4, scale: 0.88, opacity: 0.9, zIndex: 5 };
     }
-    return { x: 0, y: 30, rotate: 0, scale: 0.82, opacity: 0, zIndex: 1 };
+    return { x: 0, y: 0, rotate: 0, scale: 0.82, opacity: 0, zIndex: 1 };
   };
 
   return (
@@ -163,8 +166,8 @@ export const AnimatedTestimonials = ({
             </motion.p>
           </motion.div>
 
-          {/* Nav row: arrows + counter + read more all on one line */}
-          <div className="flex items-center gap-3 pt-8 md:pt-0 mt-6 border-t border-border/40">
+          {/* Thin divider + nav row */}
+          <div className="mt-8 pt-5 border-t border-border/40 flex items-center gap-3">
             <button
               onClick={handlePrev}
               className="h-10 w-10 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors duration-200 shadow-sm flex-shrink-0"
