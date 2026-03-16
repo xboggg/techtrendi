@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -33,10 +33,6 @@ export const AnimatedTestimonials = ({
     setActive((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   }, [testimonials.length]);
 
-  const isActive = (index: number) => {
-    return index === active;
-  };
-
   useEffect(() => {
     if (autoplay) {
       const interval = setInterval(handleNext, 6000);
@@ -60,16 +56,27 @@ export const AnimatedTestimonials = ({
   const handleTouchEnd = useCallback(() => {
     const distance = touchStartX.current - touchEndX.current;
     if (Math.abs(distance) >= minSwipeDistance) {
-      if (distance > 0) {
-        handleNext();
-      } else {
-        handlePrev();
-      }
+      if (distance > 0) handleNext();
+      else handlePrev();
     }
   }, [handleNext, handlePrev]);
 
-  const randomRotateY = () => {
-    return Math.floor(Math.random() * 15) - 7;
+  // Compute per-card animation based on position relative to active
+  const getCardProps = (index: number) => {
+    const total = testimonials.length;
+    const prevIndex = (active - 1 + total) % total;
+    const nextIndex = (active + 1) % total;
+
+    if (index === active) {
+      return { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, zIndex: 10 };
+    }
+    if (index === prevIndex) {
+      return { x: -55, y: 20, rotate: -10, scale: 0.88, opacity: 0.9, zIndex: 5 };
+    }
+    if (index === nextIndex) {
+      return { x: 55, y: 20, rotate: 10, scale: 0.88, opacity: 0.9, zIndex: 5 };
+    }
+    return { x: 0, y: 30, rotate: 0, scale: 0.82, opacity: 0, zIndex: 1 };
   };
 
   return (
@@ -80,38 +87,23 @@ export const AnimatedTestimonials = ({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
+        {/* Image stack */}
         <div>
           <div className="relative h-80 w-full">
-            <AnimatePresence>
-              {testimonials.map((testimonial, index) => (
+            {testimonials.map((testimonial, index) => {
+              const props = getCardProps(index);
+              return (
                 <motion.div
                   key={testimonial.src}
-                  initial={{
-                    opacity: 0,
-                    scale: 0.9,
-                    z: -100,
-                    rotate: randomRotateY(),
-                  }}
                   animate={{
-                    opacity: isActive(index) ? 1 : 0.7,
-                    scale: isActive(index) ? 1 : 0.95,
-                    z: isActive(index) ? 0 : -100,
-                    rotate: isActive(index) ? 0 : randomRotateY(),
-                    zIndex: isActive(index)
-                      ? 999
-                      : testimonials.length + 2 - index,
-                    y: isActive(index) ? [0, -40, 0] : 0,
+                    x: props.x,
+                    y: props.y,
+                    rotate: props.rotate,
+                    scale: props.scale,
+                    opacity: props.opacity,
+                    zIndex: props.zIndex,
                   }}
-                  exit={{
-                    opacity: 0,
-                    scale: 0.9,
-                    z: 100,
-                    rotate: randomRotateY(),
-                  }}
-                  transition={{
-                    duration: 0.8,
-                    ease: [0.25, 0.1, 0.25, 1],
-                  }}
+                  transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
                   className="absolute inset-0 origin-bottom"
                 >
                   {testimonial.href ? (
@@ -120,7 +112,7 @@ export const AnimatedTestimonials = ({
                         src={testimonial.src}
                         alt={testimonial.name}
                         draggable={false}
-                        className="h-full w-full rounded-3xl object-cover object-center shadow-lg hover:brightness-90 transition-all duration-300"
+                        className="h-full w-full rounded-3xl object-cover object-center shadow-xl hover:brightness-90 transition-all duration-300"
                       />
                     </Link>
                   ) : (
@@ -128,33 +120,23 @@ export const AnimatedTestimonials = ({
                       src={testimonial.src}
                       alt={testimonial.name}
                       draggable={false}
-                      className="h-full w-full rounded-3xl object-cover object-center shadow-lg"
+                      className="h-full w-full rounded-3xl object-cover object-center shadow-xl"
                     />
                   )}
                 </motion.div>
-              ))}
-            </AnimatePresence>
+              );
+            })}
           </div>
         </div>
+
+        {/* Text content */}
         <div className="flex justify-between flex-col py-4">
           <motion.div
             key={active}
-            initial={{
-              y: 20,
-              opacity: 0,
-            }}
-            animate={{
-              y: 0,
-              opacity: 1,
-            }}
-            exit={{
-              y: -20,
-              opacity: 0,
-            }}
-            transition={{
-              duration: 0.6,
-              ease: [0.25, 0.1, 0.25, 1],
-            }}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -20, opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <h3 className="text-2xl font-bold text-foreground line-clamp-2">
               {testimonials[active].name}
@@ -166,20 +148,12 @@ export const AnimatedTestimonials = ({
               {testimonials[active].quote.split(" ").map((word, index) => (
                 <motion.span
                   key={index}
-                  initial={{
-                    filter: "blur(8px)",
-                    opacity: 0,
-                    y: 4,
-                  }}
-                  animate={{
-                    filter: "blur(0px)",
-                    opacity: 1,
-                    y: 0,
-                  }}
+                  initial={{ filter: "blur(8px)", opacity: 0, y: 4 }}
+                  animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
                   transition={{
                     duration: 0.4,
                     ease: [0.25, 0.1, 0.25, 1],
-                    delay: 0.015 * index,
+                    delay: 0.012 * index,
                   }}
                   className="inline-block"
                 >
@@ -187,32 +161,37 @@ export const AnimatedTestimonials = ({
                 </motion.span>
               ))}
             </motion.p>
-            {testimonials[active].href && (
-              <Link
-                to={testimonials[active].href!}
-                className="inline-flex items-center gap-1 mt-4 px-3 py-1 text-xs font-medium text-primary border border-primary/30 rounded-full hover:bg-primary/10 transition-colors duration-200"
-              >
-                Read more
-                <ArrowRight className="h-3 w-3" />
-              </Link>
-            )}
           </motion.div>
-          <div className="flex items-center gap-4 pt-8 md:pt-0 border-t border-border/40">
+
+          {/* Nav row: arrows + counter + read more all on one line */}
+          <div className="flex items-center gap-3 pt-8 md:pt-0 mt-6 border-t border-border/40">
             <button
               onClick={handlePrev}
-              className="h-10 w-10 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors duration-200 shadow-sm"
+              className="h-10 w-10 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors duration-200 shadow-sm flex-shrink-0"
             >
               <ArrowLeft className="h-4 w-4 text-white" />
             </button>
             <button
               onClick={handleNext}
-              className="h-10 w-10 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors duration-200 shadow-sm"
+              className="h-10 w-10 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors duration-200 shadow-sm flex-shrink-0"
             >
               <ArrowRight className="h-4 w-4 text-white" />
             </button>
             <span className="text-sm text-muted-foreground font-medium">
               {active + 1} / {testimonials.length}
             </span>
+            {testimonials[active].href && (
+              <>
+                <span className="text-border/60 text-sm">·</span>
+                <Link
+                  to={testimonials[active].href!}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-primary border border-primary/30 rounded-full hover:bg-primary/10 transition-colors duration-200"
+                >
+                  Read more
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
