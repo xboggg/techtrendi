@@ -398,6 +398,7 @@ export default function Index() {
                 name: article.title,
                 designation: `${categoryLabels[article.category] || article.category} · ${article.read_time_minutes || 5} min read`,
                 src: article.cover_image || "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=500&h=500&fit=crop",
+                href: `/blog/${article.slug}`,
               }))}
               autoplay={true}
               className="py-8"

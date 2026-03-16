@@ -3,6 +3,7 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useCallback, useRef } from "react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 type Testimonial = {
@@ -113,12 +114,23 @@ export const AnimatedTestimonials = ({
                   }}
                   className="absolute inset-0 origin-bottom"
                 >
-                  <img
-                    src={testimonial.src}
-                    alt={testimonial.name}
-                    draggable={false}
-                    className="h-full w-full rounded-3xl object-cover object-center shadow-lg"
-                  />
+                  {testimonial.href ? (
+                    <Link to={testimonial.href} className="block h-full w-full">
+                      <img
+                        src={testimonial.src}
+                        alt={testimonial.name}
+                        draggable={false}
+                        className="h-full w-full rounded-3xl object-cover object-center shadow-lg hover:brightness-90 transition-all duration-300"
+                      />
+                    </Link>
+                  ) : (
+                    <img
+                      src={testimonial.src}
+                      alt={testimonial.name}
+                      draggable={false}
+                      className="h-full w-full rounded-3xl object-cover object-center shadow-lg"
+                    />
+                  )}
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -175,32 +187,32 @@ export const AnimatedTestimonials = ({
                 </motion.span>
               ))}
             </motion.p>
+            {testimonials[active].href && (
+              <Link
+                to={testimonials[active].href!}
+                className="inline-flex items-center gap-1 mt-4 px-3 py-1 text-xs font-medium text-primary border border-primary/30 rounded-full hover:bg-primary/10 transition-colors duration-200"
+              >
+                Read more
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+            )}
           </motion.div>
-          <div className="flex items-center gap-3 pt-8 md:pt-0">
+          <div className="flex items-center gap-4 pt-8 md:pt-0 border-t border-border/40">
             <button
               onClick={handlePrev}
-              className="h-9 w-9 rounded-full bg-secondary/80 hover:bg-secondary flex items-center justify-center group/button transition-colors duration-200"
+              className="h-10 w-10 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors duration-200 shadow-sm"
             >
-              <ArrowLeft className="h-4 w-4 text-foreground group-hover/button:rotate-12 transition-transform duration-300" />
+              <ArrowLeft className="h-4 w-4 text-white" />
             </button>
-            <div className="flex gap-1.5">
-              {testimonials.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActive(i)}
-                  className={cn(
-                    "h-1.5 rounded-full transition-all duration-500",
-                    i === active ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/20 hover:bg-muted-foreground/40"
-                  )}
-                />
-              ))}
-            </div>
             <button
               onClick={handleNext}
-              className="h-9 w-9 rounded-full bg-secondary/80 hover:bg-secondary flex items-center justify-center group/button transition-colors duration-200"
+              className="h-10 w-10 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors duration-200 shadow-sm"
             >
-              <ArrowRight className="h-4 w-4 text-foreground group-hover/button:-rotate-12 transition-transform duration-300" />
+              <ArrowRight className="h-4 w-4 text-white" />
             </button>
+            <span className="text-sm text-muted-foreground font-medium">
+              {active + 1} / {testimonials.length}
+            </span>
           </div>
         </div>
       </div>
