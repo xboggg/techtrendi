@@ -68,16 +68,16 @@ export const AnimatedTestimonials = ({
     const nextIndex = (active + 1) % total;
 
     if (index === active) {
-      // Front card: centered, pushed slightly down
-      return { x: 0, y: 25, rotate: 0, scale: 1, opacity: 1, zIndex: 10 };
+      // Front card: centered, pushed down so back card tops are visible
+      return { x: 0, y: 45, rotate: 0, scale: 1, opacity: 1, zIndex: 10 };
     }
     if (index === prevIndex) {
-      // Back-left: up and to the left, nearly straight
-      return { x: -48, y: -8, rotate: -4, scale: 0.88, opacity: 0.9, zIndex: 5 };
+      // Back-left: higher up so top peeks above front card
+      return { x: -48, y: -20, rotate: -4, scale: 0.88, opacity: 0.9, zIndex: 5 };
     }
     if (index === nextIndex) {
-      // Back-right: up and to the right, nearly straight
-      return { x: 48, y: -8, rotate: 4, scale: 0.88, opacity: 0.9, zIndex: 5 };
+      // Back-right: higher up so top peeks above front card
+      return { x: 48, y: -20, rotate: 4, scale: 0.88, opacity: 0.9, zIndex: 5 };
     }
     return { x: 0, y: 0, rotate: 0, scale: 0.82, opacity: 0, zIndex: 1 };
   };
