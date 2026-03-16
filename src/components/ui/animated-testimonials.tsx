@@ -147,7 +147,7 @@ export const AnimatedTestimonials = ({
             <p className="text-sm text-muted-foreground mt-1">
               {testimonials[active].designation}
             </p>
-            <motion.p className="text-base text-muted-foreground mt-6 line-clamp-4 leading-relaxed">
+            <motion.p className="text-base text-muted-foreground mt-6 line-clamp-6 leading-relaxed">
               {testimonials[active].quote.split(" ").map((word, index) => (
                 <motion.span
                   key={index}
