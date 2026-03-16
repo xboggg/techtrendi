@@ -135,6 +135,7 @@ export default function NewsArticle() {
   const { addToHistory } = useReadingHistory();
   const [news, setNews] = useState<NewsItem | null>(null);
   const [relatedNews, setRelatedNews] = useState<NewsItem[]>([]);
+  const [trendingNews, setTrendingNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -151,7 +152,6 @@ export default function NewsArticle() {
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
           setNews(data[0]);
-          // Add to reading history
           addToHistory({
             id: data[0].id,
             type: 'news',
@@ -165,15 +165,17 @@ export default function NewsArticle() {
       })
       .catch(() => setLoading(false));
 
-    // Fetch related news
-    fetch(`${SUPABASE_URL}/rest/v1/news?select=*&order=created_at.desc&limit=4`, {
+    // Fetch related + trending news
+    fetch(`${SUPABASE_URL}/rest/v1/news?select=*&order=created_at.desc&limit=10`, {
       headers: { "apikey": SUPABASE_KEY },
       signal: controller.signal,
     })
       .then(res => res.ok ? res.json() : [])
       .then(data => {
         if (Array.isArray(data)) {
-          setRelatedNews(data.filter(n => n.slug !== slug).slice(0, 3));
+          const others = data.filter(n => n.slug !== slug);
+          setRelatedNews(others.slice(0, 3));
+          setTrendingNews(others.slice(0, 6));
         }
       })
       .catch(() => {});
@@ -256,8 +258,10 @@ export default function NewsArticle() {
         keywords={news.tags || [news.category, "tech news"]}
       />
       <ReadingProgress />
-      <article className="container py-12 md:py-20">
-        <div className="max-w-4xl mx-auto">
+      <div className="container py-12 md:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-10 max-w-7xl mx-auto">
+        {/* ── Main Article Column ── */}
+        <article>
           {/* Back Link */}
           <Link
             to="/news"
@@ -410,8 +414,64 @@ export default function NewsArticle() {
               </div>
             </section>
           )}
+        </article>
+
+        {/* ── Sidebar ── */}
+        <aside className="hidden lg:block">
+          <div className="sticky top-24 space-y-6">
+
+            {/* Ad Placeholder */}
+            <div className="rounded-xl border-2 border-dashed border-border bg-muted/30 flex flex-col items-center justify-center text-center p-6 min-h-[250px]">
+              <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/50 mb-3">Advertisement</span>
+              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+                <Zap className="w-5 h-5 text-muted-foreground/40" />
+              </div>
+              <p className="text-xs text-muted-foreground/50">Your ad could be here</p>
+              <p className="text-xs text-muted-foreground/40 mt-1">300 × 250</p>
+            </div>
+
+            {/* Trending News */}
+            {trendingNews.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="w-1 h-5 bg-primary rounded-full" />
+                  <h3 className="font-bold text-foreground text-sm uppercase tracking-wide">Trending News</h3>
+                </div>
+                <div className="space-y-4">
+                  {trendingNews.map((item) => (
+                    <Link
+                      key={item.id}
+                      to={`/news/${item.slug}`}
+                      className="flex gap-3 group"
+                    >
+                      <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                        <img
+                          src={getNewsImage(item)}
+                          alt={item.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = categoryImages["default"];
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-primary mb-0.5">{item.category}</p>
+                        <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                          {item.title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-1">{formatRelativeDate(item.created_at)}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+        </aside>
+
         </div>
-      </article>
+      </div>
     </Layout>
   );
 }
