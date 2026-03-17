@@ -69,23 +69,24 @@ fi
 # Step 3: Delete stale assets from server via VPS Python
 if [[ ${#ASSETS_TO_DELETE[@]} -gt 0 ]]; then
   echo "==> Deleting ${#ASSETS_TO_DELETE[@]} stale files from server..."
-  DELETE_LIST=$(printf '"%s",' "${ASSETS_TO_DELETE[@]}")
-  DELETE_LIST="[${DELETE_LIST%,}]"
-  ssh "$VPS_HOST" "python3 -c \"
-import ftplib
-ftp = ftplib.FTP('$FTP_HOST')
-ftp.login('$FTP_USER', '$FTP_PASS')
-ftp.cwd('$FTP_BASE/assets')
-to_delete = $DELETE_LIST
+  DELETE_LIST=$(printf '%s\n' "${ASSETS_TO_DELETE[@]}")
+  ssh "$VPS_HOST" "python3 -c '
+import ftplib, sys
+ftp = ftplib.FTP(\"$FTP_HOST\")
+ftp.login(\"$FTP_USER\", \"$FTP_PASS\")
+ftp.cwd(\"$FTP_BASE/assets\")
+to_delete = \"\"\"$DELETE_LIST\"\"\".strip().split(chr(10))
 deleted = 0
 for f in to_delete:
+    f = f.strip()
+    if not f: continue
     try:
         ftp.delete(f)
         deleted += 1
     except: pass
-print(f'Deleted {deleted}/{len(to_delete)} files')
+print(f\"Deleted {deleted}/{len(to_delete)} files\")
 ftp.quit()
-\""
+'"
 fi
 
 # Step 4: Upload changed assets in batches of 5

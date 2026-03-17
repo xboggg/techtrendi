@@ -97,6 +97,7 @@ export default function AdminNews() {
   const [formData, setFormData] = useState(initialNewsState);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "published" | "drafts" | "today">("all");
   const [uploading, setUploading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -283,9 +284,18 @@ export default function AdminNews() {
       const matchesCategory =
         filterCategory === "all" || item.category === filterCategory;
 
-      return matchesSearch && matchesCategory;
+      let matchesStatus = true;
+      if (filterStatus === "published") matchesStatus = item.is_published;
+      else if (filterStatus === "drafts") matchesStatus = !item.is_published;
+      else if (filterStatus === "today") {
+        const date = new Date(item.created_at);
+        const today = new Date();
+        matchesStatus = date.toDateString() === today.toDateString();
+      }
+
+      return matchesSearch && matchesCategory && matchesStatus;
     });
-  }, [news, searchQuery, filterCategory]);
+  }, [news, searchQuery, filterCategory, filterStatus]);
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(filteredNews.length / ITEMS_PER_PAGE));
@@ -576,9 +586,12 @@ export default function AdminNews() {
           </Dialog>
         </div>
 
-        {/* Stats */}
+        {/* Stats - clickable filters */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-card border rounded-xl p-4">
+          <button
+            onClick={() => { setFilterStatus(filterStatus === "all" ? "all" : "all"); setCurrentPage(1); setFilterStatus("all"); }}
+            className={`bg-card border rounded-xl p-4 text-left transition-all hover:shadow-md ${filterStatus === "all" ? "ring-2 ring-primary border-primary" : ""}`}
+          >
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <Newspaper className="w-5 h-5 text-primary" />
@@ -588,8 +601,11 @@ export default function AdminNews() {
                 <p className="text-xs text-muted-foreground">Total News</p>
               </div>
             </div>
-          </div>
-          <div className="bg-card border rounded-xl p-4">
+          </button>
+          <button
+            onClick={() => { setFilterStatus(filterStatus === "published" ? "all" : "published"); setCurrentPage(1); }}
+            className={`bg-card border rounded-xl p-4 text-left transition-all hover:shadow-md ${filterStatus === "published" ? "ring-2 ring-green-500 border-green-500" : ""}`}
+          >
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-500/10 rounded-lg">
                 <Eye className="w-5 h-5 text-green-500" />
@@ -601,8 +617,11 @@ export default function AdminNews() {
                 <p className="text-xs text-muted-foreground">Published</p>
               </div>
             </div>
-          </div>
-          <div className="bg-card border rounded-xl p-4">
+          </button>
+          <button
+            onClick={() => { setFilterStatus(filterStatus === "drafts" ? "all" : "drafts"); setCurrentPage(1); }}
+            className={`bg-card border rounded-xl p-4 text-left transition-all hover:shadow-md ${filterStatus === "drafts" ? "ring-2 ring-yellow-500 border-yellow-500" : ""}`}
+          >
             <div className="flex items-center gap-3">
               <div className="p-2 bg-yellow-500/10 rounded-lg">
                 <EyeOff className="w-5 h-5 text-yellow-500" />
@@ -614,8 +633,11 @@ export default function AdminNews() {
                 <p className="text-xs text-muted-foreground">Drafts</p>
               </div>
             </div>
-          </div>
-          <div className="bg-card border rounded-xl p-4">
+          </button>
+          <button
+            onClick={() => { setFilterStatus(filterStatus === "today" ? "all" : "today"); setCurrentPage(1); }}
+            className={`bg-card border rounded-xl p-4 text-left transition-all hover:shadow-md ${filterStatus === "today" ? "ring-2 ring-blue-500 border-blue-500" : ""}`}
+          >
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-500/10 rounded-lg">
                 <Zap className="w-5 h-5 text-blue-500" />
@@ -631,7 +653,7 @@ export default function AdminNews() {
                 <p className="text-xs text-muted-foreground">Today</p>
               </div>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* News Table */}

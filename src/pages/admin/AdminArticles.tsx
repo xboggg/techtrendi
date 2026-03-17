@@ -105,6 +105,7 @@ export default function AdminArticles() {
   const [uploading, setUploading] = useState(false);
   const [editorMode, setEditorMode] = useState<"markdown" | "richtext">("markdown");
   const [currentPage, setCurrentPage] = useState(1);
+  const [filterStatus, setFilterStatus] = useState<"all" | "published" | "drafts" | "today">("all");
 
   // Fetch articles
   const { data: articles = [], isLoading } = useQuery({
@@ -299,15 +300,20 @@ export default function AdminArticles() {
 
   // Filter articles
   const filteredArticles = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
     return articles.filter((article) => {
       const matchesSearch =
         article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         article.slug.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = filterCategory === "all" || article.category === filterCategory;
       const matchesContentType = filterContentType === "all" || (article.content_type || "article") === filterContentType;
-      return matchesSearch && matchesCategory && matchesContentType;
+      let matchesStatus = true;
+      if (filterStatus === "published") matchesStatus = article.is_published;
+      else if (filterStatus === "drafts") matchesStatus = !article.is_published;
+      else if (filterStatus === "today") matchesStatus = article.created_at.slice(0, 10) === today;
+      return matchesSearch && matchesCategory && matchesContentType && matchesStatus;
     });
-  }, [articles, searchQuery, filterCategory, filterContentType]);
+  }, [articles, searchQuery, filterCategory, filterContentType, filterStatus]);
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(filteredArticles.length / ITEMS_PER_PAGE));
@@ -629,7 +635,47 @@ export default function AdminArticles() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+          <button
+            onClick={() => { setFilterStatus("all"); setCurrentPage(1); }}
+            className={`text-left transition-all hover:shadow-md bg-card border border-border rounded-lg p-4 ${filterStatus === "all" ? "ring-2 ring-primary" : ""}`}
+          >
+            <div className="flex items-center gap-2 text-muted-foreground mb-1">
+              <FileText className="w-4 h-4" />
+              <span className="text-sm">Total</span>
+            </div>
+            <p className="text-2xl font-bold">{articles.length}</p>
+          </button>
+          <button
+            onClick={() => { setFilterStatus((prev) => prev === "published" ? "all" : "published"); setCurrentPage(1); }}
+            className={`text-left transition-all hover:shadow-md bg-card border border-border rounded-lg p-4 ${filterStatus === "published" ? "ring-2 ring-green-500" : ""}`}
+          >
+            <div className="flex items-center gap-2 text-muted-foreground mb-1">
+              <Eye className="w-4 h-4" />
+              <span className="text-sm">Published</span>
+            </div>
+            <p className="text-2xl font-bold">{articles.filter((a) => a.is_published).length}</p>
+          </button>
+          <button
+            onClick={() => { setFilterStatus((prev) => prev === "drafts" ? "all" : "drafts"); setCurrentPage(1); }}
+            className={`text-left transition-all hover:shadow-md bg-card border border-border rounded-lg p-4 ${filterStatus === "drafts" ? "ring-2 ring-yellow-500" : ""}`}
+          >
+            <div className="flex items-center gap-2 text-muted-foreground mb-1">
+              <EyeOff className="w-4 h-4" />
+              <span className="text-sm">Drafts</span>
+            </div>
+            <p className="text-2xl font-bold">{articles.filter((a) => !a.is_published).length}</p>
+          </button>
+          <button
+            onClick={() => { setFilterStatus((prev) => prev === "today" ? "all" : "today"); setCurrentPage(1); }}
+            className={`text-left transition-all hover:shadow-md bg-card border border-border rounded-lg p-4 ${filterStatus === "today" ? "ring-2 ring-blue-500" : ""}`}
+          >
+            <div className="flex items-center gap-2 text-muted-foreground mb-1">
+              <Calendar className="w-4 h-4" />
+              <span className="text-sm">Today</span>
+            </div>
+            <p className="text-2xl font-bold">{articles.filter((a) => a.created_at.slice(0, 10) === new Date().toISOString().slice(0, 10)).length}</p>
+          </button>
           <div className="bg-card border border-border rounded-lg p-4">
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
               <FileText className="w-4 h-4" />
@@ -650,20 +696,6 @@ export default function AdminArticles() {
               <span className="text-sm">Featured</span>
             </div>
             <p className="text-2xl font-bold">{articles.filter((a) => a.is_featured).length}</p>
-          </div>
-          <div className="bg-card border border-border rounded-lg p-4">
-            <div className="flex items-center gap-2 text-muted-foreground mb-1">
-              <Eye className="w-4 h-4" />
-              <span className="text-sm">Published</span>
-            </div>
-            <p className="text-2xl font-bold">{articles.filter((a) => a.is_published).length}</p>
-          </div>
-          <div className="bg-card border border-border rounded-lg p-4">
-            <div className="flex items-center gap-2 text-muted-foreground mb-1">
-              <EyeOff className="w-4 h-4" />
-              <span className="text-sm">Drafts</span>
-            </div>
-            <p className="text-2xl font-bold">{articles.filter((a) => !a.is_published).length}</p>
           </div>
           <div className="bg-card border border-border rounded-lg p-4">
             <div className="flex items-center gap-2 text-muted-foreground mb-1">

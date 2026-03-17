@@ -72,6 +72,7 @@ export default function Guides() {
         .from("articles")
         .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
         .eq("is_published", true)
+        .eq("content_type", "guide")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -109,7 +110,8 @@ export default function Guides() {
       const { data, error } = await supabase
         .from("articles")
         .select("category")
-        .eq("is_published", true);
+        .eq("is_published", true)
+        .eq("content_type", "guide");
 
       if (error) throw error;
 
@@ -262,6 +264,12 @@ export default function Guides() {
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
+              )}
+
+              {guides.length > 0 && (
+                <p className="text-center text-sm text-muted-foreground mt-6">
+                  Showing {(currentPage - 1) * guidesPerPage + 1}-{Math.min(currentPage * guidesPerPage, guides.length)} of {guides.length} guides
+                </p>
               )}
             </>
           ) : (
@@ -463,6 +471,12 @@ export default function Guides() {
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
+              )}
+
+              {guides.length > 0 && (
+                <p className="text-center text-sm text-muted-foreground mt-6">
+                  Showing {(currentPage - 1) * guidesPerPage + 1}-{Math.min(currentPage * guidesPerPage, guides.length)} of {guides.length} guides
+                </p>
               )}
             </>
           ) : (

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect, useRef } from "react";
 
 // Custom social icons as SVG components
 const FacebookIcon = ({ className }: { className?: string }) => (
@@ -49,83 +50,194 @@ const socialLinks = [
 const footerLinks = {
   explore: [
     { label: "TechTrendi Guides", href: "/guides" },
-    { label: "TechTrendi News", href: "/blog" },
+    { label: "TechTrendi News", href: "/news" },
+    { label: "TechTrendi Blog", href: "/blog" },
     { label: "TechTrendi Tools", href: "/tools" },
-    { label: "Creepy Tech", href: "/creepy-tech" },
-    { label: "Cyber Awareness", href: "/cyber-awareness" },
+    { label: "TechTrendi Reviews", href: "/reviews" },
+    { label: "TechTrendi DigiStore", href: "/store" },
   ],
   topics: [
     { label: "Security", href: "/security" },
     { label: "AI Tech", href: "/ai-tech" },
-    { label: "Phones & Gadgets", href: "/phones" },
+    { label: "Phones", href: "/phones" },
     { label: "How-To", href: "/how-to" },
     { label: "Side Hustles", href: "/make-money" },
+    { label: "Productivity", href: "/productivity" },
   ],
   company: [
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
-    { label: "Reviews", href: "/reviews" },
     { label: "Premium", href: "/premium" },
-  ],
-  legal: [
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Terms", href: "/terms" },
-    { label: "Cookie Policy", href: "/cookies" },
     { label: "Disclosure", href: "/disclosure" },
   ],
 };
 
+// Floating particle component
+function FloatingParticles() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+    const particles: { x: number; y: number; vx: number; vy: number; size: number; opacity: number; hue: number }[] = [];
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    // Create particles
+    for (let i = 0; i < 30; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        size: Math.random() * 2 + 0.5,
+        opacity: Math.random() * 0.3 + 0.1,
+        hue: Math.random() * 60 + 200, // blue to purple range
+      });
+    }
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${p.hue}, 80%, 65%, ${p.opacity})`;
+        ctx.fill();
+      });
+
+      // Draw connections between nearby particles
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `hsla(220, 70%, 60%, ${0.06 * (1 - dist / 120)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      animId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener("resize", resize);
+      cancelAnimationFrame(animId);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ opacity: 0.6 }}
+    />
+  );
+}
+
 export function Footer() {
   return (
-    <footer>
-      {/* Gradient top bar */}
-      <div className="h-1 bg-gradient-to-r from-red-500 via-orange-500 to-pink-500" />
+    <footer className="relative overflow-hidden">
+      {/* Animated gradient top bar */}
+      <div className="h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-gradient-x" />
 
       {/* Main Footer */}
-      <div className="bg-background border-t border-border">
-        <div className="container py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-            {/* Brand Column */}
-            <div>
-              <Link to="/" className="flex items-center gap-1 mb-4">
-                <img
-                  src="/logo-t.png"
-                  alt="TechTrendi"
-                  className="h-10 w-auto"
-                />
-                <span className="text-xl font-bold">
-                  <span className="text-foreground">Tech</span>
-                  <span className="text-primary">Trendi</span>
-                </span>
-              </Link>
-              <p className="text-muted-foreground text-sm mb-6 max-w-xs">
-                Your go-to source for tech that actually matters. No jargon, no fluff — just guides, tools, and insights that help you win with technology every day.
-              </p>
-              <div className="flex items-center gap-2">
-                {socialLinks.map((social) => (
-                  <a
-                    key={social.label}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors"
-                    aria-label={social.label}
-                  >
-                    <social.icon className="w-4 h-4" />
-                  </a>
-                ))}
-              </div>
-            </div>
+      <div className="relative bg-gradient-to-b from-background via-background to-muted/30 border-t border-border">
+        {/* Particle canvas */}
+        <FloatingParticles />
 
-            {/* Explore Links */}
+        {/* Decorative blurred orbs */}
+        <div className="absolute top-10 left-[10%] w-64 h-64 bg-blue-500/5 rounded-full blur-3xl animate-pulse-slow pointer-events-none" />
+        <div className="absolute bottom-10 right-[10%] w-72 h-72 bg-purple-500/5 rounded-full blur-3xl animate-pulse-slow pointer-events-none" style={{ animationDelay: "2s" }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/3 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="container relative z-10 py-16">
+          {/* Top section: Brand + Social */}
+          <div className="text-center mb-12 md:mb-16">
+            <Link to="/" className="inline-flex items-center gap-2 mb-4 group">
+              <img
+                src="/logo-t.png"
+                alt="TechTrendi"
+                className="h-12 w-auto transition-transform duration-300 group-hover:scale-110"
+              />
+              <span className="text-2xl font-bold">
+                <span className="text-foreground">Tech</span>
+                <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">Trendi</span>
+              </span>
+            </Link>
+            <p className="text-muted-foreground text-sm max-w-md mx-auto mb-8">
+              Your go-to source for tech that actually matters. No jargon, no fluff — just guides, tools, and insights that help you win with technology every day.
+            </p>
+
+            {/* Social icons with hover glow */}
+            <div className="flex items-center justify-center gap-3">
+              {socialLinks.map((social, i) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative w-11 h-11 rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-white hover:border-transparent transition-all duration-300 hover:scale-110 hover:-translate-y-1"
+                  aria-label={social.label}
+                  style={{ animationDelay: `${i * 0.05}s` }}
+                >
+                  {/* Gradient background on hover */}
+                  <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {/* Glow effect */}
+                  <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 opacity-0 group-hover:opacity-40 blur-lg transition-opacity duration-300" />
+                  <social.icon className="w-4 h-4 relative z-10" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Divider with glow */}
+          <div className="relative mb-12 md:mb-16">
+            <div className="h-px bg-border" />
+            <div className="absolute left-1/2 -translate-x-1/2 top-0 w-32 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+          </div>
+
+          {/* Link columns */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 lg:gap-12">
+            {/* Explore */}
             <div>
-              <h4 className="font-semibold text-foreground uppercase tracking-wider text-sm mb-4">Explore</h4>
+              <h4 className="font-semibold text-foreground text-sm mb-5 flex items-center gap-2">
+                <span className="w-5 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
+                EXPLORE
+              </h4>
               <ul className="space-y-3">
                 {footerLinks.explore.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                      className="text-sm text-muted-foreground hover:text-primary transition-all duration-200 hover:translate-x-1 inline-block"
                     >
                       {link.label}
                     </Link>
@@ -134,15 +246,18 @@ export function Footer() {
               </ul>
             </div>
 
-            {/* Topics Links */}
+            {/* Topics */}
             <div>
-              <h4 className="font-semibold text-foreground uppercase tracking-wider text-sm mb-4">Topics</h4>
+              <h4 className="font-semibold text-foreground text-sm mb-5 flex items-center gap-2">
+                <span className="w-5 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" />
+                TOPICS
+              </h4>
               <ul className="space-y-3">
                 {footerLinks.topics.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                      className="text-sm text-muted-foreground hover:text-primary transition-all duration-200 hover:translate-x-1 inline-block"
                     >
                       {link.label}
                     </Link>
@@ -151,15 +266,18 @@ export function Footer() {
               </ul>
             </div>
 
-            {/* Company Links */}
+            {/* Company */}
             <div>
-              <h4 className="font-semibold text-foreground uppercase tracking-wider text-sm mb-4">Company</h4>
+              <h4 className="font-semibold text-foreground text-sm mb-5 flex items-center gap-2">
+                <span className="w-5 h-0.5 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full" />
+                COMPANY
+              </h4>
               <ul className="space-y-3">
                 {footerLinks.company.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                      className="text-sm text-muted-foreground hover:text-primary transition-all duration-200 hover:translate-x-1 inline-block"
                     >
                       {link.label}
                     </Link>
@@ -167,31 +285,72 @@ export function Footer() {
                 ))}
               </ul>
             </div>
+
+            {/* Newsletter / CTA on larger screens */}
+            <div className="col-span-2 md:col-span-3 lg:col-span-1">
+              <h4 className="font-semibold text-foreground text-sm mb-5 flex items-center gap-2">
+                <span className="w-5 h-0.5 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full" />
+                STAY UPDATED
+              </h4>
+              <p className="text-sm text-muted-foreground mb-4">
+                Get the latest tech insights delivered to your inbox.
+              </p>
+              <Link
+                to="/start-here"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
+              >
+                Get Started
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            </div>
           </div>
 
-          {/* Bottom section with legal links and copyright */}
-          <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              {footerLinks.legal.map((link, index) => (
-                <span key={link.label} className="flex items-center gap-4">
-                  <Link
-                    to={link.href}
-                    className="hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                  {index < footerLinks.legal.length - 1 && (
-                    <span className="text-border">|</span>
-                  )}
-                </span>
-              ))}
+          {/* Bottom bar */}
+          <div className="relative mt-12 md:mt-16 pt-8 border-t border-border/50">
+            <div className="absolute left-1/2 -translate-x-1/2 top-0 w-32 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Link to="/cookies" className="hover:text-primary transition-colors">Cookie Policy</Link>
+                <span className="text-border">|</span>
+                <span>&copy; {new Date().getFullYear()} TechTrendi. All rights reserved.</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span>Designed by</span>
+                <a
+                  href="https://novastreamdigital.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent hover:from-cyan-300 hover:via-blue-400 hover:to-purple-500 transition-all duration-300"
+                >
+                  NovaStream
+                </a>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} TechTrendi. All rights reserved.
-            </p>
           </div>
         </div>
       </div>
+
+      {/* CSS for custom animations */}
+      <style>{`
+        @keyframes gradient-x {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .animate-gradient-x {
+          background-size: 200% 200%;
+          animation: gradient-x 3s ease infinite;
+        }
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.1); }
+        }
+        .animate-pulse-slow {
+          animation: pulse-slow 6s ease-in-out infinite;
+        }
+      `}</style>
     </footer>
   );
 }

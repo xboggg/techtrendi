@@ -16,12 +16,6 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    rollupOptions: {
-      output: {
-        // Single JS bundle - no chunk splitting = no missing chunk errors
-        manualChunks: undefined,
-        inlineDynamicImports: true,
-      },
-    },
+    rollupOptions: {},
   },
 }));

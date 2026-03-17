@@ -35,6 +35,19 @@ if not ANTHROPIC_API_KEY:
 CLAUDE_URL = "https://api.anthropic.com/v1/messages"
 CLAUDE_MODEL = "claude-sonnet-4-20250514"
 
+TELEGRAM_TOKEN = "8726661150:AAEOQpA2L0kLLMUllFUmxHOErvcYHg1pw9w"
+TELEGRAM_CHAT = "-1003595231315"
+
+def send_telegram(msg: str):
+    try:
+        requests.post(
+            f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+            json={"chat_id": TELEGRAM_CHAT, "text": msg, "parse_mode": "HTML"},
+            timeout=10,
+        )
+    except Exception:
+        pass
+
 # Unsplash image URLs by category — relevant product photography
 CATEGORY_IMAGES = {
     "Smartphones": [
@@ -319,6 +332,7 @@ def insert_review(product: dict, review_data: dict) -> bool:
         "specs": review_data["specs"],
         "full_review": review_data["full_review"],
         "is_published": True,
+        "is_featured": True,
         "views": random.randint(1500, 25000),
     }
 
@@ -388,6 +402,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--fresh", action="store_true", help="Delete all reviews and regenerate")
+    parser.add_argument("--count", type=int, default=2, help="Max reviews to generate per run (default: 2)")
     args = parser.parse_args()
 
     print(f"=== TechTrendi Review Generator ===")
@@ -409,12 +424,16 @@ def main():
 
     if not to_generate:
         print("All products already reviewed. Nothing to do.")
+        send_telegram("📋 <b>Review Generator</b>: All products already reviewed, nothing new to add.")
         return
 
-    print(f"New reviews to generate: {len(to_generate)}")
+    # Limit to --count per run
+    to_generate = to_generate[:args.count]
+    print(f"Generating {len(to_generate)} review(s) this run...")
     print()
 
     success = 0
+    published_names = []
     for i, product in enumerate(to_generate):
         print(f"[{i+1}/{len(to_generate)}] Generating: {product['name']}...")
 
@@ -424,12 +443,17 @@ def main():
 
         if insert_review(product, review_data):
             success += 1
+            published_names.append(f"{product['name']} ({review_data['rating']}/5)")
             print(f"  ✓ Published ({review_data['rating']}/5)")
 
         # Claude rate limit buffer
         time.sleep(2)
 
     print(f"\n=== Done! Generated {success}/{len(to_generate)} reviews ===")
+
+    if published_names:
+        names_list = "\n".join(f"• {n}" for n in published_names)
+        send_telegram(f"✅ <b>TechTrendi Reviews</b>: {success} new review(s) published!\n\n{names_list}")
 
 
 if __name__ == "__main__":

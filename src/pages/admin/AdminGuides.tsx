@@ -53,6 +53,7 @@ export default function AdminGuides() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "published" | "drafts" | "today">("all");
   const [filterHomepage, setFilterHomepage] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -152,20 +153,32 @@ export default function AdminGuides() {
   const homepageCount = guides.filter((g) => g.homepage_featured).length;
   const totalViews = useMemo(() => guides.reduce((sum, g) => sum + (g.views || 0), 0), [guides]);
 
+  const todayStr = new Date().toISOString().slice(0, 10);
+
   const filtered = useMemo(() => {
     return guides.filter((g) => {
       const matchesSearch = !search || g.title.toLowerCase().includes(search.toLowerCase()) || g.category.toLowerCase().includes(search.toLowerCase());
       const matchesCategory = filterCategory === "all" || g.category === filterCategory;
       const matchesHomepage = !filterHomepage || g.homepage_featured;
-      return matchesSearch && matchesCategory && matchesHomepage;
+      const matchesStatus =
+        filterStatus === "all" ||
+        (filterStatus === "published" && g.is_published) ||
+        (filterStatus === "drafts" && !g.is_published) ||
+        (filterStatus === "today" && g.created_at.slice(0, 10) === todayStr);
+      return matchesSearch && matchesCategory && matchesHomepage && matchesStatus;
     });
-  }, [guides, search, filterCategory, filterHomepage]);
+  }, [guides, search, filterCategory, filterHomepage, filterStatus, todayStr]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const safePage = Math.min(currentPage, totalPages);
   const startIndex = (safePage - 1) * ITEMS_PER_PAGE;
   const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filtered.length);
   const paginated = filtered.slice(startIndex, endIndex);
+
+  const handleStatusFilter = (status: "all" | "published" | "drafts" | "today") => {
+    setFilterStatus((prev) => (prev === status ? "all" : status));
+    setCurrentPage(1);
+  };
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -263,21 +276,47 @@ export default function AdminGuides() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="bg-card border border-border rounded-lg p-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+          <button
+            onClick={() => handleStatusFilter("all")}
+            className={`text-left transition-all hover:shadow-md bg-card border border-border rounded-lg p-4 ${filterStatus === "all" ? "ring-2 ring-primary" : ""}`}
+          >
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
               <BookOpen className="w-4 h-4" />
               <span className="text-sm">Total Guides</span>
             </div>
             <p className="text-2xl font-bold">{guides.length}</p>
-          </div>
-          <div className="bg-card border border-border rounded-lg p-4">
+          </button>
+          <button
+            onClick={() => handleStatusFilter("published")}
+            className={`text-left transition-all hover:shadow-md bg-card border border-border rounded-lg p-4 ${filterStatus === "published" ? "ring-2 ring-green-500" : ""}`}
+          >
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
               <Eye className="w-4 h-4" />
               <span className="text-sm">Published</span>
             </div>
             <p className="text-2xl font-bold">{guides.filter((g) => g.is_published).length}</p>
-          </div>
+          </button>
+          <button
+            onClick={() => handleStatusFilter("drafts")}
+            className={`text-left transition-all hover:shadow-md bg-card border border-border rounded-lg p-4 ${filterStatus === "drafts" ? "ring-2 ring-yellow-500" : ""}`}
+          >
+            <div className="flex items-center gap-2 text-muted-foreground mb-1">
+              <Clock className="w-4 h-4 text-yellow-500" />
+              <span className="text-sm">Drafts</span>
+            </div>
+            <p className="text-2xl font-bold">{guides.filter((g) => !g.is_published).length}</p>
+          </button>
+          <button
+            onClick={() => handleStatusFilter("today")}
+            className={`text-left transition-all hover:shadow-md bg-card border border-border rounded-lg p-4 ${filterStatus === "today" ? "ring-2 ring-blue-500" : ""}`}
+          >
+            <div className="flex items-center gap-2 text-muted-foreground mb-1">
+              <BookOpen className="w-4 h-4 text-blue-500" />
+              <span className="text-sm">Today</span>
+            </div>
+            <p className="text-2xl font-bold">{guides.filter((g) => g.created_at.slice(0, 10) === todayStr).length}</p>
+          </button>
           <div className="bg-card border border-border rounded-lg p-4">
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
               <Star className="w-4 h-4 text-yellow-500" />

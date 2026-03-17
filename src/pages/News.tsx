@@ -314,41 +314,46 @@ export default function News() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-12">
+          <div className="flex justify-center items-center gap-2 mt-12 flex-wrap">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="flex items-center gap-1"
+              className="rounded-full"
             >
-              <ChevronLeft className="w-4 h-4" />
-              Previous
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Prev
             </Button>
-
-            <div className="flex items-center gap-1">
-              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  variant={currentPage === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setCurrentPage(page)}
-                  className="w-10 h-10"
-                >
-                  {page}
-                </Button>
-              ))}
+            <span className="text-sm text-muted-foreground sm:hidden">
+              {currentPage} / {totalPages}
+            </span>
+            <div className="hidden sm:flex items-center gap-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
+                .map((page, idx, arr) => (
+                  <span key={page} className="flex items-center gap-2">
+                    {idx > 0 && arr[idx - 1] !== page - 1 && <span className="text-muted-foreground">...</span>}
+                    <Button
+                      variant={currentPage === page ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(page)}
+                      className="w-10 h-10 rounded-full"
+                    >
+                      {page}
+                    </Button>
+                  </span>
+                ))}
             </div>
-
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="flex items-center gap-1"
+              className="rounded-full"
             >
               Next
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
         )}

@@ -198,6 +198,7 @@ const NetWorthTracker = lazy(() => import("./pages/tools/NetWorthTracker"));
 const CompatibilityCalculator = lazy(() => import("./pages/tools/CompatibilityCalculator"));
 const TechTriviaGenerator = lazy(() => import("./pages/tools/TechTriviaGenerator"));
 const SittingTimeCalculator = lazy(() => import("./pages/tools/SittingTimeCalculator"));
+const MathTugOfWar = lazy(() => import("./pages/tools/MathTugOfWar"));
 
 const queryClient = new QueryClient();
 
@@ -343,6 +344,7 @@ const App = () => (
                       <Route path="/tools/compatibility-calculator" element={<CompatibilityCalculator />} />
                       <Route path="/tools/tech-trivia-generator" element={<TechTriviaGenerator />} />
                       <Route path="/tools/sitting-time-calculator" element={<SittingTimeCalculator />} />
+                      <Route path="/tools/math-tug-of-war" element={<MathTugOfWar />} />
                       <Route path="/tools/:categoryId" element={<ToolCategory />} />
                       <Route path="/blog" element={<Blog />} />
                       <Route path="/blog/:slug" element={<BlogArticle />} />

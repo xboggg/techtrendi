@@ -12,7 +12,7 @@ export function Layout({ children }: LayoutProps) {
   const isHomepage = location.pathname === "/";
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden">
+    <div className="min-h-screen flex flex-col overflow-x-clip">
       <Header />
       <main className={`flex-1 ${isHomepage ? "" : "pt-16 md:pt-20"}`}>{children}</main>
       <Footer />

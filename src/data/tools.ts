@@ -10,7 +10,7 @@ import {
   Droplets, Target, BookOpen, Rocket, User, Leaf, Compass, SquareAsterisk,
   ShoppingBag, List, Instagram, ClipboardList, LucideIcon, Wifi, Receipt as ReceiptIcon,
   Database, Globe2, Heart, Home, Timer as TimerIcon, Volume2, Pipette, FileImage,
-  Sparkles, Wand2, ArrowRightLeft, Youtube, Brain, MousePointer
+  Sparkles, Wand2, ArrowRightLeft, Youtube, Brain, MousePointer, Swords
 } from "lucide-react";
 
 export type ToolTier = "free" | "free-account" | "premium";
@@ -121,6 +121,7 @@ export const allTools: Tool[] = [
   { id: "world-clock", icon: Globe2, title: "World Clock", description: "Live clocks, timezone converter, and meeting planner", href: "/tools/world-clock", tier: "free", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-indigo-500 to-blue-600", keywords: ["world", "clock", "timezone", "converter", "meeting", "planner"] },
   { id: "bmi-calculator", icon: Heart, title: "BMI & Health Calculator", description: "BMI, body fat, calories, and waist-to-hip ratio calculator", href: "/tools/bmi-calculator", tier: "free", category: "Lifestyle & Fun", categoryId: "other", isNew: true, gradient: "from-rose-500 to-pink-600", keywords: ["bmi", "health", "calculator", "body", "fat", "calories", "fitness"] },
   { id: "meme-generator", icon: ImageIcon, title: "Meme Generator", description: "Create hilarious memes with templates, custom images, and Impact text", href: "/tools/meme-generator", tier: "free", category: "Lifestyle & Fun", categoryId: "other", isNew: true, gradient: "from-yellow-500 to-orange-600", keywords: ["meme", "generator", "image", "funny", "template", "caption"] },
+  { id: "math-tug-of-war", icon: Swords, title: "Math Tug of War", description: "Multiplayer math battle — answer questions to pull the rope to your side", href: "/tools/math-tug-of-war", tier: "free", category: "Lifestyle & Fun", categoryId: "other", isNew: true, gradient: "from-blue-500 to-orange-600", keywords: ["math", "game", "tug of war", "multiplayer", "brain", "quiz", "educational"] },
   { id: "mortgage-calculator", icon: Home, title: "Mortgage Calculator", description: "Calculate mortgage payments, compare loans, amortization schedule", href: "/tools/mortgage-calculator", tier: "free", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-sky-500 to-blue-600", keywords: ["mortgage", "loan", "calculator", "payment", "amortization", "interest"] },
   { id: "countdown-timer", icon: TimerIcon, title: "Countdown Timer", description: "Beautiful countdowns to any event with themes and sharing", href: "/tools/countdown-timer", tier: "free", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-orange-500 to-amber-600", keywords: ["countdown", "timer", "event", "new year", "birthday"] },
   { id: "text-to-speech", icon: Volume2, title: "Text to Speech", description: "Convert text to speech and speech to text in your browser", href: "/tools/text-to-speech", tier: "free", category: "Productivity", categoryId: "productivity", isNew: true, gradient: "from-emerald-500 to-green-600", keywords: ["text", "speech", "voice", "tts", "dictation", "microphone"] },

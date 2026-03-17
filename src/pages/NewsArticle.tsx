@@ -374,28 +374,8 @@ export default function NewsArticle() {
           </article>
 
           {/* ── Sidebar ── */}
-          <aside className="hidden lg:block">
+          <aside className="hidden lg:block sticky top-6 self-start">
             <div className="space-y-5">
-
-              {/* Ad Placeholder 1 */}
-              <div className="rounded-xl border-2 border-dashed border-border bg-muted/30 flex flex-col items-center justify-center text-center p-5 min-h-[250px]">
-                <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/50 mb-2">Advertisement</span>
-                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-2">
-                  <Zap className="w-4 h-4 text-muted-foreground/40" />
-                </div>
-                <p className="text-xs text-muted-foreground/50">Your ad could be here</p>
-                <p className="text-xs text-muted-foreground/40">300 × 250</p>
-              </div>
-
-              {/* Ad Placeholder 2 */}
-              <div className="rounded-xl border-2 border-dashed border-border bg-muted/30 flex flex-col items-center justify-center text-center p-5 min-h-[250px]">
-                <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/50 mb-2">Advertisement</span>
-                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-2">
-                  <Zap className="w-4 h-4 text-muted-foreground/40" />
-                </div>
-                <p className="text-xs text-muted-foreground/50">Your ad could be here</p>
-                <p className="text-xs text-muted-foreground/40">300 × 250</p>
-              </div>
 
               {/* Trending News */}
               {trendingNews.length > 0 && (
@@ -425,6 +405,26 @@ export default function NewsArticle() {
                   </div>
                 </div>
               )}
+
+              {/* Ad Placeholder 1 */}
+              <div className="rounded-xl border-2 border-dashed border-border bg-muted/30 flex flex-col items-center justify-center text-center p-5 min-h-[250px]">
+                <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/50 mb-2">Advertisement</span>
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-2">
+                  <Zap className="w-4 h-4 text-muted-foreground/40" />
+                </div>
+                <p className="text-xs text-muted-foreground/50">Your ad could be here</p>
+                <p className="text-xs text-muted-foreground/40">300 × 250</p>
+              </div>
+
+              {/* Ad Placeholder 2 */}
+              <div className="rounded-xl border-2 border-dashed border-border bg-muted/30 flex flex-col items-center justify-center text-center p-5 min-h-[250px]">
+                <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/50 mb-2">Advertisement</span>
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-2">
+                  <Zap className="w-4 h-4 text-muted-foreground/40" />
+                </div>
+                <p className="text-xs text-muted-foreground/50">Your ad could be here</p>
+                <p className="text-xs text-muted-foreground/40">300 × 250</p>
+              </div>
             </div>
           </aside>
         </div>
