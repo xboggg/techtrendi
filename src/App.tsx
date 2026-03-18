@@ -218,6 +218,27 @@ const AIBusinessNameGenerator = lazy(() => import("./pages/tools/AIBusinessNameG
 const SideHustleProjector = lazy(() => import("./pages/tools/SideHustleProjector"));
 const HabitTrackerV2 = lazy(() => import("./pages/tools/HabitTrackerV2"));
 const CarbonFootprintV2 = lazy(() => import("./pages/tools/CarbonFootprintV2"));
+const EssayOutlineBuilder = lazy(() => import("./pages/tools/EssayOutlineBuilder"));
+const ConceptExplainer = lazy(() => import("./pages/tools/ConceptExplainer"));
+const ExamTopicPredictor = lazy(() => import("./pages/tools/ExamTopicPredictor"));
+const BlogSEOAuditor = lazy(() => import("./pages/tools/BlogSEOAuditor"));
+
+// New batch 3 tools
+const RentVsBuy = lazy(() => import("./pages/tools/RentVsBuy"));
+const CouplesFinance = lazy(() => import("./pages/tools/CouplesFinance"));
+const PayYourselfFirst = lazy(() => import("./pages/tools/PayYourselfFirst"));
+const VariableIncomeBudget = lazy(() => import("./pages/tools/VariableIncomeBudget"));
+const BrainDumpOutline = lazy(() => import("./pages/tools/BrainDumpOutline"));
+const HookScorer = lazy(() => import("./pages/tools/HookScorer"));
+const ContentCalendar = lazy(() => import("./pages/tools/ContentCalendar"));
+const BrandPitchGenerator = lazy(() => import("./pages/tools/BrandPitchGenerator"));
+const FarmInputCalculator = lazy(() => import("./pages/tools/FarmInputCalculator"));
+const StockAlertTool = lazy(() => import("./pages/tools/StockAlertTool"));
+const CreatorMonetization = lazy(() => import("./pages/tools/CreatorMonetization"));
+const MealNutritionAnalyzer = lazy(() => import("./pages/tools/MealNutritionAnalyzer"));
+const StartupReadiness = lazy(() => import("./pages/tools/StartupReadiness"));
+const BusinessRegGuide = lazy(() => import("./pages/tools/BusinessRegGuide"));
+const StatisticsVisualizer = lazy(() => import("./pages/tools/StatisticsVisualizer"));
 
 const queryClient = new QueryClient();
 
@@ -376,6 +397,25 @@ const App = () => (
                       <Route path="/tools/viral-post-analyzer" element={<ViralPostAnalyzer />} />
                       <Route path="/tools/resume-roaster" element={<ResumeRoaster />} />
                       <Route path="/tools/youtube-title-optimizer" element={<YouTubeTitleOptimizer />} />
+                      <Route path="/tools/essay-outline" element={<EssayOutlineBuilder />} />
+                      <Route path="/tools/concept-explainer" element={<ConceptExplainer />} />
+                      <Route path="/tools/exam-predictor" element={<ExamTopicPredictor />} />
+                      <Route path="/tools/seo-auditor" element={<BlogSEOAuditor />} />
+                      <Route path="/tools/rent-vs-buy" element={<RentVsBuy />} />
+                      <Route path="/tools/couples-finance" element={<CouplesFinance />} />
+                      <Route path="/tools/pay-yourself-first" element={<PayYourselfFirst />} />
+                      <Route path="/tools/variable-income-budget" element={<VariableIncomeBudget />} />
+                      <Route path="/tools/brain-dump" element={<BrainDumpOutline />} />
+                      <Route path="/tools/hook-scorer" element={<HookScorer />} />
+                      <Route path="/tools/content-calendar" element={<ContentCalendar />} />
+                      <Route path="/tools/brand-pitch" element={<BrandPitchGenerator />} />
+                      <Route path="/tools/farm-calculator" element={<FarmInputCalculator />} />
+                      <Route path="/tools/stock-alert" element={<StockAlertTool />} />
+                      <Route path="/tools/creator-monetization" element={<CreatorMonetization />} />
+                      <Route path="/tools/nutrition-analyzer" element={<MealNutritionAnalyzer />} />
+                      <Route path="/tools/startup-readiness" element={<StartupReadiness />} />
+                      <Route path="/tools/business-registration" element={<BusinessRegGuide />} />
+                      <Route path="/tools/statistics-visualizer" element={<StatisticsVisualizer />} />
                       <Route path="/tools/:categoryId" element={<ToolCategory />} />
                       <Route path="/blog" element={<Blog />} />
                       <Route path="/blog/:slug" element={<BlogArticle />} />

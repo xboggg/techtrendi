@@ -18,7 +18,8 @@ import {
   Cake, Coins, HashIcon, Flame, History, ParkingCircle, PiggyBank, Percent, Banknote,
   ImagePlus, Activity, CreditCard as CreditCardIcon, Brain, Armchair, HeartHandshake, Swords,
   LayoutGrid, GanttChart, Map, Percent as PercentIcon,
-  Flame as FlameIcon, MapPin, FileSearch, ShieldAlert, Layers, TrendingDown
+  Flame as FlameIcon, MapPin, FileSearch, ShieldAlert, Layers, TrendingDown,
+  Search, Sprout, Bell, Utensils, ClipboardCheck, CalendarRange, HandCoins
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -78,6 +79,13 @@ const categoriesData: Record<string, CategoryData> = {
       { icon: PercentIcon, title: "Compound Interest Calculator", description: "See how investments grow with visual charts", href: "/tools/compound-interest", tier: "free", isNew: true, gradient: "from-green-500 to-emerald-600" },
       { icon: FlameIcon, title: "FIRE Calculator", description: "Calculate your path to financial independence", href: "/tools/fire-calculator", tier: "free", isNew: true, gradient: "from-amber-500 to-orange-600" },
       { icon: Calculator, title: "Ghana Tax Calculator", description: "PAYE + SSNIT breakdown with 2026 GRA bands", href: "/tools/ghana-tax-calculator", tier: "free", isNew: true, gradient: "from-green-600 to-emerald-700" },
+      { icon: Home, title: "Rent vs Buy Calculator", description: "Compare renting vs buying property over time", href: "/tools/rent-vs-buy", tier: "free", isNew: true, gradient: "from-sky-500 to-blue-600" },
+      { icon: PieChart, title: "Pay Yourself First Budget", description: "Budget planner that prioritizes savings first", href: "/tools/pay-yourself-first", tier: "free", isNew: true, gradient: "from-emerald-500 to-green-600" },
+      { icon: BarChart3, title: "Variable Income Budget", description: "Budget planner for freelancers with irregular income", href: "/tools/variable-income-budget", tier: "free", isNew: true, gradient: "from-amber-500 to-orange-600" },
+      { icon: Sprout, title: "Farm Input Calculator", description: "Calculate seeds, fertilizer, costs and profits", href: "/tools/farm-calculator", tier: "free", isNew: true, gradient: "from-green-600 to-emerald-700" },
+      { icon: Bell, title: "Stock Price Alert", description: "Set price alerts for stocks and get notified", href: "/tools/stock-alert", tier: "free", isNew: true, gradient: "from-blue-500 to-cyan-600" },
+      { icon: ClipboardCheck, title: "Startup Readiness Quiz", description: "15-question startup readiness assessment", href: "/tools/startup-readiness", tier: "free", isNew: true, gradient: "from-violet-500 to-purple-600" },
+      { icon: Building, title: "Business Registration Guide", description: "AI step-by-step registration guide for Africa", href: "/tools/business-registration", tier: "free", isNew: true, gradient: "from-teal-500 to-cyan-600" },
     ],
   },
   productivity: {
@@ -116,6 +124,10 @@ const categoriesData: Record<string, CategoryData> = {
       { icon: Armchair, title: "Sitting Time Calculator", description: "Calculate health impact of desk work", href: "/tools/sitting-time-calculator", tier: "free", isNew: true, gradient: "from-red-500 to-orange-600" },
       { icon: LayoutGrid, title: "Decision Matrix", description: "Weighted scoring matrix with radar charts", href: "/tools/decision-matrix", tier: "free", isNew: true, gradient: "from-indigo-500 to-purple-600" },
       { icon: GanttChart, title: "Project Timeline", description: "Visual Gantt chart to plan and track tasks", href: "/tools/project-timeline", tier: "free", isNew: true, gradient: "from-blue-500 to-cyan-600" },
+      { icon: BookOpen, title: "AI Essay Outline Builder", description: "Generate structured essay outlines with AI", href: "/tools/essay-outline", tier: "free", isNew: true, gradient: "from-emerald-500 to-green-600" },
+      { icon: Brain, title: "AI Concept Explainer", description: "Understand any concept at your level", href: "/tools/concept-explainer", tier: "free", isNew: true, gradient: "from-purple-500 to-violet-600" },
+      { icon: Target, title: "AI Exam Topic Predictor", description: "Predict likely exam topics with study plan", href: "/tools/exam-predictor", tier: "free", isNew: true, gradient: "from-yellow-500 to-amber-600" },
+      { icon: BarChart3, title: "Statistics Visualizer", description: "Visualize data with mean, median, mode, and charts", href: "/tools/statistics-visualizer", tier: "free", isNew: true, gradient: "from-indigo-500 to-blue-600" },
     ],
   },
   career: {
@@ -167,6 +179,12 @@ const categoriesData: Record<string, CategoryData> = {
       { icon: Activity, title: "Hashtag Analyzer", description: "Get popularity and competition scores for hashtags", href: "/tools/hashtag-analyzer", tier: "free", isNew: true, gradient: "from-green-500 to-teal-600" },
       { icon: TrendingDown, title: "Viral Post Analyzer", description: "AI scores your post for viral potential", href: "/tools/viral-post-analyzer", tier: "free", isNew: true, gradient: "from-orange-500 to-red-600" },
       { icon: Youtube, title: "YouTube Title Optimizer", description: "10 high-CTR titles ranked by AI", href: "/tools/youtube-title-optimizer", tier: "free", isNew: true, gradient: "from-red-500 to-rose-600" },
+      { icon: Search, title: "Blog SEO Auditor", description: "Audit blog posts for SEO with score and recommendations", href: "/tools/seo-auditor", tier: "free", isNew: true, gradient: "from-indigo-500 to-purple-600" },
+      { icon: Brain, title: "AI Brain Dump Organizer", description: "Turn messy thoughts into structured outlines", href: "/tools/brain-dump", tier: "free", isNew: true, gradient: "from-violet-500 to-purple-600" },
+      { icon: Target, title: "AI Hook Scorer", description: "Score your hooks for viral potential with AI", href: "/tools/hook-scorer", tier: "free", isNew: true, gradient: "from-orange-500 to-red-600" },
+      { icon: CalendarRange, title: "AI Content Calendar", description: "Generate a weekly content calendar with AI", href: "/tools/content-calendar", tier: "free", isNew: true, gradient: "from-blue-500 to-indigo-600" },
+      { icon: Megaphone, title: "AI Brand Pitch Generator", description: "Generate brand collaboration pitch emails", href: "/tools/brand-pitch", tier: "free", isNew: true, gradient: "from-pink-500 to-fuchsia-600" },
+      { icon: HandCoins, title: "Creator Monetization Calculator", description: "Calculate earnings across platforms", href: "/tools/creator-monetization", tier: "free", isNew: true, gradient: "from-green-500 to-emerald-600" },
     ],
   },
   developer: {
@@ -259,6 +277,8 @@ const categoriesData: Record<string, CategoryData> = {
       { icon: Swords, title: "Math Tug of War", description: "Multiplayer math battle — answer questions to pull the rope", href: "/tools/math-tug-of-war", tier: "free", isNew: true, gradient: "from-blue-500 to-orange-600" },
       { icon: Map, title: "World Economic Map", description: "Explore GDP, population, and HDI for 75+ countries", href: "/tools/world-economic-map", tier: "free", isNew: true, gradient: "from-teal-500 to-green-600" },
       { icon: MapPin, title: "Cost of Living Comparator", description: "Compare cost of living between 20 cities", href: "/tools/cost-of-living", tier: "free", isNew: true, gradient: "from-orange-500 to-red-600" },
+      { icon: Heart, title: "Couples Finance Quiz", description: "Financial compatibility quiz for couples", href: "/tools/couples-finance", tier: "free", isNew: true, gradient: "from-pink-500 to-rose-600" },
+      { icon: Utensils, title: "Meal Nutrition Analyzer", description: "AI nutrition breakdown of your meals", href: "/tools/nutrition-analyzer", tier: "free", isNew: true, gradient: "from-green-500 to-teal-600" },
     ],
   },
 };
