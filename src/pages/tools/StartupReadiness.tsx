@@ -198,45 +198,45 @@ export default function StartupReadiness() {
         description="Find out if you're ready to launch your startup with this free readiness quiz. Assess your finances, skills, validation, and more."
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-12 max-w-3xl">
           {/* Header */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-500/30 rounded-full px-4 py-1.5 mb-4">
               <Rocket className="w-4 h-4 text-blue-400" />
-              <span className="text-blue-300 text-sm font-medium">Startup Readiness Calculator</span>
+              <span className="text-blue-600 dark:text-blue-300 text-sm font-medium">Startup Readiness Calculator</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
               Are You Ready to Launch?
             </h1>
-            <p className="text-slate-400 text-lg max-w-xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
               Answer 7 quick questions to get a personalized readiness score and actionable advice.
             </p>
           </div>
 
           {/* Progress */}
           <div className="mb-8">
-            <div className="flex justify-between text-sm text-slate-400 mb-2">
+            <div className="flex justify-between text-sm text-muted-foreground mb-2">
               <span>{answeredCount} of {questions.length} answered</span>
               <span>{Math.round(progressPercent)}%</span>
             </div>
-            <Progress value={progressPercent} className="h-2 bg-slate-800" />
+            <Progress value={progressPercent} className="h-2 bg-muted" />
           </div>
 
           {!showResults ? (
             <>
               {/* Question Card */}
-              <Card className="bg-slate-900/80 border-slate-700/60 mb-6">
+              <Card className="bg-card border-border mb-6">
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-blue-500/20">
                       <q.icon className="w-5 h-5 text-blue-400" />
                     </div>
                     <div>
-                      <Badge variant="outline" className="text-slate-400 border-slate-600 mb-1 text-xs">
+                      <Badge variant="outline" className="text-muted-foreground border-border mb-1 text-xs">
                         {q.dimension}
                       </Badge>
-                      <CardTitle className="text-white text-lg">{q.question}</CardTitle>
+                      <CardTitle className="text-foreground text-lg">{q.question}</CardTitle>
                     </div>
                   </div>
                 </CardHeader>
@@ -251,14 +251,14 @@ export default function StartupReadiness() {
                           "w-full text-left px-4 py-3 rounded-lg border transition-all duration-200",
                           isSelected
                             ? "bg-blue-600/30 border-blue-500 text-blue-100"
-                            : "bg-slate-800/60 border-slate-700 text-slate-300 hover:bg-slate-800 hover:border-slate-600"
+                            : "bg-muted/60 border-border text-muted-foreground hover:bg-muted hover:border-muted-foreground/30"
                         )}
                       >
                         <div className="flex items-center gap-3">
                           <div
                             className={cn(
                               "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0",
-                              isSelected ? "border-blue-400 bg-blue-500" : "border-slate-600"
+                              isSelected ? "border-blue-400 bg-blue-500" : "border-border"
                             )}
                           >
                             {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
@@ -277,7 +277,7 @@ export default function StartupReadiness() {
                   variant="ghost"
                   onClick={() => setCurrentQ((c) => Math.max(0, c - 1))}
                   disabled={currentQ === 0}
-                  className="text-slate-400 hover:text-white"
+                  className="text-muted-foreground hover:text-foreground"
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" /> Previous
                 </Button>
@@ -286,7 +286,7 @@ export default function StartupReadiness() {
                   <Button
                     variant="ghost"
                     onClick={() => setCurrentQ((c) => c + 1)}
-                    className="text-slate-400 hover:text-white"
+                    className="text-muted-foreground hover:text-foreground"
                   >
                     Next <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
@@ -313,7 +313,7 @@ export default function StartupReadiness() {
                         ? "bg-blue-500 scale-125"
                         : answers[qItem.id] !== undefined
                         ? "bg-blue-400/50"
-                        : "bg-slate-700"
+                        : "bg-muted-foreground/30"
                     )}
                   />
                 ))}
@@ -325,10 +325,10 @@ export default function StartupReadiness() {
               <Card className={cn("border mb-8", verdict.bg)}>
                 <CardContent className="pt-8 pb-8 text-center">
                   <verdict.icon className={cn("w-16 h-16 mx-auto mb-4", verdict.color)} />
-                  <div className="text-6xl font-bold text-white mb-2">{overallScore}</div>
-                  <div className="text-slate-400 text-sm mb-3">out of 100</div>
+                  <div className="text-6xl font-bold text-foreground mb-2">{overallScore}</div>
+                  <div className="text-muted-foreground text-sm mb-3">out of 100</div>
                   <div className={cn("text-2xl font-bold", verdict.color)}>{verdict.label}</div>
-                  <p className="text-slate-400 mt-3 max-w-md mx-auto text-sm">
+                  <p className="text-muted-foreground mt-3 max-w-md mx-auto text-sm">
                     {overallScore >= 70
                       ? "You have a strong foundation. The stars may never align perfectly — consider taking the leap."
                       : overallScore >= 50
@@ -339,9 +339,9 @@ export default function StartupReadiness() {
               </Card>
 
               {/* Dimension Breakdown */}
-              <Card className="bg-slate-900/80 border-slate-700/60 mb-8">
+              <Card className="bg-card border-border mb-8">
                 <CardHeader>
-                  <CardTitle className="text-white text-lg">Dimension Breakdown</CardTitle>
+                  <CardTitle className="text-foreground text-lg">Dimension Breakdown</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {questions.map((qItem) => {
@@ -351,8 +351,8 @@ export default function StartupReadiness() {
                       <div key={qItem.id}>
                         <div className="flex justify-between items-center mb-1.5">
                           <div className="flex items-center gap-2">
-                            <qItem.icon className="w-4 h-4 text-slate-400" />
-                            <span className="text-sm text-slate-300">{qItem.dimension}</span>
+                            <qItem.icon className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">{qItem.dimension}</span>
                           </div>
                           <span
                             className={cn(
@@ -363,7 +363,7 @@ export default function StartupReadiness() {
                             {score}
                           </span>
                         </div>
-                        <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-2.5 bg-muted rounded-full overflow-hidden">
                           <div
                             className={cn("h-full rounded-full transition-all duration-700", barColor)}
                             style={{ width: `${score}%` }}
@@ -377,9 +377,9 @@ export default function StartupReadiness() {
 
               {/* Personalized Advice */}
               {weakAreas.length > 0 && (
-                <Card className="bg-slate-900/80 border-slate-700/60 mb-8">
+                <Card className="bg-card border-border mb-8">
                   <CardHeader>
-                    <CardTitle className="text-white text-lg flex items-center gap-2">
+                    <CardTitle className="text-foreground text-lg flex items-center gap-2">
                       <Lightbulb className="w-5 h-5 text-amber-400" />
                       Areas to Strengthen
                     </CardTitle>
@@ -388,16 +388,16 @@ export default function StartupReadiness() {
                     {weakAreas.map((area) => (
                       <div
                         key={area.id}
-                        className="p-4 rounded-lg bg-slate-800/60 border border-slate-700/50"
+                        className="p-4 rounded-lg bg-muted/60 border border-border"
                       >
                         <div className="flex items-center gap-2 mb-2">
                           <area.icon className="w-4 h-4 text-amber-400" />
-                          <span className="text-white font-medium text-sm">{area.dimension}</span>
+                          <span className="text-foreground font-medium text-sm">{area.dimension}</span>
                           <Badge variant="outline" className="text-rose-400 border-rose-500/40 text-xs ml-auto">
                             Score: {area.score}
                           </Badge>
                         </div>
-                        <p className="text-slate-400 text-sm leading-relaxed">{area.advice}</p>
+                        <p className="text-muted-foreground text-sm leading-relaxed">{area.advice}</p>
                       </div>
                     ))}
                   </CardContent>
@@ -406,7 +406,7 @@ export default function StartupReadiness() {
 
               {/* Reset */}
               <div className="text-center">
-                <Button onClick={reset} variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-800">
+                <Button onClick={reset} variant="outline" className="border-border text-muted-foreground hover:bg-muted">
                   <RotateCcw className="w-4 h-4 mr-2" /> Retake Quiz
                 </Button>
               </div>
@@ -414,43 +414,43 @@ export default function StartupReadiness() {
           )}
 
           {/* How It Works / Tips */}
-          <Card className="bg-slate-900/80 border-slate-700/60 mt-12">
+          <Card className="bg-card border-border mt-12">
             <CardHeader>
-              <CardTitle className="text-white text-lg flex items-center gap-2">
+              <CardTitle className="text-foreground text-lg flex items-center gap-2">
                 <Lightbulb className="w-5 h-5 text-blue-400" />
                 How It Works
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3 text-slate-400 text-sm leading-relaxed">
+              <ul className="space-y-3 text-muted-foreground text-sm leading-relaxed">
                 <li className="flex gap-2">
                   <span className="text-blue-400 font-bold mt-0.5">1.</span>
                   <span>
-                    <strong className="text-slate-200">Startup readiness</strong> measures how prepared you are across the dimensions that matter most — finances, validation, skills, mindset, differentiation, commitment, and network. A high score does not guarantee success, but it shows you have a solid foundation.
+                    <strong className="text-foreground">Startup readiness</strong> measures how prepared you are across the dimensions that matter most — finances, validation, skills, mindset, differentiation, commitment, and network. A high score does not guarantee success, but it shows you have a solid foundation.
                   </span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-blue-400 font-bold mt-0.5">2.</span>
                   <span>
-                    <strong className="text-slate-200">Financial runway is critical.</strong> Most startups take 12-18 months to become profitable. Having at least 6 months of living expenses saved gives you breathing room to iterate without desperation.
+                    <strong className="text-foreground">Financial runway is critical.</strong> Most startups take 12-18 months to become profitable. Having at least 6 months of living expenses saved gives you breathing room to iterate without desperation.
                   </span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-blue-400 font-bold mt-0.5">3.</span>
                   <span>
-                    <strong className="text-slate-200">Validation comes before building.</strong> The biggest mistake first-time founders make is spending months building something nobody wants. Talk to real potential customers before writing a single line of code or spending money.
+                    <strong className="text-foreground">Validation comes before building.</strong> The biggest mistake first-time founders make is spending months building something nobody wants. Talk to real potential customers before writing a single line of code or spending money.
                   </span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-blue-400 font-bold mt-0.5">4.</span>
                   <span>
-                    <strong className="text-slate-200">No one is 100% ready.</strong> A score of 70+ means you have enough going for you to start learning by doing. Waiting for perfect conditions means waiting forever.
+                    <strong className="text-foreground">No one is 100% ready.</strong> A score of 70+ means you have enough going for you to start learning by doing. Waiting for perfect conditions means waiting forever.
                   </span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-blue-400 font-bold mt-0.5">5.</span>
                   <span>
-                    <strong className="text-slate-200">Focus on your weakest dimension.</strong> Improving your lowest score has a bigger impact than making a strong area even stronger. Use the personalized advice above to create a concrete action plan.
+                    <strong className="text-foreground">Focus on your weakest dimension.</strong> Improving your lowest score has a bigger impact than making a strong area even stronger. Use the personalized advice above to create a concrete action plan.
                   </span>
                 </li>
               </ul>

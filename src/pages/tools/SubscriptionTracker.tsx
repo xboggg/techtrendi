@@ -28,6 +28,8 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { CurrencySelector } from "@/components/tools/CurrencySelector";
+import { getCurrencyInfo, getPreferredCurrency, setPreferredCurrency } from "@/lib/currencies";
 
 interface Subscription {
   id: string;
@@ -74,6 +76,20 @@ export default function SubscriptionTracker() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [currency, setCurrency] = useState(() => {
+    try {
+      return localStorage.getItem("techtrendi_preferred_currency") || "GHS";
+    } catch {
+      return "GHS";
+    }
+  });
+
+  const handleCurrencyChange = (code: string) => {
+    setCurrency(code);
+    setPreferredCurrency(code);
+  };
+
+  const currencySymbol = getCurrencyInfo(currency).symbol;
 
   const [newSub, setNewSub] = useState({
     name: "",
@@ -177,6 +193,14 @@ export default function SubscriptionTracker() {
           </p>
         </div>
 
+        {/* Currency Selector */}
+        <div className="flex justify-end mb-4">
+          <div className="w-56">
+            <Label className="text-xs text-muted-foreground mb-1 block">Display Currency</Label>
+            <CurrencySelector value={currency} onChange={handleCurrencyChange} />
+          </div>
+        </div>
+
         {/* Summary Cards */}
         <div className="grid md:grid-cols-3 gap-4 mb-8">
           <Card className="border-2 border-primary/20">
@@ -187,7 +211,7 @@ export default function SubscriptionTracker() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Monthly Total</p>
-                  <p className="text-3xl font-bold text-foreground">${totalMonthly.toFixed(2)}</p>
+                  <p className="text-3xl font-bold text-foreground">{currencySymbol}{totalMonthly.toFixed(2)}</p>
                 </div>
               </div>
             </CardContent>
@@ -201,7 +225,7 @@ export default function SubscriptionTracker() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Yearly Total</p>
-                  <p className="text-3xl font-bold text-foreground">${totalYearly.toFixed(2)}</p>
+                  <p className="text-3xl font-bold text-foreground">{currencySymbol}{totalYearly.toFixed(2)}</p>
                 </div>
               </div>
             </CardContent>
@@ -230,10 +254,10 @@ export default function SubscriptionTracker() {
                 <AlertTriangle className="w-6 h-6 text-amber-500 flex-shrink-0" />
                 <div>
                   <p className="font-medium text-amber-700 dark:text-amber-400">
-                    You're spending ${totalMonthly.toFixed(2)}/month on subscriptions!
+                    You're spending {currencySymbol}{totalMonthly.toFixed(2)}/month on subscriptions!
                   </p>
                   <p className="text-sm text-amber-600 dark:text-amber-300 mt-1">
-                    That's ${totalYearly.toFixed(2)} per year. Consider reviewing which services you actually use.
+                    That's {currencySymbol}{totalYearly.toFixed(2)} per year. Consider reviewing which services you actually use.
                   </p>
                 </div>
               </div>
@@ -364,14 +388,14 @@ export default function SubscriptionTracker() {
                         </div>
                         <div className="text-right">
                           <div className="font-bold text-foreground">
-                            ${sub.cost.toFixed(2)}
+                            {currencySymbol}{sub.cost.toFixed(2)}
                             <span className="text-xs text-muted-foreground font-normal">
                               /{sub.billingCycle === "yearly" ? "yr" : sub.billingCycle === "weekly" ? "wk" : "mo"}
                             </span>
                           </div>
                           {sub.billingCycle !== "monthly" && (
                             <div className="text-xs text-muted-foreground">
-                              ${getMonthlyCost(sub).toFixed(2)}/mo
+                              {currencySymbol}{getMonthlyCost(sub).toFixed(2)}/mo
                             </div>
                           )}
                         </div>
@@ -408,7 +432,7 @@ export default function SubscriptionTracker() {
                         onClick={() => addPopularService(service)}
                       >
                         <Plus className="w-3 h-3 mr-1" />
-                        {service.name} (${service.cost})
+                        {service.name} ({currencySymbol}{service.cost})
                       </Button>
                     ))}
                 </div>
@@ -440,7 +464,7 @@ export default function SubscriptionTracker() {
                             <div className={cn("w-3 h-3 rounded-full", cat.color)} />
                             <span>{cat.name}</span>
                           </div>
-                          <span className="font-medium">${cat.total.toFixed(2)}</span>
+                          <span className="font-medium">{currencySymbol}{cat.total.toFixed(2)}</span>
                         </div>
                         <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div

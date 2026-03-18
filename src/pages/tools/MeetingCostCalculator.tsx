@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { CurrencySelector } from "@/components/tools/CurrencySelector";
+import { getCurrencyInfo, setPreferredCurrency } from "@/lib/currencies";
 
 interface Attendee {
   id: string;
@@ -62,6 +64,20 @@ export default function MeetingCostCalculator() {
   const [frequency, setFrequency] = useState<"once" | "weekly" | "daily">("once");
   const [copied, setCopied] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [currency, setCurrency] = useState(() => {
+    try {
+      return localStorage.getItem("techtrendi_preferred_currency") || "GHS";
+    } catch {
+      return "GHS";
+    }
+  });
+
+  const handleCurrencyChange = (code: string) => {
+    setCurrency(code);
+    setPreferredCurrency(code);
+  };
+
+  const currencySymbol = getCurrencyInfo(currency).symbol;
 
   // Calculate costs
   const workingHoursPerYear = 2080; // 52 weeks * 40 hours
@@ -139,25 +155,35 @@ export default function MeetingCostCalculator() {
     setShowResults(false);
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
+  const formatMeetingCurrency = (amount: number) => {
+    const info = getCurrencyInfo(currency);
+    try {
+      return new Intl.NumberFormat(info.locale, {
+        style: "currency",
+        currency: info.code,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(amount);
+    } catch {
+      return `${info.symbol}${Math.round(amount).toLocaleString()}`;
+    }
   };
 
-  const formatCurrencyDetailed = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
+  const formatMeetingCurrencyDetailed = (amount: number) => {
+    const info = getCurrencyInfo(currency);
+    try {
+      return new Intl.NumberFormat(info.locale, {
+        style: "currency",
+        currency: info.code,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(amount);
+    } catch {
+      return `${info.symbol}${amount.toFixed(2)}`;
+    }
   };
 
-  const shareText = `I just calculated my meeting cost: ${formatCurrency(meetingCost)} for a ${duration}-minute meeting with ${totalAttendees} people! 😱\n\nCalculate yours at techtrendi.com/tools/meeting-cost-calculator`;
+  const shareText = `I just calculated my meeting cost: ${formatMeetingCurrency(meetingCost)} for a ${duration}-minute meeting with ${totalAttendees} people! 😱\n\nCalculate yours at techtrendi.com/tools/meeting-cost-calculator`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(shareText);
@@ -209,6 +235,14 @@ export default function MeetingCostCalculator() {
           </p>
         </div>
 
+        {/* Currency Selector */}
+        <div className="flex justify-end mb-4">
+          <div className="w-56">
+            <Label className="text-xs text-muted-foreground mb-1 block">Display Currency</Label>
+            <CurrencySelector value={currency} onChange={handleCurrencyChange} />
+          </div>
+        </div>
+
         <div className="grid lg:grid-cols-5 gap-8">
           {/* Input Section */}
           <div className="lg:col-span-3 space-y-6">
@@ -242,7 +276,7 @@ export default function MeetingCostCalculator() {
                               {preset.role}
                               {preset.role !== "Custom" && (
                                 <span className="text-muted-foreground ml-2">
-                                  ({formatCurrency(preset.salary)}/yr)
+                                  ({formatMeetingCurrency(preset.salary)}/yr)
                                 </span>
                               )}
                             </SelectItem>
@@ -446,10 +480,10 @@ export default function MeetingCostCalculator() {
                 <div className="text-center p-6 rounded-xl bg-gradient-to-br from-primary to-secondary">
                   <p className="text-white/80 text-sm mb-1">This meeting costs</p>
                   <p className="text-4xl md:text-5xl font-bold text-white">
-                    {formatCurrency(meetingCost)}
+                    {formatMeetingCurrency(meetingCost)}
                   </p>
                   <p className="text-white/70 text-sm mt-2">
-                    {formatCurrencyDetailed(costPerMinute)} per minute
+                    {formatMeetingCurrencyDetailed(costPerMinute)} per minute
                   </p>
                 </div>
 
@@ -475,7 +509,7 @@ export default function MeetingCostCalculator() {
                       <span className="font-medium text-destructive">Annual Impact</span>
                     </div>
                     <p className="text-3xl font-bold text-destructive">
-                      {formatCurrency(annualCost)}
+                      {formatMeetingCurrency(annualCost)}
                     </p>
                     <p className="text-sm text-destructive/80">
                       {frequency === "weekly" ? "52 meetings per year" : "260 meetings per year"}

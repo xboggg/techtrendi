@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Wallet, Plus, Trash2, TrendingUp, TrendingDown, PieChart, Calendar,
   DollarSign, CreditCard, ShoppingCart, Home, Car, Utensils, Film,
-  Heart, Briefcase, Plane, MoreHorizontal
+  Heart, Briefcase, Plane, GraduationCap, MoreHorizontal
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -36,6 +36,7 @@ const categories = [
   { value: "health", label: "Health", icon: Heart, color: "bg-red-500" },
   { value: "work", label: "Work", icon: Briefcase, color: "bg-gray-500" },
   { value: "travel", label: "Travel", icon: Plane, color: "bg-cyan-500" },
+  { value: "education", label: "Education", icon: GraduationCap, color: "bg-indigo-500" },
   { value: "other", label: "Other", icon: MoreHorizontal, color: "bg-slate-500" },
 ];
 

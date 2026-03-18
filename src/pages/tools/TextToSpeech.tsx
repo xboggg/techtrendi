@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Volume2, VolumeX, Mic, MicOff, Play, Pause, Square,
   Copy, Trash2, Languages, Type, AudioLines, Clock, Hash,
+  Download, Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -100,6 +101,13 @@ export default function TextToSpeech() {
   const [isPaused, setIsPaused] = useState(false);
   const [currentWordIndex, setCurrentWordIndex] = useState(-1);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  // === Download State ===
+  const [isRecording, setIsRecording] = useState(false);
+  const [downloadFormat, setDownloadFormat] = useState("wav");
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // === STT State ===
   const [isListening, setIsListening] = useState(false);
@@ -221,6 +229,125 @@ export default function TextToSpeech() {
     setCurrentWordIndex(-1);
   };
 
+  // === Download / Record TTS audio ===
+  const handleDownload = useCallback(async () => {
+    if (!ttsText.trim()) {
+      toast.error("Please enter some text first.");
+      return;
+    }
+
+    try {
+      // Request system audio capture via getDisplayMedia
+      // User will need to select a tab/window and enable "Share audio"
+      toast.info("A screen share dialog will appear. Select any tab and check 'Share audio' to capture the speech output.", { duration: 6000 });
+
+      const stream = await (navigator.mediaDevices as any).getDisplayMedia({
+        video: true, // required by some browsers even if we only want audio
+        audio: true,
+      });
+
+      // Check if audio track exists
+      const audioTracks = stream.getAudioTracks();
+      if (audioTracks.length === 0) {
+        stream.getTracks().forEach((t: MediaStreamTrack) => t.stop());
+        toast.error("No audio track captured. Make sure to check 'Share audio' in the dialog.");
+        return;
+      }
+
+      // Create audio-only stream
+      const audioStream = new MediaStream(audioTracks);
+      streamRef.current = stream;
+
+      // Stop video tracks (we don't need them)
+      stream.getVideoTracks().forEach((t: MediaStreamTrack) => t.stop());
+
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : "audio/webm";
+
+      const mediaRecorder = new MediaRecorder(audioStream, { mimeType });
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: mimeType });
+        const ext = downloadFormat === "wav" ? "wav" : downloadFormat === "aac" ? "aac" : "webm";
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `tts-audio.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success("Audio downloaded!");
+
+        // Cleanup
+        stream.getTracks().forEach((t: MediaStreamTrack) => t.stop());
+        streamRef.current = null;
+        setIsRecording(false);
+      };
+
+      // Start recording
+      mediaRecorder.start(100);
+      setIsRecording(true);
+
+      // Now speak the text
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(ttsText);
+      const voice = voices.find((v) => v.name === selectedVoice);
+      if (voice) utterance.voice = voice;
+      utterance.rate = rate;
+      utterance.pitch = pitch;
+      utterance.volume = volume;
+
+      utterance.onend = () => {
+        // Small delay to capture trailing audio
+        setTimeout(() => {
+          if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+            mediaRecorderRef.current.stop();
+          }
+        }, 500);
+      };
+
+      utterance.onerror = () => {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+          mediaRecorderRef.current.stop();
+        }
+        toast.error("Speech synthesis failed during recording.");
+      };
+
+      speechSynthesis.speak(utterance);
+    } catch (err: any) {
+      if (err.name === "NotAllowedError") {
+        toast.error("Screen share was cancelled. Download requires audio capture permission.");
+      } else {
+        toast.error("Download failed. Your browser may not support audio capture.");
+        console.error("Download error:", err);
+      }
+      setIsRecording(false);
+    }
+  }, [ttsText, selectedVoice, rate, pitch, volume, voices, downloadFormat]);
+
+  const cancelRecording = useCallback(() => {
+    speechSynthesis.cancel();
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    setIsRecording(false);
+    toast.info("Recording cancelled.");
+  }, []);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -230,6 +357,12 @@ export default function TextToSpeech() {
       }
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+      }
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
       }
     };
   }, []);
@@ -632,6 +765,63 @@ export default function TextToSpeech() {
                       </motion.div>
                     )}
                   </AnimatePresence>
+                </CardContent>
+              </Card>
+
+              {/* Download Audio Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Download className="w-5 h-5" />
+                    Download Audio
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Record the speech output and download it as an audio file. Your browser will ask you to share a tab -- make sure to check "Share audio" to capture the speech.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1">
+                      <Label className="text-xs text-muted-foreground mb-1.5 block">Format</Label>
+                      <Select value={downloadFormat} onValueChange={setDownloadFormat}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="webm">WebM (best quality)</SelectItem>
+                          <SelectItem value="wav">WAV</SelectItem>
+                          <SelectItem value="aac">AAC</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-end gap-2">
+                      {!isRecording ? (
+                        <Button
+                          onClick={handleDownload}
+                          disabled={!ttsText.trim() || isSpeaking}
+                          className="h-10"
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Record & Download
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={cancelRecording}
+                          variant="destructive"
+                          className="h-10"
+                        >
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Recording... Cancel
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  {isRecording && (
+                    <div className="flex items-center gap-2 text-sm text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/30 p-3 rounded-lg">
+                      <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+                      Recording speech... The file will download automatically when finished.
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>

@@ -197,6 +197,10 @@ export function getToolsByCategory(categoryId: string): Tool[] {
   return allTools.filter(tool => tool.categoryId === categoryId);
 }
 
+export function getToolByHref(href: string): Tool | undefined {
+  return allTools.find(tool => tool.href === href);
+}
+
 export function searchTools(query: string): Tool[] {
   const searchTerms = query.toLowerCase().split(' ').filter(Boolean);
   return allTools.filter(tool => {

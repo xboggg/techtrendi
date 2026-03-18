@@ -114,10 +114,10 @@ Be honest and critical. A score of 80+ should be genuinely excellent. Return ONL
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-400";
-    if (score >= 60) return "text-yellow-400";
-    if (score >= 40) return "text-orange-400";
-    return "text-red-400";
+    if (score >= 80) return "text-green-600 dark:text-green-400";
+    if (score >= 60) return "text-yellow-600 dark:text-yellow-400";
+    if (score >= 40) return "text-orange-600 dark:text-orange-400";
+    return "text-red-600 dark:text-red-400";
   };
 
   const getScoreBg = (score: number) => {
@@ -146,7 +146,7 @@ Be honest and critical. A score of 80+ should be genuinely excellent. Return ONL
       <div className="container py-12 md:py-20 max-w-5xl">
         {/* Header */}
         <div className="text-center mb-12">
-          <Badge className="mb-4 bg-zinc-800 text-zinc-200 dark:bg-zinc-700 dark:text-zinc-300">
+          <Badge className="mb-4 bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300">
             AI-Powered Tool
           </Badge>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -167,7 +167,7 @@ Be honest and critical. A score of 80+ should be genuinely excellent. Return ONL
               onClick={() => setContentType(type.id)}
               className={cn(
                 "rounded-full",
-                contentType !== type.id && "border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:border-zinc-500"
+                contentType !== type.id && "border-border text-muted-foreground hover:text-foreground hover:border-zinc-400 dark:hover:border-zinc-500"
               )}
             >
               {type.label}
@@ -176,15 +176,15 @@ Be honest and critical. A score of 80+ should be genuinely excellent. Return ONL
         </div>
 
         {/* Input */}
-        <Card className="mb-8 bg-zinc-950/50 border-zinc-800">
+        <Card className="mb-8 bg-card border-border">
           <CardContent className="p-6">
             <div className="space-y-3">
-              <Label className="text-zinc-300">Your hook / opening line</Label>
+              <Label className="text-muted-foreground">Your hook / opening line</Label>
               <Textarea
                 value={hook}
                 onChange={(e) => setHook(e.target.value)}
                 placeholder="Type your hook here... e.g., 'Most people waste 3 hours a day on this one thing and don't even know it.'"
-                className="min-h-[120px] resize-y bg-zinc-900/50 border-zinc-700 text-foreground"
+                className="min-h-[120px] resize-y bg-muted/50 border-border text-foreground"
               />
             </div>
             <Button
@@ -216,11 +216,11 @@ Be honest and critical. A score of 80+ should be genuinely excellent. Return ONL
         {/* Results */}
         {generating && (
           <div className="space-y-6 animate-pulse">
-            <div className="h-40 bg-zinc-900 rounded-xl" />
+            <div className="h-40 bg-muted rounded-xl" />
             <div className="grid md:grid-cols-3 gap-4">
-              <div className="h-28 bg-zinc-900 rounded-xl" />
-              <div className="h-28 bg-zinc-900 rounded-xl" />
-              <div className="h-28 bg-zinc-900 rounded-xl" />
+              <div className="h-28 bg-muted rounded-xl" />
+              <div className="h-28 bg-muted rounded-xl" />
+              <div className="h-28 bg-muted rounded-xl" />
             </div>
           </div>
         )}
@@ -228,12 +228,12 @@ Be honest and critical. A score of 80+ should be genuinely excellent. Return ONL
         {result && !generating && (
           <div className="space-y-6">
             {/* Big Score + Verdict */}
-            <Card className={cn("bg-gradient-to-br border-zinc-800", getScoreBg(result.overall_score))}>
+            <Card className={cn("bg-gradient-to-br border-border", getScoreBg(result.overall_score))}>
               <CardContent className="p-8 text-center">
                 <p className={cn("text-7xl md:text-8xl font-black tabular-nums", getScoreColor(result.overall_score))}>
                   {result.overall_score}
                 </p>
-                <p className="text-sm text-zinc-400 mt-1">out of 100</p>
+                <p className="text-sm text-muted-foreground mt-1">out of 100</p>
                 <p className="text-lg font-semibold text-foreground mt-3">
                   {result.verdict}
                 </p>
@@ -242,45 +242,45 @@ Be honest and critical. A score of 80+ should be genuinely excellent. Return ONL
 
             {/* Sub-Score Cards */}
             <div className="grid md:grid-cols-3 gap-4">
-              <Card className="bg-zinc-950/50 border-zinc-800">
+              <Card className="bg-card border-border">
                 <CardContent className="p-5 text-center">
                   <Eye className="w-5 h-5 mx-auto mb-2 text-blue-400" />
                   <p className={cn("text-3xl font-bold tabular-nums", getScoreColor(result.curiosity_score))}>
                     {result.curiosity_score}
                   </p>
-                  <p className="text-xs text-zinc-400 mt-1 uppercase tracking-wide">Curiosity</p>
+                  <p className="text-xs text-muted-foreground mt-1 uppercase tracking-wide">Curiosity</p>
                 </CardContent>
               </Card>
-              <Card className="bg-zinc-950/50 border-zinc-800">
+              <Card className="bg-card border-border">
                 <CardContent className="p-5 text-center">
                   <Heart className="w-5 h-5 mx-auto mb-2 text-pink-400" />
                   <p className={cn("text-3xl font-bold tabular-nums", getScoreColor(result.emotion_score))}>
                     {result.emotion_score}
                   </p>
-                  <p className="text-xs text-zinc-400 mt-1 uppercase tracking-wide">Emotion</p>
+                  <p className="text-xs text-muted-foreground mt-1 uppercase tracking-wide">Emotion</p>
                 </CardContent>
               </Card>
-              <Card className="bg-zinc-950/50 border-zinc-800">
+              <Card className="bg-card border-border">
                 <CardContent className="p-5 text-center">
                   <Zap className="w-5 h-5 mx-auto mb-2 text-amber-400" />
                   <p className={cn("text-3xl font-bold tabular-nums", getScoreColor(result.clarity_score))}>
                     {result.clarity_score}
                   </p>
-                  <p className="text-xs text-zinc-400 mt-1 uppercase tracking-wide">Clarity</p>
+                  <p className="text-xs text-muted-foreground mt-1 uppercase tracking-wide">Clarity</p>
                 </CardContent>
               </Card>
             </div>
 
             {/* Strengths & Weaknesses */}
             <div className="grid md:grid-cols-2 gap-4">
-              <Card className="bg-zinc-950/50 border-zinc-800">
+              <Card className="bg-card border-border">
                 <CardHeader>
                   <CardTitle className="text-sm text-green-400">Strengths</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
                     {result.strengths.map((s, i) => (
-                      <li key={i} className="text-sm text-zinc-300 flex items-start gap-2">
+                      <li key={i} className="text-sm text-foreground flex items-start gap-2">
                         <span className="text-green-400 mt-0.5 shrink-0">+</span>
                         {s}
                       </li>
@@ -288,14 +288,14 @@ Be honest and critical. A score of 80+ should be genuinely excellent. Return ONL
                   </ul>
                 </CardContent>
               </Card>
-              <Card className="bg-zinc-950/50 border-zinc-800">
+              <Card className="bg-card border-border">
                 <CardHeader>
                   <CardTitle className="text-sm text-red-400">Weaknesses</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
                     {result.weaknesses.map((w, i) => (
-                      <li key={i} className="text-sm text-zinc-300 flex items-start gap-2">
+                      <li key={i} className="text-sm text-foreground flex items-start gap-2">
                         <span className="text-red-400 mt-0.5 shrink-0">-</span>
                         {w}
                       </li>
@@ -306,13 +306,13 @@ Be honest and critical. A score of 80+ should be genuinely excellent. Return ONL
             </div>
 
             {/* Rewrite Suggestion */}
-            <Card className="bg-zinc-950/50 border-zinc-800">
+            <Card className="bg-card border-border">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-primary" />
                   Suggested Rewrite
                 </CardTitle>
-                <Button variant="outline" size="sm" onClick={copyRewrite} className="border-zinc-700">
+                <Button variant="outline" size="sm" onClick={copyRewrite} className="border-border">
                   {copiedRewrite ? (
                     <>
                       <Check className="w-4 h-4 mr-1 text-green-500" />
@@ -336,7 +336,7 @@ Be honest and critical. A score of 80+ should be genuinely excellent. Return ONL
         )}
 
         {/* Tips Section */}
-        <Card className="mt-12 bg-zinc-950/50 border-zinc-800">
+        <Card className="mt-12 bg-card border-border">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <Lightbulb className="w-4 h-4 text-yellow-500" />
@@ -344,29 +344,29 @@ Be honest and critical. A score of 80+ should be genuinely excellent. Return ONL
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-3 text-sm text-zinc-400">
+            <ul className="space-y-3 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
                 <span className="text-primary font-bold mt-0.5">1.</span>
                 <span>
-                  A <strong className="text-zinc-300">hook</strong> is the very first line your audience reads or hears. It determines whether they keep scrolling or stop and engage. On social media, you have roughly 1-2 seconds to capture attention.
+                  A <strong className="text-foreground">hook</strong> is the very first line your audience reads or hears. It determines whether they keep scrolling or stop and engage. On social media, you have roughly 1-2 seconds to capture attention.
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary font-bold mt-0.5">2.</span>
                 <span>
-                  <strong className="text-zinc-300">First lines matter more than anything else.</strong> Research shows 80% of people read headlines but only 20% read the body. Your hook is the gateway to all other content.
+                  <strong className="text-foreground">First lines matter more than anything else.</strong> Research shows 80% of people read headlines but only 20% read the body. Your hook is the gateway to all other content.
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary font-bold mt-0.5">3.</span>
                 <span>
-                  The <strong className="text-zinc-300">curiosity gap</strong> technique works by hinting at valuable information without revealing it. Phrases like "Most people don't know..." or "Here's what nobody tells you about..." create an itch the reader must scratch.
+                  The <strong className="text-foreground">curiosity gap</strong> technique works by hinting at valuable information without revealing it. Phrases like "Most people don't know..." or "Here's what nobody tells you about..." create an itch the reader must scratch.
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary font-bold mt-0.5">4.</span>
                 <span>
-                  Great hooks combine <strong className="text-zinc-300">specificity</strong> (use numbers and concrete details) with <strong className="text-zinc-300">emotion</strong> (surprise, fear, excitement). "5 mistakes that cost me $10,000" beats "Common mistakes people make."
+                  Great hooks combine <strong className="text-foreground">specificity</strong> (use numbers and concrete details) with <strong className="text-foreground">emotion</strong> (surprise, fear, excitement). "5 mistakes that cost me $10,000" beats "Common mistakes people make."
                 </span>
               </li>
             </ul>

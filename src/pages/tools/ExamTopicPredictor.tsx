@@ -75,7 +75,7 @@ export default function ExamTopicPredictor() {
   const probabilityColors: Record<string, string> = {
     high: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
     medium: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    low: "bg-gray-500/20 text-gray-400 border-gray-500/30",
+    low: "bg-gray-500/20 text-gray-600 dark:text-gray-400 border-gray-500/30",
   };
 
   const probabilityLabels: Record<string, string> = {
@@ -194,16 +194,16 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
         description="Predict likely exam topics with AI. Get probability-ranked predictions and a personalized study plan for WASSCE, University, ACCA, GRE, and more."
       />
 
-      <div className="min-h-screen bg-gray-950">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-3">
               <Target className="h-8 w-8 text-yellow-500" />
-              <h1 className="text-3xl font-bold text-white">
+              <h1 className="text-3xl font-bold text-foreground">
                 AI Exam Topic Predictor
               </h1>
             </div>
-            <p className="text-gray-400 max-w-2xl mx-auto">
+            <p className="text-muted-foreground max-w-2xl mx-auto">
               Predict high-probability exam topics and get a personalized study
               plan. Powered by AI analysis of exam patterns and syllabus
               weighting.
@@ -211,7 +211,7 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
           </div>
 
           {/* Input Section */}
-          <Card className="mb-6 bg-gray-900 border-gray-800">
+          <Card className="mb-6 bg-card border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg text-yellow-500">
                 <BookOpen className="h-5 w-5" />
@@ -221,18 +221,18 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-gray-300">Subject Name</Label>
+                  <Label className="text-muted-foreground">Subject Name</Label>
                   <Input
                     placeholder="e.g., Mathematics, Economics, Accounting"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    className="mt-1 bg-gray-800 border-gray-700 text-white"
+                    className="mt-1 bg-muted border-border text-foreground"
                   />
                 </div>
                 <div>
-                  <Label className="text-gray-300">Exam Level</Label>
+                  <Label className="text-muted-foreground">Exam Level</Label>
                   <Select value={examLevel} onValueChange={setExamLevel}>
-                    <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
+                    <SelectTrigger className="mt-1 bg-muted border-border text-foreground">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -248,43 +248,43 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-gray-300">Time Until Exam</Label>
+                  <Label className="text-muted-foreground">Time Until Exam</Label>
                   <Input
                     placeholder="e.g., 2 weeks, 1 month, 3 days"
                     value={timeUntilExam}
                     onChange={(e) => setTimeUntilExam(e.target.value)}
-                    className="mt-1 bg-gray-800 border-gray-700 text-white"
+                    className="mt-1 bg-muted border-border text-foreground"
                   />
                 </div>
                 <div>
-                  <Label className="text-gray-300">Study Hours Available</Label>
+                  <Label className="text-muted-foreground">Study Hours Available</Label>
                   <Input
                     placeholder="e.g., 4 hours/day, 20 hours total"
                     value={studyHours}
                     onChange={(e) => setStudyHours(e.target.value)}
-                    className="mt-1 bg-gray-800 border-gray-700 text-white"
+                    className="mt-1 bg-muted border-border text-foreground"
                   />
                 </div>
               </div>
 
               <div>
-                <Label className="text-gray-300">Syllabus / Topics Covered</Label>
+                <Label className="text-muted-foreground">Syllabus / Topics Covered</Label>
                 <Textarea
                   placeholder="List all the topics in your syllabus, separated by commas or new lines..."
                   value={syllabus}
                   onChange={(e) => setSyllabus(e.target.value)}
-                  className="mt-1 bg-gray-800 border-gray-700 text-white"
+                  className="mt-1 bg-muted border-border text-foreground"
                   rows={4}
                 />
               </div>
 
               <div>
-                <Label className="text-gray-300">Weak Areas (optional)</Label>
+                <Label className="text-muted-foreground">Weak Areas (optional)</Label>
                 <Input
                   placeholder="e.g., Integration, Financial statements, Organic chemistry"
                   value={weakAreas}
                   onChange={(e) => setWeakAreas(e.target.value)}
-                  className="mt-1 bg-gray-800 border-gray-700 text-white"
+                  className="mt-1 bg-muted border-border text-foreground"
                 />
               </div>
 
@@ -317,7 +317,7 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
                   variant="outline"
                   size="sm"
                   onClick={copyResult}
-                  className="border-gray-700 text-gray-300 hover:text-white"
+                  className="border-border text-muted-foreground hover:text-foreground"
                 >
                   {copied ? (
                     <Check className="h-4 w-4 mr-1" />
@@ -330,7 +330,7 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
 
               {/* Predicted Topics */}
               <div className="mb-6">
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-yellow-500" />
                   Predicted Topics
                 </h2>
@@ -338,11 +338,11 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
                   {result.predictedTopics.map((topic, i) => (
                     <Card
                       key={i}
-                      className="bg-gray-900 border-gray-800 hover:border-gray-700 transition-colors"
+                      className="bg-card border-border hover:border-muted-foreground/30 transition-colors"
                     >
                       <CardContent className="pt-5">
                         <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-semibold text-white text-sm flex-1 mr-2">
+                          <h3 className="font-semibold text-foreground text-sm flex-1 mr-2">
                             {i + 1}. {topic.topic}
                           </h3>
                           <Badge
@@ -354,7 +354,7 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
                             {probabilityLabels[topic.probability]}
                           </Badge>
                         </div>
-                        <p className="text-gray-400 text-xs mb-3">
+                        <p className="text-muted-foreground text-xs mb-3">
                           {topic.description}
                         </p>
                         <div className="mb-3">
@@ -366,18 +366,18 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
                               <Badge
                                 key={j}
                                 variant="secondary"
-                                className="text-xs bg-gray-800 text-gray-300"
+                                className="text-xs bg-muted text-muted-foreground"
                               >
                                 {st}
                               </Badge>
                             ))}
                           </div>
                         </div>
-                        <div className="bg-gray-800/50 rounded p-2">
+                        <div className="bg-muted/50 rounded p-2">
                           <span className="text-xs text-yellow-500 font-medium">
                             Why:
                           </span>
-                          <p className="text-gray-400 text-xs mt-0.5">
+                          <p className="text-muted-foreground text-xs mt-0.5">
                             {topic.reasoning}
                           </p>
                         </div>
@@ -388,7 +388,7 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
               </div>
 
               {/* Study Plan */}
-              <Card className="mb-6 bg-gray-900 border-gray-800">
+              <Card className="mb-6 bg-card border-border">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg text-yellow-500">
                     <Clock className="h-5 w-5" />
@@ -406,7 +406,7 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <h4 className="font-semibold text-white text-sm">
+                          <h4 className="font-semibold text-foreground text-sm">
                             {step.title}
                           </h4>
                           <Badge
@@ -416,7 +416,7 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
                             {step.duration}
                           </Badge>
                         </div>
-                        <p className="text-gray-400 text-sm mt-1">
+                        <p className="text-muted-foreground text-sm mt-1">
                           {step.description}
                         </p>
                       </div>
@@ -428,19 +428,19 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
           )}
 
           {/* Tips Section */}
-          <Card className="bg-gray-900 border-gray-800">
+          <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg text-white">
+              <CardTitle className="flex items-center gap-2 text-lg text-foreground">
                 <Lightbulb className="h-5 w-5 text-yellow-500" />
                 Tips for Smarter Exam Prep
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3 text-gray-400 text-sm">
+              <ul className="space-y-3 text-muted-foreground text-sm">
                 <li className="flex items-start gap-2">
                   <span className="text-yellow-500 font-bold mt-0.5">1.</span>
                   <span>
-                    <strong className="text-gray-200">
+                    <strong className="text-foreground">
                       How exam prediction works.
                     </strong>{" "}
                     Examiners follow patterns -- certain topics appear more
@@ -452,7 +452,7 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
                 <li className="flex items-start gap-2">
                   <span className="text-yellow-500 font-bold mt-0.5">2.</span>
                   <span>
-                    <strong className="text-gray-200">
+                    <strong className="text-foreground">
                       The Pareto Principle (80/20 rule).
                     </strong>{" "}
                     About 80% of exam marks come from 20% of the syllabus.
@@ -464,7 +464,7 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
                 <li className="flex items-start gap-2">
                   <span className="text-yellow-500 font-bold mt-0.5">3.</span>
                   <span>
-                    <strong className="text-gray-200">
+                    <strong className="text-foreground">
                       Active recall beats passive reading.
                     </strong>{" "}
                     Instead of re-reading notes, close the book and try to
@@ -476,7 +476,7 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
                 <li className="flex items-start gap-2">
                   <span className="text-yellow-500 font-bold mt-0.5">4.</span>
                   <span>
-                    <strong className="text-gray-200">
+                    <strong className="text-foreground">
                       Don't ignore weak areas.
                     </strong>{" "}
                     Enter your weak topics above to get targeted advice.
@@ -487,7 +487,7 @@ Generate 8-10 predicted topics with probability levels (high/medium/low). Create
                 <li className="flex items-start gap-2">
                   <span className="text-yellow-500 font-bold mt-0.5">5.</span>
                   <span>
-                    <strong className="text-gray-200">
+                    <strong className="text-foreground">
                       Spaced repetition is key.
                     </strong>{" "}
                     Review high-probability topics at increasing intervals (1

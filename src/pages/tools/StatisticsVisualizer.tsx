@@ -213,29 +213,29 @@ export default function StatisticsVisualizer() {
         description="Paste your numbers and instantly see mean, median, mode, standard deviation, histograms, and more. Free online statistics calculator with charts."
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-12 max-w-5xl">
           {/* Header */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 bg-violet-500/20 border border-violet-500/30 rounded-full px-4 py-1.5 mb-4">
               <BarChart3 className="w-4 h-4 text-violet-400" />
-              <span className="text-violet-300 text-sm font-medium">
+              <span className="text-violet-600 dark:text-violet-300 text-sm font-medium">
                 Statistics Visualizer
               </span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
               Visualize Your Data Instantly
             </h1>
-            <p className="text-slate-400 text-lg max-w-xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
               Paste numbers, see statistics and charts in real time. No sign-up required.
             </p>
           </div>
 
           {/* Input */}
-          <Card className="bg-slate-900/80 border-slate-700/60 mb-6">
+          <Card className="bg-card border-border mb-6">
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle className="text-white text-lg flex items-center gap-2">
+                <CardTitle className="text-foreground text-lg flex items-center gap-2">
                   <Hash className="w-5 h-5 text-violet-400" />
                   Enter Your Numbers
                 </CardTitle>
@@ -244,7 +244,7 @@ export default function StatisticsVisualizer() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setInput("")}
-                    className="text-slate-400 hover:text-white"
+                    className="text-muted-foreground hover:text-foreground"
                   >
                     <RotateCcw className="w-4 h-4 mr-1" /> Clear
                   </Button>
@@ -256,17 +256,17 @@ export default function StatisticsVisualizer() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Enter numbers separated by commas or spaces, e.g.: 12, 15, 18, 22, 25, 30, 35"
-                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 min-h-[100px] font-mono text-sm"
+                className="bg-muted border-border text-foreground placeholder:text-muted-foreground/60 min-h-[100px] font-mono text-sm"
               />
               {numbers.length > 0 && (
-                <p className="text-slate-400 text-sm">
+                <p className="text-muted-foreground text-sm">
                   Parsed <span className="text-violet-400 font-semibold">{numbers.length}</span> numbers
                 </p>
               )}
 
               {/* Preset buttons */}
               <div>
-                <Label className="text-slate-400 text-xs mb-2 block">
+                <Label className="text-muted-foreground text-xs mb-2 block">
                   Try a preset dataset:
                 </Label>
                 <div className="flex flex-wrap gap-2">
@@ -276,7 +276,7 @@ export default function StatisticsVisualizer() {
                       variant="outline"
                       size="sm"
                       onClick={() => loadPreset(p.data)}
-                      className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white text-xs"
+                      className="border-border text-muted-foreground hover:bg-muted hover:text-foreground text-xs"
                     >
                       <Sparkles className="w-3 h-3 mr-1 text-violet-400" />
                       {p.label}
@@ -294,10 +294,10 @@ export default function StatisticsVisualizer() {
                 {statCards.map((s) => (
                   <Card
                     key={s.label}
-                    className="bg-slate-900/80 border-slate-700/60"
+                    className="bg-card border-border"
                   >
                     <CardContent className="pt-4 pb-4 text-center">
-                      <p className="text-slate-400 text-xs mb-1">{s.label}</p>
+                      <p className="text-muted-foreground text-xs mb-1">{s.label}</p>
                       <p className={cn("font-bold text-lg truncate", s.color)}>
                         {s.value}
                       </p>
@@ -311,17 +311,17 @@ export default function StatisticsVisualizer() {
                   variant="outline"
                   size="sm"
                   onClick={copyStats}
-                  className="border-slate-600 text-slate-300 hover:bg-slate-800"
+                  className="border-border text-muted-foreground hover:bg-muted"
                 >
                   <Copy className="w-4 h-4 mr-2" /> Copy Stats
                 </Button>
               </div>
 
               {/* Charts */}
-              <Card className="bg-slate-900/80 border-slate-700/60 mb-8">
+              <Card className="bg-card border-border mb-8">
                 <CardContent className="pt-6">
                   <Tabs defaultValue="histogram">
-                    <TabsList className="bg-slate-800 border border-slate-700 mb-4">
+                    <TabsList className="bg-muted border border-border mb-4">
                       <TabsTrigger value="histogram">Histogram</TabsTrigger>
                       <TabsTrigger value="cdf">Cumulative Distribution</TabsTrigger>
                       <TabsTrigger value="dot">Dot Plot</TabsTrigger>
@@ -465,20 +465,20 @@ export default function StatisticsVisualizer() {
               </Card>
 
               {/* Insights */}
-              <Card className="bg-slate-900/80 border-slate-700/60 mb-8">
+              <Card className="bg-card border-border mb-8">
                 <CardHeader>
-                  <CardTitle className="text-white text-lg flex items-center gap-2">
+                  <CardTitle className="text-foreground text-lg flex items-center gap-2">
                     <TrendingUp className="w-5 h-5 text-violet-400" />
                     Insights
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Skewness */}
-                  <div className="p-4 rounded-lg bg-slate-800/60 border border-slate-700/50">
-                    <p className="text-slate-300 font-medium text-sm mb-1">
+                  <div className="p-4 rounded-lg bg-muted/60 border border-border">
+                    <p className="text-foreground font-medium text-sm mb-1">
                       Skewness: {fmt(stats.skewness)}
                     </p>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-muted-foreground text-sm">
                       {Math.abs(stats.skewness) < 0.5
                         ? "Your data is approximately symmetric (bell-shaped). The mean and median are close together."
                         : stats.skewness > 0
@@ -488,11 +488,11 @@ export default function StatisticsVisualizer() {
                   </div>
 
                   {/* Coefficient of Variation */}
-                  <div className="p-4 rounded-lg bg-slate-800/60 border border-slate-700/50">
-                    <p className="text-slate-300 font-medium text-sm mb-1">
+                  <div className="p-4 rounded-lg bg-muted/60 border border-border">
+                    <p className="text-foreground font-medium text-sm mb-1">
                       Coefficient of Variation: {fmt(stats.cv)}%
                     </p>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-muted-foreground text-sm">
                       {stats.cv < 15
                         ? "Low variability. Your data points are tightly clustered around the mean."
                         : stats.cv < 30
@@ -502,19 +502,19 @@ export default function StatisticsVisualizer() {
                   </div>
 
                   {/* Outliers */}
-                  <div className="p-4 rounded-lg bg-slate-800/60 border border-slate-700/50">
+                  <div className="p-4 rounded-lg bg-muted/60 border border-border">
                     <div className="flex items-center gap-2 mb-1">
                       {stats.outliers.length > 0 && (
                         <AlertTriangle className="w-4 h-4 text-amber-400" />
                       )}
-                      <p className="text-slate-300 font-medium text-sm">
+                      <p className="text-foreground font-medium text-sm">
                         Outliers (IQR method):{" "}
                         {stats.outliers.length === 0
                           ? "None detected"
                           : stats.outliers.join(", ")}
                       </p>
                     </div>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-muted-foreground text-sm">
                       Values below {fmt(stats.lowerFence)} or above{" "}
                       {fmt(stats.upperFence)} are considered outliers.
                       {stats.outliers.length > 0
@@ -528,26 +528,26 @@ export default function StatisticsVisualizer() {
           )}
 
           {/* Tips */}
-          <Card className="bg-slate-900/80 border-slate-700/60">
+          <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-white text-lg flex items-center gap-2">
+              <CardTitle className="text-foreground text-lg flex items-center gap-2">
                 <Lightbulb className="w-5 h-5 text-violet-400" />
                 How It Works
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3 text-slate-400 text-sm leading-relaxed">
+              <ul className="space-y-3 text-muted-foreground text-sm leading-relaxed">
                 <li className="flex gap-2">
                   <span className="text-violet-400 font-bold mt-0.5">1.</span>
                   <span>
-                    <strong className="text-slate-200">Mean vs Median:</strong>{" "}
+                    <strong className="text-foreground">Mean vs Median:</strong>{" "}
                     The mean (average) is sensitive to extreme values. The median is the middle value and is more robust. If your data is skewed, the median gives a better picture of the "typical" value. For example, average income is misleading because billionaires pull it up — median income is more useful.
                   </span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-violet-400 font-bold mt-0.5">2.</span>
                   <span>
-                    <strong className="text-slate-200">
+                    <strong className="text-foreground">
                       What Standard Deviation tells you:
                     </strong>{" "}
                     Standard deviation measures how spread out your data is. A small std dev means most values are close to the mean. A large std dev means wide variation. In a bell curve, about 68% of data falls within 1 std dev of the mean, and 95% within 2 std devs.
@@ -556,7 +556,7 @@ export default function StatisticsVisualizer() {
                 <li className="flex gap-2">
                   <span className="text-violet-400 font-bold mt-0.5">3.</span>
                   <span>
-                    <strong className="text-slate-200">
+                    <strong className="text-foreground">
                       How to spot outliers:
                     </strong>{" "}
                     The IQR (Interquartile Range) method flags values below Q1 - 1.5*IQR or above Q3 + 1.5*IQR. These are not necessarily errors — they could be legitimately extreme values. Always investigate outliers rather than automatically removing them.
@@ -565,7 +565,7 @@ export default function StatisticsVisualizer() {
                 <li className="flex gap-2">
                   <span className="text-violet-400 font-bold mt-0.5">4.</span>
                   <span>
-                    <strong className="text-slate-200">
+                    <strong className="text-foreground">
                       Reading a histogram:
                     </strong>{" "}
                     A histogram shows how often values fall into specific ranges (bins). A bell shape means normally distributed data. Two peaks (bimodal) might mean you have two distinct groups mixed together.
@@ -574,7 +574,7 @@ export default function StatisticsVisualizer() {
                 <li className="flex gap-2">
                   <span className="text-violet-400 font-bold mt-0.5">5.</span>
                   <span>
-                    <strong className="text-slate-200">
+                    <strong className="text-foreground">
                       All computation is local:
                     </strong>{" "}
                     Your data never leaves your browser. Everything is calculated in real-time on your device — no server calls, no data stored.

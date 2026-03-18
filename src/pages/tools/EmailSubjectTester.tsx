@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   Mail, AlertTriangle, CheckCircle2, XCircle, Lightbulb, RotateCcw,
   Sparkles, Clock, Smartphone, Eye, TrendingUp, Copy, Check
@@ -213,14 +212,29 @@ export default function EmailSubjectTester() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const handleAnalyze = () => {
+  // Auto-analyze as the user types (debounced)
+  useEffect(() => {
+    if (!subject.trim()) {
+      setResult(null);
+      return;
+    }
+    const timer = setTimeout(() => {
+      setResult(analyzeSubjectLine(subject));
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [subject]);
+
+  const handleAnalyze = useCallback(() => {
+    if (!subject.trim()) {
+      toast.error("Please enter a subject line to analyze");
+      return;
+    }
     const analysis = analyzeSubjectLine(subject);
     setResult(analysis);
-  };
+  }, [subject]);
 
   const handleExample = (example: string) => {
     setSubject(example);
-    setResult(analyzeSubjectLine(example));
   };
 
   const handleCopy = () => {
@@ -352,7 +366,12 @@ export default function EmailSubjectTester() {
                       <span className="font-medium">Overall Score</span>
                       <span className="font-bold text-2xl">{result.score}/100</span>
                     </div>
-                    <Progress value={result.score} className={cn("h-3", getScoreColor(result.score))} />
+                    <div className="relative h-3 w-full overflow-hidden rounded-full bg-secondary">
+                      <div
+                        className={cn("h-full rounded-full transition-all duration-500", getScoreColor(result.score))}
+                        style={{ width: `${result.score}%` }}
+                      />
+                    </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
                       <div className="text-center p-3 rounded-lg bg-muted/50">

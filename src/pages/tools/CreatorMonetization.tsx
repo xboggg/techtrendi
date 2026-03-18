@@ -25,7 +25,7 @@ import {
   Crown,
 } from "lucide-react";
 import { CurrencySelector } from "@/components/tools/CurrencySelector";
-import { formatCurrency, getPreferredCurrency, setPreferredCurrency } from "@/lib/currencies";
+import { formatCurrencyFromUSD, getPreferredCurrency, setPreferredCurrency } from "@/lib/currencies";
 
 // --- Platform CPMs (USD per 1000 views) ---
 
@@ -131,7 +131,7 @@ export default function CreatorMonetization() {
     return "You are at scale. Negotiate long-term brand deals, build a team, and invest in evergreen content. Consider launching a membership community for recurring revenue.";
   }, [followers]);
 
-  const fmt = (v: number) => formatCurrency(v, currency);
+  const fmt = (v: number) => formatCurrencyFromUSD(v, currency);
 
   function formatSliderValue(value: number): string {
     if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;

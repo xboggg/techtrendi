@@ -198,38 +198,38 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
         description="Get a step-by-step guide to registering your business in Ghana, Nigeria, Kenya, and other African countries. AI-powered, free, and personalized."
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-12 max-w-4xl">
           {/* Header */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/30 rounded-full px-4 py-1.5 mb-4">
               <Building2 className="w-4 h-4 text-emerald-400" />
-              <span className="text-emerald-300 text-sm font-medium">
+              <span className="text-emerald-600 dark:text-emerald-300 text-sm font-medium">
                 AI Business Registration Guide
               </span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
               Register Your Business the Right Way
             </h1>
-            <p className="text-slate-400 text-lg max-w-xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
               Get a personalized, step-by-step guide with costs, timelines, and
               required documents for your country.
             </p>
           </div>
 
           {/* Input Form */}
-          <Card className="bg-slate-900/80 border-slate-700/60 mb-8">
+          <Card className="bg-card border-border mb-8">
             <CardHeader>
-              <CardTitle className="text-white text-lg">
+              <CardTitle className="text-foreground text-lg">
                 Tell Us About Your Business
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2">
-                  <Label className="text-slate-300">Country</Label>
+                  <Label className="text-muted-foreground">Country</Label>
                   <Select value={country} onValueChange={setCountry}>
-                    <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                    <SelectTrigger className="bg-muted border-border text-foreground">
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                     <SelectContent>
@@ -243,9 +243,9 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-slate-300">Business Structure</Label>
+                  <Label className="text-muted-foreground">Business Structure</Label>
                   <Select value={structure} onValueChange={setStructure}>
-                    <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                    <SelectTrigger className="bg-muted border-border text-foreground">
                       <SelectValue placeholder="Select structure" />
                     </SelectTrigger>
                     <SelectContent>
@@ -259,19 +259,19 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-slate-300">Business Type</Label>
+                  <Label className="text-muted-foreground">Business Type</Label>
                   <Input
                     value={businessType}
                     onChange={(e) => setBusinessType(e.target.value)}
                     placeholder="e.g., Online clothing store, Restaurant, Tech consulting"
-                    className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+                    className="bg-muted border-border text-foreground placeholder:text-muted-foreground/60"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-slate-300">Starting Capital</Label>
+                  <Label className="text-muted-foreground">Starting Capital</Label>
                   <Select value={capital} onValueChange={setCapital}>
-                    <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                    <SelectTrigger className="bg-muted border-border text-foreground">
                       <SelectValue placeholder="Select range (optional)" />
                     </SelectTrigger>
                     <SelectContent>
@@ -286,14 +286,14 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
               </div>
 
               <div className="space-y-2">
-                <Label className="text-slate-300">
+                <Label className="text-muted-foreground">
                   Additional Questions (optional)
                 </Label>
                 <Textarea
                   value={questions}
                   onChange={(e) => setQuestions(e.target.value)}
                   placeholder="e.g., Do I need a tax clearance certificate? Can I register online?"
-                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 min-h-[80px]"
+                  className="bg-muted border-border text-foreground placeholder:text-muted-foreground/60 min-h-[80px]"
                 />
               </div>
 
@@ -322,29 +322,29 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
             <>
               {/* Cost & Timeline Summary */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                <Card className="bg-slate-900/80 border-slate-700/60">
+                <Card className="bg-card border-border">
                   <CardContent className="pt-6 flex items-center gap-4">
                     <div className="p-3 rounded-xl bg-blue-500/20">
                       <Clock className="w-6 h-6 text-blue-400" />
                     </div>
                     <div>
-                      <p className="text-slate-400 text-sm">Total Timeline</p>
-                      <p className="text-white font-semibold text-lg">
+                      <p className="text-muted-foreground text-sm">Total Timeline</p>
+                      <p className="text-foreground font-semibold text-lg">
                         {result.totalTimeline}
                       </p>
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="bg-slate-900/80 border-slate-700/60">
+                <Card className="bg-card border-border">
                   <CardContent className="pt-6 flex items-center gap-4">
                     <div className="p-3 rounded-xl bg-emerald-500/20">
                       <DollarSign className="w-6 h-6 text-emerald-400" />
                     </div>
                     <div>
-                      <p className="text-slate-400 text-sm">
+                      <p className="text-muted-foreground text-sm">
                         Estimated Total Cost
                       </p>
-                      <p className="text-white font-semibold text-lg">
+                      <p className="text-foreground font-semibold text-lg">
                         {result.totalCostEstimate}
                       </p>
                     </div>
@@ -355,14 +355,14 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
               {/* Timeline Steps */}
               <div className="mb-8">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold text-white">
+                  <h2 className="text-xl font-bold text-foreground">
                     Registration Steps
                   </h2>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={copyGuide}
-                    className="border-slate-600 text-slate-300 hover:bg-slate-800"
+                    className="border-border text-muted-foreground hover:bg-muted"
                   >
                     <Copy className="w-4 h-4 mr-2" /> Copy Guide
                   </Button>
@@ -370,7 +370,7 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
 
                 <div className="relative">
                   {/* Vertical line */}
-                  <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-slate-700" />
+                  <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-border" />
 
                   <div className="space-y-6">
                     {result.steps.map((step, i) => {
@@ -378,11 +378,11 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
                       return (
                         <div key={i} className="relative pl-14">
                           {/* Numbered circle */}
-                          <div className="absolute left-0 w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm z-10 border-4 border-slate-950">
+                          <div className="absolute left-0 w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm z-10 border-4 border-background">
                             {i + 1}
                           </div>
 
-                          <Card className="bg-slate-900/80 border-slate-700/60">
+                          <Card className="bg-card border-border">
                             <CardContent className="pt-5 pb-5">
                               <button
                                 onClick={() =>
@@ -391,13 +391,13 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
                                 className="w-full text-left"
                               >
                                 <div className="flex justify-between items-start">
-                                  <h3 className="text-white font-semibold text-base">
+                                  <h3 className="text-foreground font-semibold text-base">
                                     {step.name}
                                   </h3>
                                   {isExpanded ? (
-                                    <ChevronUp className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                                    <ChevronUp className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                                   ) : (
-                                    <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                                    <ChevronDown className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                                   )}
                                 </div>
 
@@ -428,22 +428,22 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
                               </button>
 
                               {isExpanded && (
-                                <div className="mt-4 space-y-3 border-t border-slate-700/50 pt-4">
-                                  <p className="text-slate-400 text-sm leading-relaxed">
+                                <div className="mt-4 space-y-3 border-t border-border pt-4">
+                                  <p className="text-muted-foreground text-sm leading-relaxed">
                                     {step.description}
                                   </p>
                                   {step.documents &&
                                     step.documents.length > 0 && (
                                       <div>
-                                        <p className="text-slate-300 text-sm font-medium mb-2 flex items-center gap-1.5">
-                                          <FileText className="w-4 h-4 text-slate-400" />
+                                        <p className="text-muted-foreground text-sm font-medium mb-2 flex items-center gap-1.5">
+                                          <FileText className="w-4 h-4 text-muted-foreground" />
                                           Required Documents
                                         </p>
                                         <ul className="space-y-1">
                                           {step.documents.map((doc, j) => (
                                             <li
                                               key={j}
-                                              className="text-slate-400 text-sm flex items-center gap-2"
+                                              className="text-muted-foreground text-sm flex items-center gap-2"
                                             >
                                               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
                                               {doc}
@@ -478,7 +478,7 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
                       {result.proTips.map((tip, i) => (
                         <li
                           key={i}
-                          className="text-slate-300 text-sm flex gap-2"
+                          className="text-muted-foreground text-sm flex gap-2"
                         >
                           <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                           <span>{tip}</span>
@@ -501,7 +501,7 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
                       {result.commonMistakes.map((mistake, i) => (
                         <li
                           key={i}
-                          className="text-slate-300 text-sm flex gap-2"
+                          className="text-muted-foreground text-sm flex gap-2"
                         >
                           <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
                           <span>{mistake}</span>
@@ -515,19 +515,19 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
           )}
 
           {/* How It Works / Tips */}
-          <Card className="bg-slate-900/80 border-slate-700/60 mt-4">
+          <Card className="bg-card border-border mt-4">
             <CardHeader>
-              <CardTitle className="text-white text-lg flex items-center gap-2">
+              <CardTitle className="text-foreground text-lg flex items-center gap-2">
                 <Lightbulb className="w-5 h-5 text-emerald-400" />
                 Tips for Business Registration
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3 text-slate-400 text-sm leading-relaxed">
+              <ul className="space-y-3 text-muted-foreground text-sm leading-relaxed">
                 <li className="flex gap-2">
                   <span className="text-emerald-400 font-bold mt-0.5">1.</span>
                   <span>
-                    <strong className="text-slate-200">
+                    <strong className="text-foreground">
                       Sole Proprietorship vs LLC:
                     </strong>{" "}
                     A sole proprietorship is the simplest and cheapest to register — you and the business are legally one entity. An LLC (Limited Liability Company) separates your personal assets from business debts, giving you legal protection if things go wrong. LLCs cost more to set up but are worth it as you grow.
@@ -536,7 +536,7 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
                 <li className="flex gap-2">
                   <span className="text-emerald-400 font-bold mt-0.5">2.</span>
                   <span>
-                    <strong className="text-slate-200">
+                    <strong className="text-foreground">
                       Why registration matters:
                     </strong>{" "}
                     A registered business can open a business bank account, sign contracts, access loans, win government tenders, and build trust with customers. Operating informally limits your growth and exposes you to legal risk.
@@ -545,7 +545,7 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
                 <li className="flex gap-2">
                   <span className="text-emerald-400 font-bold mt-0.5">3.</span>
                   <span>
-                    <strong className="text-slate-200">
+                    <strong className="text-foreground">
                       RGD vs ORC in Ghana:
                     </strong>{" "}
                     In Ghana, the Registrar General's Department (RGD) handles business name registration and company incorporation. The Office of the Registrar of Companies (ORC) was created in 2020 to take over company-related functions from RGD. For sole proprietorships, you still go to RGD. For LLCs, check with ORC at orc.gov.gh.
@@ -554,7 +554,7 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
                 <li className="flex gap-2">
                   <span className="text-emerald-400 font-bold mt-0.5">4.</span>
                   <span>
-                    <strong className="text-slate-200">
+                    <strong className="text-foreground">
                       Reserve your business name first:
                     </strong>{" "}
                     In most African countries, the first step is reserving your business name. Prepare 2-3 alternatives — your first choice may already be taken. Name reservation is usually the fastest and cheapest step.
@@ -563,7 +563,7 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
                 <li className="flex gap-2">
                   <span className="text-emerald-400 font-bold mt-0.5">5.</span>
                   <span>
-                    <strong className="text-slate-200">
+                    <strong className="text-foreground">
                       Do not skip tax registration:
                     </strong>{" "}
                     After registering your business, register for a Tax Identification Number (TIN). In Ghana, this is done at the Ghana Revenue Authority (GRA). Skipping this step means you cannot issue proper invoices or bid for contracts.
