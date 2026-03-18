@@ -89,7 +89,7 @@ export default function ThisDayInHistory() {
 
     try {
       const response = await fetch(
-        `https://api.wikimedia.org/feed/v1/wikipedia/en/onthisday/all/${month}/${day}`,
+        `https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/${month}/${day}`,
         {
           headers: {
             "Accept": "application/json",
