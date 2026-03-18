@@ -226,6 +226,11 @@ const categoriesData: Record<string, CategoryData> = {
       { icon: Globe, title: "IP Lookup", description: "Get geolocation for any IP address", href: "/tools/ip-lookup", tier: "free", gradient: "from-blue-500 to-indigo-600" },
       { icon: Gauge, title: "Speed Test", description: "Test your internet download, upload, and ping", href: "/tools/speed-test", tier: "free", gradient: "from-green-500 to-emerald-600" },
       { icon: ShieldAlert, title: "Cybersecurity Risk Scorecard", description: "15-question personal security assessment", href: "/tools/cyber-risk-scorecard", tier: "free", isNew: true, gradient: "from-cyan-500 to-blue-600" },
+      { icon: ShieldAlert, title: "Ghana Scam Analyzer", description: "AI-powered scam message detection for Ghana", href: "/tools/scam-analyzer", tier: "free", isNew: true, gradient: "from-red-500 to-rose-600" },
+      { icon: Target, title: "Phishing or Real? Quiz", description: "10-question quiz — spot Ghana scam messages", href: "/tools/phishing-quiz", tier: "free", isNew: true, gradient: "from-orange-500 to-amber-600" },
+      { icon: MessageSquare, title: "WhatsApp Security Audit", description: "12-question WhatsApp settings audit", href: "/tools/whatsapp-audit", tier: "free", isNew: true, gradient: "from-green-500 to-emerald-600" },
+      { icon: Lock, title: "Password Strength Analyzer", description: "Ghana-specific password analysis", href: "/tools/password-strength", tier: "free", isNew: true, gradient: "from-purple-500 to-violet-600" },
+      { icon: Shield, title: "Incident Response Guide", description: "Step-by-step plan when you've been hacked", href: "/tools/incident-response", tier: "free", isNew: true, gradient: "from-red-600 to-orange-600" },
     ],
   },
   design: {

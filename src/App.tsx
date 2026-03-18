@@ -240,6 +240,13 @@ const StartupReadiness = lazy(() => import("./pages/tools/StartupReadiness"));
 const BusinessRegGuide = lazy(() => import("./pages/tools/BusinessRegGuide"));
 const StatisticsVisualizer = lazy(() => import("./pages/tools/StatisticsVisualizer"));
 
+// Batch 4 - Cybersecurity tools
+const ScamAnalyzer = lazy(() => import("./pages/tools/ScamAnalyzer"));
+const PhishingQuiz = lazy(() => import("./pages/tools/PhishingQuiz"));
+const WhatsAppAudit = lazy(() => import("./pages/tools/WhatsAppAudit"));
+const PasswordStrength = lazy(() => import("./pages/tools/PasswordStrength"));
+const IncidentResponse = lazy(() => import("./pages/tools/IncidentResponse"));
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -416,6 +423,11 @@ const App = () => (
                       <Route path="/tools/startup-readiness" element={<StartupReadiness />} />
                       <Route path="/tools/business-registration" element={<BusinessRegGuide />} />
                       <Route path="/tools/statistics-visualizer" element={<StatisticsVisualizer />} />
+                      <Route path="/tools/scam-analyzer" element={<ScamAnalyzer />} />
+                      <Route path="/tools/phishing-quiz" element={<PhishingQuiz />} />
+                      <Route path="/tools/whatsapp-audit" element={<WhatsAppAudit />} />
+                      <Route path="/tools/password-strength" element={<PasswordStrength />} />
+                      <Route path="/tools/incident-response" element={<IncidentResponse />} />
                       <Route path="/tools/:categoryId" element={<ToolCategory />} />
                       <Route path="/blog" element={<Blog />} />
                       <Route path="/blog/:slug" element={<BlogArticle />} />
