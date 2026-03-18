@@ -176,7 +176,7 @@ export default function Index() {
       const { data, error } = await supabase
         .from("articles")
         .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
-        .match({ is_published: true, content_type: "article" })
+        .match({ is_published: true, content_type: "article", is_featured: true })
         .order("created_at", { ascending: false })
         .limit(6);
 

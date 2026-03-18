@@ -53,7 +53,7 @@ export default function AdminGuides() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
-  const [filterStatus, setFilterStatus] = useState<"all" | "published" | "drafts" | "today">("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "published" | "drafts" | "today" | "featured">("all");
   const [filterHomepage, setFilterHomepage] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -164,7 +164,8 @@ export default function AdminGuides() {
         filterStatus === "all" ||
         (filterStatus === "published" && g.is_published) ||
         (filterStatus === "drafts" && !g.is_published) ||
-        (filterStatus === "today" && g.created_at.slice(0, 10) === todayStr);
+        (filterStatus === "today" && g.created_at.slice(0, 10) === todayStr) ||
+        (filterStatus === "featured" && g.is_featured);
       return matchesSearch && matchesCategory && matchesHomepage && matchesStatus;
     });
   }, [guides, search, filterCategory, filterHomepage, filterStatus, todayStr]);
@@ -317,13 +318,16 @@ export default function AdminGuides() {
             </div>
             <p className="text-2xl font-bold">{guides.filter((g) => g.created_at.slice(0, 10) === todayStr).length}</p>
           </button>
-          <div className="bg-card border border-border rounded-lg p-4">
+          <button
+            onClick={() => { setFilterStatus((prev) => prev === "featured" ? "all" : "featured"); }}
+            className={`text-left transition-all hover:shadow-md bg-card border border-border rounded-lg p-4 ${filterStatus === "featured" ? "ring-2 ring-yellow-500" : ""}`}
+          >
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
               <Star className="w-4 h-4 text-yellow-500" />
               <span className="text-sm">Featured</span>
             </div>
             <p className="text-2xl font-bold">{guides.filter((g) => g.is_featured).length}</p>
-          </div>
+          </button>
           <div className="bg-card border border-border rounded-lg p-4">
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
               <Home className="w-4 h-4 text-blue-500" />
