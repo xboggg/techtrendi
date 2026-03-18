@@ -186,20 +186,20 @@ export default function AdminProducts() {
     },
   });
 
-  // Upload image
+  // Upload image (with client-side optimization)
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Date.now()}.${fileExt}`;
+      const { optimizeImage } = await import("@/lib/image-optimize");
+      const { blob, fileName } = await optimizeImage(file);
       const filePath = `images/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("products")
-        .upload(filePath, file);
+        .upload(filePath, blob, { contentType: blob.type });
 
       if (uploadError) throw uploadError;
 
@@ -208,7 +208,7 @@ export default function AdminProducts() {
         .getPublicUrl(filePath);
 
       setFormData((prev) => ({ ...prev, image_url: publicUrl }));
-      toast({ title: "Image uploaded!" });
+      toast({ title: "Image uploaded & optimized!" });
     } catch (error) {
       toast({
         title: "Error uploading image",

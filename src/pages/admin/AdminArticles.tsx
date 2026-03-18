@@ -256,26 +256,26 @@ export default function AdminArticles() {
     }));
   };
 
-  // Handle image upload to Supabase Storage
+  // Handle image upload to Supabase Storage (with client-side optimization)
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Date.now()}.${fileExt}`;
+      const { optimizeImage } = await import("@/lib/image-optimize");
+      const { blob, fileName } = await optimizeImage(file);
       const filePath = `articles/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("images")
-        .upload(filePath, file);
+        .upload(filePath, blob, { contentType: blob.type });
 
       if (uploadError) throw uploadError;
 
       const { data } = supabase.storage.from("images").getPublicUrl(filePath);
       setFormData((prev) => ({ ...prev, cover_image: data.publicUrl }));
-      toast({ title: "Image uploaded successfully!" });
+      toast({ title: "Image uploaded & optimized!" });
     } catch (error) {
       toast({ title: "Error uploading image", description: String(error), variant: "destructive" });
     } finally {

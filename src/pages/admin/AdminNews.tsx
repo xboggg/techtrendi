@@ -251,13 +251,13 @@ export default function AdminNews() {
 
     setUploading(true);
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Date.now()}.${fileExt}`;
+      const { optimizeImage } = await import("@/lib/image-optimize");
+      const { blob, fileName } = await optimizeImage(file);
       const filePath = `news/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("images")
-        .upload(filePath, file);
+        .upload(filePath, blob, { contentType: blob.type });
 
       if (uploadError) throw uploadError;
 
@@ -266,7 +266,7 @@ export default function AdminNews() {
         .getPublicUrl(filePath);
 
       setFormData(prev => ({ ...prev, cover_image: publicUrl }));
-      toast({ title: "Image uploaded successfully!" });
+      toast({ title: "Image uploaded & optimized!" });
     } catch (error) {
       toast({ title: "Error uploading image", variant: "destructive" });
     } finally {
