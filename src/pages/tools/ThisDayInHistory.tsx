@@ -84,8 +84,8 @@ export default function ThisDayInHistory() {
     setLoading(true);
     setError(null);
 
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
 
     try {
       const response = await fetch(

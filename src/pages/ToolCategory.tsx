@@ -16,7 +16,7 @@ import {
   ArrowUpRight, Play, Wifi, Database, Globe2, Heart, Home, Timer as TimerIcon,
   Volume2, Pipette, FileImage, Receipt as ReceiptIcon, Youtube, Wand2, ArrowRightLeft,
   Cake, Coins, HashIcon, Flame, History, ParkingCircle, PiggyBank, Percent, Banknote,
-  ImagePlus, Activity, CreditCard as CreditCardIcon, Brain, Armchair, HeartHandshake
+  ImagePlus, Activity, CreditCard as CreditCardIcon, Brain, Armchair, HeartHandshake, Swords
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -244,6 +244,7 @@ const categoriesData: Record<string, CategoryData> = {
       { icon: History, title: "This Day in History", description: "Discover what happened on any date in history", href: "/tools/this-day-in-history", tier: "free", isNew: true, gradient: "from-amber-500 to-orange-600" },
       { icon: HeartHandshake, title: "Compatibility Calculator", description: "Fun name and zodiac compatibility checker", href: "/tools/compatibility-calculator", tier: "free", isNew: true, gradient: "from-red-500 to-pink-600" },
       { icon: Brain, title: "Tech Trivia Generator", description: "Test your knowledge with AI trivia questions", href: "/tools/tech-trivia-generator", tier: "free", isNew: true, gradient: "from-purple-500 to-violet-600" },
+      { icon: Swords, title: "Math Tug of War", description: "Multiplayer math battle — answer questions to pull the rope", href: "/tools/math-tug-of-war", tier: "free", isNew: true, gradient: "from-blue-500 to-orange-600" },
     ],
   },
 };
