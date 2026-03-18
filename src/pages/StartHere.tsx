@@ -177,7 +177,7 @@ export default function StartHere() {
   const [siteCounts, setSiteCounts] = useState({ articles: 0, guides: 0, reviews: 0 });
 
   const articleCounter = useCounter(siteCounts.articles + siteCounts.guides, 2500);
-  const toolCounter = useCounter(126, 2000);
+  const toolCounter = useCounter(142, 2000);
   const reviewCounter = useCounter(siteCounts.reviews, 2000);
 
   useEffect(() => {
@@ -458,7 +458,7 @@ export default function StartHere() {
             <div className="grid md:grid-cols-2 gap-5 mb-12">
               {[
                 { text: `${siteCounts.articles + siteCounts.guides}+ expert articles and guides across 12 categories`, delay: 0 },
-                { text: "125+ free tools — no signup required", delay: 100 },
+                { text: "140+ free tools — no signup required", delay: 100 },
                 { text: `${siteCounts.reviews}+ honest product reviews with real ratings`, delay: 200 },
                 { text: "New content published daily, Mon-Fri", delay: 300 },
                 { text: "Written for a global audience, beginner-friendly", delay: 400 },
