@@ -95,7 +95,7 @@ const PasswordGenerator = lazy(() => import("./pages/tools/PasswordGenerator"));
 const QRGenerator = lazy(() => import("./pages/tools/QRGenerator"));
 const ImageCompressor = lazy(() => import("./pages/tools/ImageCompressor"));
 const PhoneComparison = lazy(() => import("./pages/tools/PhoneComparison"));
-const PasswordChecker = lazy(() => import("./pages/tools/PasswordChecker"));
+const PasswordChecker = lazy(() => import("./pages/tools/PasswordAnalyzer"));
 const UpgradeCalculator = lazy(() => import("./pages/tools/UpgradeCalculator"));
 const JsonFormatter = lazy(() => import("./pages/tools/JsonFormatter"));
 const Base64Encoder = lazy(() => import("./pages/tools/Base64Encoder"));
@@ -112,7 +112,7 @@ const MeetingCostCalculator = lazy(() => import("./pages/tools/MeetingCostCalcul
 const EmailSubjectTester = lazy(() => import("./pages/tools/EmailSubjectTester"));
 const PomodoroTimer = lazy(() => import("./pages/tools/PomodoroTimer"));
 const SubscriptionTracker = lazy(() => import("./pages/tools/SubscriptionTracker"));
-const HabitTracker = lazy(() => import("./pages/tools/HabitTracker"));
+const HabitTracker = lazy(() => import("./pages/tools/HabitTrackerV2"));
 const JobTracker = lazy(() => import("./pages/tools/JobTracker"));
 const LinkInBio = lazy(() => import("./pages/tools/LinkInBio"));
 const InvoiceGenerator = lazy(() => import("./pages/tools/InvoiceGenerator"));
@@ -133,9 +133,9 @@ const MarkdownEditor = lazy(() => import("./pages/tools/MarkdownEditor"));
 const GradientGenerator = lazy(() => import("./pages/tools/GradientGenerator"));
 const TypingTest = lazy(() => import("./pages/tools/TypingTest"));
 const SalaryComparison = lazy(() => import("./pages/tools/SalaryComparison"));
-const BusinessNameGenerator = lazy(() => import("./pages/tools/BusinessNameGenerator"));
+const BusinessNameGenerator = lazy(() => import("./pages/tools/AIBusinessNameGenerator"));
 const DecisionWheel = lazy(() => import("./pages/tools/DecisionWheel"));
-const ExpenseTracker = lazy(() => import("./pages/tools/ExpenseTracker"));
+const ExpenseTracker = lazy(() => import("./pages/tools/BudgetTracker"));
 const FaviconGenerator = lazy(() => import("./pages/tools/FaviconGenerator"));
 const MetaTagGenerator = lazy(() => import("./pages/tools/MetaTagGenerator"));
 const ContractGenerator = lazy(() => import("./pages/tools/ContractGenerator"));
@@ -151,10 +151,10 @@ const TimeTracker = lazy(() => import("./pages/tools/TimeTracker"));
 const DailyJournal = lazy(() => import("./pages/tools/DailyJournal"));
 const WaterTracker = lazy(() => import("./pages/tools/WaterTracker"));
 const FocusScore = lazy(() => import("./pages/tools/FocusScore"));
-const SideHustleCalculator = lazy(() => import("./pages/tools/SideHustleCalculator"));
-const StartupValidator = lazy(() => import("./pages/tools/StartupValidator"));
+const SideHustleCalculator = lazy(() => import("./pages/tools/SideHustleProjector"));
+const StartupValidator = lazy(() => import("./pages/tools/AppIdeaValidator"));
 const PersonalBrandAudit = lazy(() => import("./pages/tools/PersonalBrandAudit"));
-const CarbonFootprint = lazy(() => import("./pages/tools/CarbonFootprint"));
+const CarbonFootprint = lazy(() => import("./pages/tools/CarbonFootprintV2"));
 const CareerMatcher = lazy(() => import("./pages/tools/CareerMatcher"));
 const PlaceholderImage = lazy(() => import("./pages/tools/PlaceholderImage"));
 const ProductDescriptionGenerator = lazy(() => import("./pages/tools/ProductDescriptionGenerator"));
@@ -162,7 +162,7 @@ const BlogOutlineGenerator = lazy(() => import("./pages/tools/BlogOutlineGenerat
 const SocialCaptionGenerator = lazy(() => import("./pages/tools/SocialCaptionGenerator"));
 const MeetingNotesSummarizer = lazy(() => import("./pages/tools/MeetingNotesSummarizer"));
 const AIContentIdeaGenerator = lazy(() => import("./pages/tools/AIContentIdeaGenerator"));
-const AIPromptGenerator = lazy(() => import("./pages/tools/AIPromptGenerator"));
+const AIPromptGenerator = lazy(() => import("./pages/tools/AIPromptImprover"));
 const AIStartupNameGenerator = lazy(() => import("./pages/tools/AIStartupNameGenerator"));
 const AdSenseCalculator = lazy(() => import("./pages/tools/AdSenseCalculator"));
 const BillSplitter = lazy(() => import("./pages/tools/BillSplitter"));
@@ -174,7 +174,7 @@ const FileConverter = lazy(() => import("./pages/tools/FileConverter"));
 const FreelanceRateCalculator = lazy(() => import("./pages/tools/FreelanceRateCalculator"));
 const ImageConverter = lazy(() => import("./pages/tools/ImageConverter"));
 const MemeGenerator = lazy(() => import("./pages/tools/MemeGenerator"));
-const MortgageCalculator = lazy(() => import("./pages/tools/MortgageCalculator"));
+const MortgageCalculator = lazy(() => import("./pages/tools/LoanCalculator"));
 const StartupCostCalculator = lazy(() => import("./pages/tools/StartupCostCalculator"));
 const TextToSpeech = lazy(() => import("./pages/tools/TextToSpeech"));
 const WifiQrGenerator = lazy(() => import("./pages/tools/WifiQrGenerator"));
@@ -199,6 +199,25 @@ const CompatibilityCalculator = lazy(() => import("./pages/tools/CompatibilityCa
 const TechTriviaGenerator = lazy(() => import("./pages/tools/TechTriviaGenerator"));
 const SittingTimeCalculator = lazy(() => import("./pages/tools/SittingTimeCalculator"));
 const MathTugOfWar = lazy(() => import("./pages/tools/MathTugOfWar"));
+const DecisionMatrix = lazy(() => import("./pages/tools/DecisionMatrix"));
+const ProjectTimeline = lazy(() => import("./pages/tools/ProjectTimeline"));
+const WorldEconomicMap = lazy(() => import("./pages/tools/WorldEconomicMap"));
+const CompoundInterest = lazy(() => import("./pages/tools/CompoundInterest"));
+
+// New batch 2 tools
+const FIRECalculator = lazy(() => import("./pages/tools/FIRECalculator"));
+const CostOfLiving = lazy(() => import("./pages/tools/CostOfLiving"));
+const GhanaTaxCalculator = lazy(() => import("./pages/tools/GhanaTaxCalculator"));
+const CyberRiskScorecard = lazy(() => import("./pages/tools/CyberRiskScorecard"));
+const TechStackRecommender = lazy(() => import("./pages/tools/TechStackRecommender"));
+const ViralPostAnalyzer = lazy(() => import("./pages/tools/ViralPostAnalyzer"));
+const ResumeRoaster = lazy(() => import("./pages/tools/ResumeRoaster"));
+const YouTubeTitleOptimizer = lazy(() => import("./pages/tools/YouTubeTitleOptimizer"));
+const AppIdeaValidator = lazy(() => import("./pages/tools/AppIdeaValidator"));
+const AIBusinessNameGenerator = lazy(() => import("./pages/tools/AIBusinessNameGenerator"));
+const SideHustleProjector = lazy(() => import("./pages/tools/SideHustleProjector"));
+const HabitTrackerV2 = lazy(() => import("./pages/tools/HabitTrackerV2"));
+const CarbonFootprintV2 = lazy(() => import("./pages/tools/CarbonFootprintV2"));
 
 const queryClient = new QueryClient();
 
@@ -345,6 +364,18 @@ const App = () => (
                       <Route path="/tools/tech-trivia-generator" element={<TechTriviaGenerator />} />
                       <Route path="/tools/sitting-time-calculator" element={<SittingTimeCalculator />} />
                       <Route path="/tools/math-tug-of-war" element={<MathTugOfWar />} />
+                      <Route path="/tools/decision-matrix" element={<DecisionMatrix />} />
+                      <Route path="/tools/project-timeline" element={<ProjectTimeline />} />
+                      <Route path="/tools/world-economic-map" element={<WorldEconomicMap />} />
+                      <Route path="/tools/compound-interest" element={<CompoundInterest />} />
+                      <Route path="/tools/fire-calculator" element={<FIRECalculator />} />
+                      <Route path="/tools/cost-of-living" element={<CostOfLiving />} />
+                      <Route path="/tools/ghana-tax-calculator" element={<GhanaTaxCalculator />} />
+                      <Route path="/tools/cyber-risk-scorecard" element={<CyberRiskScorecard />} />
+                      <Route path="/tools/tech-stack-recommender" element={<TechStackRecommender />} />
+                      <Route path="/tools/viral-post-analyzer" element={<ViralPostAnalyzer />} />
+                      <Route path="/tools/resume-roaster" element={<ResumeRoaster />} />
+                      <Route path="/tools/youtube-title-optimizer" element={<YouTubeTitleOptimizer />} />
                       <Route path="/tools/:categoryId" element={<ToolCategory />} />
                       <Route path="/blog" element={<Blog />} />
                       <Route path="/blog/:slug" element={<BlogArticle />} />
