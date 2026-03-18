@@ -110,6 +110,12 @@ export default function BlogArticle() {
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
           setArticle(data[0]);
+          // Increment view count
+          fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_views`, {
+            method: "POST",
+            headers: { "apikey": SUPABASE_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({ article_id: data[0].id }),
+          }).catch(() => {});
         }
         setLoading(false);
       })

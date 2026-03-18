@@ -328,13 +328,16 @@ export default function AdminGuides() {
             </div>
             <p className="text-2xl font-bold">{guides.filter((g) => g.is_featured).length}</p>
           </button>
-          <div className="bg-card border border-border rounded-lg p-4">
+          <button
+            onClick={() => { setFilterHomepage(!filterHomepage); setCurrentPage(1); }}
+            className={`text-left transition-all hover:shadow-md bg-card border border-border rounded-lg p-4 ${filterHomepage ? "ring-2 ring-blue-500" : ""}`}
+          >
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
               <Home className="w-4 h-4 text-blue-500" />
               <span className="text-sm">On Homepage</span>
             </div>
             <p className="text-2xl font-bold">{homepageCount}<span className="text-sm font-normal text-muted-foreground"> / 8</span></p>
-          </div>
+          </button>
           <div className="bg-card border border-border rounded-lg p-4">
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
               <Eye className="w-4 h-4 text-green-500" />
