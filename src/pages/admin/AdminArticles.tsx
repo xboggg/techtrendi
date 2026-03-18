@@ -105,7 +105,7 @@ export default function AdminArticles() {
   const [uploading, setUploading] = useState(false);
   const [editorMode, setEditorMode] = useState<"markdown" | "richtext">("markdown");
   const [currentPage, setCurrentPage] = useState(1);
-  const [filterStatus, setFilterStatus] = useState<"all" | "published" | "drafts" | "today">("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "published" | "drafts" | "today" | "featured">("all");
 
   // Fetch articles
   const { data: articles = [], isLoading } = useQuery({
@@ -311,6 +311,7 @@ export default function AdminArticles() {
       if (filterStatus === "published") matchesStatus = article.is_published;
       else if (filterStatus === "drafts") matchesStatus = !article.is_published;
       else if (filterStatus === "today") matchesStatus = article.created_at.slice(0, 10) === today;
+      else if (filterStatus === "featured") matchesStatus = !!article.is_featured;
       return matchesSearch && matchesCategory && matchesContentType && matchesStatus;
     });
   }, [articles, searchQuery, filterCategory, filterContentType, filterStatus]);
@@ -690,13 +691,16 @@ export default function AdminArticles() {
             </div>
             <p className="text-2xl font-bold">{articles.filter((a) => a.content_type === "guide").length}</p>
           </div>
-          <div className="bg-card border border-border rounded-lg p-4">
+          <button
+            onClick={() => { setFilterStatus((prev) => prev === "featured" ? "all" : "featured"); setCurrentPage(1); }}
+            className={`text-left transition-all hover:shadow-md bg-card border border-border rounded-lg p-4 ${filterStatus === "featured" ? "ring-2 ring-yellow-500" : ""}`}
+          >
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
               <Star className="w-4 h-4 text-yellow-500" />
               <span className="text-sm">Featured</span>
             </div>
             <p className="text-2xl font-bold">{articles.filter((a) => a.is_featured).length}</p>
-          </div>
+          </button>
           <div className="bg-card border border-border rounded-lg p-4">
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
               <Eye className="w-4 h-4" />
