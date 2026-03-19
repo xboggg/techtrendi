@@ -10,19 +10,20 @@ export function ToolPageLayout() {
     ? categories.find((c) => c.id === tool.categoryId)
     : null;
 
+  const linkTo = category ? `/tools/${category.id}` : "/tools";
+  const linkLabel = category ? category.title : "All Tools";
+
   return (
     <>
-      {category && (
-        <div className="max-w-5xl mx-auto px-4 pt-4">
-          <Link
-            to={`/tools/${category.id}`}
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
-          >
-            <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span>{category.title}</span>
-          </Link>
-        </div>
-      )}
+      <div className="max-w-5xl mx-auto px-4 pt-4">
+        <Link
+          to={linkTo}
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+        >
+          <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+          <span>{linkLabel}</span>
+        </Link>
+      </div>
       <Outlet />
     </>
   );
