@@ -93,6 +93,7 @@ export default function ThisDayInHistory() {
         {
           headers: {
             "Accept": "application/json",
+            "Api-User-Agent": "TechTrendi/1.0 (https://techtrendi.com)",
           },
         }
       );
