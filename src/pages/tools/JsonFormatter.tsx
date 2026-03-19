@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Braces, Copy, Check, Trash2, Download, Upload, Minimize2, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -84,6 +85,12 @@ export default function JsonFormatter() {
 
   return (
     <Layout>
+      <SEOHead
+        title="JSON Formatter"
+        description="Paste messy JSON and get it formatted, validated, and easy to read. Minify or pretty-print with custom indentation."
+        canonical="/tools/json-formatter"
+        keywords={["json formatter", "json validator", "json beautifier", "json minifier", "format json online"]}
+      />
       <div className="container py-12">
         <div className="max-w-5xl mx-auto">
           {/* Header */}

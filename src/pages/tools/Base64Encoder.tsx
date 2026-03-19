@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Binary, Copy, Check, ArrowLeftRight, Trash2, Upload, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -83,6 +84,12 @@ export default function Base64Encoder() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Base64 Encoder & Decoder"
+        description="Encode text to Base64 or decode Base64 strings back to plain text. Fast, free, and works right in your browser."
+        canonical="/tools/base64-encoder"
+        keywords={["base64 encoder", "base64 decoder", "text encoding", "data conversion", "online base64"]}
+      />
       <div className="container py-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}

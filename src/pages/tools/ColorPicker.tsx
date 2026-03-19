@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Palette, Copy, Check, Plus, Trash2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -123,6 +124,12 @@ export default function ColorPicker() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Color Picker"
+        description="Pick any color and get its HEX, RGB, HSL, and RGBA values. Save your favorites and build palettes on the fly."
+        canonical="/tools/color-picker"
+        keywords={["color picker", "hex color", "rgb converter", "hsl color", "color formats"]}
+      />
       <div className="container py-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Shield, Eye, EyeOff, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
@@ -125,6 +126,12 @@ export default function PasswordChecker() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Password Strength Checker"
+        description="Test how strong your password really is. Get a strength score, estimated crack time, and tips to make it better."
+        canonical="/tools/password-checker"
+        keywords={["password checker", "password strength", "password tester", "secure password", "password security"]}
+      />
       <div className="container py-12 md:py-20">
         {/* Header */}
         <div className="text-center mb-12">

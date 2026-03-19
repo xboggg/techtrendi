@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -405,6 +406,12 @@ export default function ImageConverter() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Image Converter"
+        description="Convert images between PNG, JPEG, WebP, and other formats. Resize, adjust quality, and batch convert with ease."
+        canonical="/tools/image-converter"
+        keywords={["image converter", "convert png to jpg", "webp converter", "image format", "photo converter"]}
+      />
       <div className="container py-12 md:py-20">
         <div className="max-w-4xl mx-auto">
           {/* Header */}

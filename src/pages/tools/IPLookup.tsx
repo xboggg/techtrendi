@@ -1,10 +1,17 @@
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { IPLookup as IPLookupComponent } from "@/components/tools/IPLookup";
 import { Globe } from "lucide-react";
 
 export default function IPLookupPage() {
   return (
     <Layout>
+      <SEOHead
+        title="IP Address Lookup"
+        description="Look up any IP address to find its location, ISP, and other geolocation details. Works with both IPv4 and IPv6."
+        canonical="/tools/ip-lookup"
+        keywords={["ip lookup", "ip geolocation", "ip address finder", "ip location", "whois lookup"]}
+      />
       <div className="container py-12 md:py-20">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-10">

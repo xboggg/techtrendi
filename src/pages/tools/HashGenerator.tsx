@@ -1,10 +1,17 @@
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { HashGenerator as HashGeneratorComponent } from "@/components/tools/HashGenerator";
 import { Hash } from "lucide-react";
 
 export default function HashGeneratorPage() {
   return (
     <Layout>
+      <SEOHead
+        title="Hash Generator"
+        description="Generate MD5, SHA-1, SHA-256, and other cryptographic hashes from any text. Useful for verifying file integrity."
+        canonical="/tools/hash-generator"
+        keywords={["hash generator", "sha256", "md5 hash", "sha1", "cryptographic hash", "checksum"]}
+      />
       <div className="container py-12 md:py-20">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-10">

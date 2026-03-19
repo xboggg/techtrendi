@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Database, Copy, Download, RefreshCw, Code, FileJson, Table, Check, Trash2, Clock, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -454,6 +455,12 @@ export default function FakeDataGenerator() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Fake Data Generator"
+        description="Generate realistic test data for development and testing. Names, emails, addresses, phone numbers and more."
+        canonical="/tools/fake-data-generator"
+        keywords={["fake data generator", "test data", "mock data", "dummy data", "development testing"]}
+      />
       <div className="container py-12">
         <div className="max-w-5xl mx-auto">
           {/* Header */}

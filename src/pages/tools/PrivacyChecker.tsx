@@ -1,10 +1,17 @@
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { PrivacyChecker as PrivacyCheckerComponent } from "@/components/tools/PrivacyChecker";
 import { Eye } from "lucide-react";
 
 export default function PrivacyCheckerPage() {
   return (
     <Layout>
+      <SEOHead
+        title="Privacy Checker"
+        description="See what your browser reveals about you. Check for trackers, fingerprinting, and privacy leaks in seconds."
+        canonical="/tools/privacy-checker"
+        keywords={["privacy checker", "browser privacy", "tracking protection", "fingerprinting test", "online privacy"]}
+      />
       <div className="container py-12 md:py-20">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-10">

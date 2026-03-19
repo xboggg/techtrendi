@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Copy, Check, RefreshCw, Shield, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
@@ -69,6 +70,12 @@ export default function PasswordGenerator() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Password Generator"
+        description="Create strong, random passwords you can trust. Choose length, character types, and copy with one click."
+        canonical="/tools/password-generator"
+        keywords={["password generator", "random password", "strong password", "secure password generator", "password creator"]}
+      />
       <div className="container py-12 md:py-20">
         <div className="max-w-2xl mx-auto">
           {/* Header */}

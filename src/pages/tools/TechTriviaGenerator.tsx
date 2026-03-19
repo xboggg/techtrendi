@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -248,6 +249,12 @@ Rules:
 
   return (
     <Layout>
+      <SEOHead
+        title="Tech Trivia Quiz"
+        description="Test your tech knowledge with fun trivia questions. Multiple difficulty levels, score tracking, and detailed explanations."
+        canonical="/tools/tech-trivia"
+        keywords={["tech trivia", "tech quiz", "technology questions", "geek trivia", "computer quiz"]}
+      />
       <div className="container py-8 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8">

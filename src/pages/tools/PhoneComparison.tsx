@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Smartphone, Search, X, Loader2, ExternalLink, RotateCcw } from "lucide-react";
@@ -131,6 +132,12 @@ export default function PhoneComparison() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Phone Comparison Tool"
+        description="Compare phone specs side by side. Battery, camera, display, performance — see exactly how two phones stack up."
+        canonical="/tools/phone-comparison"
+        keywords={["phone comparison", "compare phones", "phone specs", "smartphone comparison", "phone vs phone"]}
+      />
       <div className="container py-8 md:py-16 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-10">

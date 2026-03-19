@@ -1,10 +1,17 @@
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { SpeedTest as SpeedTestComponent } from "@/components/tools/SpeedTest";
 import { Gauge } from "lucide-react";
 
 export default function SpeedTestPage() {
   return (
     <Layout>
+      <SEOHead
+        title="Internet Speed Test"
+        description="Find out how fast your internet really is. Test download speed, upload speed, and latency in under a minute."
+        canonical="/tools/speed-test"
+        keywords={["speed test", "internet speed test", "bandwidth test", "download speed", "upload speed"]}
+      />
       <div className="container py-12 md:py-20">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-10">

@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Download, Link as LinkIcon, Type, QrCode } from "lucide-react";
 import { toast } from "sonner";
@@ -42,6 +43,12 @@ export default function QRGenerator() {
 
   return (
     <Layout>
+      <SEOHead
+        title="QR Code Generator"
+        description="Turn any URL or text into a scannable QR code. Customize the size and download it as an image for free."
+        canonical="/tools/qr-generator"
+        keywords={["qr code generator", "qr maker", "create qr code", "qr code free", "url to qr"]}
+      />
       <div className="container py-12 md:py-20">
         <div className="max-w-2xl mx-auto">
           {/* Header */}

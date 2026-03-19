@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Upload, Download, Image, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -122,6 +123,12 @@ export default function ImageCompressor() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Image Compressor"
+        description="Shrink your images without losing quality. Adjust compression level and download lighter files instantly."
+        canonical="/tools/image-compressor"
+        keywords={["image compressor", "compress images", "reduce image size", "image optimization", "photo compressor"]}
+      />
       <div className="container py-12 md:py-20">
         <div className="max-w-3xl mx-auto">
           {/* Header */}

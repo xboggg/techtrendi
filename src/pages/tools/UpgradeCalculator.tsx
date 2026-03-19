@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -96,6 +97,12 @@ export default function UpgradeCalculator() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Tech Upgrade Calculator"
+        description="Not sure if that new phone or laptop is worth it? Answer a few questions and get a personalized upgrade recommendation."
+        canonical="/tools/upgrade-calculator"
+        keywords={["upgrade calculator", "should i upgrade", "tech upgrade", "device upgrade", "phone upgrade"]}
+      />
       <div className="container py-12 md:py-20">
         {/* Header */}
         <div className="text-center mb-12">

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -720,6 +721,12 @@ export default function MemeGenerator() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Meme Generator"
+        description="Create custom memes with your own images and text. Pick a template or upload your own, then share your creation."
+        canonical="/tools/meme-generator"
+        keywords={["meme generator", "meme maker", "create memes", "meme template", "custom meme"]}
+      />
       <div className="container py-12 md:py-20">
         <div className="max-w-6xl mx-auto">
           {/* Header */}

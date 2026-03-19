@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -234,6 +235,12 @@ export default function CurrencyConverter() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Currency Converter"
+        description="Convert between world currencies with live exchange rates. Quick, accurate, and supports all major currencies."
+        canonical="/tools/currency-converter"
+        keywords={["currency converter", "exchange rate", "money converter", "forex rates", "currency calculator"]}
+      />
       <div className="container py-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}

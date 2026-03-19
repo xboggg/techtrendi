@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { FileText, Copy, Check, RefreshCw, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -117,6 +118,12 @@ export default function LoremIpsum() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Lorem Ipsum Generator"
+        description="Need placeholder text? Generate paragraphs, sentences, or words of lorem ipsum for your designs and mockups."
+        canonical="/tools/lorem-ipsum"
+        keywords={["lorem ipsum generator", "placeholder text", "dummy text", "filler text", "lipsum"]}
+      />
       <div className="container py-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}

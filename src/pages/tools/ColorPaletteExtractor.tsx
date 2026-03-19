@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import {
   Palette,
   Upload,
@@ -580,6 +581,12 @@ export default function ColorPaletteExtractor() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Color Palette Extractor"
+        description="Upload any image and instantly pull out its dominant colors. Great for designers who need quick color inspiration."
+        canonical="/tools/color-palette-extractor"
+        keywords={["color palette extractor", "image colors", "color picker from image", "design colors", "palette generator"]}
+      />
       <div className="container py-12">
         <div className="max-w-5xl mx-auto">
           {/* Header */}

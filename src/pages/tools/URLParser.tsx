@@ -1,10 +1,17 @@
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { URLParser as URLParserComponent } from "@/components/tools/URLParser";
 import { Link2 } from "lucide-react";
 
 export default function URLParserPage() {
   return (
     <Layout>
+      <SEOHead
+        title="URL Parser"
+        description="Break down any URL into its parts — protocol, domain, path, query params, and more. Handy for debugging and dev work."
+        canonical="/tools/url-parser"
+        keywords={["url parser", "url analyzer", "query string parser", "url decoder", "url breakdown"]}
+      />
       <div className="container py-12 md:py-20">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-10">

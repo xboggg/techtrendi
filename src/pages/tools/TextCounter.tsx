@@ -1,10 +1,17 @@
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { TextCounter as TextCounterComponent } from "@/components/tools/TextCounter";
 import { AlignJustify } from "lucide-react";
 
 export default function TextCounterPage() {
   return (
     <Layout>
+      <SEOHead
+        title="Text Counter"
+        description="Count words, characters, sentences, and paragraphs in your text. Also shows estimated reading and speaking time."
+        canonical="/tools/text-counter"
+        keywords={["word counter", "character counter", "text counter", "word count tool", "reading time calculator"]}
+      />
       <div className="container py-12 md:py-20">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-10">

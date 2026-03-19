@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -200,6 +201,12 @@ export default function WifiQrGenerator() {
 
   return (
     <Layout>
+      <SEOHead
+        title="WiFi QR Code Generator"
+        description="Create a QR code for your WiFi network so guests can connect by scanning — no need to share passwords out loud."
+        canonical="/tools/wifi-qr-generator"
+        keywords={["wifi qr code", "wifi qr generator", "share wifi", "wifi password qr", "wireless qr code"]}
+      />
       {/* Print-only card */}
       <style>{`
         @media print {

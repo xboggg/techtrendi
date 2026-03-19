@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Scale, ArrowLeftRight, Copy, Check } from "lucide-react";
 
 type UnitCategory = "length" | "weight" | "temperature" | "data" | "time" | "area";
@@ -132,6 +133,12 @@ export default function UnitConverter() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Unit Converter"
+        description="Convert between units of length, weight, temperature, data, time, and area. Simple, fast, and covers all the basics."
+        canonical="/tools/unit-converter"
+        keywords={["unit converter", "measurement converter", "metric converter", "length converter", "weight converter"]}
+      />
       <div className="container py-12">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
