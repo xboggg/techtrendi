@@ -19,6 +19,7 @@ import { CartDrawer } from "@/components/store/CartDrawer";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import { Loader2 } from "lucide-react";
 
 // Core pages - load immediately
@@ -286,6 +287,7 @@ const App = () => (
                       <Route path="/profile" element={<Profile />} />
                       <Route path="/dashboard" element={<Dashboard />} />
                       <Route path="/tools" element={<Tools />} />
+                      <Route element={<ToolPageLayout />}>
                       <Route path="/tools/password-generator" element={<PasswordGenerator />} />
                       <Route path="/tools/qr-generator" element={<QRGenerator />} />
                       <Route path="/tools/image-compressor" element={<ImageCompressor />} />
@@ -428,6 +430,7 @@ const App = () => (
                       <Route path="/tools/whatsapp-audit" element={<WhatsAppAudit />} />
                       <Route path="/tools/password-strength" element={<PasswordStrength />} />
                       <Route path="/tools/incident-response" element={<IncidentResponse />} />
+                      </Route>
                       <Route path="/tools/:categoryId" element={<ToolCategory />} />
                       <Route path="/blog" element={<Blog />} />
                       <Route path="/blog/:slug" element={<BlogArticle />} />
