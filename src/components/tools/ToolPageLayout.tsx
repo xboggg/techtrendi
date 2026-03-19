@@ -2,6 +2,7 @@ import { useLocation, Outlet } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { getToolByHref, categories } from "@/data/tools";
+import { ToolContentSection } from "./ToolContentSection";
 
 export function ToolPageLayout() {
   const { pathname } = useLocation();
@@ -25,6 +26,7 @@ export function ToolPageLayout() {
         </Link>
       </div>
       <Outlet />
+      {tool && <ToolContentSection toolId={tool.id} />}
     </>
   );
 }
