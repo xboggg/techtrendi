@@ -71,8 +71,14 @@ interface NewsItem {
 const NEWS_CATEGORIES = [
   { value: "AI Tech", label: "AI Tech" },
   { value: "Big Tech", label: "Big Tech" },
+  { value: "Crypto", label: "Crypto" },
   { value: "Cybersecurity", label: "Cybersecurity" },
   { value: "Gadgets", label: "Gadgets" },
+  { value: "Gaming", label: "Gaming" },
+  { value: "Green Tech", label: "Green Tech" },
+  { value: "Health Tech", label: "Health Tech" },
+  { value: "Space", label: "Space" },
+  { value: "Startups", label: "Startups" },
 ];
 
 const initialNewsState = {

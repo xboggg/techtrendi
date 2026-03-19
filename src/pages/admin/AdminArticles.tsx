@@ -70,14 +70,18 @@ interface Article {
 }
 
 const CATEGORIES = [
-  { value: "phones", label: "Phones" },
-  { value: "security", label: "Security" },
-  { value: "ai-tech", label: "AI Tech" },
-  { value: "productivity", label: "Productivity" },
-  { value: "how-to", label: "How-To" },
-  { value: "make-money", label: "Side Hustles" },
-  { value: "reviews", label: "Reviews" },
-  { value: "deals", label: "Deals" },
+  { value: "Phones", label: "Phones" },
+  { value: "Security", label: "Security" },
+  { value: "AI Tech", label: "AI Tech" },
+  { value: "Productivity", label: "Productivity" },
+  { value: "How-To", label: "How-To" },
+  { value: "Side Hustles", label: "Side Hustles" },
+  { value: "Gaming", label: "Gaming" },
+  { value: "Accessories", label: "Accessories" },
+  { value: "Career in Tech", label: "Career in Tech" },
+  { value: "Health Tech", label: "Health Tech" },
+  { value: "Remote Work", label: "Remote Work" },
+  { value: "Green Tech", label: "Green Tech" },
 ];
 
 const initialArticleState = {
@@ -85,7 +89,7 @@ const initialArticleState = {
   slug: "",
   excerpt: "",
   content: "",
-  category: "phones",
+  category: "Phones",
   cover_image: "",
   is_published: false,
   read_time_minutes: 5,
