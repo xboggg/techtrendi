@@ -2,6 +2,12 @@
   RewriteEngine On
   RewriteBase /
 
+  # Search engine bot detection — serve pre-rendered HTML via VPS
+  RewriteCond %{HTTP_USER_AGENT} (Googlebot|bingbot|Baiduspider|YandexBot|DuckDuckBot|Slurp|ia_archiver|Sogou|Applebot|AdsBot-Google) [NC]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_URI} !^/prerender\.php
+  RewriteRule ^(.*)$ /prerender.php?path=/$1 [L,QSA]
+
   # Social media bot detection — serve dynamic OG meta tags via PHP
   RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|Facebot|Twitterbot|WhatsApp|LinkedInBot|Pinterest|Slackbot|TelegramBot|Discordbot) [NC]
   RewriteCond %{REQUEST_FILENAME} !-f

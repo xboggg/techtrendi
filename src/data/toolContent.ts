@@ -2473,4 +2473,477 @@ export const toolContentData: Record<string, ToolContent> = {
     { q: "Do I need a business plan first?", a: "No. You just need a clear idea of what you want to build and who would pay for it. The tool helps you think through the rest." },
   ],
 },
+
+  // ==========================================
+  // BATCH 1: Business, Productivity, Lifestyle
+  // ==========================================
+  'age-calculator': {
+    intro:
+      'Find out your exact age down to the day. Not just years — we\'re talking years, months, and days since you were born. It also shows fun stuff like how many days you\'ve been alive total. Simple tool, surprisingly satisfying to use.',
+    howTo: [
+      'Pick your date of birth from the calendar',
+      'Optionally set a target date (defaults to today)',
+      'Hit calculate and see your exact age breakdown',
+      'Check the bonus stats like total days and weeks alive',
+    ],
+    whyNeedIt:
+      'You\'d be surprised how often you need your exact age — visa applications, insurance forms, medical records. Instead of doing mental math and getting it wrong, just use this.',
+    faqs: [
+      {
+        q: 'Does it account for leap years?',
+        a: 'Yes. The calculation handles leap years correctly, so your day count is accurate even if you were born on February 29th.',
+      },
+      {
+        q: 'Can I calculate age between two custom dates?',
+        a: 'Absolutely. Set both the birth date and the target date to whatever you want. It works for any two dates.',
+      },
+      {
+        q: 'Is the age calculated in calendar years or exact years?',
+        a: 'Calendar years with the remainder shown in months and days. So you\'ll see something like "28 years, 4 months, 12 days."',
+      },
+      {
+        q: 'Can I use this to calculate my pet\'s age?',
+        a: 'Sure, enter any birth date. It just calculates the time difference — works for pets, buildings, anything with a start date.',
+      },
+    ],
+  },
+
+  'compatibility-calculator': {
+    intro:
+      'The fun one. Enter two names and see your compatibility score. Is it scientifically valid? Absolutely not. Is it entertaining at parties? Every single time. Sometimes you just need a tool that makes people laugh.',
+    howTo: [
+      'Enter the first person\'s name',
+      'Enter the second person\'s name',
+      'Hit calculate and see your compatibility percentage',
+      'Share the result and watch the reactions',
+    ],
+    whyNeedIt:
+      'Not everything has to be productive. This is pure entertainment. Send it to your group chat and watch the chaos unfold. That\'s reason enough.',
+    faqs: [
+      {
+        q: 'Is the compatibility score real?',
+        a: 'Nope. It\'s algorithm-generated fun, not relationship science. Please don\'t make life decisions based on this.',
+      },
+      {
+        q: 'Why do I get different scores with nicknames?',
+        a: 'The algorithm uses the characters in the names you enter. Different spellings or nicknames produce different results. Try your full name vs. your nickname for laughs.',
+      },
+      {
+        q: 'Can I use it for friendship compatibility?',
+        a: 'Sure, enter any two names. Works for friends, coworkers, fictional characters, your pets — whatever entertains you.',
+      },
+      {
+        q: 'Will the score change if I try again later?',
+        a: 'Same names always produce the same score. It\'s deterministic, so no refreshing until you get the answer you want.',
+      },
+    ],
+  },
+
+  'compound-interest-calculator': {
+    intro:
+      'A detailed compound interest calculator with extra controls for serious number crunching. Set custom compounding frequencies, add irregular contributions, and model different scenarios. Built for people who want precise projections, not just ballpark estimates.',
+    howTo: [
+      'Enter your principal amount and select a compounding frequency',
+      'Add regular contributions and specify if they\'re monthly or yearly',
+      'Set the annual interest rate and investment duration',
+      'Compare scenarios side by side using the projection table',
+      'Download your amortization schedule if needed',
+    ],
+    whyNeedIt:
+      'When you\'re planning actual investments — retirement, education funds, property down payments — you need numbers you can trust. Rough estimates won\'t cut it when real money is on the line.',
+    faqs: [
+      {
+        q: 'Can I model what happens if I increase contributions over time?',
+        a: 'Yes. You can set contribution increases — like bumping up your monthly savings by a percentage each year to match salary growth.',
+      },
+      {
+        q: 'What\'s the difference between APR and APY?',
+        a: 'APR is the stated annual rate. APY includes the effect of compounding within the year. APY is always slightly higher. This tool lets you input either.',
+      },
+      {
+        q: 'Can I see a year-by-year breakdown?',
+        a: 'The projection table shows your balance, contributions, and interest earned for each period. You can export it as a spreadsheet.',
+      },
+      {
+        q: 'How far into the future can I project?',
+        a: 'Up to 50 years. That covers most retirement planning horizons. The chart scales automatically.',
+      },
+    ],
+  },
+
+  'currency-converter': {
+    intro:
+      'Convert between world currencies with current exchange rates. Fast, clean, no ads covering half the screen. I use this daily for freelance work — quoting in USD, getting paid in GHS, tracking EUR invoices. The usual multi-currency life.',
+    howTo: [
+      'Select your source currency',
+      'Enter the amount you want to convert',
+      'Pick the target currency',
+      'See the converted amount with the current exchange rate',
+    ],
+    whyNeedIt:
+      'If you deal with multiple currencies — freelancing, shopping from international sites, sending money home, traveling — you need quick conversions you can trust. This is faster than Googling "USD to GHS" every time.',
+    faqs: [
+      {
+        q: 'How often are the exchange rates updated?',
+        a: 'Rates are fetched from reliable financial data sources and update regularly throughout the day. For large transactions, always double-check with your bank.',
+      },
+      {
+        q: 'Does it include crypto currencies?',
+        a: 'The focus is on fiat currencies — dollars, euros, cedis, naira, pounds, and so on. Crypto prices change by the second, so a dedicated crypto tool is better for that.',
+      },
+      {
+        q: 'Can I convert between multiple currencies at once?',
+        a: 'One conversion at a time, but switching currencies is instant. Just change the dropdown and the result updates immediately.',
+      },
+      {
+        q: 'Are these the rates my bank will give me?',
+        a: 'Banks and transfer services add their own margin on top of the mid-market rate. What you see here is close to mid-market. Expect your bank to give you slightly less.',
+      },
+    ],
+  },
+
+  'hashtag-analyzer': {
+    intro:
+      'Check how popular and competitive your hashtags are before you use them. Enter a hashtag and see estimated usage volume, competition level, and related hashtag suggestions. Helps you pick hashtags that actually get your posts seen instead of buried.',
+    howTo: [
+      'Enter the hashtag you want to analyze',
+      'Review the popularity score and competition level',
+      'Browse related hashtags that might work better',
+      'Build a hashtag set mixing high, medium, and low competition tags',
+    ],
+    whyNeedIt:
+      'Using only massive hashtags like #love means your post drowns in millions of others. Using only tiny ones means nobody searches for them. The sweet spot is a strategic mix — and this tool helps you find it.',
+    faqs: [
+      {
+        q: 'What platforms does this work for?',
+        a: 'Hashtag strategy applies mainly to Instagram, TikTok, Twitter/X, and LinkedIn. The popularity data gives you a general sense that works across platforms.',
+      },
+      {
+        q: 'How many hashtags should I use?',
+        a: 'Instagram allows 30 but 5-15 strategic ones often perform better. Twitter works best with 1-3. TikTok varies. Quality over quantity every time.',
+      },
+      {
+        q: 'Does it show real-time data?',
+        a: 'The data reflects general trends and relative popularity. For real-time counts, you\'d need platform-specific analytics. This is for planning your hashtag strategy.',
+      },
+      {
+        q: 'What\'s the ideal competition level?',
+        a: 'Mix it up. A few high-competition hashtags for reach, several medium ones where you can realistically rank, and a couple niche ones where you can dominate.',
+      },
+    ],
+  },
+
+  // ==========================================
+  // BATCH 2: Creator, Security, Developer
+  // ==========================================
+  'hashtag-generator': {
+    intro:
+      'Turn any topic into a set of relevant hashtags for Instagram, Twitter, TikTok, or LinkedIn. I got tired of manually researching which hashtags actually get reach, so I made this. Type what your post is about and get a ready-to-copy list.',
+    howTo: [
+      'Describe your post topic or paste your caption',
+      'Pick the platform you\'re posting to',
+      'Choose how many hashtags you want (5, 10, 15, or 30)',
+      'Copy the generated hashtags and paste them into your post',
+    ],
+    whyNeedIt:
+      'Good hashtags get your content in front of people who aren\'t following you yet. But picking them manually takes forever, and using the same ones every time tanks your reach. This keeps things fresh and targeted.',
+    faqs: [
+      {
+        q: 'How many hashtags should I use on Instagram?',
+        a: 'Instagram allows 30 but most studies show 8-15 performs best. The tool lets you pick your count so you\'re not overdoing it.',
+      },
+      {
+        q: 'Does this work for TikTok too?',
+        a: 'Yes. TikTok hashtags work differently than Instagram — they\'re shorter and trend-driven. The tool adjusts its suggestions based on the platform you select.',
+      },
+      {
+        q: 'Are these hashtags guaranteed to trend?',
+        a: 'No tool can guarantee trending. These are relevant, commonly used hashtags for your topic. Trending depends on timing, content quality, and a bit of luck.',
+      },
+      {
+        q: 'Can I save my favorite hashtag sets?',
+        a: 'You can copy them to your clipboard. For saving, just paste them into a notes app. Everything runs in your browser so there\'s no account to store them in.',
+      },
+    ],
+  },
+
+  'hook-generator': {
+    intro:
+      'Get scroll-stopping opening lines for your blog posts, YouTube videos, tweets, or emails. You tell it your topic and audience, and it gives you hooks that actually make people want to keep reading. I built this because writing the first sentence is always the hardest part.',
+    howTo: [
+      'Enter your content topic or main idea',
+      'Select the content type — blog, video, email, or social post',
+      'Pick a hook style: question, bold claim, story, or stat',
+      'Browse the generated hooks and grab the one that fits',
+    ],
+    whyNeedIt:
+      'Your opening line decides whether someone reads the rest or scrolls past. Most people spend an hour on the body and 10 seconds on the hook. That\'s backwards. This tool flips the ratio for you.',
+    faqs: [
+      {
+        q: 'What types of hooks does this generate?',
+        a: 'Questions, bold statements, mini-stories, surprising stats, and contrarian takes. You can filter by style or let it give you a mix.',
+      },
+      {
+        q: 'Can I use these hooks for YouTube thumbnails?',
+        a: 'Some of the shorter hooks work great as thumbnail text or video titles. Just grab the punchiest ones from the list.',
+      },
+      {
+        q: 'Will everyone using this end up with the same hooks?',
+        a: 'No. The hooks are generated based on your specific topic and style choices. Two people writing about the same subject will get different results.',
+      },
+      {
+        q: 'How many hooks does it generate at once?',
+        a: 'You get a batch of 5-10 options each time. If none hit right, just generate another batch with different settings.',
+      },
+    ],
+  },
+
+  'idea-parking-lot': {
+    intro:
+      'Dump your random ideas here so they stop interrupting your actual work. It\'s a simple idea board — add a thought, tag it, and come back to it later. I needed this because my brain loves generating ideas at the worst possible moments.',
+    howTo: [
+      'Type your idea and hit enter to save it',
+      'Add a tag or category to keep things organized',
+      'Keep working on whatever you were doing, guilt-free',
+      'Come back later to review, sort, and act on your best ideas',
+    ],
+    whyNeedIt:
+      'That random idea you had during a meeting? It\'s gone in 30 seconds if you don\'t write it down. But writing it in a notebook means you\'ll never find it again. This gives your ideas a home without breaking your focus.',
+    faqs: [
+      {
+        q: 'Where are my ideas stored?',
+        a: 'In your browser\'s local storage. They\'ll be there when you come back, but they won\'t sync across devices. Export them if you want a backup.',
+      },
+      {
+        q: 'Can I organize ideas into different categories?',
+        a: 'Yes. You can tag each idea and then filter by tags later. Keep it simple — a few broad categories work better than a dozen specific ones.',
+      },
+      {
+        q: 'Is there a limit on how many ideas I can save?',
+        a: 'Practically no. Browser storage can hold thousands of text entries. You\'ll run out of good ideas long before you run out of space.',
+      },
+      {
+        q: 'Can I export my ideas?',
+        a: 'Yes, there\'s an export option that gives you everything as a text file. Handy if you want to move ideas into a project management tool.',
+      },
+    ],
+  },
+
+  'loan-emi-calculator': {
+    intro:
+      'Calculate your monthly EMI for any loan — personal, car, education, whatever. Plug in the amount, interest rate, and tenure, and see exactly what you\'ll pay each month. I made this because bank EMI calculators always seem designed to hide the total interest you\'re paying.',
+    howTo: [
+      'Enter your loan amount',
+      'Set the annual interest rate',
+      'Choose the loan tenure in months or years',
+      'See your monthly EMI, total interest, and total payment',
+    ],
+    whyNeedIt:
+      'Before you sign any loan agreement, you need to know the real cost. That 8% interest rate doesn\'t sound bad until you see you\'re paying almost as much in interest as the original loan. This tool shows you the full picture.',
+    faqs: [
+      {
+        q: 'What does EMI stand for?',
+        a: 'Equated Monthly Installment. It\'s the fixed amount you pay every month until the loan is fully repaid, covering both principal and interest.',
+      },
+      {
+        q: 'Does this work for all types of loans?',
+        a: 'Any loan with a fixed interest rate and fixed tenure. Home loans, car loans, personal loans, education loans — they all use the same EMI formula.',
+      },
+      {
+        q: 'Why is my total interest so high?',
+        a: 'That\'s the nature of compound interest over long periods. A 20-year home loan at 8% means you pay almost the loan amount again in interest. That\'s why shorter tenures save money.',
+      },
+      {
+        q: 'Can I see an amortization schedule?',
+        a: 'Yes, the tool breaks down each monthly payment into principal and interest components so you can see how the balance decreases over time.',
+      },
+    ],
+  },
+
+  'net-worth-tracker': {
+    intro:
+      'Add up everything you own, subtract everything you owe, and see your actual net worth. Most people have no idea where they really stand financially. This gives you the number — whether it\'s motivating or a wake-up call.',
+    howTo: [
+      'List your assets — savings, investments, property, vehicles',
+      'List your liabilities — loans, credit cards, mortgages',
+      'See your total net worth calculated instantly',
+      'Track changes over time to see your financial progress',
+    ],
+    whyNeedIt:
+      'Your salary doesn\'t tell you how wealthy you are. Someone making $100K with $200K in debt has a negative net worth. Tracking this number over time is the single best way to know if you\'re actually building wealth or just spending.',
+    faqs: [
+      {
+        q: 'What counts as an asset?',
+        a: 'Anything with monetary value you own: bank accounts, investments, property, vehicles, retirement accounts. Be conservative with estimates — use market value, not what you paid.',
+      },
+      {
+        q: 'Should I include my car as an asset?',
+        a: 'You can, but use its current resale value, not what you bought it for. Cars depreciate fast, so this number drops every year.',
+      },
+      {
+        q: 'How often should I update my net worth?',
+        a: 'Monthly is ideal for active tracking. Quarterly works if you want less maintenance. The point is seeing the trend over time, not obsessing over daily changes.',
+      },
+      {
+        q: 'Is my financial data stored securely?',
+        a: 'Your data stays in your browser\'s local storage. Nothing is sent to any server. For extra safety, don\'t use this on shared or public computers.',
+      },
+    ],
+  },
+
+  'paycheck-calculator': {
+    intro:
+      'See your actual take-home pay after taxes and deductions. Gross salary means nothing when rent is due — you need the net number. Enter your salary, filing status, and deductions, and see what actually hits your bank account.',
+    howTo: [
+      'Enter your gross annual or monthly salary',
+      'Select your filing status and pay frequency',
+      'Add any pre-tax deductions like 401(k) or health insurance',
+      'See your net pay after federal and state taxes',
+    ],
+    whyNeedIt:
+      'A $60K salary sounds great until you realize you take home $45K after taxes and deductions. Knowing your real take-home pay is essential for budgeting, negotiating salary, or comparing job offers in different states.',
+    faqs: [
+      {
+        q: 'Does this account for state taxes?',
+        a: 'Yes. Select your state and it\'ll apply the correct state income tax rate. Some states like Texas and Florida have no state income tax, which makes a real difference.',
+      },
+      {
+        q: 'What about Social Security and Medicare?',
+        a: 'Those are included automatically. They\'re standard deductions that apply to almost everyone — 6.2% for Social Security and 1.45% for Medicare.',
+      },
+      {
+        q: 'Can I compare paychecks between two job offers?',
+        a: 'Run it twice with different salaries, locations, or benefit packages. Comparing the net take-home is way more useful than comparing gross salaries.',
+      },
+      {
+        q: 'Is this accurate enough for tax planning?',
+        a: 'It gives a good estimate but isn\'t a substitute for a tax professional. Actual withholding depends on your W-4 settings and specific circumstances.',
+      },
+    ],
+  },
+
+  'savings-goal-visualizer': {
+    intro:
+      'Set a savings target and watch your progress fill up in real time. I wanted something more motivating than a spreadsheet cell turning green. This shows you exactly where you are and when you\'ll hit your goal.',
+    howTo: [
+      'Enter your savings goal amount and target date',
+      'Add your current savings balance',
+      'Set your monthly contribution amount',
+      'Watch the visual progress bar and projected timeline update',
+    ],
+    whyNeedIt:
+      'Saving money is boring. Seeing a progress bar inch closer to your goal is less boring. Visual feedback makes you more likely to stick with it — that\'s not opinion, it\'s behavioral science.',
+    faqs: [
+      {
+        q: 'Can I track multiple savings goals?',
+        a: 'Yes. Add as many goals as you want — emergency fund, vacation, new laptop, whatever. Each one gets its own progress tracker.',
+      },
+      {
+        q: 'Does it account for interest earned?',
+        a: 'You can enter an expected annual interest rate and it\'ll factor compound interest into the projection. Leave it at zero if your money is under a mattress.',
+      },
+      {
+        q: 'What if I miss a month of saving?',
+        a: 'Just update your current balance and it\'ll recalculate the timeline. No guilt trips. The projections adjust automatically.',
+      },
+      {
+        q: 'Is my financial data private?',
+        a: 'Everything is stored in your browser\'s local storage. Nothing goes to a server. Clear your browser data and it\'s gone.',
+      },
+    ],
+  },
+
+  'sitting-time-calculator': {
+    intro:
+      'Enter how many hours you sit each day and this tool shows you the health impact in plain terms. I read that sitting is "the new smoking" and wanted to know if that was hype or real. Turns out it\'s mostly real.',
+    howTo: [
+      'Enter your daily sitting hours for work, commute, and leisure',
+      'Add any exercise or movement breaks you currently take',
+      'Review the health impact summary and risk indicators',
+      'Get personalized suggestions for reducing your sitting time',
+    ],
+    whyNeedIt:
+      'Desk workers sit 10+ hours a day without thinking about it. The health effects are well-documented — increased risk of heart disease, back problems, and worse. Seeing your personal number in context is the first step to changing it.',
+    faqs: [
+      {
+        q: 'Does exercise cancel out sitting all day?',
+        a: 'Partially. Regular exercise helps a lot, but studies show prolonged unbroken sitting still carries risk even if you work out. The tool accounts for both.',
+      },
+      {
+        q: 'What counts as a movement break?',
+        a: 'Getting up and walking around for even 2-3 minutes counts. Standing at your desk counts partially. The tool lets you specify your break type and frequency.',
+      },
+      {
+        q: 'How accurate are the health risk numbers?',
+        a: 'They\'re based on published research averages. Your individual risk depends on genetics, diet, and other factors. Think of this as a general awareness tool, not a medical diagnosis.',
+      },
+      {
+        q: 'Is a standing desk the solution?',
+        a: 'Standing desks help, but standing all day has its own problems. The real answer is movement variety — sitting some, standing some, walking some. The tool gives specific recommendations.',
+      },
+    ],
+  },
+
+  'tech-trivia-generator': {
+    intro:
+      'Test your tech knowledge with random trivia questions about programming, internet history, gadgets, and more. I originally built this for our office Slack channel\'s Friday trivia. It ended up on the site.',
+    howTo: [
+      'Pick a category — programming, hardware, internet history, or general tech',
+      'Choose difficulty: easy, medium, or hard',
+      'Answer the multiple-choice question before the timer runs out',
+      'See your score and learn from the explanations on questions you missed',
+    ],
+    whyNeedIt:
+      'Learning tech facts is more fun when it\'s a game. Use it to kill time, prep for interviews, or settle arguments about who knows more about computers. It\'s trivia — it doesn\'t need a deeper reason.',
+    faqs: [
+      {
+        q: 'How many questions are in the database?',
+        a: 'Several hundred across all categories, and I add new ones regularly. You won\'t see the same questions every time unless you play a lot.',
+      },
+      {
+        q: 'Can I play against friends?',
+        a: 'Not directly multiplayer yet. But you can compare scores — each round gives you a shareable result you can screenshot or copy.',
+      },
+      {
+        q: 'Are the questions up to date?',
+        a: 'Mix of both. Some are timeless (who invented the internet) and some are recent (latest tech events). The pool gets updated regularly.',
+      },
+      {
+        q: 'Can I suggest a question?',
+        a: 'Not through the tool directly, but you can reach out through the TechTrendi contact page. Good questions get added.',
+      },
+    ],
+  },
+
+  'thumbnail-tester': {
+    intro:
+      'Upload two or more YouTube thumbnail options and run a quick A/B test to see which one people actually want to click. I made this because choosing a thumbnail by gut feel was costing me views.',
+    howTo: [
+      'Upload 2-4 thumbnail images',
+      'Add your video title for context',
+      'Share the test link and collect votes from real people',
+      'See which thumbnail wins with percentage breakdowns',
+    ],
+    whyNeedIt:
+      'Your thumbnail is responsible for most of your click-through rate. A bad thumbnail on a great video means nobody watches it. Testing before you publish takes five minutes and can double your views.',
+    faqs: [
+      {
+        q: 'How many people need to vote for a reliable result?',
+        a: 'At least 20-30 votes gives you a meaningful signal. More is better. Share the link in a few groups to get enough responses.',
+      },
+      {
+        q: 'Can I test thumbnails for other platforms too?',
+        a: 'The layout is optimized for YouTube but you can test any image. Blog headers, social media posts, or product images all work.',
+      },
+      {
+        q: 'Are the uploaded images stored?',
+        a: 'Images are temporarily stored for the duration of the test. They\'re automatically deleted after 7 days or when you close the test.',
+      },
+      {
+        q: 'Does this simulate the YouTube search results page?',
+        a: 'Yes. Thumbnails are shown at YouTube-like sizes with your title underneath, so voters see them in context.',
+      },
+    ],
+  },
+
 };
