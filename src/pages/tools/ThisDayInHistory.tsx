@@ -89,22 +89,29 @@ export default function ThisDayInHistory() {
 
     try {
       const response = await fetch(
-        `https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/${month}/${day}`,
-        {
-          headers: {
-            "Accept": "application/json",
-            "Api-User-Agent": "TechTrendi/1.0 (https://techtrendi.com)",
-          },
-        }
+        `https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/${month}/${day}`
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch data");
+        throw new Error(`Wikipedia API returned ${response.status}`);
       }
 
       const result: WikiResponse = await response.json();
       setData(result);
     } catch (err) {
+      // Fallback: try via Wikimedia API
+      try {
+        const fallback = await fetch(
+          `https://api.wikimedia.org/feed/v1/wikipedia/en/onthisday/all/${month}/${day}`
+        );
+        if (fallback.ok) {
+          const result: WikiResponse = await fallback.json();
+          setData(result);
+          return;
+        }
+      } catch {
+        // fallback also failed
+      }
       setError("Failed to load historical events. Please try again.");
       console.error(err);
     } finally {
