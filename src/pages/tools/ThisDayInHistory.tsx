@@ -87,36 +87,30 @@ export default function ThisDayInHistory() {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
 
-    try {
-      const response = await fetch(
-        `https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/${month}/${day}`
-      );
+    const urls = [
+      `https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/${month}/${day}`,
+      `https://api.wikimedia.org/feed/v1/wikipedia/en/onthisday/all/${month}/${day}`,
+    ];
 
-      if (!response.ok) {
-        throw new Error(`Wikipedia API returned ${response.status}`);
-      }
-
-      const result: WikiResponse = await response.json();
-      setData(result);
-    } catch (err) {
-      // Fallback: try via Wikimedia API
+    for (const url of urls) {
       try {
-        const fallback = await fetch(
-          `https://api.wikimedia.org/feed/v1/wikipedia/en/onthisday/all/${month}/${day}`
-        );
-        if (fallback.ok) {
-          const result: WikiResponse = await fallback.json();
-          setData(result);
-          return;
-        }
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 30000);
+
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeout);
+
+        if (!response.ok) continue;
+
+        const result: WikiResponse = await response.json();
+        setData(result);
+        return;
       } catch {
-        // fallback also failed
+        // try next URL
       }
-      setError("Failed to load historical events. Please try again.");
-      console.error(err);
-    } finally {
-      setLoading(false);
     }
+
+    setError("Failed to load historical events. Please try again.");
   }, []);
 
   useEffect(() => {
