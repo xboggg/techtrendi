@@ -117,14 +117,8 @@ const HabitTracker = lazy(() => import("./pages/tools/HabitTrackerV2"));
 const JobTracker = lazy(() => import("./pages/tools/JobTracker"));
 const LinkInBio = lazy(() => import("./pages/tools/LinkInBio"));
 const InvoiceGenerator = lazy(() => import("./pages/tools/InvoiceGenerator"));
-const InvoiceChaser = lazy(() => import("./pages/tools/InvoiceChaser"));
 const ContentRepurposer = lazy(() => import("./pages/tools/ContentRepurposer"));
-const ProposalGenerator = lazy(() => import("./pages/tools/ProposalGenerator"));
-const SimpleCRM = lazy(() => import("./pages/tools/SimpleCRM"));
-const AppointmentBooking = lazy(() => import("./pages/tools/AppointmentBooking"));
-const ClientPortal = lazy(() => import("./pages/tools/ClientPortal"));
 const ResumeBuilder = lazy(() => import("./pages/tools/ResumeBuilder"));
-const NetworkCRM = lazy(() => import("./pages/tools/NetworkCRM"));
 const URLShortener = lazy(() => import("./pages/tools/URLShortener"));
 const CreatorAnalytics = lazy(() => import("./pages/tools/CreatorAnalytics"));
 const RegexTester = lazy(() => import("./pages/tools/RegexTester"));
@@ -141,8 +135,6 @@ const FaviconGenerator = lazy(() => import("./pages/tools/FaviconGenerator"));
 const MetaTagGenerator = lazy(() => import("./pages/tools/MetaTagGenerator"));
 const ContractGenerator = lazy(() => import("./pages/tools/ContractGenerator"));
 const CoverLetterGenerator = lazy(() => import("./pages/tools/CoverLetterGenerator"));
-const ColdEmailWriter = lazy(() => import("./pages/tools/ColdEmailWriter"));
-const LifeProgressBar = lazy(() => import("./pages/tools/LifeProgressBar"));
 const UsernameGenerator = lazy(() => import("./pages/tools/UsernameGenerator"));
 const ScreenTimeCalculator = lazy(() => import("./pages/tools/ScreenTimeCalculator"));
 const PricingCalculator = lazy(() => import("./pages/tools/PricingCalculator"));
@@ -178,19 +170,15 @@ const MemeGenerator = lazy(() => import("./pages/tools/MemeGenerator"));
 const MortgageCalculator = lazy(() => import("./pages/tools/LoanCalculator"));
 const StartupCostCalculator = lazy(() => import("./pages/tools/StartupCostCalculator"));
 const TextToSpeech = lazy(() => import("./pages/tools/TextToSpeech"));
-const WifiQrGenerator = lazy(() => import("./pages/tools/WifiQrGenerator"));
 const WorldClock = lazy(() => import("./pages/tools/WorldClock"));
 const YouTubeThumbnailDownloader = lazy(() => import("./pages/tools/YouTubeThumbnailDownloader"));
 
 // New addictive tools
 const AgeCalculator = lazy(() => import("./pages/tools/AgeCalculator"));
 const CurrencyConverter = lazy(() => import("./pages/tools/CurrencyConverter"));
-const HashtagGenerator = lazy(() => import("./pages/tools/HashtagGenerator"));
 const HookGenerator = lazy(() => import("./pages/tools/HookGenerator"));
-const ThisDayInHistory = lazy(() => import("./pages/tools/ThisDayInHistory"));
 const IdeaParkingLot = lazy(() => import("./pages/tools/IdeaParkingLot"));
 const SavingsGoalVisualizer = lazy(() => import("./pages/tools/SavingsGoalVisualizer"));
-const CompoundInterestCalculator = lazy(() => import("./pages/tools/CompoundInterestCalculator"));
 const PaycheckCalculator = lazy(() => import("./pages/tools/PaycheckCalculator"));
 const ThumbnailTester = lazy(() => import("./pages/tools/ThumbnailTester"));
 const HashtagAnalyzer = lazy(() => import("./pages/tools/HashtagAnalyzer"));
@@ -202,7 +190,6 @@ const SittingTimeCalculator = lazy(() => import("./pages/tools/SittingTimeCalcul
 const MathTugOfWar = lazy(() => import("./pages/tools/MathTugOfWar"));
 const DecisionMatrix = lazy(() => import("./pages/tools/DecisionMatrix"));
 const ProjectTimeline = lazy(() => import("./pages/tools/ProjectTimeline"));
-const WorldEconomicMap = lazy(() => import("./pages/tools/WorldEconomicMap"));
 const CompoundInterest = lazy(() => import("./pages/tools/CompoundInterest"));
 
 // New batch 2 tools
@@ -219,9 +206,7 @@ const AIBusinessNameGenerator = lazy(() => import("./pages/tools/AIBusinessNameG
 const SideHustleProjector = lazy(() => import("./pages/tools/SideHustleProjector"));
 const HabitTrackerV2 = lazy(() => import("./pages/tools/HabitTrackerV2"));
 const CarbonFootprintV2 = lazy(() => import("./pages/tools/CarbonFootprintV2"));
-const EssayOutlineBuilder = lazy(() => import("./pages/tools/EssayOutlineBuilder"));
 const ConceptExplainer = lazy(() => import("./pages/tools/ConceptExplainer"));
-const ExamTopicPredictor = lazy(() => import("./pages/tools/ExamTopicPredictor"));
 const BlogSEOAuditor = lazy(() => import("./pages/tools/BlogSEOAuditor"));
 
 // New batch 3 tools
@@ -242,11 +227,18 @@ const BusinessRegGuide = lazy(() => import("./pages/tools/BusinessRegGuide"));
 const StatisticsVisualizer = lazy(() => import("./pages/tools/StatisticsVisualizer"));
 
 // Batch 4 - Cybersecurity tools
-const ScamAnalyzer = lazy(() => import("./pages/tools/ScamAnalyzer"));
 const PhishingQuiz = lazy(() => import("./pages/tools/PhishingQuiz"));
-const WhatsAppAudit = lazy(() => import("./pages/tools/WhatsAppAudit"));
-const PasswordStrength = lazy(() => import("./pages/tools/PasswordStrength"));
-const IncidentResponse = lazy(() => import("./pages/tools/IncidentResponse"));
+
+// Security Hub pages
+const ThinkBeforeYouClick = lazy(() => import("./pages/ThinkBeforeYouClick"));
+const ScamAlerts = lazy(() => import("./pages/ScamAlerts"));
+const ReportScam = lazy(() => import("./pages/ReportScam"));
+
+// Security Hub admin pages
+const AdminScamAlerts = lazy(() => import("./pages/admin/AdminScamAlerts"));
+const AdminDailyTips = lazy(() => import("./pages/admin/AdminDailyTips"));
+const AdminThreatLevel = lazy(() => import("./pages/admin/AdminThreatLevel"));
+const AdminScamReports = lazy(() => import("./pages/admin/AdminScamReports"));
 
 const queryClient = new QueryClient();
 
@@ -313,14 +305,8 @@ const App = () => (
                       <Route path="/tools/job-tracker" element={<JobTracker />} />
                       <Route path="/tools/link-in-bio" element={<LinkInBio />} />
                       <Route path="/tools/invoice-generator" element={<InvoiceGenerator />} />
-                      <Route path="/tools/invoice-chaser" element={<InvoiceChaser />} />
                       <Route path="/tools/content-repurposer" element={<ContentRepurposer />} />
-                      <Route path="/tools/proposal-generator" element={<ProposalGenerator />} />
-                      <Route path="/tools/simple-crm" element={<SimpleCRM />} />
-                      <Route path="/tools/appointment-booking" element={<AppointmentBooking />} />
-                      <Route path="/tools/client-portal" element={<ClientPortal />} />
                       <Route path="/tools/resume-builder" element={<ResumeBuilder />} />
-                      <Route path="/tools/network-crm" element={<NetworkCRM />} />
                       <Route path="/tools/url-shortener" element={<URLShortener />} />
                       <Route path="/tools/creator-analytics" element={<CreatorAnalytics />} />
                       <Route path="/tools/regex-tester" element={<RegexTester />} />
@@ -337,8 +323,6 @@ const App = () => (
                       <Route path="/tools/meta-tag-generator" element={<MetaTagGenerator />} />
                       <Route path="/tools/contract-generator" element={<ContractGenerator />} />
                       <Route path="/tools/cover-letter-generator" element={<CoverLetterGenerator />} />
-                      <Route path="/tools/cold-email-writer" element={<ColdEmailWriter />} />
-                      <Route path="/tools/life-progress-bar" element={<LifeProgressBar />} />
                       <Route path="/tools/username-generator" element={<UsernameGenerator />} />
                       <Route path="/tools/screen-time-calculator" element={<ScreenTimeCalculator />} />
                       <Route path="/tools/pricing-calculator" element={<PricingCalculator />} />
@@ -374,17 +358,13 @@ const App = () => (
                       <Route path="/tools/mortgage-calculator" element={<MortgageCalculator />} />
                       <Route path="/tools/startup-cost-calculator" element={<StartupCostCalculator />} />
                       <Route path="/tools/text-to-speech" element={<TextToSpeech />} />
-                      <Route path="/tools/wifi-qr-generator" element={<WifiQrGenerator />} />
                       <Route path="/tools/world-clock" element={<WorldClock />} />
                       <Route path="/tools/youtube-thumbnail-downloader" element={<YouTubeThumbnailDownloader />} />
                       <Route path="/tools/age-calculator" element={<AgeCalculator />} />
                       <Route path="/tools/currency-converter" element={<CurrencyConverter />} />
-                      <Route path="/tools/hashtag-generator" element={<HashtagGenerator />} />
                       <Route path="/tools/hook-generator" element={<HookGenerator />} />
-                      <Route path="/tools/this-day-in-history" element={<ThisDayInHistory />} />
                       <Route path="/tools/idea-parking-lot" element={<IdeaParkingLot />} />
                       <Route path="/tools/savings-goal-visualizer" element={<SavingsGoalVisualizer />} />
-                      <Route path="/tools/compound-interest-calculator" element={<CompoundInterestCalculator />} />
                       <Route path="/tools/paycheck-calculator" element={<PaycheckCalculator />} />
                       <Route path="/tools/thumbnail-tester" element={<ThumbnailTester />} />
                       <Route path="/tools/hashtag-analyzer" element={<HashtagAnalyzer />} />
@@ -396,7 +376,6 @@ const App = () => (
                       <Route path="/tools/math-tug-of-war" element={<MathTugOfWar />} />
                       <Route path="/tools/decision-matrix" element={<DecisionMatrix />} />
                       <Route path="/tools/project-timeline" element={<ProjectTimeline />} />
-                      <Route path="/tools/world-economic-map" element={<WorldEconomicMap />} />
                       <Route path="/tools/compound-interest" element={<CompoundInterest />} />
                       <Route path="/tools/fire-calculator" element={<FIRECalculator />} />
                       <Route path="/tools/cost-of-living" element={<CostOfLiving />} />
@@ -406,9 +385,7 @@ const App = () => (
                       <Route path="/tools/viral-post-analyzer" element={<ViralPostAnalyzer />} />
                       <Route path="/tools/resume-roaster" element={<ResumeRoaster />} />
                       <Route path="/tools/youtube-title-optimizer" element={<YouTubeTitleOptimizer />} />
-                      <Route path="/tools/essay-outline" element={<EssayOutlineBuilder />} />
                       <Route path="/tools/concept-explainer" element={<ConceptExplainer />} />
-                      <Route path="/tools/exam-predictor" element={<ExamTopicPredictor />} />
                       <Route path="/tools/seo-auditor" element={<BlogSEOAuditor />} />
                       <Route path="/tools/rent-vs-buy" element={<RentVsBuy />} />
                       <Route path="/tools/couples-finance" element={<CouplesFinance />} />
@@ -425,11 +402,7 @@ const App = () => (
                       <Route path="/tools/startup-readiness" element={<StartupReadiness />} />
                       <Route path="/tools/business-registration" element={<BusinessRegGuide />} />
                       <Route path="/tools/statistics-visualizer" element={<StatisticsVisualizer />} />
-                      <Route path="/tools/scam-analyzer" element={<ScamAnalyzer />} />
                       <Route path="/tools/phishing-quiz" element={<PhishingQuiz />} />
-                      <Route path="/tools/whatsapp-audit" element={<WhatsAppAudit />} />
-                      <Route path="/tools/password-strength" element={<PasswordStrength />} />
-                      <Route path="/tools/incident-response" element={<IncidentResponse />} />
                       </Route>
                       <Route path="/tools/:categoryId" element={<ToolCategory />} />
                       <Route path="/blog" element={<Blog />} />
@@ -451,6 +424,9 @@ const App = () => (
                       <Route path="/green-tech" element={<GreenTech />} />
                       <Route path="/creepy-tech" element={<CreepyTech />} />
                       <Route path="/cyber-awareness" element={<CyberAwareness />} />
+                      <Route path="/think-before-you-click" element={<ThinkBeforeYouClick />} />
+                      <Route path="/scam-alerts" element={<ScamAlerts />} />
+                      <Route path="/report-scam" element={<ReportScam />} />
                       <Route path="/start-here" element={<StartHere />} />
                       <Route path="/reviews" element={<Reviews />} />
                       <Route path="/reviews/:slug" element={<ReviewDetail />} />
@@ -467,6 +443,10 @@ const App = () => (
                       <Route path="/admin/cyber-awareness" element={<AdminCyberAwareness />} />
                       <Route path="/admin/guides" element={<AdminGuides />} />
                       <Route path="/admin/guides/edit/:id" element={<AdminGuideEdit />} />
+                      <Route path="/admin/scam-alerts" element={<AdminScamAlerts />} />
+                      <Route path="/admin/daily-tips" element={<AdminDailyTips />} />
+                      <Route path="/admin/threat-level" element={<AdminThreatLevel />} />
+                      <Route path="/admin/scam-reports" element={<AdminScamReports />} />
                       <Route path="/admin/tool-feedback" element={<AdminToolFeedback />} />
                       <Route path="/guides" element={<Guides />} />
                       <Route path="/guides/:category" element={<Guides />} />
