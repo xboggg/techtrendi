@@ -166,7 +166,7 @@ export default function NewsArticle() {
       .catch(() => setLoading(false));
 
     // Fetch related + trending news
-    fetch(`${SUPABASE_URL}/rest/v1/news?select=*&order=created_at.desc&limit=10`, {
+    fetch(`${SUPABASE_URL}/rest/v1/news?select=id,title,slug,excerpt,category,cover_image,read_time_minutes,created_at,author&order=created_at.desc&limit=10`, {
       headers: { "apikey": SUPABASE_KEY },
       signal: controller.signal,
     })

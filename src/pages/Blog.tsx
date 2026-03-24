@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
-import staticArticles from "@/data/articles.json";
+// No static JSON fallback — API-first with sessionStorage cache
 import {
   Clock, Calendar, ArrowRight, Search, Crown, ChevronLeft, ChevronRight,
   LayoutGrid, Lightbulb, Shield, Briefcase, Smartphone, Watch, Brain,
@@ -87,26 +87,57 @@ export default function Blog() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const [articles, setArticles] = useState<Article[]>(
-    (staticArticles as (Article & { content_type?: string })[]).filter(a => !a.content_type || a.content_type === 'article')
-  );
 
-  // Instant load with static data, then fetch fresh articles in background
-  // New articles appear automatically without any rebuild needed
+  // SessionStorage cache for instant repeat visits, API fetch for fresh data
+  const [articles, setArticles] = useState<Article[]>(() => {
+    try {
+      const cached = sessionStorage.getItem("blog:articles");
+      if (cached) return JSON.parse(cached);
+    } catch {}
+    return [];
+  });
+  const [loading, setLoading] = useState(articles.length === 0);
+
+  // Fetch articles: try API first, fall back to static JSON on cPanel
   useEffect(() => {
     const controller = new AbortController();
-    fetch(`${SUPABASE_URL}/rest/v1/articles?select=*&content_type=eq.article&order=created_at.desc`, {
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    fetch(`${SUPABASE_URL}/rest/v1/articles?select=id,title,slug,excerpt,category,cover_image,read_time_minutes,created_at,author,tags,views,is_premium&content_type=eq.article&is_published=eq.true&order=created_at.desc`, {
       headers: { "apikey": SUPABASE_KEY },
       signal: controller.signal,
     })
       .then(res => res.ok ? res.json() : null)
       .then(data => {
+        clearTimeout(timeoutId);
         if (Array.isArray(data) && data.length > 0) {
           setArticles(data);
+          try { sessionStorage.setItem("blog:articles", JSON.stringify(data)); } catch {}
+          setLoading(false);
+        } else {
+          throw new Error("Empty response");
         }
       })
-      .catch(() => {}); // Silent fail - static data already showing
-    return () => controller.abort();
+      .catch(() => {
+        clearTimeout(timeoutId);
+        // Fallback: fetch static JSON from cPanel (always available, updated daily by cron)
+        if (articles.length === 0) {
+          fetch("/articles-fallback.json")
+            .then(res => res.ok ? res.json() : null)
+            .then(data => {
+              if (Array.isArray(data) && data.length > 0) {
+                const filtered = data.filter((a: any) => !a.content_type || a.content_type === "article");
+                setArticles(filtered);
+                try { sessionStorage.setItem("blog:articles", JSON.stringify(filtered)); } catch {}
+              }
+            })
+            .catch(() => {})
+            .finally(() => setLoading(false));
+        } else {
+          setLoading(false);
+        }
+      });
+    return () => { clearTimeout(timeoutId); controller.abort(); };
   }, []);
 
   const filteredArticles = articles.filter((article) => {
@@ -223,19 +254,27 @@ export default function Blog() {
         </div>
 
         {/* Articles Grid */}
-        {filteredArticles.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : filteredArticles.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground text-lg mb-4">
-              No articles match your search.
+              {articles.length === 0 ? "Unable to load articles. Please try again." : "No articles match your search."}
             </p>
-            {searchQuery && (
+            {articles.length === 0 ? (
+              <button onClick={() => window.location.reload()} className="text-primary hover:underline">
+                Refresh page
+              </button>
+            ) : searchQuery ? (
               <button
                 onClick={() => setSearchQuery("")}
                 className="text-primary hover:underline"
               >
                 Clear search
               </button>
-            )}
+            ) : null}
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -243,6 +282,7 @@ export default function Blog() {
               <Link
                 key={article.id}
                 to={`/blog/${article.slug}`}
+                state={{ article }}
                 className="group bg-card rounded-2xl border border-border shadow-card overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all duration-300"
               >
                 {/* Cover Image */}

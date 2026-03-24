@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowRight, ChevronLeft, ChevronRight, Skull, ShieldCheck } from "lucide-react";
+import staticCreepyTech from "@/data/creepy-tech.json";
+import staticCyberAwareness from "@/data/cyber-awareness.json";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CardModal } from "@/components/ui/card-modal";
@@ -215,8 +217,9 @@ function CarouselRow({
 }
 
 export function CreepyTechHomeSection() {
-  const [creepyPosts, setCreepyPosts] = useState<Post[]>([]);
-  const [cyberPosts, setCyberPosts] = useState<Post[]>([]);
+  // Initialize with static data — sections always show, API updates silently
+  const [creepyPosts, setCreepyPosts] = useState<Post[]>(staticCreepyTech as Post[]);
+  const [cyberPosts, setCyberPosts] = useState<Post[]>(staticCyberAwareness as Post[]);
   const [modalPost, setModalPost] = useState<Post | null>(null);
   const [modalSource, setModalSource] = useState<"creepy" | "cyber">("creepy");
 
@@ -227,7 +230,9 @@ export function CreepyTechHomeSection() {
       .eq("is_published", true)
       .order("number")
       .limit(10)
-      .then(({ data }) => setCreepyPosts(data || []));
+      .then(({ data }) => {
+        if (data && data.length > 0) setCreepyPosts(data);
+      });
 
     supabase
       .from("cyber_awareness_posts")
@@ -235,10 +240,10 @@ export function CreepyTechHomeSection() {
       .eq("is_published", true)
       .order("number")
       .limit(10)
-      .then(({ data }) => setCyberPosts(data || []));
+      .then(({ data }) => {
+        if (data && data.length > 0) setCyberPosts(data);
+      });
   }, []);
-
-  if (creepyPosts.length === 0 && cyberPosts.length === 0) return null;
 
   return (
     <section className="py-12 md:py-16 bg-zinc-950 relative overflow-hidden">

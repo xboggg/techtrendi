@@ -45,6 +45,7 @@ const navLinks: NavLink[] = [
     href: "/blog",
     isMegaMenu: true,
   },
+  { label: "Security", href: "/security", icon: Shield, isHot: true },
   { label: "News", href: "/news", icon: Newspaper },
   { label: "Toolbox", href: "/tools" },
   { label: "Reviews", href: "/reviews" },

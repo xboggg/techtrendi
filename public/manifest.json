@@ -1,7 +1,7 @@
 {
   "name": "TechTrendi",
   "short_name": "TechTrendi",
-  "description": "AI-Powered Tech Guides, Reviews & Free Tools",
+  "description": "Tech News, Expert Guides & Free Tools",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

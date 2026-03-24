@@ -19,6 +19,7 @@ import { CartDrawer } from "@/components/store/CartDrawer";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { NavigationProgress } from "@/components/ui/NavigationProgress";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import { Loader2 } from "lucide-react";
 
@@ -27,10 +28,14 @@ import Index from "./pages/Index";
 import Tools from "./pages/Tools";
 import NotFound from "./pages/NotFound";
 
-// Loading component
+// Loading component — subtle top bar instead of blocking spinner
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+  <div className="min-h-[60vh]">
+    <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-muted overflow-hidden">
+      <div className="h-full bg-primary animate-[loading_1.5s_ease-in-out_infinite] w-1/3 rounded-full"
+        style={{ animation: "loading 1.5s ease-in-out infinite" }} />
+    </div>
+    <style>{`@keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }`}</style>
   </div>
 );
 
@@ -240,7 +245,16 @@ const AdminDailyTips = lazy(() => import("./pages/admin/AdminDailyTips"));
 const AdminThreatLevel = lazy(() => import("./pages/admin/AdminThreatLevel"));
 const AdminScamReports = lazy(() => import("./pages/admin/AdminScamReports"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,      // data stays fresh for 5 minutes
+      gcTime: 10 * 60 * 1000,         // cache kept for 10 minutes
+      refetchOnWindowFocus: false,     // stop refetching when tab regains focus
+      retry: 1,                        // only retry failed queries once
+    },
+  },
+});
 
 const App = () => (
   <ErrorBoundary>
@@ -269,6 +283,7 @@ const App = () => (
                       }}
                     />
                     <BrowserRouter>
+                    <NavigationProgress />
                     <ScrollToTop />
                     <GoogleAnalytics />
                     <Suspense fallback={<PageLoader />}>

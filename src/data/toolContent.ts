@@ -12,7 +12,7 @@ export const toolContentData: Record<string, ToolContent> = {
 
   'invoice-generator': {
     intro:
-      'Create clean, professional invoices in seconds without touching a spreadsheet. I built this because most invoice tools either cost money or make you sign up for an account just to send a bill. Whether you freelance on the side or run a small shop, this gets the job done fast.',
+      'Create clean, professional invoices in seconds without touching a spreadsheet. Includes payment tracking and follow-up reminders so you can chase overdue invoices without the awkward email drafting. I built this because most invoice tools either cost money or make you sign up for an account just to send a bill. Whether you freelance on the side or run a small shop, this gets the job done fast.',
     howTo: [
       'Fill in your business name and your client\'s details',
       'Add line items with descriptions, quantities, and rates',
@@ -41,117 +41,7 @@ export const toolContentData: Record<string, ToolContent> = {
     ],
   },
 
-  'invoice-chaser': {
-    intro:
-      'Write polite but firm follow-up emails for unpaid invoices without spending 20 minutes stressing over the wording. Just tell us how overdue the payment is and we\'ll draft the right message. Perfect for freelancers who hate the awkward "hey, about that invoice..." conversation.',
-    howTo: [
-      'Enter the invoice number and amount owed',
-      'Select how many days overdue it is',
-      'Pick a tone — friendly reminder, firm nudge, or final notice',
-      'Copy the generated email and send it to your client',
-    ],
-    whyNeedIt:
-      'Late payments kill cash flow, and most people put off chasing them because it feels uncomfortable. Having a ready-made email removes the friction so you actually follow up instead of just hoping the money shows up.',
-    faqs: [
-      {
-        q: 'Will the emails sound like templates?',
-        a: 'They\'re written to sound natural and personal. You can edit anything before copying, so tweak it to match your voice.',
-      },
-      {
-        q: 'How many follow-up stages are there?',
-        a: 'Three: a gentle reminder (1-7 days late), a firmer follow-up (7-30 days), and a final notice (30+ days). Each gets progressively more direct.',
-      },
-      {
-        q: 'Can I use this for recurring invoices?',
-        a: 'Absolutely. Just update the invoice number and date each time. The structure works for any overdue payment.',
-      },
-    ],
-  },
 
-  'proposal-generator': {
-    intro:
-      'Put together a solid project proposal without staring at a blank document for an hour. You fill in the key details — scope, timeline, pricing — and get a structured proposal you can send to clients right away. Great for freelancers and small agencies who pitch regularly.',
-    howTo: [
-      'Enter your project title and a brief description of the work',
-      'Break down the scope into phases or deliverables',
-      'Add your pricing, timeline, and payment terms',
-      'Review the formatted proposal and export it as PDF',
-    ],
-    whyNeedIt:
-      'A well-structured proposal wins more jobs. Period. Clients want to see that you\'ve thought things through before they hand over money. This tool makes sure you don\'t forget the important sections.',
-    faqs: [
-      {
-        q: 'Can I save proposals as templates for later?',
-        a: 'You can download the data and re-import it later. It\'s all stored locally so nothing gets lost between sessions.',
-      },
-      {
-        q: 'Is there a limit on how many sections I can add?',
-        a: 'No limits. Add as many deliverables, phases, or line items as the project needs.',
-      },
-      {
-        q: 'Can I include terms and conditions?',
-        a: 'Yes, there\'s a section at the bottom for custom terms. You can paste in your standard contract clauses.',
-      },
-    ],
-  },
-
-  'simple-crm': {
-    intro:
-      'Track your clients, deals, and follow-ups in one place — no sign-ups, no monthly fees, no bloated features you\'ll never use. This is a lightweight CRM that runs right in your browser. If you\'re juggling 5-50 clients and just need to stay organized, this is for you.',
-    howTo: [
-      'Add contacts with names, emails, and notes',
-      'Create deals and assign them to contacts',
-      'Set follow-up reminders so nothing falls through the cracks',
-      'Filter and search your contacts by status or tag',
-    ],
-    whyNeedIt:
-      'Spreadsheets get messy fast. Real CRMs cost $15-50 a month. If you\'re a solo operator or tiny team, you need something in between — organized enough to be useful, simple enough to actually stick with.',
-    faqs: [
-      {
-        q: 'Where is my data stored?',
-        a: 'In your browser\'s local storage. Nothing leaves your machine. You can export everything as JSON if you want a backup.',
-      },
-      {
-        q: 'Can multiple people use this?',
-        a: 'It\'s designed for solo use. Since data is stored locally, each person would have their own separate set of contacts.',
-      },
-      {
-        q: 'Is there a limit on contacts?',
-        a: 'Not really. Browser storage can handle thousands of entries before you\'d notice any slowdown.',
-      },
-      {
-        q: 'Can I import contacts from a spreadsheet?',
-        a: 'Yes, you can import a CSV file. Just make sure the column headers match the expected format.',
-      },
-    ],
-  },
-
-  'appointment-booking': {
-    intro:
-      'Generate a shareable booking page so clients can pick a time that works for both of you. No more back-and-forth emails trying to find a slot. Set your availability, share the link, and let people book directly.',
-    howTo: [
-      'Set the days and hours you\'re available',
-      'Choose your appointment duration and buffer time between meetings',
-      'Copy your unique booking link and share it with clients',
-      'View and manage upcoming bookings from the dashboard',
-    ],
-    whyNeedIt:
-      'The "when are you free?" email chain is a time sink. Giving people a link where they can just pick a slot saves you both the hassle and makes you look way more put-together.',
-    faqs: [
-      {
-        q: 'Does this sync with Google Calendar?',
-        a: 'Not yet — it works as a standalone booking tool. You can manually add confirmed slots to your calendar.',
-      },
-      {
-        q: 'Can I set different availability for different days?',
-        a: 'Yes. You can customize each day of the week separately, or block out specific dates entirely.',
-      },
-      {
-        q: 'Will clients get a confirmation?',
-        a: 'The tool generates a confirmation page with all the details. You can also set up email notifications if you connect your email.',
-      },
-    ],
-  },
 
   'freelance-rate-calculator': {
     intro:
@@ -207,32 +97,6 @@ export const toolContentData: Record<string, ToolContent> = {
     ],
   },
 
-  'client-portal': {
-    intro:
-      'Set up a simple client-facing page where you can share project updates, files, and milestones without clogging up email threads. Think of it as a mini project dashboard your clients can check whenever they want. Especially handy if you work with multiple clients at once.',
-    howTo: [
-      'Create a new project and add your client\'s name',
-      'Upload files and add status updates or milestones',
-      'Share the unique portal link with your client',
-      'Update the portal as the project progresses',
-    ],
-    whyNeedIt:
-      'Clients love transparency. When they can check progress on their own instead of emailing you every other day, everyone\'s happier. It also keeps all your project communication in one place instead of scattered across inboxes.',
-    faqs: [
-      {
-        q: 'Is the portal password-protected?',
-        a: 'Each portal has a unique link that\'s hard to guess. You can also add a simple access code for extra security.',
-      },
-      {
-        q: 'Can clients upload files too?',
-        a: 'Yes, there\'s a section where clients can drop in files like brand assets, content, or feedback documents.',
-      },
-      {
-        q: 'How many projects can I run at once?',
-        a: 'As many as you need. Each project gets its own portal and link.',
-      },
-    ],
-  },
 
   'expense-tracker': {
     intro:
@@ -427,32 +291,6 @@ export const toolContentData: Record<string, ToolContent> = {
     ],
   },
 
-  'network-crm': {
-    intro:
-      'Keep track of the people in your professional network — who you met, when, and what you talked about. It\'s like a personal rolodex with notes and reminders. For anyone who goes to events, conferences, or just meets a lot of people and forgets names two days later.',
-    howTo: [
-      'Add contacts with notes about where you met them',
-      'Tag people by industry, event, or relationship type',
-      'Set reminders to follow up with key contacts',
-      'Search and filter your network when you need a specific connection',
-    ],
-    whyNeedIt:
-      'Your network is only valuable if you actually maintain it. Remembering that you met someone at a conference six months ago and following up makes a real difference. This tool makes that easy instead of relying on your memory.',
-    faqs: [
-      {
-        q: 'How is this different from LinkedIn?',
-        a: 'LinkedIn is public and social. This is your private notes — things you wouldn\'t post publicly, like "met at bar after conference, interested in partnership on X project."',
-      },
-      {
-        q: 'Can I import my existing contacts?',
-        a: 'Yes, you can import from CSV. Export your phone contacts or LinkedIn connections and bring them in.',
-      },
-      {
-        q: 'Does it send follow-up reminders?',
-        a: 'You can set reminder dates for each contact. The dashboard shows who\'s due for a check-in.',
-      },
-    ],
-  },
 
   'brand-pitch': {
     intro:
@@ -867,32 +705,6 @@ export const toolContentData: Record<string, ToolContent> = {
     ],
   },
 
-  'cold-email-writer': {
-    intro:
-      'Write cold emails that actually get replies instead of landing in the trash. Enter who you\'re reaching out to, what you want, and a bit about yourself, and get a concise, personalized email draft. No fluff, no "I hope this finds you well" nonsense.',
-    howTo: [
-      'Describe the recipient and their role or company',
-      'State what you\'re offering or asking for',
-      'Add a personal detail or connection point',
-      'Review and customize the generated email',
-    ],
-    whyNeedIt:
-      'Cold email is still one of the most effective outreach channels — when done right. The problem is most cold emails are terrible. A well-structured, concise, personalized email stands out in a sea of lazy mass blasts.',
-    faqs: [
-      {
-        q: 'How long should a cold email be?',
-        a: 'Under 150 words. The tool keeps it tight. Nobody reads a cold email that\'s four paragraphs long.',
-      },
-      {
-        q: 'Should I follow up if they don\'t reply?',
-        a: 'Yes, 2-3 follow-ups spaced 3-5 days apart is standard. The tool can generate follow-up sequences too.',
-      },
-      {
-        q: 'Does it work for sales or just networking?',
-        a: 'Both. Select your goal — partnership, sales, job inquiry, collaboration — and the tone and structure adjust.',
-      },
-    ],
-  },
 
   'youtube-title-optimizer': {
     intro:
@@ -1386,31 +1198,19 @@ export const toolContentData: Record<string, ToolContent> = {
   ],
 },
 "password-checker": {
-  intro: "Paste a password and find out if it has appeared in known data breaches. This tool checks against a database of billions of leaked credentials without ever sending your full password over the internet.",
+  intro: "Type any password and get a full security analysis — entropy score, estimated crack time, character pool size, and pattern warnings. The tool detects common weak patterns including Ghana-specific ones like city names, telecom brands, MoMo PINs, and phone numbers. Everything runs in your browser; your password is never sent anywhere.",
   howTo: [
-    "Type or paste the password you want to check.",
-    "The tool hashes your password locally and checks only a partial hash against the breach database.",
-    "Review the results — you will see how many times that password has appeared in breaches.",
+    "Type or paste the password you want to analyze.",
+    "Watch the strength meter and metrics update in real time as you type.",
+    "Check the pattern warnings panel for common weak patterns the tool detected.",
+    "Use the suggested strong passwords section if you need a new password.",
   ],
-  whyNeedIt: "Even a password that looks strong might already be compromised. If attackers have it in a leaked database, they will try it on every major site. Checking your passwords against known breaches is one of the simplest things you can do to protect yourself.",
+  whyNeedIt: "Most people overestimate how strong their passwords are. Adding a number to the end of a word does not make it secure. This tool gives you honest, math-based feedback — entropy, crack time at 100 billion guesses per second, and specific pattern detection — so you know exactly where your password stands.",
   faqs: [
-    { q: "Is it safe to type my real password here?", a: "Yes. Your password is hashed on your device, and only the first few characters of that hash are sent to check the database. The full password never leaves your browser." },
-    { q: "What should I do if my password was found in a breach?", a: "Change it immediately on every site where you used it. Use the password generator to create a unique replacement for each account." },
-    { q: "How does the breach database work?", a: "It uses the Have I Been Pwned API, which collects passwords from publicly known data breaches. The check uses a k-anonymity model so your password stays private." },
-  ],
-},
-"password-strength": {
-  intro: "Type a password and get an instant strength rating. The tool analyzes length, character variety, common patterns, and dictionary words to tell you how resistant your password really is.",
-  howTo: [
-    "Enter the password you want to evaluate.",
-    "Watch the strength meter update in real time as you type.",
-    "Read the specific suggestions to improve your password if needed.",
-  ],
-  whyNeedIt: "Most people overestimate how strong their passwords are. Adding a number to the end of a word does not make it secure. This tool gives you honest feedback based on how password cracking actually works, not just whether you ticked a checkbox.",
-  faqs: [
-    { q: "What makes a password strong?", a: "Length is the biggest factor, followed by randomness. A long passphrase of random words beats a short string of mixed characters every time." },
-    { q: "Why does it flag common substitutions like @ for a?", a: "Attackers know all the common tricks — replacing letters with numbers or symbols. Cracking tools try these substitutions automatically, so they add almost no real security." },
-    { q: "Is a 'strong' rating enough?", a: "It is a good sign, but also make sure you are not reusing that password elsewhere. A strong password used on ten sites is still a risk if one of those sites gets breached." },
+    { q: "Is it safe to type my real password here?", a: "Yes. All analysis happens locally in your browser using JavaScript. Your password is never sent to any server or API." },
+    { q: "What makes a password strong?", a: "Length is the biggest factor, followed by randomness. A 16-character passphrase of random words beats a short string of mixed characters. Aim for 60+ bits of entropy." },
+    { q: "What Ghana-specific patterns does it detect?", a: "It flags Ghanaian city names (Accra, Kumasi, Tema, etc.), telecom brands (MTN, Vodafone, MoMo), phone number formats, birth years, religious words, and romantic words — all commonly used in Ghanaian passwords." },
+    { q: "What should I do if my password is weak?", a: "Use the suggested strong passwords section to copy a ready-made password, or follow the improvement suggestions to strengthen your current one. Never reuse passwords across sites." },
   ],
 },
 "hash-generator": {
@@ -1495,48 +1295,6 @@ export const toolContentData: Record<string, ToolContent> = {
     { q: "Is my data stored when I take this assessment?", a: "No. Everything runs in your browser and nothing is saved or sent anywhere. Your answers and score exist only during your session." },
     { q: "How often should I retake this?", a: "Every few months, or whenever you make a major change like getting a new phone, switching email providers, or starting a new job." },
     { q: "What score should I aim for?", a: "Perfection is not realistic for most people. Focus on getting out of the high-risk zone first, then gradually improve. Even small changes like enabling two-factor authentication make a big difference." },
-  ],
-},
-"incident-response": {
-  intro: "Been hacked, scammed, or had a data breach? This tool walks you through exactly what to do, step by step. Select your situation and get a customized response plan with actionable instructions.",
-  howTo: [
-    "Select the type of incident (hacked account, stolen device, data breach, etc.).",
-    "Follow the step-by-step checklist tailored to your situation.",
-    "Check off completed steps and save your progress if needed.",
-  ],
-  whyNeedIt: "When something goes wrong, panic makes you forget important steps. Having a clear, ordered checklist ensures you do not miss anything critical — like changing passwords on related accounts or notifying your bank before the attacker can move money.",
-  faqs: [
-    { q: "What should I do first if I think I have been hacked?", a: "Change the password of the affected account immediately from a different device. If you cannot access the account, use the service's account recovery process. Then enable two-factor authentication." },
-    { q: "Should I report cyber incidents to the police?", a: "Yes, especially if money was lost. In Ghana, you can report to the Cyber Crime Unit. Having a police report also helps when dealing with banks or insurance companies." },
-    { q: "How do I know if I have been part of a data breach?", a: "Check haveibeenpwned.com with your email address. You can also set up alerts to be notified of future breaches that include your information." },
-  ],
-},
-"scam-analyzer": {
-  intro: "Paste a suspicious message, email, or URL and get an instant analysis of whether it looks like a scam. The tool checks for common red flags like urgency tactics, fake domains, and known scam patterns.",
-  howTo: [
-    "Paste the suspicious text, email content, or URL into the analyzer.",
-    "Click Analyze to run the scam detection checks.",
-    "Review the risk rating and the specific red flags that were found.",
-  ],
-  whyNeedIt: "Scammers are creative, and new schemes appear every day. When you get a message that feels off but you are not sure, running it through the analyzer can confirm your suspicion or point out warning signs you missed.",
-  faqs: [
-    { q: "Can this tool catch every scam?", a: "No tool can catch everything. New scams appear constantly. Use this as one layer of protection alongside your own judgment. If something feels wrong, it probably is." },
-    { q: "What are the most common scams right now?", a: "Investment scams, fake job offers, romance scams, and mobile money fraud are all very common. Scammers also frequently impersonate banks, delivery services, and government agencies." },
-    { q: "What should I do if the tool says it is a scam?", a: "Do not respond to the message or click any links. Block the sender, report it to the platform, and warn others who might receive the same message." },
-  ],
-},
-"whatsapp-audit": {
-  intro: "Review your WhatsApp privacy and security settings with this guided audit. The tool walks you through every important setting and explains what each one does for your privacy.",
-  howTo: [
-    "Open WhatsApp settings on your phone alongside this tool.",
-    "Follow each audit step and check the recommended setting.",
-    "Mark each item as done to track your progress through the full audit.",
-  ],
-  whyNeedIt: "WhatsApp has a lot of privacy settings buried in menus that most people never explore. This audit makes sure you have not accidentally left your profile photo visible to strangers, or your last-seen status open to everyone, or your groups joinable by anyone with your number.",
-  faqs: [
-    { q: "Does this tool access my WhatsApp account?", a: "No. It is a guided checklist that you follow manually. The tool never connects to WhatsApp or accesses any of your data." },
-    { q: "What is the most important WhatsApp privacy setting?", a: "Two-step verification. It adds a PIN that prevents someone from registering your number on a new device, even if they have your SIM card." },
-    { q: "Can people still track me on WhatsApp after this audit?", a: "The audit significantly reduces your exposure, but WhatsApp itself collects metadata. For maximum privacy, consider using Signal for sensitive conversations." },
   ],
 },
 
@@ -1767,20 +1525,6 @@ export const toolContentData: Record<string, ToolContent> = {
 },
 
 // Education
-"essay-outline": {
-  intro: "Generate a structured outline for any essay topic. Enter your subject and thesis, and get a clear framework with introduction, body paragraphs, and conclusion that you can build on.",
-  howTo: [
-    "Enter your essay topic and your main argument or thesis.",
-    "Select the essay type (argumentative, expository, narrative, etc.).",
-    "Get a complete outline with suggested points for each section.",
-  ],
-  whyNeedIt: "Starting an essay is the hardest part. Staring at a blank page kills motivation. An outline gives you a roadmap so you can focus on writing instead of figuring out structure. It also helps you spot weak arguments before you waste time writing them out.",
-  faqs: [
-    { q: "Can I use this for academic essays?", a: "Yes. The outlines follow standard academic essay structures. But remember — the outline is a starting point. You still need to do the research and write the actual content in your own words." },
-    { q: "Does this write the essay for me?", a: "No. It creates the skeleton — the structure and key points. You fill in the flesh with your own research, arguments, and writing. Think of it as a map, not the journey." },
-    { q: "What essay types are supported?", a: "Argumentative, expository, compare-and-contrast, persuasive, narrative, and descriptive. Each type has a slightly different structure that the tool adapts to." },
-  ],
-},
 "concept-explainer": {
   intro: "Struggling with a concept? Enter any topic and get a plain-English explanation at the level you choose — from beginner to advanced. Great for students, self-learners, or anyone hitting a wall with textbook jargon.",
   howTo: [
@@ -1793,20 +1537,6 @@ export const toolContentData: Record<string, ToolContent> = {
     { q: "What subjects does this cover?", a: "Pretty much anything — science, math, economics, technology, history, and more. If a concept can be explained, the tool will try to break it down for you." },
     { q: "Can I use this instead of studying?", a: "It is a supplement, not a replacement. Use it to get unstuck on confusing topics, then go back to your course materials with better understanding." },
     { q: "How do I pick the right level?", a: "Start with beginner if you are completely new to the topic. If the explanation feels too simple, step up a level. There is no shame in starting at the beginning." },
-  ],
-},
-"exam-predictor": {
-  intro: "Enter your study habits, practice test scores, and time until the exam to get a predicted score range. The tool also tells you which topics to focus on to maximize your grade.",
-  howTo: [
-    "Enter details about your study schedule and practice scores.",
-    "Add the exam date and the topics you have covered.",
-    "Get a predicted score range and a prioritized study plan for the remaining time.",
-  ],
-  whyNeedIt: "Studying everything equally is inefficient. If you are strong in some areas and weak in others, you should spend more time on the weak spots. This tool helps you allocate your remaining study time where it will have the biggest impact on your final grade.",
-  faqs: [
-    { q: "How accurate is the prediction?", a: "It is an estimate based on the data you provide. The more honest and detailed your inputs, the closer the prediction will be. It is most useful for identifying weak areas, not guaranteeing a specific score." },
-    { q: "Can this work for any exam?", a: "Yes. It works with any exam where you can track practice scores by topic. The principles of prioritized studying apply universally." },
-    { q: "What if my predicted score is lower than I want?", a: "That is actually useful information. The study plan shows you exactly where to focus to improve. Knowing the gap early gives you time to close it." },
   ],
 },
 "ai-startup-name-generator": {
@@ -2180,9 +1910,9 @@ export const toolContentData: Record<string, ToolContent> = {
   ],
 },
 "qr-generator": {
-  intro: "Generate a QR code for any text, URL, email, phone number, or WiFi network. Customize the size and download it as an image. No sign-up, no watermarks, works instantly.",
+  intro: "Generate a QR code for any text, URL, email, phone number, or WiFi network — including dedicated WiFi QR codes that let guests join your network instantly by scanning. Customize the size and download it as an image. No sign-up, no watermarks, works instantly.",
   howTo: [
-    "Enter the content you want to encode — a URL, text, contact info, etc.",
+    "Enter the content you want to encode — a URL, text, contact info, WiFi credentials, etc.",
     "Customize the size and error correction level if needed.",
     "Download the QR code image or copy it to your clipboard.",
   ],
@@ -2191,20 +1921,6 @@ export const toolContentData: Record<string, ToolContent> = {
     { q: "What can I put in a QR code?", a: "Practically anything text-based — URLs, plain text, phone numbers, email addresses, WiFi credentials, calendar events, and more. Most phones can scan and interpret all of these." },
     { q: "What is error correction?", a: "It determines how much of the QR code can be damaged or obscured and still scan correctly. Higher error correction means the code still works even if part of it is covered — useful for printed materials." },
     { q: "Do QR codes expire?", a: "No. A QR code is just encoded data. It will work forever as long as the content it points to (like a URL) still exists." },
-  ],
-},
-"wifi-qr-generator": {
-  intro: "Generate a QR code that lets people join your WiFi network instantly by scanning it. No more spelling out passwords or watching guests type it wrong three times.",
-  howTo: [
-    "Enter your WiFi network name (SSID) and password.",
-    "Select the security type (WPA2, WPA3, etc.).",
-    "Download or print the QR code and put it somewhere guests can see it.",
-  ],
-  whyNeedIt: "Sharing your WiFi password is annoying, especially when it is long and complex (as it should be). A printed QR code near your front door or on the fridge lets guests connect with a single scan. No dictation required.",
-  faqs: [
-    { q: "Is it safe to have my WiFi password in a QR code?", a: "It is as safe as your physical space. Anyone who can see the QR code can get the password, so treat the printed code like you would a written password — keep it where only trusted people can see it." },
-    { q: "Does this work on all phones?", a: "Most modern Android and iOS devices can scan WiFi QR codes directly from their camera app. Older devices might need a QR scanner app." },
-    { q: "What if I change my WiFi password?", a: "You will need to generate and print a new QR code. The old one will stop working since the password embedded in it is no longer correct." },
   ],
 },
 "image-compressor": {
@@ -2247,34 +1963,6 @@ export const toolContentData: Record<string, ToolContent> = {
     { q: "Do short links expire?", a: "It depends on the service used. Most short links remain active indefinitely, but check the specific terms. If the shortening service shuts down, the links stop working." },
     { q: "Can I track clicks?", a: "Basic click tracking is available, showing how many times your link was used. For detailed analytics, dedicated URL shortening services offer more features." },
     { q: "Are shortened URLs safe to click?", a: "As safe as the destination URL. Short links just redirect — they do not add any risk themselves. But because they hide the destination, always be cautious clicking short links from unknown sources." },
-  ],
-},
-"life-progress-bar": {
-  intro: "Enter your age and see a visual progress bar of your life. It also breaks down how you have spent your years so far — sleeping, working, eating, commuting — and how many years you have left for each.",
-  howTo: [
-    "Enter your current age and your expected lifespan.",
-    "See your life progress bar and the breakdown by activity.",
-    "Reflect on how you want to spend the remaining time.",
-  ],
-  whyNeedIt: "It is a bit unsettling, but seeing your life as a progress bar makes time feel more tangible. When you realize you have already spent 12 years of your life sleeping and might have 15 summers left with your parents, it changes how you prioritize things.",
-  faqs: [
-    { q: "Is this supposed to be depressing?", a: "Not at all. It is meant to be motivating. Knowing your time is finite — and seeing it visually — helps you stop wasting time on things that do not matter to you." },
-    { q: "How are the activity breakdowns calculated?", a: "They use population averages for sleep, work, eating, commuting, and other common activities. Your personal breakdown will differ, but the estimates give you a useful picture." },
-    { q: "What lifespan should I enter?", a: "The default uses the average life expectancy for your country. You can adjust it based on your family history or personal health. The point is the exercise, not the exact number." },
-  ],
-},
-"this-day-in-history": {
-  intro: "See what happened on this day throughout history. Browse notable events, famous birthdays, and historical milestones for any date. A fun way to start the morning or spice up a conversation.",
-  howTo: [
-    "The tool loads events for today's date automatically.",
-    "Browse through historical events, births, and deaths for this day.",
-    "Select a different date if you want to explore another day.",
-  ],
-  whyNeedIt: "History is full of surprising coincidences and fascinating stories. Knowing what happened on today's date gives you interesting conversation starters and a bit of perspective on how much the world has changed.",
-  faqs: [
-    { q: "How far back do the events go?", a: "The database covers thousands of years, from ancient history to recent events. Major historical moments from every era are included." },
-    { q: "Can I look up any date?", a: "Yes. Use the date picker to explore any day of the year. It is especially fun to look up birthdays and anniversaries." },
-    { q: "Where does the historical data come from?", a: "The events are sourced from public historical databases and are curated for accuracy and significance. Major well-documented events are prioritized." },
   ],
 },
 "math-tug-of-war": {
@@ -2403,20 +2091,6 @@ export const toolContentData: Record<string, ToolContent> = {
     { q: "Can I compare different crops?", a: "Yes. Run the calculator for each crop you are considering and compare the projected profits. This helps you decide what to plant if you have limited land." },
   ],
 },
-"world-economic-map": {
-  intro: "Explore the global economy through an interactive map. See GDP, inflation, unemployment, trade balances, and other economic indicators for every country. Compare nations side by side.",
-  howTo: [
-    "Click on any country on the map to see its economic data.",
-    "Select different indicators from the menu (GDP, inflation, etc.).",
-    "Use the comparison tool to place two or more countries side by side.",
-  ],
-  whyNeedIt: "Economic data is scattered across dozens of websites and reports. This map puts it all in one visual interface. Whether you are a student studying economics, a business owner exploring markets, or just curious about the world, having everything on one map saves time.",
-  faqs: [
-    { q: "How current is the data?", a: "The data is updated periodically from international sources like the World Bank and IMF. Most indicators reflect the most recently published figures." },
-    { q: "Can I see historical trends?", a: "Yes. Select a country and view how its indicators have changed over time. This is useful for spotting trends and understanding long-term economic shifts." },
-    { q: "What indicators are available?", a: "GDP, GDP per capita, inflation rate, unemployment rate, trade balance, public debt, population, and more. The most commonly discussed economic metrics are all covered." },
-  ],
-},
 "phone-comparison": {
   intro: "Compare smartphones side by side — specs, prices, cameras, battery life, and more. Enter two or more models and get a clear breakdown of how they stack up against each other.",
   howTo: [
@@ -2539,37 +2213,6 @@ export const toolContentData: Record<string, ToolContent> = {
     ],
   },
 
-  'compound-interest-calculator': {
-    intro:
-      'A detailed compound interest calculator with extra controls for serious number crunching. Set custom compounding frequencies, add irregular contributions, and model different scenarios. Built for people who want precise projections, not just ballpark estimates.',
-    howTo: [
-      'Enter your principal amount and select a compounding frequency',
-      'Add regular contributions and specify if they\'re monthly or yearly',
-      'Set the annual interest rate and investment duration',
-      'Compare scenarios side by side using the projection table',
-      'Download your amortization schedule if needed',
-    ],
-    whyNeedIt:
-      'When you\'re planning actual investments — retirement, education funds, property down payments — you need numbers you can trust. Rough estimates won\'t cut it when real money is on the line.',
-    faqs: [
-      {
-        q: 'Can I model what happens if I increase contributions over time?',
-        a: 'Yes. You can set contribution increases — like bumping up your monthly savings by a percentage each year to match salary growth.',
-      },
-      {
-        q: 'What\'s the difference between APR and APY?',
-        a: 'APR is the stated annual rate. APY includes the effect of compounding within the year. APY is always slightly higher. This tool lets you input either.',
-      },
-      {
-        q: 'Can I see a year-by-year breakdown?',
-        a: 'The projection table shows your balance, contributions, and interest earned for each period. You can export it as a spreadsheet.',
-      },
-      {
-        q: 'How far into the future can I project?',
-        a: 'Up to 50 years. That covers most retirement planning horizons. The chart scales automatically.',
-      },
-    ],
-  },
 
   'currency-converter': {
     intro:
@@ -2604,7 +2247,7 @@ export const toolContentData: Record<string, ToolContent> = {
 
   'hashtag-analyzer': {
     intro:
-      'Check how popular and competitive your hashtags are before you use them. Enter a hashtag and see estimated usage volume, competition level, and related hashtag suggestions. Helps you pick hashtags that actually get your posts seen instead of buried.',
+      'Analyze and generate hashtags for any topic or platform. Check how popular and competitive your hashtags are before you use them, or generate a ready-to-copy set from a topic description. See estimated usage volume, competition level, and related hashtag suggestions. Helps you pick hashtags that actually get your posts seen instead of buried.',
     howTo: [
       'Enter the hashtag you want to analyze',
       'Review the popularity score and competition level',
@@ -2636,36 +2279,6 @@ export const toolContentData: Record<string, ToolContent> = {
   // ==========================================
   // BATCH 2: Creator, Security, Developer
   // ==========================================
-  'hashtag-generator': {
-    intro:
-      'Turn any topic into a set of relevant hashtags for Instagram, Twitter, TikTok, or LinkedIn. I got tired of manually researching which hashtags actually get reach, so I made this. Type what your post is about and get a ready-to-copy list.',
-    howTo: [
-      'Describe your post topic or paste your caption',
-      'Pick the platform you\'re posting to',
-      'Choose how many hashtags you want (5, 10, 15, or 30)',
-      'Copy the generated hashtags and paste them into your post',
-    ],
-    whyNeedIt:
-      'Good hashtags get your content in front of people who aren\'t following you yet. But picking them manually takes forever, and using the same ones every time tanks your reach. This keeps things fresh and targeted.',
-    faqs: [
-      {
-        q: 'How many hashtags should I use on Instagram?',
-        a: 'Instagram allows 30 but most studies show 8-15 performs best. The tool lets you pick your count so you\'re not overdoing it.',
-      },
-      {
-        q: 'Does this work for TikTok too?',
-        a: 'Yes. TikTok hashtags work differently than Instagram — they\'re shorter and trend-driven. The tool adjusts its suggestions based on the platform you select.',
-      },
-      {
-        q: 'Are these hashtags guaranteed to trend?',
-        a: 'No tool can guarantee trending. These are relevant, commonly used hashtags for your topic. Trending depends on timing, content quality, and a bit of luck.',
-      },
-      {
-        q: 'Can I save my favorite hashtag sets?',
-        a: 'You can copy them to your clipboard. For saving, just paste them into a notes app. Everything runs in your browser so there\'s no account to store them in.',
-      },
-    ],
-  },
 
   'hook-generator': {
     intro:

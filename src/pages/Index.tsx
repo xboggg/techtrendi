@@ -9,6 +9,10 @@ import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+// No static JSON fallback — API-first with sessionStorage cache
+import staticNews from "@/data/news.json";
+// No static featured articles fallback
+import staticFeaturedGuides from "@/data/featured-guides.json";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { WaveFeatureCarousel } from "@/components/ui/wave-feature-carousel";
 import { CreepyTechHomeSection } from "@/components/home/CreepyTechCarousel";
@@ -116,16 +120,25 @@ const toolCategories = [
 
 export default function Index() {
   const { subscription } = useAuth();
-  const [trendingArticles, setTrendingArticles] = useState<TrendingArticle[]>([]);
-  const [loadingTrending, setLoadingTrending] = useState(true);
-  const [featuredGuides, setFeaturedGuides] = useState<FeaturedGuide[]>([]);
-  const [loadingGuides, setLoadingGuides] = useState(true);
-  const [latestArticles, setLatestArticles] = useState<LatestArticle[]>([]);
-  const [loadingLatest, setLoadingLatest] = useState(true);
+  // SessionStorage cache for instant repeat visits, API fetch for fresh data
+  const [trendingArticles, setTrendingArticles] = useState<TrendingArticle[]>(() => {
+    try { const c = sessionStorage.getItem("home:trending"); if (c) return JSON.parse(c); } catch {} return [];
+  });
+  const [loadingTrending, setLoadingTrending] = useState(trendingArticles.length === 0);
+  const [featuredGuides, setFeaturedGuides] = useState<FeaturedGuide[]>(
+    staticFeaturedGuides as FeaturedGuide[]
+  );
+  const [loadingGuides, setLoadingGuides] = useState(false);
+  const [latestArticles, setLatestArticles] = useState<LatestArticle[]>(() => {
+    try { const c = sessionStorage.getItem("home:latest"); if (c) return JSON.parse(c); } catch {} return [];
+  });
+  const [loadingLatest, setLoadingLatest] = useState(latestArticles.length === 0);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
-  const [latestNews, setLatestNews] = useState<NewsItem[]>([]);
-  const [loadingNews, setLoadingNews] = useState(true);
+  const [latestNews, setLatestNews] = useState<NewsItem[]>(
+    (staticNews as any[]).slice(0, 5) as NewsItem[]
+  );
+  const [loadingNews, setLoadingNews] = useState(false);
 
   useEffect(() => {
     fetchTrendingArticles();
@@ -144,10 +157,12 @@ export default function Index() {
         .order("views", { ascending: false, nullsFirst: false })
         .limit(4);
 
-      if (error) throw error;
-      setTrendingArticles(data || []);
+      if (!error && data && data.length > 0) {
+        setTrendingArticles(data);
+        try { sessionStorage.setItem("home:trending", JSON.stringify(data)); } catch {}
+      }
     } catch (error) {
-      console.error("Error fetching trending articles:", error);
+      // Silent fail — cached data showing if available
     } finally {
       setLoadingTrending(false);
     }
@@ -162,10 +177,11 @@ export default function Index() {
         .order("created_at", { ascending: false })
         .limit(6);
 
-      if (error) throw error;
-      setFeaturedGuides(data || []);
+      if (!error && data && data.length > 0) {
+        setFeaturedGuides(data);
+      }
     } catch (error) {
-      console.error("Error fetching featured guides:", error);
+      // Silent fail — static data already showing
     } finally {
       setLoadingGuides(false);
     }
@@ -180,10 +196,12 @@ export default function Index() {
         .order("created_at", { ascending: false })
         .limit(6);
 
-      if (error) throw error;
-      setLatestArticles(data || []);
+      if (!error && data && data.length > 0) {
+        setLatestArticles(data);
+        try { sessionStorage.setItem("home:latest", JSON.stringify(data)); } catch {}
+      }
     } catch (error) {
-      console.error("Error fetching latest articles:", error);
+      // Silent fail — cached data showing if available
     } finally {
       setLoadingLatest(false);
     }
@@ -198,10 +216,11 @@ export default function Index() {
         .order("created_at", { ascending: false })
         .limit(10);
 
-      if (error) throw error;
-      setReviews(data || []);
+      if (!error && data && data.length > 0) {
+        setReviews(data);
+      }
     } catch (error) {
-      console.error("Error fetching reviews:", error);
+      // Silent fail
     } finally {
       setLoadingReviews(false);
     }
@@ -216,10 +235,11 @@ export default function Index() {
         .order("created_at", { ascending: false })
         .limit(5);
 
-      if (error) throw error;
-      setLatestNews(data || []);
+      if (!error && data && data.length > 0) {
+        setLatestNews(data);
+      }
     } catch (error) {
-      console.error("Error fetching latest news:", error);
+      // Silent fail — static data already showing
     } finally {
       setLoadingNews(false);
     }

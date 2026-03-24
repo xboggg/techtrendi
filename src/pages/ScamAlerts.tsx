@@ -14,13 +14,12 @@ import {
   ChevronRight,
   Share2,
   Copy,
-  ExternalLink,
   AlertTriangle,
   Clock,
   Filter,
   Loader2,
   MessageCircle,
-  Shield,
+  ShieldCheck,
   X,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -58,63 +57,59 @@ const scamTypeFilters = [
 
 const severityConfig: Record<
   string,
-  { bg: string; text: string; border: string; glow: string; label: string }
+  { bg: string; text: string; dot: string; label: string }
 > = {
   low: {
-    bg: "bg-green-500/15",
-    text: "text-green-400",
-    border: "border-green-500/30",
-    glow: "shadow-green-500/10",
+    bg: "bg-emerald-50 dark:bg-emerald-500/10",
+    text: "text-emerald-700 dark:text-emerald-400",
+    dot: "bg-emerald-500",
     label: "Low Risk",
   },
   medium: {
-    bg: "bg-yellow-500/15",
-    text: "text-yellow-400",
-    border: "border-yellow-500/30",
-    glow: "shadow-yellow-500/10",
+    bg: "bg-amber-50 dark:bg-amber-500/10",
+    text: "text-amber-700 dark:text-amber-400",
+    dot: "bg-amber-500",
     label: "Medium Risk",
   },
   high: {
-    bg: "bg-orange-500/15",
-    text: "text-orange-400",
-    border: "border-orange-500/30",
-    glow: "shadow-orange-500/10",
+    bg: "bg-orange-50 dark:bg-orange-500/10",
+    text: "text-orange-700 dark:text-orange-400",
+    dot: "bg-orange-500",
     label: "High Risk",
   },
   critical: {
-    bg: "bg-red-500/15",
-    text: "text-red-400",
-    border: "border-red-500/30",
-    glow: "shadow-red-500/10",
+    bg: "bg-red-50 dark:bg-red-500/10",
+    text: "text-red-700 dark:text-red-400",
+    dot: "bg-red-500",
     label: "Critical",
   },
 };
 
-const threatLevelColors: Record<string, { gradient: string; pulse: string; text: string }> = {
+const threatLevelConfig: Record<string, { bg: string; text: string; dot: string }> = {
   low: {
-    gradient: "from-green-500 to-emerald-500",
-    pulse: "bg-green-500",
-    text: "text-green-400",
+    bg: "bg-emerald-50 dark:bg-emerald-500/10",
+    text: "text-emerald-700 dark:text-emerald-400",
+    dot: "bg-emerald-500",
   },
   moderate: {
-    gradient: "from-yellow-500 to-amber-500",
-    pulse: "bg-yellow-500",
-    text: "text-yellow-400",
+    bg: "bg-amber-50 dark:bg-amber-500/10",
+    text: "text-amber-700 dark:text-amber-400",
+    dot: "bg-amber-500",
   },
   elevated: {
-    gradient: "from-orange-500 to-red-500",
-    pulse: "bg-orange-500",
-    text: "text-orange-400",
+    bg: "bg-orange-50 dark:bg-orange-500/10",
+    text: "text-orange-700 dark:text-orange-400",
+    dot: "bg-orange-500",
   },
   high: {
-    gradient: "from-red-500 to-rose-600",
-    pulse: "bg-red-500",
-    text: "text-red-400",
+    bg: "bg-red-50 dark:bg-red-500/10",
+    text: "text-red-700 dark:text-red-400",
+    dot: "bg-red-500",
   },
   critical: {
-    gradient: "from-red-600 to-pink-600",
-    pulse: "bg-red-600",
-    text: "text-red-400",
+    bg: "bg-red-100 dark:bg-red-500/15",
+    text: "text-red-800 dark:text-red-400",
+    dot: "bg-red-600",
   },
 };
 
@@ -219,21 +214,8 @@ export default function ScamAlerts() {
   };
 
   const tlConfig = threatLevel
-    ? threatLevelColors[threatLevel.level] || threatLevelColors.moderate
+    ? threatLevelConfig[threatLevel.level] || threatLevelConfig.moderate
     : null;
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.08 },
-    },
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.45 } },
-  };
 
   return (
     <Layout>
@@ -246,85 +228,66 @@ export default function ScamAlerts() {
       </Helmet>
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-red-950/30 to-orange-950/20" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-red-500/8 via-transparent to-transparent" />
-        <div className="absolute top-10 right-20 w-80 h-80 bg-red-500/8 rounded-full blur-3xl" />
-
-        <div className="relative max-w-5xl mx-auto px-4 py-16 md:py-20">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+      <section className="relative overflow-hidden bg-gradient-to-b from-red-50 via-orange-50/30 to-background dark:from-red-950/30 dark:via-orange-950/15 dark:to-background border-b border-border/50">
+        <div className="max-w-5xl mx-auto px-4 py-12 md:py-16">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="flex-1">
               <motion.div
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: -16 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.4 }}
                 className="flex items-center gap-3 mb-4"
               >
-                <div className="p-2.5 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 shadow-lg shadow-red-500/20">
-                  <ShieldAlert className="w-6 h-6 text-white" />
+                <div className="p-2 rounded-xl bg-red-500 shadow-sm shadow-red-500/20">
+                  <ShieldAlert className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-sm font-medium text-gray-400 uppercase tracking-wider">
+                <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                   Live Feed
                 </span>
               </motion.div>
 
               <motion.h1
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15, duration: 0.5 }}
-                className="text-4xl md:text-5xl font-bold text-white mb-3"
+                transition={{ delay: 0.1, duration: 0.4 }}
+                className="text-3xl md:text-4xl font-bold text-foreground mb-2"
               >
                 Scam Alerts
               </motion.h1>
 
               <motion.p
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25, duration: 0.5 }}
-                className="text-gray-400 text-lg max-w-lg"
+                transition={{ delay: 0.2, duration: 0.4 }}
+                className="text-muted-foreground text-lg max-w-lg"
               >
-                Real-time warnings about scams targeting people in Ghana. Stay informed, stay safe.
+                Real-time warnings about scams targeting people in Ghana.
               </motion.p>
             </div>
 
-            {/* Threat Level Indicator */}
+            {/* Threat Level */}
             {threatLevel && tlConfig && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
+                transition={{ delay: 0.25, duration: 0.4 }}
                 className="flex-shrink-0"
               >
-                <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 text-center min-w-[200px]">
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mb-3">
+                <div className={cn("rounded-xl border border-border bg-card p-5 text-center min-w-[180px]")}>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
                     Current Threat Level
                   </p>
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <span className="relative flex h-3 w-3">
-                      <span
-                        className={cn(
-                          "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
-                          tlConfig.pulse
-                        )}
-                      />
-                      <span
-                        className={cn(
-                          "relative inline-flex rounded-full h-3 w-3",
-                          tlConfig.pulse
-                        )}
-                      />
+                  <div className="flex items-center justify-center gap-2 mb-1.5">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className={cn("animate-ping absolute inline-flex h-full w-full rounded-full opacity-75", tlConfig.dot)} />
+                      <span className={cn("relative inline-flex rounded-full h-2.5 w-2.5", tlConfig.dot)} />
                     </span>
-                    <span
-                      className={cn(
-                        "text-xl font-bold uppercase tracking-wide",
-                        tlConfig.text
-                      )}
-                    >
+                    <span className={cn("text-lg font-bold uppercase tracking-wide", tlConfig.text)}>
                       {threatLevel.level}
                     </span>
                   </div>
                   {threatLevel.message && (
-                    <p className="text-xs text-gray-400 mt-1">{threatLevel.message}</p>
+                    <p className="text-xs text-muted-foreground">{threatLevel.message}</p>
                   )}
                 </div>
               </motion.div>
@@ -335,48 +298,37 @@ export default function ScamAlerts() {
 
       {/* Controls */}
       <section className="max-w-5xl mx-auto px-4 py-6">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="flex flex-col md:flex-row md:items-center gap-4 mb-6"
-        >
+        <div className="flex flex-col md:flex-row md:items-center gap-4 mb-5">
           {/* Search */}
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search alerts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-orange-500/50 focus:ring-orange-500/20"
+              className="pl-10"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          {/* Report CTA */}
-          <Link to="/report-scam">
-            <Button className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white shadow-lg shadow-red-500/15">
+          <Button asChild className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-white">
+            <Link to="/report-scam">
               <ShieldAlert className="w-4 h-4 mr-2" />
               Report a Scam
-            </Button>
-          </Link>
-        </motion.div>
+            </Link>
+          </Button>
+        </div>
 
         {/* Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="flex flex-wrap gap-2 mb-8"
-        >
-          <Filter className="w-4 h-4 text-gray-500 mt-2 mr-1" />
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          <Filter className="w-4 h-4 text-muted-foreground mr-1" />
           {scamTypeFilters.map((filter) => (
             <button
               key={filter}
@@ -384,26 +336,21 @@ export default function ScamAlerts() {
               className={cn(
                 "px-3 py-1.5 rounded-full text-sm font-medium transition-all border",
                 activeFilter === filter
-                  ? "bg-gradient-to-r from-red-500/20 to-orange-500/20 border-orange-500/40 text-orange-400"
-                  : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20 hover:text-gray-300"
+                  ? "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400"
+                  : "bg-muted/50 border-border text-muted-foreground hover:text-foreground hover:border-border"
               )}
             >
               {filter}
             </button>
           ))}
-        </motion.div>
+        </div>
 
-        {/* Results count */}
         {!loading && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-sm text-gray-500 mb-4"
-          >
+          <p className="text-sm text-muted-foreground mb-4">
             {totalCount} alert{totalCount !== 1 ? "s" : ""} found
             {activeFilter !== "All" ? ` for "${activeFilter}"` : ""}
             {searchQuery ? ` matching "${searchQuery}"` : ""}
-          </motion.p>
+          </p>
         )}
       </section>
 
@@ -411,67 +358,58 @@ export default function ScamAlerts() {
       <section className="max-w-5xl mx-auto px-4 pb-16">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-orange-400 animate-spin" />
+            <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
           </div>
         ) : alerts.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-20"
-          >
-            <Shield className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-400 mb-2">No alerts found</h3>
-            <p className="text-gray-500">
+          <div className="text-center py-20">
+            <ShieldCheck className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-foreground mb-2">No alerts found</h3>
+            <p className="text-muted-foreground">
               {searchQuery || activeFilter !== "All"
                 ? "Try adjusting your search or filters."
                 : "No scam alerts have been published yet."}
             </p>
-          </motion.div>
+          </div>
         ) : (
           <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             key={`${page}-${activeFilter}-${searchQuery}`}
             className="space-y-4"
           >
-            {alerts.map((alert) => {
+            {alerts.map((alert, i) => {
               const severity = severityConfig[alert.severity] || severityConfig.medium;
               return (
                 <motion.div
                   key={alert.id}
-                  variants={cardVariants}
-                  whileHover={{ scale: 1.005, y: -2 }}
-                  className={cn(
-                    "rounded-2xl border backdrop-blur-sm p-5 md:p-6 transition-shadow hover:shadow-xl relative",
-                    severity.border,
-                    severity.glow,
-                    "bg-gradient-to-r from-white/[0.04] to-white/[0.02]"
-                  )}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05, duration: 0.35 }}
+                  className="rounded-xl border border-border bg-card p-5 md:p-6 hover:shadow-md transition-shadow"
                 >
                   {/* Header */}
                   <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-3">
-                    <span className="text-3xl flex-shrink-0">{alert.emoji}</span>
+                    <span className="text-2xl flex-shrink-0">{alert.emoji}</span>
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <h3 className="text-lg font-semibold text-white">{alert.title}</h3>
+                        <h3 className="text-lg font-semibold text-foreground">{alert.title}</h3>
                         <span
                           className={cn(
-                            "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border",
+                            "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold",
                             severity.bg,
-                            severity.text,
-                            severity.border
+                            severity.text
                           )}
                         >
+                          <span className={cn("w-1.5 h-1.5 rounded-full", severity.dot)} />
                           {severity.label}
                         </span>
                       </div>
-                      <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
+                      <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5" />
                           {timeAgo(alert.created_at)}
                         </span>
-                        <span className="px-2 py-0.5 rounded bg-white/5 text-gray-400 text-xs">
+                        <span className="px-2 py-0.5 rounded bg-muted text-xs">
                           {alert.scam_type}
                         </span>
                       </div>
@@ -483,30 +421,30 @@ export default function ScamAlerts() {
                         onClick={() =>
                           setShowShareMenu(showShareMenu === alert.id ? null : alert.id)
                         }
-                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                        className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
                       >
                         <Share2 className="w-4 h-4" />
                       </button>
                       <AnimatePresence>
                         {showShareMenu === alert.id && (
                           <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: -5 }}
+                            initial={{ opacity: 0, scale: 0.95, y: -4 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: -5 }}
-                            className="absolute right-0 top-11 z-10 bg-gray-900 border border-white/10 rounded-xl p-2 shadow-xl min-w-[160px]"
+                            exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                            className="absolute right-0 top-11 z-10 bg-popover border border-border rounded-xl p-1.5 shadow-xl min-w-[150px]"
                           >
                             <button
                               onClick={() => shareToWhatsApp(alert)}
-                              className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                              className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
                             >
-                              <MessageCircle className="w-4 h-4 text-green-400" />
+                              <MessageCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
                               WhatsApp
                             </button>
                             <button
                               onClick={() => copyLink(alert)}
-                              className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                              className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
                             >
-                              <Copy className="w-4 h-4 text-blue-400" />
+                              <Copy className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                               Copy Link
                             </button>
                           </motion.div>
@@ -516,7 +454,7 @@ export default function ScamAlerts() {
                   </div>
 
                   {/* Description */}
-                  <p className="text-gray-300 leading-relaxed mb-4">{alert.description}</p>
+                  <p className="text-muted-foreground leading-relaxed mb-4">{alert.description}</p>
 
                   {/* Affected Platforms */}
                   {alert.affected_platforms && alert.affected_platforms.length > 0 && (
@@ -524,7 +462,7 @@ export default function ScamAlerts() {
                       {alert.affected_platforms.map((platform) => (
                         <span
                           key={platform}
-                          className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-xs text-gray-400"
+                          className="px-2 py-0.5 rounded-md bg-muted border border-border text-xs text-muted-foreground"
                         >
                           {platform}
                         </span>
@@ -534,13 +472,13 @@ export default function ScamAlerts() {
 
                   {/* What to do */}
                   {alert.what_to_do && (
-                    <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-green-500/5 border border-green-500/15">
-                      <Shield className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                    <div className="flex items-start gap-2 px-4 py-3 rounded-lg bg-emerald-50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/10">
+                      <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-xs font-semibold text-green-400 uppercase tracking-wider mb-1">
+                        <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-0.5">
                           What to do
                         </p>
-                        <p className="text-sm text-gray-300">{alert.what_to_do}</p>
+                        <p className="text-sm text-emerald-800 dark:text-emerald-300/80">{alert.what_to_do}</p>
                       </div>
                     </div>
                   )}
@@ -552,18 +490,12 @@ export default function ScamAlerts() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="flex items-center justify-center gap-4 mt-10"
-          >
+          <div className="flex items-center justify-center gap-3 mt-10">
             <Button
               variant="outline"
               size="sm"
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="border-white/10 text-gray-400 hover:bg-white/5"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
               Previous
@@ -588,8 +520,8 @@ export default function ScamAlerts() {
                     className={cn(
                       "w-8 h-8 rounded-lg text-sm font-medium transition-all",
                       page === pageNum
-                        ? "bg-gradient-to-r from-red-500 to-orange-500 text-white"
-                        : "text-gray-500 hover:text-white hover:bg-white/10"
+                        ? "bg-red-600 text-white"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     )}
                   >
                     {pageNum}
@@ -603,41 +535,31 @@ export default function ScamAlerts() {
               size="sm"
               disabled={page >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="border-white/10 text-gray-400 hover:bg-white/5"
             >
               Next
               <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
-          </motion.div>
+          </div>
         )}
 
         {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mt-16 text-center"
-        >
-          <div className="rounded-2xl border border-orange-500/20 bg-gradient-to-r from-red-500/10 via-orange-500/10 to-yellow-500/10 p-8 md:p-12">
-            <AlertTriangle className="w-10 h-10 text-orange-400 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-white mb-2">
+        <div className="mt-16">
+          <div className="rounded-xl border border-border bg-card p-8 md:p-10 text-center">
+            <AlertTriangle className="w-10 h-10 text-orange-500 dark:text-orange-400 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold text-foreground mb-2">
               Encountered a scam?
             </h3>
-            <p className="text-gray-400 mb-6 max-w-md mx-auto">
-              Help protect the community by reporting scams you've come across.
-              Every report makes a difference.
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Help protect the community by reporting scams you've come across. Every report makes a difference.
             </p>
-            <Link to="/report-scam">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white shadow-lg shadow-red-500/20"
-              >
+            <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-white">
+              <Link to="/report-scam">
                 <ShieldAlert className="w-5 h-5 mr-2" />
                 Report a Scam Now
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
-        </motion.div>
+        </div>
       </section>
     </Layout>
   );

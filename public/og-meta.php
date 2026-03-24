@@ -15,6 +15,34 @@ $SITE_URL = 'https://techtrendi.com';
 $DEFAULT_IMAGE = 'https://techtrendi.com/og-image.jpg';
 $SITE_NAME = 'TechTrendi';
 
+// File-based cache to survive Supabase timeouts
+$CACHE_DIR = __DIR__ . '/og-cache';
+$CACHE_TTL = 86400; // 24 hours
+
+if (!is_dir($CACHE_DIR)) {
+    @mkdir($CACHE_DIR, 0755, true);
+}
+
+function cache_key($section, $slug) {
+    return preg_replace('/[^a-z0-9_-]/', '', $section . '_' . $slug);
+}
+
+function get_cache($section, $slug) {
+    global $CACHE_DIR, $CACHE_TTL;
+    $file = $CACHE_DIR . '/' . cache_key($section, $slug) . '.json';
+    if (file_exists($file) && (time() - filemtime($file)) < $CACHE_TTL) {
+        $data = json_decode(file_get_contents($file), true);
+        if ($data) return $data;
+    }
+    return null;
+}
+
+function set_cache($section, $slug, $data) {
+    global $CACHE_DIR;
+    $file = $CACHE_DIR . '/' . cache_key($section, $slug) . '.json';
+    @file_put_contents($file, json_encode($data));
+}
+
 // Get the request path
 $path = isset($_GET['path']) ? trim($_GET['path'], '/') : '';
 $parts = explode('/', $path);
@@ -83,37 +111,43 @@ switch ($section) {
         exit;
 }
 
-// Fetch from Supabase REST API
-$url = $SUPABASE_URL . '/rest/v1/' . $table . '?slug=eq.' . urlencode($slug) . '&select=' . urlencode($fields) . '&limit=1';
+// Check cache FIRST (instant, avoids slow Supabase roundtrip)
+$item = get_cache($section, $slug);
 
-$ch = curl_init();
-curl_setopt_array($ch, [
-    CURLOPT_URL => $url,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 5,
-    CURLOPT_HTTPHEADER => [
-        'apikey: ' . $SUPABASE_ANON_KEY,
-        'Authorization: Bearer ' . $SUPABASE_ANON_KEY,
-        'Accept: application/json'
-    ]
-]);
+// Only fetch from Supabase if cache miss
+if (!$item) {
+    $url = $SUPABASE_URL . '/rest/v1/' . $table . '?slug=eq.' . urlencode($slug) . '&select=' . urlencode($fields) . '&limit=1';
 
-$response = curl_exec($ch);
-$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 3,
+        CURLOPT_CONNECTTIMEOUT => 2,
+        CURLOPT_HTTPHEADER => [
+            'apikey: ' . $SUPABASE_ANON_KEY,
+            'Authorization: Bearer ' . $SUPABASE_ANON_KEY,
+            'Accept: application/json'
+        ]
+    ]);
 
-if ($http_code !== 200 || !$response) {
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code === 200 && $response) {
+        $data = json_decode($response, true);
+        if (!empty($data) && isset($data[0])) {
+            $item = $data[0];
+            set_cache($section, $slug, $item);
+        }
+    }
+}
+
+if (!$item) {
     serve_default();
     exit;
 }
-
-$data = json_decode($response, true);
-if (empty($data) || !isset($data[0])) {
-    serve_default();
-    exit;
-}
-
-$item = $data[0];
 
 // Build OG data
 $og_title = htmlspecialchars($item['meta_title'] ?? $item[$title_field] ?? $SITE_NAME, ENT_QUOTES, 'UTF-8');

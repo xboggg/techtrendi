@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import staticNews from "@/data/news.json";
 
 const NEWS_PER_PAGE = 12;
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db.techtrendi.com";
@@ -79,27 +80,24 @@ export default function News() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const [news, setNews] = useState<NewsItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [news, setNews] = useState<NewsItem[]>(staticNews as NewsItem[]);
+  const [loading, setLoading] = useState(false);
 
+  // Static data shows instantly, then fetch fresh data in background
   useEffect(() => {
     const controller = new AbortController();
-    setLoading(true);
 
-    fetch(`${SUPABASE_URL}/rest/v1/news?select=*&order=created_at.desc`, {
+    fetch(`${SUPABASE_URL}/rest/v1/news?select=id,title,slug,excerpt,category,cover_image,read_time_minutes,created_at,author&order=created_at.desc`, {
       headers: { "apikey": SUPABASE_KEY },
       signal: controller.signal,
     })
-      .then(res => res.ok ? res.json() : [])
+      .then(res => res.ok ? res.json() : null)
       .then(data => {
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           setNews(data);
         }
-        setLoading(false);
       })
-      .catch(() => {
-        setLoading(false);
-      });
+      .catch(() => {}); // Silent fail - static data already showing
 
     return () => controller.abort();
   }, []);

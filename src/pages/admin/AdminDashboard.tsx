@@ -29,7 +29,7 @@ export default function AdminDashboard() {
         supabase.from("products").select("id", { count: "exact" }),
         supabase.from("review_comments").select("id", { count: "exact" }),
         supabase.from("profiles").select("id", { count: "exact" }),
-        supabase.from("contact_messages").select("id, is_read", { count: "exact" }),
+        supabase.from("contact_submissions").select("id, is_read", { count: "exact" }),
         supabase.from("articles").select("id, title, slug, created_at, category").order("created_at", { ascending: false }).limit(5),
         supabase.from("news").select("id, title, slug, created_at, category").order("created_at", { ascending: false }).limit(5),
       ]);

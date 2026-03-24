@@ -172,6 +172,7 @@ export default function CategoryPage({
               <Link
                 key={article.id}
                 to={`/blog/${article.slug}`}
+                state={{ article }}
                 className="group bg-card rounded-2xl border border-border shadow-card overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all duration-300"
               >
                 {/* Cover Image */}

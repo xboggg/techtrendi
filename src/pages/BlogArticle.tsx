@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
-import staticArticles from "@/data/articles.json";
+// No static JSON fallback — API-first with sessionStorage cache
 import { useAuth } from "@/contexts/AuthContext";
 import { Clock, Calendar, ArrowLeft, Crown, User, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -67,16 +67,20 @@ function getArticleImage(article: Article): string {
   return categoryImages[article.category] || categoryImages["default"];
 }
 
-// Get article from static data first (instant)
-function getStaticArticle(slug: string): Article | undefined {
-  return (staticArticles as Article[]).find(a => a.slug === slug);
-}
-
 // Get related articles
 function getRelatedArticles(articles: Article[], category: string, excludeId: string): Article[] {
   return articles
     .filter(a => a.category === category && a.id !== excludeId)
     .slice(0, 3);
+}
+
+// Try to get article from sessionStorage cache
+function getCachedArticle(slug: string): Article | undefined {
+  try {
+    const cached = sessionStorage.getItem(`article:${slug}`);
+    if (cached) return JSON.parse(cached);
+  } catch {}
+  return undefined;
 }
 
 export default function BlogArticle() {
@@ -85,11 +89,15 @@ export default function BlogArticle() {
   const [toc, setToc] = useState<TableOfContentsItem[]>([]);
   const { subscription, user } = useAuth();
   const { addToHistory } = useReadingHistory();
-  const [article, setArticle] = useState<Article | undefined>(slug ? getStaticArticle(slug) : undefined);
-  const [allArticles, setAllArticles] = useState<Article[]>(staticArticles as Article[]);
-  const [loading, setLoading] = useState(!getStaticArticle(slug || "")); // Only loading if not in static data
 
-  const [imageLoaded, setImageLoaded] = useState(false);
+  // Try cache/static first, then fall back to router state (partial data from listing page)
+  const instant = slug ? getCachedArticle(slug) : undefined;
+  const routerArticle = location.state?.article as Article | undefined;
+  const initialArticle = instant || routerArticle;
+
+  const [article, setArticle] = useState<Article | undefined>(initialArticle);
+  const [allArticles, setAllArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(!initialArticle);
 
   // Check if user came from guides section
   const cameFromGuides = location.state?.from === 'guides' ||
@@ -97,36 +105,57 @@ export default function BlogArticle() {
   const backLink = cameFromGuides ? '/guides' : '/blog';
   const backLabel = cameFromGuides ? 'Back to Guides' : 'Back to Blog';
 
-  // Fetch fresh article data in background
+  // Fetch fresh article data from Supabase, fallback to static JSON on cPanel
   useEffect(() => {
     if (!slug) return;
-    setImageLoaded(false); // Reset image state when slug changes
     const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     fetch(`${SUPABASE_URL}/rest/v1/articles?slug=eq.${slug}&select=*`, {
       headers: { "apikey": SUPABASE_KEY },
       signal: controller.signal,
     })
       .then(res => res.ok ? res.json() : null)
       .then(data => {
+        clearTimeout(timeoutId);
         if (Array.isArray(data) && data.length > 0) {
           setArticle(data[0]);
-          // Increment view count
+          try { sessionStorage.setItem(`article:${slug}`, JSON.stringify(data[0])); } catch {};
           fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_views`, {
             method: "POST",
             headers: { "apikey": SUPABASE_KEY, "Content-Type": "application/json" },
             body: JSON.stringify({ article_id: data[0].id }),
           }).catch(() => {});
+          setLoading(false);
+        } else {
+          throw new Error("Empty");
         }
-        setLoading(false);
       })
       .catch(() => {
-        setLoading(false);
+        clearTimeout(timeoutId);
+        // Fallback: try static JSON file on cPanel
+        if (!article) {
+          fetch("/articles-fallback.json")
+            .then(res => res.ok ? res.json() : null)
+            .then(data => {
+              if (Array.isArray(data)) {
+                const found = data.find((a: any) => a.slug === slug);
+                if (found) {
+                  setArticle(found);
+                  try { sessionStorage.setItem(`article:${slug}`, JSON.stringify(found)); } catch {}
+                }
+              }
+            })
+            .catch(() => {})
+            .finally(() => setLoading(false));
+        } else {
+          setLoading(false);
+        }
       });
 
     // Also fetch all articles for related
-    fetch(`${SUPABASE_URL}/rest/v1/articles?select=*&order=created_at.desc`, {
+    fetch(`${SUPABASE_URL}/rest/v1/articles?select=id,title,slug,excerpt,category,cover_image,read_time_minutes,created_at,author,tags,views&order=created_at.desc`, {
       headers: { "apikey": SUPABASE_KEY },
-      signal: controller.signal,
     })
       .then(res => res.ok ? res.json() : null)
       .then(data => {
@@ -136,7 +165,7 @@ export default function BlogArticle() {
       })
       .catch(() => {});
 
-    return () => controller.abort();
+    return () => { clearTimeout(timeoutId); controller.abort(); };
   }, [slug]);
 
   const relatedArticles = article ? getRelatedArticles(allArticles, article.category, article.id) : [];
@@ -157,15 +186,27 @@ export default function BlogArticle() {
   }, [article]);
 
   const generateTOC = (content: string) => {
-    const headingRegex = /^(#{1,3})\s+(.+)$/gm;
     const items: TableOfContentsItem[] = [];
-    let match;
 
-    while ((match = headingRegex.exec(content)) !== null) {
+    // Parse markdown headings: ## Heading
+    const mdRegex = /^(#{1,3})\s+(.+)$/gm;
+    let match;
+    while ((match = mdRegex.exec(content)) !== null) {
       const level = match[1].length;
       const text = match[2];
       const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       items.push({ id, text, level });
+    }
+
+    // Parse HTML headings: <h2>Heading</h2>
+    if (items.length === 0) {
+      const htmlRegex = /<h([1-3])[^>]*>([^<]+)<\/h[1-3]>/gi;
+      while ((match = htmlRegex.exec(content)) !== null) {
+        const level = parseInt(match[1], 10);
+        const text = match[2].trim();
+        const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        items.push({ id, text, level });
+      }
     }
 
     setToc(items);
@@ -183,7 +224,12 @@ export default function BlogArticle() {
     // Check if content is already HTML
     const hasHtmlTags = /<(h[1-6]|p|div|ul|ol|li|blockquote|strong|em|a|img|pre|code|table|br)\b/i.test(content);
     if (hasHtmlTags) {
-      return content;
+      // Add id attributes to headings for TOC anchor links
+      return content.replace(/<h([1-3])([^>]*)>([^<]+)<\/h([1-3])>/gi, (_m, lvl, attrs, text, lvl2) => {
+        const id = text.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        if (attrs.includes('id=')) return _m; // already has id
+        return `<h${lvl} id="${id}"${attrs}>${text}</h${lvl2}>`;
+      });
     }
 
     const sanitizedContent = sanitizeInput(content);
@@ -267,23 +313,13 @@ export default function BlogArticle() {
     return html;
   };
 
-  // Show loading state while fetching
+  // Minimal loading indicator — no heavy skeleton
   if (loading) {
     return (
       <Layout>
         <div className="container py-12 md:py-20">
-          <div className="max-w-4xl mx-auto">
-            <div className="animate-pulse">
-              <div className="h-6 w-24 bg-muted rounded mb-6" />
-              <div className="h-10 w-3/4 bg-muted rounded mb-4" />
-              <div className="h-6 w-1/2 bg-muted rounded mb-8" />
-              <div className="aspect-video bg-muted rounded-2xl mb-10" />
-              <div className="space-y-4">
-                <div className="h-4 bg-muted rounded w-full" />
-                <div className="h-4 bg-muted rounded w-5/6" />
-                <div className="h-4 bg-muted rounded w-4/5" />
-              </div>
-            </div>
+          <div className="max-w-4xl mx-auto flex items-center justify-center min-h-[40vh]">
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         </div>
       </Layout>
@@ -452,8 +488,7 @@ export default function BlogArticle() {
             <img
               src={getArticleImage(article)}
               alt={article.title}
-              className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-              onLoad={() => setImageLoaded(true)}
+              className="w-full h-full object-cover"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = categoryImages[article.category] || categoryImages["default"];
               }}
@@ -534,6 +569,7 @@ export default function BlogArticle() {
                   <Link
                     key={related.id}
                     to={`/blog/${related.slug}`}
+                    state={{ article: related }}
                     className="group bg-card rounded-xl border border-border p-4 hover:shadow-elevated hover:border-primary/20 transition-all"
                   >
                     <div className="h-32 rounded-lg overflow-hidden mb-3">

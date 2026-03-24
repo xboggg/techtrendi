@@ -91,7 +91,7 @@ export function FooterSitemap({
   columns = defaultColumns,
   socialLinks = defaultSocialLinks,
   logo,
-  description = 'AI-Powered Tech Guides, Reviews & Free Tools. Your trusted source for technology insights.',
+  description = 'Tech News, Expert Guides & Free Tools. Your trusted source for technology insights.',
   newsletter = true,
   className,
 }: FooterSitemapProps) {

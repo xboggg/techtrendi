@@ -48,6 +48,7 @@ import {
   BookOpen,
   ChevronLeft,
   ChevronRight,
+  ScrollText,
 } from "lucide-react";
 
 const ITEMS_PER_PAGE = 15;
@@ -110,6 +111,10 @@ export default function AdminArticles() {
   const [editorMode, setEditorMode] = useState<"markdown" | "richtext">("markdown");
   const [currentPage, setCurrentPage] = useState(1);
   const [filterStatus, setFilterStatus] = useState<"all" | "published" | "drafts" | "today" | "featured">("all");
+  const [transcriptDialogOpen, setTranscriptDialogOpen] = useState(false);
+  const [transcriptText, setTranscriptText] = useState("");
+  const [transcriptCategory, setTranscriptCategory] = useState<string>("");
+  const [transcriptGenerating, setTranscriptGenerating] = useState(false);
 
   // Fetch articles
   const { data: articles = [], isLoading } = useQuery({
@@ -302,6 +307,44 @@ export default function AdminArticles() {
     }));
   };
 
+  const handleTranscriptSubmit = async () => {
+    if (!transcriptText.trim() || transcriptText.trim().length < 100) {
+      toast({ title: "Transcript too short", description: "Paste at least 100 characters", variant: "destructive" });
+      return;
+    }
+    setTranscriptGenerating(true);
+    try {
+      const API_BASE = import.meta.env.VITE_ARTICLE_API_URL || "https://db.techtrendi.com/api";
+      const session = await supabase.auth.getSession();
+      const token = session.data.session?.access_token || "";
+      const res = await fetch(`${API_BASE}/transcript-to-article`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          transcript: transcriptText,
+          category: transcriptCategory || undefined,
+        }),
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || `HTTP ${res.status}`);
+      }
+      const result = await res.json();
+      toast({ title: "Article published from transcript!", description: `"${result.title}" in ${result.category}` });
+      queryClient.invalidateQueries({ queryKey: ["admin-articles"] });
+      setTranscriptDialogOpen(false);
+      setTranscriptText("");
+      setTranscriptCategory("");
+    } catch (error) {
+      toast({ title: "Transcript processing failed", description: String(error), variant: "destructive" });
+    } finally {
+      setTranscriptGenerating(false);
+    }
+  };
+
   // Filter articles
   const filteredArticles = useMemo(() => {
     const today = new Date().toISOString().slice(0, 10);
@@ -360,6 +403,71 @@ export default function AdminArticles() {
             <h1 className="text-3xl font-bold text-foreground">Articles</h1>
             <p className="text-muted-foreground">Create and manage blog articles</p>
           </div>
+
+          <div className="flex gap-2">
+          <Dialog open={transcriptDialogOpen} onOpenChange={setTranscriptDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" onClick={() => { setTranscriptText(""); setTranscriptCategory(""); }}>
+                <ScrollText className="w-4 h-4 mr-2" />
+                From Transcript
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Create Article from Transcript</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Paste a transcript from YouTube, podcast, or interview. It will be rewritten into a completely original article and auto-published.
+                </p>
+                <div className="space-y-2">
+                  <Label>Category (optional — auto-detected if empty)</Label>
+                  <Select value={transcriptCategory} onValueChange={setTranscriptCategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Auto-detect category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="auto">Auto-detect</SelectItem>
+                      {CATEGORIES.map((cat) => (
+                        <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Transcript *</Label>
+                  <Textarea
+                    value={transcriptText}
+                    onChange={(e) => setTranscriptText(e.target.value)}
+                    placeholder="Paste the full transcript here..."
+                    rows={12}
+                    className="font-mono text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {transcriptText.trim().split(/\s+/).filter(Boolean).length.toLocaleString()} words
+                  </p>
+                </div>
+                <div className="flex justify-end gap-3 pt-2 border-t">
+                  <Button variant="outline" onClick={() => setTranscriptDialogOpen(false)} disabled={transcriptGenerating}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleTranscriptSubmit} disabled={transcriptGenerating || transcriptText.trim().length < 100}>
+                    {transcriptGenerating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Generating (60-90s)...
+                      </>
+                    ) : (
+                      <>
+                        <ScrollText className="w-4 h-4 mr-2" />
+                        Generate Article
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -601,6 +709,7 @@ export default function AdminArticles() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Filters */}
