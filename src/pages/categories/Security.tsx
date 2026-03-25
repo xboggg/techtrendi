@@ -201,20 +201,20 @@ export default function Security() {
       {/* ════════════════════════════════════════════════════════════ */}
       {/* HERO — Full animation suite                                */}
       {/* ════════════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-red-950/40 to-slate-900">
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#0a0f1e] via-[#0d1a2d] to-[#0a1628]">
         {/* Animated background orbs */}
         <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-red-500/10 rounded-full blur-[120px]"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/8 rounded-full blur-[120px]"
+          animate={{ scale: [1, 1.2, 1], opacity: [0.08, 0.16, 0.08] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-[100px]"
+          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-600/10 rounded-full blur-[100px]"
           animate={{ scale: [1, 1.3, 1], opacity: [0.08, 0.18, 0.08] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
         />
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[150px]"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-500/5 rounded-full blur-[150px]"
           animate={{ scale: [1, 1.15, 1] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         />
@@ -261,7 +261,7 @@ export default function Security() {
             >
               Stay Safe in a{" "}
               <motion.span
-                className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-orange-300 to-red-400"
+                className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-300"
                 animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
                 style={{ backgroundSize: "200% 200%" }}
@@ -291,7 +291,7 @@ export default function Security() {
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-xl px-8 shadow-lg shadow-red-500/25"
+                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white rounded-xl px-8 shadow-lg shadow-cyan-500/25"
                   onClick={scrollToArticles}
                 >
                   <BookOpen className="w-5 h-5 mr-2" />
@@ -844,7 +844,7 @@ export default function Security() {
       {/* ════════════════════════════════════════════════════════════ */}
       <section className="py-16 md:py-20 relative overflow-hidden bg-slate-950">
         {/* Vivid gradient background */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(239,68,68,0.25)_0%,transparent_50%),radial-gradient(ellipse_at_bottom_right,rgba(59,130,246,0.2)_0%,transparent_50%),radial-gradient(ellipse_at_center,rgba(168,85,247,0.15)_0%,transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(6,182,212,0.2)_0%,transparent_50%),radial-gradient(ellipse_at_bottom_right,rgba(59,130,246,0.18)_0%,transparent_50%),radial-gradient(ellipse_at_center,rgba(20,184,166,0.1)_0%,transparent_60%)]" />
         {/* Dot grid */}
         <div className="absolute inset-0 opacity-[0.06]" style={{
           backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.4) 1px, transparent 0)",
@@ -852,17 +852,17 @@ export default function Security() {
         }} />
         {/* Animated glowing orbs */}
         <motion.div
-          className="absolute top-0 left-1/4 w-80 h-80 bg-red-500/20 rounded-full blur-[100px]"
+          className="absolute top-0 left-1/4 w-80 h-80 bg-cyan-500/15 rounded-full blur-[100px]"
           animate={{ scale: [1, 1.4, 1], x: [0, 30, 0] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute bottom-0 right-1/4 w-72 h-72 bg-blue-500/20 rounded-full blur-[100px]"
+          className="absolute bottom-0 right-1/4 w-72 h-72 bg-blue-600/15 rounded-full blur-[100px]"
           animate={{ scale: [1, 1.3, 1], x: [0, -20, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
         />
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/15 rounded-full blur-[120px]"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-500/10 rounded-full blur-[120px]"
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 10, repeat: Infinity }}
         />
@@ -882,7 +882,7 @@ export default function Security() {
               <ShieldCheck className="w-10 h-10 text-green-400" />
             </motion.div>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-purple-400 to-blue-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400">
                 50 Things Everyone Should Know
               </span>
             </h2>
@@ -948,7 +948,7 @@ export default function Security() {
       {/* ════════════════════════════════════════════════════════════ */}
       {/* NEWSLETTER CTA                                             */}
       {/* ════════════════════════════════════════════════════════════ */}
-      <section className="py-14 bg-gradient-to-r from-red-50 via-orange-50 to-amber-50 dark:from-red-950/20 dark:via-orange-950/20 dark:to-amber-950/20 border-t border-red-100 dark:border-red-900/30">
+      <section className="py-14 bg-gradient-to-r from-slate-50 via-cyan-50/50 to-blue-50 dark:from-slate-950/40 dark:via-cyan-950/20 dark:to-blue-950/20 border-t border-slate-200 dark:border-slate-800">
         <div className="container" ref={newsletterRef}>
           <motion.div
             className="max-w-2xl mx-auto text-center"
@@ -957,7 +957,7 @@ export default function Security() {
             transition={{ duration: 0.6 }}
           >
             <motion.div
-              className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 shadow-lg shadow-red-500/20 mb-4"
+              className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/20 mb-4"
               animate={{ y: [0, -6, 0] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
             >
@@ -973,10 +973,10 @@ export default function Security() {
               <Input
                 type="email"
                 placeholder="Enter your email"
-                className="rounded-xl h-12 flex-1 border-red-200 dark:border-red-900/50 focus:border-red-400"
+                className="rounded-xl h-12 flex-1 border-slate-200 dark:border-slate-700 focus:border-cyan-400"
               />
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                <Button className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-xl h-12 px-6 whitespace-nowrap w-full sm:w-auto shadow-lg shadow-red-500/20">
+                <Button className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white rounded-xl h-12 px-6 whitespace-nowrap w-full sm:w-auto shadow-lg shadow-cyan-500/20">
                   <Shield className="w-4 h-4 mr-2" />
                   Subscribe
                 </Button>
