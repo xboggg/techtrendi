@@ -42,14 +42,12 @@ const socialLinks = [
   { icon: FacebookIcon, href: "https://facebook.com/techtrendi", label: "Facebook" },
   { icon: XIcon, href: "https://twitter.com/techtrendi", label: "X (Twitter)" },
   { icon: InstagramIcon, href: "https://instagram.com/techtrendi", label: "Instagram" },
-  { icon: TelegramIcon, href: "https://t.me/techtrendi", label: "Telegram" },
   { icon: WhatsAppIcon, href: "https://whatsapp.com/channel/0029VbCB3R6H5JLt1aJYIT2d", label: "WhatsApp" },
   { icon: TikTokIcon, href: "https://tiktok.com/@tech.trendi", label: "TikTok" },
 ];
 
 const footerLinks = {
   explore: [
-    { label: "TechTrendi Guides", href: "/guides" },
     { label: "TechTrendi News", href: "/news" },
     { label: "TechTrendi Blog", href: "/blog" },
     { label: "TechTrendi Tools", href: "/tools" },
@@ -59,15 +57,13 @@ const footerLinks = {
   topics: [
     { label: "Security", href: "/security" },
     { label: "AI Tech", href: "/ai-tech" },
-    { label: "Phones", href: "/phones" },
     { label: "How-To", href: "/how-to" },
-    { label: "Side Hustles", href: "/make-money" },
+    { label: "Smart Income", href: "/smart-income" },
     { label: "Productivity", href: "/productivity" },
   ],
   company: [
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
-    { label: "Premium", href: "/premium" },
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Terms", href: "/terms" },
     { label: "Disclosure", href: "/disclosure" },
@@ -179,53 +175,43 @@ export function Footer() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/3 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container relative z-10 py-16">
-          {/* Top section: Brand + Social */}
-          <div className="text-center mb-12 md:mb-16">
-            <Link to="/" className="inline-flex items-center gap-2 mb-4 group">
-              <img
-                src="/logo-t.png"
-                alt="TechTrendi"
-                className="h-12 w-auto transition-transform duration-300 group-hover:scale-110"
-              />
-              <span className="text-2xl font-bold">
-                <span className="text-foreground">Tech</span>
-                <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">Trendi</span>
-              </span>
-            </Link>
-            <p className="text-muted-foreground text-sm max-w-md mx-auto mb-8">
-              Your go-to source for tech that actually matters. No jargon, no fluff — just guides, tools, and insights that help you win with technology every day.
-            </p>
-
-            {/* Social icons with hover glow */}
-            <div className="flex items-center justify-center gap-3">
-              {socialLinks.map((social, i) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative w-11 h-11 rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-white hover:border-transparent transition-all duration-300 hover:scale-110 hover:-translate-y-1"
-                  aria-label={social.label}
-                  style={{ animationDelay: `${i * 0.05}s` }}
-                >
-                  {/* Gradient background on hover */}
-                  <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  {/* Glow effect */}
-                  <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 opacity-0 group-hover:opacity-40 blur-lg transition-opacity duration-300" />
-                  <social.icon className="w-4 h-4 relative z-10" />
-                </a>
-              ))}
+          {/* Single unified section: Brand + Links */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-12">
+            {/* Brand + Social */}
+            <div className="col-span-2 md:col-span-3 lg:col-span-1">
+              <Link to="/" className="inline-flex items-center gap-2 mb-4 group">
+                <img
+                  src="/logo-t.png"
+                  alt="TechTrendi"
+                  className="h-10 w-auto transition-transform duration-300 group-hover:scale-110"
+                />
+                <span className="text-xl font-bold">
+                  <span className="text-foreground">Tech</span>
+                  <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">Trendi</span>
+                </span>
+              </Link>
+              <p className="text-muted-foreground text-sm mb-5">
+                Tech tips, tools, and tutorials that make your digital life easier. Stay sharp, stay ahead.
+              </p>
+              <div className="flex items-center gap-2 flex-wrap">
+                {socialLinks.map((social, i) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative w-9 h-9 rounded-lg border border-border/50 bg-card/50 backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-white hover:border-transparent transition-all duration-300 hover:scale-110"
+                    aria-label={social.label}
+                    style={{ animationDelay: `${i * 0.05}s` }}
+                  >
+                    <span className="absolute inset-0 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <span className="absolute inset-0 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 opacity-0 group-hover:opacity-40 blur-lg transition-opacity duration-300" />
+                    <social.icon className="w-3.5 h-3.5 relative z-10" />
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Divider with glow */}
-          <div className="relative mb-12 md:mb-16">
-            <div className="h-px bg-border" />
-            <div className="absolute left-1/2 -translate-x-1/2 top-0 w-32 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-          </div>
-
-          {/* Link columns */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 lg:gap-12">
             {/* Explore */}
             <div>
               <h4 className="font-semibold text-foreground text-sm mb-5 flex items-center gap-2">
@@ -286,8 +272,8 @@ export function Footer() {
               </ul>
             </div>
 
-            {/* Newsletter / CTA on larger screens */}
-            <div className="col-span-2 md:col-span-3 lg:col-span-1">
+            {/* Stay Updated */}
+            <div>
               <h4 className="font-semibold text-foreground text-sm mb-5 flex items-center gap-2">
                 <span className="w-5 h-0.5 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full" />
                 STAY UPDATED

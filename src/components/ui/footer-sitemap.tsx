@@ -41,7 +41,6 @@ const defaultColumns: FooterColumn[] = [
     title: 'Content',
     links: [
       { label: 'Reviews', href: '/reviews' },
-      { label: 'Guides', href: '/guides' },
       { label: 'Blog', href: '/blog' },
       { label: 'News', href: '/news' },
     ],

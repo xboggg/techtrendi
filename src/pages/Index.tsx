@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight, Sparkles, Shield, Zap, BookOpen, Star, TrendingUp, Clock, Eye, FileText,
-  ChevronLeft, ChevronRight, Gamepad2, Send,
+  ChevronLeft, ChevronRight, Gamepad2, Send, Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
+import { CardCarousel } from "@/components/ui/card-carousel";
 
 interface TrendingArticle {
   id: string;
@@ -79,7 +80,7 @@ const categoryLabels: Record<string, string> = {
   security: "Security",
   "how-to": "How-To",
   "ai-tech": "AI Tech",
-  "make-money": "Side Hustles",
+  "smart-income": "Smart Income",
 };
 
 // Tool categories matching image 5
@@ -118,6 +119,110 @@ const toolCategories = [
   },
 ];
 
+function IntlNewsScroller({ news, formatTimeAgo }: { news: NewsItem[]; formatTimeAgo: (d: string) => string }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const autoScrollRef = useRef<number>(0);
+  const isPausedRef = useRef(false);
+  const resumeTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const step = () => {
+      if (!isPausedRef.current && el) {
+        el.scrollLeft += 0.8;
+        // Loop: when scrolled past halfway (the duplicated content), reset
+        if (el.scrollLeft >= el.scrollWidth / 2) {
+          el.scrollLeft = 0;
+        }
+      }
+      autoScrollRef.current = requestAnimationFrame(step);
+    };
+    autoScrollRef.current = requestAnimationFrame(step);
+
+    return () => cancelAnimationFrame(autoScrollRef.current);
+  }, [news]);
+
+  const pause = () => {
+    isPausedRef.current = true;
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+  };
+
+  const resumeAfterDelay = () => {
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    resumeTimerRef.current = setTimeout(() => { isPausedRef.current = false; }, 4000);
+  };
+
+  return (
+    <section className="py-12 bg-gradient-to-b from-white to-slate-50 dark:from-background dark:to-muted/20 overflow-hidden">
+      <div className="container mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 text-sm font-medium text-purple-600 dark:text-purple-400 mb-3">
+              <Globe className="w-3.5 h-3.5" />
+              World Tech
+            </span>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+              International Tech News
+            </h2>
+          </div>
+          <Button variant="ghost" size="sm" asChild className="text-purple-600 hover:text-purple-700 dark:text-purple-400">
+            <Link to="/news" className="flex items-center gap-1">
+              View All <ArrowRight className="w-4 h-4" />
+            </Link>
+          </Button>
+        </div>
+      </div>
+      <div
+        ref={scrollRef}
+        className="flex gap-5 overflow-x-auto scrollbar-hide px-4 md:px-8"
+        style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
+        onMouseEnter={pause}
+        onMouseLeave={resumeAfterDelay}
+        onTouchStart={pause}
+        onTouchEnd={resumeAfterDelay}
+      >
+        {[...news, ...news].map((item, idx) => (
+          <Link
+            key={`${item.id}-${idx}`}
+            to={`/news/${item.slug}`}
+            className="flex-shrink-0 w-64 md:w-72 rounded-2xl overflow-hidden bg-card border border-border hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-lg transition-all duration-300 group"
+          >
+            <div className="relative aspect-[16/10] overflow-hidden">
+              {item.cover_image ? (
+                <img
+                  src={item.cover_image}
+                  alt={item.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30" />
+              )}
+              <div className="absolute top-3 left-3">
+                <Badge className="text-xs bg-purple-600 hover:bg-purple-600 text-white border-0 rounded-full px-3 py-1">
+                  {item.category}
+                </Badge>
+              </div>
+            </div>
+            <div className="p-4">
+              <h3 className="font-semibold text-foreground text-sm line-clamp-2 mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                {item.title}
+              </h3>
+              <div className="flex items-center gap-2 text-muted-foreground text-xs">
+                <Clock className="w-3 h-3" />
+                <span>{formatTimeAgo(item.created_at)}</span>
+                <span>·</span>
+                <span>{item.read_time_minutes || 3} Min Read</span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function Index() {
   const { subscription } = useAuth();
   // SessionStorage cache for instant repeat visits, API fetch for fresh data
@@ -135,10 +240,10 @@ export default function Index() {
   const [loadingLatest, setLoadingLatest] = useState(latestArticles.length === 0);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
-  const [latestNews, setLatestNews] = useState<NewsItem[]>(
-    (staticNews as any[]).slice(0, 5) as NewsItem[]
-  );
-  const [loadingNews, setLoadingNews] = useState(false);
+  const [latestNews, setLatestNews] = useState<NewsItem[]>([]);
+  const [loadingNews, setLoadingNews] = useState(true);
+  const [internationalNews, setInternationalNews] = useState<NewsItem[]>([]);
+  const [loadingIntlNews, setLoadingIntlNews] = useState(true);
 
   useEffect(() => {
     fetchTrendingArticles();
@@ -146,6 +251,7 @@ export default function Index() {
     fetchLatestArticles();
     fetchReviews();
     fetchLatestNews();
+    fetchInternationalNews();
   }, []);
 
   const fetchTrendingArticles = async () => {
@@ -173,9 +279,9 @@ export default function Index() {
       const { data, error } = await supabase
         .from("articles")
         .select("id, title, slug, excerpt, category, cover_image, read_time_minutes")
-        .match({ is_published: true, content_type: "guide", is_featured: true })
+        .match({ is_published: true, is_featured: true })
         .order("created_at", { ascending: false })
-        .limit(6);
+        .limit(8);
 
       if (!error && data && data.length > 0) {
         setFeaturedGuides(data);
@@ -192,9 +298,9 @@ export default function Index() {
       const { data, error } = await supabase
         .from("articles")
         .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
-        .match({ is_published: true, content_type: "article", is_featured: true })
+        .eq("is_published", true)
         .order("created_at", { ascending: false })
-        .limit(6);
+        .limit(10);
 
       if (!error && data && data.length > 0) {
         setLatestArticles(data);
@@ -237,11 +343,33 @@ export default function Index() {
 
       if (!error && data && data.length > 0) {
         setLatestNews(data);
+      } else {
+        setLatestNews((staticNews as any[]).slice(0, 5) as NewsItem[]);
       }
-    } catch (error) {
-      // Silent fail — static data already showing
+    } catch {
+      setLatestNews((staticNews as any[]).slice(0, 5) as NewsItem[]);
     } finally {
       setLoadingNews(false);
+    }
+  };
+
+  const fetchInternationalNews = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("news")
+        .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
+        .eq("is_published", true)
+        .neq("category", "Africa Tech")
+        .order("created_at", { ascending: false })
+        .limit(12);
+
+      if (!error && data && data.length > 0) {
+        setInternationalNews(data);
+      }
+    } catch {
+      // Silent fail
+    } finally {
+      setLoadingIntlNews(false);
     }
   };
 
@@ -280,10 +408,10 @@ export default function Index() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <span className="text-sm font-semibold tracking-wider uppercase text-blue-600 dark:text-blue-400 mb-2 block">
-                Stay Informed
+                Africa Tech
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                Latest Tech News
+                African Tech News
               </h2>
             </div>
             <Button variant="ghost" size="sm" asChild className="text-blue-600 hover:text-blue-700 dark:text-blue-400">
@@ -377,58 +505,66 @@ export default function Index() {
         </div>
       </section>
 
+      {/* International Tech News - Auto-scrolling row */}
+      {internationalNews.length > 0 && <IntlNewsScroller news={internationalNews} formatTimeAgo={formatTimeAgo} />}
+
       {/* 1. Why Choose TechTrendi - Wave Feature Carousel */}
       <WaveFeatureCarousel />
 
-      {/* 2. Latest Posts Section - Animated Testimonials Style */}
-      <section className="py-16 bg-muted/30">
-        <div className="container">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
-                <FileText className="w-5 h-5 text-blue-500" />
-                <span className="font-semibold text-foreground">Latest Posts</span>
-              </div>
-              <div className="hidden md:flex items-center gap-1.5 text-sm text-muted-foreground">
-                <Clock className="w-4 h-4" />
-                <span>Fresh from the blog</span>
-              </div>
+      {/* 2. Latest Posts Section - 3D Card Carousel */}
+      <section className="py-16 md:py-24 bg-muted/30 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+
+        <div className="container relative">
+          <div className="text-center mb-10">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 text-sm font-medium text-blue-600 dark:text-blue-400 mb-4">
+              <TrendingUp className="w-3.5 h-3.5" />
+              Latest Posts
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+              Fresh From the Blog
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+              Our latest articles, guides, and insights — updated daily.
+            </p>
+          </div>
+
+          <div className="mx-auto w-full max-w-5xl rounded-[24px] border border-border/50 p-2 shadow-sm md:rounded-t-[44px]">
+            <div className="relative mx-auto flex w-full flex-col rounded-[24px] border border-border/30 bg-card/50 backdrop-blur-sm p-4 md:rounded-b-[20px] md:rounded-t-[40px]">
+              {loadingLatest ? (
+                <div className="flex items-center justify-center py-20">
+                  <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+                </div>
+              ) : latestArticles.length > 0 ? (
+                <CardCarousel
+                  items={latestArticles.map((article) => ({
+                    src: article.cover_image || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&h=750&fit=crop",
+                    alt: article.title,
+                    label: article.title,
+                    sublabel: `${categoryLabels[article.category] || article.category} · ${article.read_time_minutes || 5} min read`,
+                    link: `/blog/${article.slug}`,
+                  }))}
+                  autoplayDelay={5000}
+                  showPagination={true}
+                />
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                  <p>No articles yet. Check back soon!</p>
+                </div>
+              )}
             </div>
-            <Button variant="ghost" size="sm" asChild className="text-primary hover:text-primary/80">
-              <Link to="/blog" className="flex items-center gap-1">
+          </div>
+
+          <div className="mt-10 text-center">
+            <Button variant="outline" size="lg" asChild className="rounded-full px-8 hover:scale-105 transition-transform">
+              <Link to="/blog" className="flex items-center gap-2">
                 View All Articles
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
           </div>
-
-          {loadingLatest ? (
-            <div className="grid md:grid-cols-2 gap-12 items-center py-20">
-              <div className="h-80 bg-muted rounded-3xl animate-pulse" />
-              <div className="space-y-4">
-                <div className="h-8 bg-muted rounded w-3/4" />
-                <div className="h-4 bg-muted rounded w-1/2" />
-                <div className="h-20 bg-muted rounded" />
-              </div>
-            </div>
-          ) : latestArticles.length > 0 ? (
-            <AnimatedTestimonials
-              testimonials={latestArticles.map((article) => ({
-                quote: article.excerpt || "Read this amazing article on TechTrendi.",
-                name: article.title,
-                designation: `${categoryLabels[article.category] || article.category} · ${article.read_time_minutes || 5} min read`,
-                src: article.cover_image || "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=500&h=500&fit=crop",
-                href: `/blog/${article.slug}`,
-              }))}
-              autoplay={true}
-              className="py-8"
-            />
-          ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p>No articles yet. Check back soon!</p>
-            </div>
-          )}
         </div>
       </section>
 
@@ -576,21 +712,21 @@ export default function Index() {
         </div>
       </section>
 
-      {/* 7. Featured Guides Section - Magazine Layout */}
+      {/* 7. Featured Articles Section - Magazine Layout */}
       <section className="py-16 bg-background">
         <div className="container">
           {/* Section Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
-              <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-4">Expert Content</span>
+              <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-4">Curated by Our Team</span>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                Featured <span className="text-primary">Guides</span>
+                Editor's <span className="text-primary">Picks</span>
               </h2>
-              <p className="text-muted-foreground">Expert-written guides to help you navigate technology.</p>
+              <p className="text-muted-foreground">Hand-picked articles our editors think you should not miss.</p>
             </div>
             <Button variant="outline" asChild className="hidden md:inline-flex rounded-xl">
-              <Link to="/guides" className="flex items-center gap-2">
-                View All Guides
+              <Link to="/blog" className="flex items-center gap-2">
+                View All Articles
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
@@ -613,53 +749,54 @@ export default function Index() {
               </div>
             </div>
           ) : featuredGuides.length > 0 ? (
-            <div className="grid lg:grid-cols-2 gap-6">
-              {/* Main Featured Guide - Large Card */}
-              <Link
-                to={`/blog/${featuredGuides[0].slug}`}
-                className="group relative rounded-2xl overflow-hidden bg-muted"
-              >
-                <div className="aspect-[4/5] lg:aspect-auto lg:h-full">
-                  {featuredGuides[0].cover_image ? (
-                    <img
-                      src={featuredGuides[0].cover_image}
-                      alt={featuredGuides[0].title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                      <BookOpen className="w-16 h-16 text-muted-foreground/30" />
+            <div className="space-y-6">
+              {/* Top Row: 2 Big Cards Side by Side */}
+              <div className="grid md:grid-cols-2 gap-6">
+                {featuredGuides.slice(0, 2).map((guide) => (
+                  <Link
+                    key={guide.id}
+                    to={`/blog/${guide.slug}`}
+                    className="group relative rounded-2xl overflow-hidden bg-muted aspect-[16/10]"
+                  >
+                    {guide.cover_image ? (
+                      <img
+                        src={guide.cover_image}
+                        alt={guide.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                        <BookOpen className="w-16 h-16 text-muted-foreground/30" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Badge className="bg-primary hover:bg-primary text-primary-foreground border-0 rounded-full px-3 py-1 text-xs">
+                          {categoryLabels[guide.category] || guide.category}
+                        </Badge>
+                        <span className="flex items-center gap-1 text-white/70 text-xs">
+                          <Clock className="w-3 h-3" />
+                          {guide.read_time_minutes || 5} Minutes
+                        </span>
+                      </div>
+                      <h2 className="text-lg md:text-xl font-bold text-white group-hover:text-primary/90 transition-colors line-clamp-2">
+                        {guide.title}
+                      </h2>
                     </div>
-                  )}
-                </div>
-                {/* Overlay with content */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Badge className="bg-primary hover:bg-primary text-primary-foreground border-0 rounded-full px-3 py-1 text-xs">
-                      {categoryLabels[featuredGuides[0].category] || featuredGuides[0].category}
-                    </Badge>
-                    <span className="flex items-center gap-1 text-white/70 text-xs">
-                      <Clock className="w-3 h-3" />
-                      {featuredGuides[0].read_time_minutes || 5} Minutes
-                    </span>
-                  </div>
-                  <h2 className="text-xl md:text-2xl font-bold text-white mb-2 group-hover:text-primary/90 transition-colors line-clamp-3">
-                    {featuredGuides[0].title}
-                  </h2>
-                </div>
-              </Link>
+                  </Link>
+                ))}
+              </div>
 
-              {/* Side Cards - Stacked */}
-              <div className="flex flex-col gap-4">
-                {featuredGuides.slice(1, 4).map((guide) => (
+              {/* Bottom Row: 6 Small Cards in 3x2 Grid */}
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {featuredGuides.slice(2, 8).map((guide) => (
                   <Link
                     key={guide.id}
                     to={`/blog/${guide.slug}`}
                     className="group flex gap-4 p-3 rounded-xl bg-card border border-border hover:border-primary/20 hover:shadow-md transition-all"
                   >
-                    {/* Thumbnail */}
-                    <div className="w-28 h-20 md:w-32 md:h-24 rounded-xl overflow-hidden flex-shrink-0 bg-muted">
+                    <div className="w-24 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-muted">
                       {guide.cover_image ? (
                         <img
                           src={guide.cover_image}
@@ -668,25 +805,21 @@ export default function Index() {
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                          <BookOpen className="w-6 h-6 text-muted-foreground/30" />
+                          <BookOpen className="w-5 h-5 text-muted-foreground/30" />
                         </div>
                       )}
                     </div>
-                    {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground text-sm md:text-base group-hover:text-primary transition-colors line-clamp-2 mb-1">
+                      <h3 className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors line-clamp-2 mb-1">
                         {guide.title}
                       </h3>
-                      <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-2">
-                        {guide.excerpt}
-                      </p>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         <Badge variant="secondary" className="text-xs px-2 py-0.5">
                           {categoryLabels[guide.category] || guide.category}
                         </Badge>
                         <span className="flex items-center gap-1 text-muted-foreground text-xs">
                           <Clock className="w-3 h-3" />
-                          {guide.read_time_minutes || 5} Minutes
+                          {guide.read_time_minutes || 5} min
                         </span>
                       </div>
                     </div>
@@ -697,12 +830,12 @@ export default function Index() {
           ) : (
             <div className="text-center py-12">
               <BookOpen className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No featured guides yet</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-2">No featured articles yet</h3>
               <p className="text-muted-foreground mb-4 text-sm">
-                Featured guides will appear here once you mark them as featured in the admin panel.
+                Featured articles will appear here once you mark them as featured in the admin panel.
               </p>
               <Button variant="outline" size="sm" asChild>
-                <Link to="/guides">Browse All Guides</Link>
+                <Link to="/blog">Browse All Articles</Link>
               </Button>
             </div>
           )}

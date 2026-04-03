@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
-import { Clock, Calendar, ArrowRight, Search, Crown } from "lucide-react";
+import { Clock, Calendar, ArrowRight, Search, Crown, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Helmet } from "react-helmet-async";
+
+const ARTICLES_PER_PAGE = 12;
 
 interface Article {
   id: string;
@@ -39,6 +41,8 @@ export default function CategoryPage({
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchArticles();
@@ -80,6 +84,23 @@ export default function CategoryPage({
       article.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesSearch;
   });
+
+  const totalPages = Math.ceil(filteredArticles.length / ARTICLES_PER_PAGE);
+  const safePage = Math.min(currentPage, totalPages || 1);
+  const paginatedArticles = filteredArticles.slice(
+    (safePage - 1) * ARTICLES_PER_PAGE,
+    safePage * ARTICLES_PER_PAGE
+  );
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -167,8 +188,9 @@ export default function CategoryPage({
             </div>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredArticles.map((article) => (
+          <>
+          <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedArticles.map((article) => (
               <Link
                 key={article.id}
                 to={`/blog/${article.slug}`}
@@ -231,6 +253,51 @@ export default function CategoryPage({
               </Link>
             ))}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-10">
+              <p className="text-sm text-muted-foreground">
+                Showing {(safePage - 1) * ARTICLES_PER_PAGE + 1}–{Math.min(safePage * ARTICLES_PER_PAGE, filteredArticles.length)} of {filteredArticles.length} articles
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => goToPage(safePage - 1)}
+                  disabled={safePage === 1}
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-border bg-card text-foreground text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted/50 transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1)
+                  .map((p, idx, arr) => (
+                    <span key={p} className="flex items-center">
+                      {idx > 0 && arr[idx - 1] !== p - 1 && (
+                        <span className="px-1 text-muted-foreground text-sm">...</span>
+                      )}
+                      <button
+                        onClick={() => goToPage(p)}
+                        className={`inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm transition-colors ${
+                          p === safePage
+                            ? "bg-primary text-primary-foreground font-medium"
+                            : "border border-border bg-card text-foreground hover:bg-muted/50"
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    </span>
+                  ))}
+                <button
+                  onClick={() => goToPage(safePage + 1)}
+                  disabled={safePage === totalPages}
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-border bg-card text-foreground text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted/50 transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+          </>
         )}
       </div>
     </Layout>

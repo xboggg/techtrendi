@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, Check, X, AlertTriangle, Loader2, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
+import { Shield, Check, X, AlertTriangle, Info, Loader2, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 interface PrivacyCheckResult {
   category: string;
   name: string;
-  status: 'good' | 'warning' | 'bad';
+  status: 'good' | 'info' | 'warning' | 'bad';
   description: string;
   recommendation?: string;
   details?: string;
@@ -65,13 +65,13 @@ export function PrivacyChecker({ className }: { className?: string }) {
     addCheck(checks, {
       category: 'Browser Settings',
       name: 'Do Not Track (DNT)',
-      status: dnt ? 'good' : 'warning',
+      status: dnt ? 'good' : 'info',
       description: dnt
         ? 'Do Not Track header is enabled'
         : 'Do Not Track header is not enabled',
       recommendation: dnt
         ? 'DNT is enabled, but note that many sites ignore this header. Use additional protection.'
-        : 'Enable Do Not Track in your browser privacy settings. Note: many sites may ignore this signal.',
+        : 'DNT is optional and most sites ignore it. It has minimal privacy impact. You can enable it in browser settings if you wish.',
       details: `navigator.doNotTrack = "${navigator.doNotTrack}"`,
     }, updateResults);
 
@@ -80,13 +80,13 @@ export function PrivacyChecker({ className }: { className?: string }) {
     await delay(200);
     addCheck(checks, {
       category: 'Browser Settings',
-      name: 'Cookies Enabled',
-      status: navigator.cookieEnabled ? 'warning' : 'good',
+      name: 'Cookies',
+      status: navigator.cookieEnabled ? 'info' : 'good',
       description: navigator.cookieEnabled
-        ? 'Cookies are enabled - sites can store tracking data'
+        ? 'Cookies are enabled — this is normal and required by most websites'
         : 'Cookies are disabled',
       recommendation: navigator.cookieEnabled
-        ? 'Consider blocking third-party cookies in browser settings. Use extensions like Cookie AutoDelete.'
+        ? 'Cookies are needed for logins, preferences, and most site functionality. Focus on blocking third-party cookies instead.'
         : 'Cookies are disabled. Some sites may not work properly.',
     }, updateResults);
 
@@ -95,10 +95,8 @@ export function PrivacyChecker({ className }: { className?: string }) {
     await delay(200);
     let thirdPartyCookies = false;
     try {
-      // Attempt to detect if third-party cookies are likely enabled
       document.cookie = '__tp_test=1; SameSite=None; Secure';
       thirdPartyCookies = document.cookie.includes('__tp_test');
-      // Clean up
       document.cookie = '__tp_test=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     } catch {}
     addCheck(checks, {
@@ -106,11 +104,11 @@ export function PrivacyChecker({ className }: { className?: string }) {
       name: 'Third-Party Cookies',
       status: thirdPartyCookies ? 'warning' : 'good',
       description: thirdPartyCookies
-        ? 'Third-party cookies appear to be allowed'
+        ? 'Third-party cookies appear to be allowed — these enable cross-site tracking'
         : 'Third-party cookies appear to be blocked or restricted',
       recommendation: thirdPartyCookies
-        ? 'Block third-party cookies in your browser settings to reduce cross-site tracking.'
-        : 'Good! Third-party cookies are restricted, reducing cross-site tracking.',
+        ? 'Block third-party cookies in your browser settings to reduce cross-site tracking. Most modern browsers now offer this option.'
+        : 'Great! Third-party cookies are restricted, reducing cross-site tracking.',
     }, updateResults);
 
     // 5. WebRTC Leak Detection
@@ -137,98 +135,100 @@ export function PrivacyChecker({ className }: { className?: string }) {
     const batteryResult = await checkBatteryAPI();
     addCheck(checks, batteryResult, updateResults);
 
-    // 9. Clipboard API
-    setCurrentCheck('Checking Clipboard API...');
-    await delay(200);
-    const clipboardResult = checkClipboardAPI();
-    addCheck(checks, clipboardResult, updateResults);
-
-    // 10. Geolocation Permission
+    // 9. Geolocation Permission
     setCurrentCheck('Checking Geolocation...');
     await delay(200);
     const geoResult = await checkPermission('geolocation', 'Geolocation');
     addCheck(checks, geoResult, updateResults);
 
-    // 11. Camera Permission
+    // 10. Camera Permission
     setCurrentCheck('Checking Camera...');
     await delay(200);
     const cameraResult = await checkPermission('camera', 'Camera');
     addCheck(checks, cameraResult, updateResults);
 
-    // 12. Microphone Permission
+    // 11. Microphone Permission
     setCurrentCheck('Checking Microphone...');
     await delay(200);
     const micResult = await checkPermission('microphone', 'Microphone');
     addCheck(checks, micResult, updateResults);
 
-    // 13. JavaScript enabled (always true if running this)
+    // 12. JavaScript enabled (always true if running this)
     setCurrentCheck('Checking JavaScript...');
     await delay(150);
     addCheck(checks, {
       category: 'Browser Settings',
-      name: 'JavaScript Enabled',
-      status: 'warning',
-      description: 'JavaScript is enabled (required for most sites)',
-      recommendation: 'Use extensions like NoScript or uBlock Origin to control JavaScript on untrusted sites.',
+      name: 'JavaScript',
+      status: 'good',
+      description: 'JavaScript is enabled — required for modern websites to function',
+      recommendation: 'JavaScript is essential for most websites. For advanced users, extensions like uBlock Origin can selectively block scripts on untrusted sites.',
     }, updateResults);
 
-    // 14. Referrer Policy
+    // 13. Referrer Policy
     setCurrentCheck('Checking Referrer Policy...');
     await delay(150);
     const hasReferrer = !!document.referrer;
     addCheck(checks, {
       category: 'Tracking',
       name: 'Referrer Information',
-      status: hasReferrer ? 'warning' : 'good',
+      status: hasReferrer ? 'info' : 'good',
       description: hasReferrer
         ? `Referrer sent: ${document.referrer.substring(0, 50)}...`
-        : 'No referrer information is being leaked',
+        : 'No referrer information is being sent',
       recommendation: hasReferrer
-        ? 'Use browser extensions that strip referrer headers to prevent sites from knowing where you came from.'
-        : 'No referrer is being sent. This protects your browsing history.',
+        ? 'The referrer shows which page you came from. Most modern browsers already limit this to the origin. This is normal browsing behavior.'
+        : 'No referrer is being sent. This protects your browsing path.',
     }, updateResults);
 
-    // 15. DNS Leak Indicator
+    // 14. DNS Configuration
     setCurrentCheck('Checking DNS configuration...');
     await delay(200);
-    const dnsResult = await checkDNSLeak();
+    const dnsResult = checkDNSConfig();
     addCheck(checks, dnsResult, updateResults);
 
-    // 16. Screen Resolution / Device Info Exposure
+    // 15. Screen Resolution / Device Info Exposure
     setCurrentCheck('Checking device fingerprint surface...');
     await delay(150);
     const screenInfo = `${screen.width}x${screen.height} @ ${window.devicePixelRatio}x`;
     const plugins = navigator.plugins?.length || 0;
     addCheck(checks, {
       category: 'Fingerprinting',
-      name: 'Device Information Exposure',
-      status: 'warning',
+      name: 'Device Information',
+      status: 'info',
       description: `Screen: ${screenInfo}, Plugins: ${plugins}, Platform: ${navigator.platform}`,
-      recommendation: 'Use a privacy browser like Brave or Tor that randomizes or hides these values.',
+      recommendation: 'All browsers expose basic device information. For stronger protection, use Brave or Firefox with privacy.resistFingerprinting enabled, which can randomize these values.',
       details: `User Agent: ${navigator.userAgent.substring(0, 100)}... | Languages: ${navigator.languages?.join(', ')} | Cores: ${navigator.hardwareConcurrency || 'hidden'} | Memory: ${(navigator as any).deviceMemory || 'hidden'} GB`,
     }, updateResults);
 
-    // 17. Storage APIs
+    // 16. Storage APIs
     setCurrentCheck('Checking storage APIs...');
     await delay(150);
     const hasLocalStorage = !!window.localStorage;
     const hasSessionStorage = !!window.sessionStorage;
     const hasIndexedDB = !!window.indexedDB;
     addCheck(checks, {
-      category: 'Tracking',
+      category: 'Browser Settings',
       name: 'Storage APIs',
-      status: (hasLocalStorage || hasIndexedDB) ? 'warning' : 'good',
+      status: 'info',
       description: `LocalStorage: ${hasLocalStorage ? 'Available' : 'Blocked'} | SessionStorage: ${hasSessionStorage ? 'Available' : 'Blocked'} | IndexedDB: ${hasIndexedDB ? 'Available' : 'Blocked'}`,
-      recommendation: 'Sites can use storage APIs to persist tracking data. Regularly clear browsing data and consider using private/incognito mode.',
+      recommendation: 'Storage APIs are essential for websites to function (saving preferences, login sessions, etc.). Using private/incognito mode auto-clears this data when you close the window.',
     }, updateResults);
 
-    // Calculate score
+    // 17. Clipboard API
+    setCurrentCheck('Checking Clipboard API...');
+    await delay(150);
+    const clipboardResult = checkClipboardAPI();
+    addCheck(checks, clipboardResult, updateResults);
+
+    // Calculate score - only good/warning/bad affect score; info is neutral
     const goodCount = checks.filter(c => c.status === 'good').length;
+    const infoCount = checks.filter(c => c.status === 'info').length;
     const warningCount = checks.filter(c => c.status === 'warning').length;
     const badCount = checks.filter(c => c.status === 'bad').length;
-    const total = checks.length;
-    // Good = full points, warning = half points, bad = 0
-    const score = Math.round(((goodCount + warningCount * 0.4) / total) * 100);
+    const scoredTotal = goodCount + warningCount + badCount; // info doesn't count
+    const score = scoredTotal > 0
+      ? Math.round(((goodCount + warningCount * 0.5) / scoredTotal) * 100)
+      : 100;
     setOverallScore(score);
     setCurrentCheck('');
     setIsChecking(false);
@@ -245,6 +245,7 @@ export function PrivacyChecker({ className }: { className?: string }) {
   const getStatusIcon = (status: PrivacyCheckResult['status']) => {
     switch (status) {
       case 'good': return <Check className="w-4 h-4 text-green-500 shrink-0" />;
+      case 'info': return <Info className="w-4 h-4 text-blue-400 shrink-0" />;
       case 'warning': return <AlertTriangle className="w-4 h-4 text-yellow-500 shrink-0" />;
       case 'bad': return <X className="w-4 h-4 text-red-500 shrink-0" />;
     }
@@ -253,8 +254,18 @@ export function PrivacyChecker({ className }: { className?: string }) {
   const getStatusBg = (status: PrivacyCheckResult['status']) => {
     switch (status) {
       case 'good': return 'border-l-green-500';
+      case 'info': return 'border-l-blue-400';
       case 'warning': return 'border-l-yellow-500';
       case 'bad': return 'border-l-red-500';
+    }
+  };
+
+  const getStatusBadge = (status: PrivacyCheckResult['status']) => {
+    switch (status) {
+      case 'good': return { label: 'PASS', variant: 'default' as const };
+      case 'info': return { label: 'INFO', variant: 'outline' as const };
+      case 'warning': return { label: 'WARN', variant: 'secondary' as const };
+      case 'bad': return { label: 'FAIL', variant: 'destructive' as const };
     }
   };
 
@@ -291,7 +302,7 @@ export function PrivacyChecker({ className }: { className?: string }) {
             Analyze your browser's privacy posture
           </p>
           <p className="text-xs text-muted-foreground mb-6 max-w-sm mx-auto">
-            This tool checks for WebRTC leaks, fingerprinting vulnerabilities, permission exposures, and more.
+            This tool checks for WebRTC leaks, fingerprinting vulnerabilities, tracking protection, and permission exposures.
           </p>
           <Button onClick={runPrivacyCheck} size="lg" className="px-8">
             <Shield className="w-4 h-4 mr-2" />
@@ -339,6 +350,7 @@ export function PrivacyChecker({ className }: { className?: string }) {
                 </p>
                 <div className="flex gap-3 mt-2 text-xs">
                   <span className="text-green-500">{results.filter(r => r.status === 'good').length} passed</span>
+                  <span className="text-blue-400">{results.filter(r => r.status === 'info').length} info</span>
                   <span className="text-yellow-500">{results.filter(r => r.status === 'warning').length} warnings</span>
                   <span className="text-red-500">{results.filter(r => r.status === 'bad').length} issues</span>
                 </div>
@@ -363,6 +375,7 @@ export function PrivacyChecker({ className }: { className?: string }) {
                 {items.map((result, i) => {
                   const idx = globalIndex(category, i);
                   const isExpanded = expandedItems.has(idx);
+                  const badge = getStatusBadge(result.status);
                   return (
                     <div
                       key={i}
@@ -378,10 +391,10 @@ export function PrivacyChecker({ className }: { className?: string }) {
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-medium text-sm">{result.name}</span>
                             <Badge
-                              variant={result.status === 'good' ? 'default' : result.status === 'warning' ? 'secondary' : 'destructive'}
-                              className="text-[10px] px-1.5 py-0"
+                              variant={badge.variant}
+                              className={cn("text-[10px] px-1.5 py-0", result.status === 'info' && "text-blue-400 border-blue-400/50")}
                             >
-                              {result.status === 'good' ? 'PASS' : result.status === 'warning' ? 'WARN' : 'FAIL'}
+                              {badge.label}
                             </Badge>
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5">{result.description}</p>
@@ -393,8 +406,11 @@ export function PrivacyChecker({ className }: { className?: string }) {
                       {isExpanded && (result.recommendation || result.details) && (
                         <div className="px-3 pb-3 pt-0 ml-7 space-y-2 animate-in fade-in duration-200">
                           {result.recommendation && (
-                            <div className="text-xs text-primary bg-primary/5 p-2 rounded">
-                              <strong>Recommendation:</strong> {result.recommendation}
+                            <div className={cn(
+                              "text-xs p-2 rounded",
+                              result.status === 'info' ? "text-blue-400 bg-blue-500/5" : "text-primary bg-primary/5"
+                            )}>
+                              <strong>{result.status === 'info' ? 'Note:' : 'Recommendation:'}</strong> {result.recommendation}
                             </div>
                           )}
                           {result.details && (
@@ -436,11 +452,11 @@ export function PrivacyChecker({ className }: { className?: string }) {
                   </div>
                   <div className="flex items-start gap-2 p-2 bg-background rounded">
                     <span className="text-primary mt-0.5">4.</span>
-                    <span>Disable WebRTC in browser settings or use an extension</span>
+                    <span>Block third-party cookies in browser privacy settings</span>
                   </div>
                   <div className="flex items-start gap-2 p-2 bg-background rounded">
                     <span className="text-primary mt-0.5">5.</span>
-                    <span>Block third-party cookies in browser privacy settings</span>
+                    <span>Use private/incognito mode for sensitive browsing</span>
                   </div>
                   <div className="flex items-start gap-2 p-2 bg-background rounded">
                     <span className="text-primary mt-0.5">6.</span>
@@ -496,7 +512,6 @@ async function checkWebRTCLeak(): Promise<PrivacyCheckResult> {
         if (ipMatch && !leakedIPs.includes(ipMatch[0])) {
           leakedIPs.push(ipMatch[0]);
         }
-        // Check for IPv6
         const ipv6Match = candidate.match(/([a-f0-9]{1,4}:){2,7}[a-f0-9]{1,4}/i);
         if (ipv6Match && !leakedIPs.includes(ipv6Match[0])) {
           leakedIPs.push(ipv6Match[0]);
@@ -520,9 +535,9 @@ async function checkWebRTCLeak(): Promise<PrivacyCheckResult> {
   return {
     category: 'Privacy Leaks',
     name: 'WebRTC Leak',
-    status: 'warning',
-    description: 'WebRTC is enabled but no local IP leak detected in this test',
-    recommendation: 'WebRTC is still enabled. For maximum privacy, disable it or use a browser extension to prevent potential leaks on other sites.',
+    status: 'good',
+    description: 'WebRTC is enabled but no IP leak detected — your browser is handling it correctly',
+    recommendation: 'No IP leak found. Your browser or VPN is properly preventing WebRTC leaks.',
   };
 }
 
@@ -542,7 +557,6 @@ function checkCanvasFingerprint(): PrivacyCheckResult {
       };
     }
 
-    // Draw test content
     ctx.textBaseline = 'top';
     ctx.font = '14px Arial';
     ctx.fillStyle = '#f60';
@@ -553,14 +567,14 @@ function checkCanvasFingerprint(): PrivacyCheckResult {
     ctx.fillText('Canvas Check', 4, 17);
 
     const dataURL = canvas.toDataURL();
-    const isUnique = dataURL.length > 100; // If we got meaningful output
+    const isUnique = dataURL.length > 100;
 
     return {
       category: 'Fingerprinting',
       name: 'Canvas Fingerprinting',
       status: isUnique ? 'warning' : 'good',
       description: isUnique
-        ? 'Canvas fingerprinting is possible - your browser produces a unique canvas signature'
+        ? 'Canvas fingerprinting is possible — your browser produces a unique canvas signature'
         : 'Canvas output appears to be blocked or randomized',
       recommendation: isUnique
         ? 'Use a browser with canvas fingerprint protection (Brave, Tor Browser) or install CanvasBlocker extension for Firefox.'
@@ -629,9 +643,9 @@ async function checkBatteryAPI(): Promise<PrivacyCheckResult> {
       return {
         category: 'Device APIs',
         name: 'Battery API',
-        status: 'warning',
-        description: 'Battery API is accessible - can be used for fingerprinting',
-        recommendation: 'The Battery API can reveal device state for fingerprinting. Firefox has removed this API. Consider using Firefox or Brave.',
+        status: 'info',
+        description: 'Battery API is accessible — minimal privacy impact in modern browsers',
+        recommendation: 'The Battery API has limited fingerprinting value as modern browsers restrict the data precision. Firefox has removed this API entirely.',
         details: `Level: ${Math.round(battery.level * 100)}% | Charging: ${battery.charging}`,
       };
     }
@@ -639,7 +653,7 @@ async function checkBatteryAPI(): Promise<PrivacyCheckResult> {
       category: 'Device APIs',
       name: 'Battery API',
       status: 'good',
-      description: 'Battery API is not accessible - not a fingerprinting risk',
+      description: 'Battery API is not accessible',
       recommendation: 'Battery API is blocked or unavailable. This is good for privacy.',
     };
   } catch {
@@ -660,12 +674,12 @@ function checkClipboardAPI(): PrivacyCheckResult {
   return {
     category: 'Device APIs',
     name: 'Clipboard API',
-    status: hasClipboardRead ? 'warning' : 'good',
+    status: 'info',
     description: hasClipboardRead
-      ? 'Clipboard API is available - sites could potentially read clipboard contents with permission'
+      ? 'Clipboard API is available — sites must ask permission before reading'
       : 'Clipboard read API is not available',
     recommendation: hasClipboardRead
-      ? 'Be cautious about granting clipboard permissions. Malicious sites could read sensitive copied data.'
+      ? 'The clipboard API requires explicit user permission before any site can read it. Your browser protects you — just be mindful of permission prompts.'
       : 'Clipboard read access is restricted.',
     details: `Clipboard API: ${hasClipboard ? 'Yes' : 'No'} | Read: ${hasClipboardRead ? 'Yes' : 'No'} | Write: ${hasClipboard && navigator.clipboard.writeText ? 'Yes' : 'No'}`,
   };
@@ -679,16 +693,16 @@ async function checkPermission(name: string, label: string): Promise<PrivacyChec
     return {
       category: 'Permissions',
       name: `${label} Access`,
-      status: state === 'granted' ? 'bad' : state === 'prompt' ? 'warning' : 'good',
+      status: state === 'granted' ? 'warning' : 'good',
       description: state === 'granted'
-        ? `${label} access is granted - sites can access this without asking`
+        ? `${label} access is granted — some sites can access this without asking`
         : state === 'prompt'
-        ? `${label} access requires permission - you will be prompted`
+        ? `${label} access requires permission — you will be prompted before any site can use it`
         : `${label} access is denied`,
       recommendation: state === 'granted'
         ? `Review which sites have ${label.toLowerCase()} access and revoke unnecessary permissions in browser settings.`
         : state === 'prompt'
-        ? `Be careful about granting ${label.toLowerCase()} access. Only allow trusted sites.`
+        ? `${label} is properly protected. You'll be asked before any site can access it.`
         : `${label} access is properly restricted.`,
     };
   } catch {
@@ -696,37 +710,25 @@ async function checkPermission(name: string, label: string): Promise<PrivacyChec
       category: 'Permissions',
       name: `${label} Access`,
       status: 'good',
-      description: `${label} permission check not supported or is restricted`,
-      recommendation: `Unable to query ${label.toLowerCase()} permission - this may indicate good privacy protection.`,
+      description: `${label} permission is restricted`,
+      recommendation: `${label} permission check not available — this indicates good privacy protection.`,
     };
   }
 }
 
-async function checkDNSLeak(): Promise<PrivacyCheckResult> {
-  // We can't directly test DNS leaks from the browser, but we can check some indicators
-  try {
-    // Check if the browser supports DNS-over-HTTPS indicators
-    const isSecureContext = window.isSecureContext;
-    const connection = (navigator as any).connection;
-    const effectiveType = connection?.effectiveType;
+function checkDNSConfig(): PrivacyCheckResult {
+  const isSecureContext = window.isSecureContext;
+  const connection = (navigator as any).connection;
+  const effectiveType = connection?.effectiveType;
 
-    return {
-      category: 'Connection',
-      name: 'DNS Configuration',
-      status: 'warning',
-      description: 'DNS leak testing requires external tools for complete verification',
-      recommendation: 'Use encrypted DNS (DNS-over-HTTPS or DNS-over-TLS). Configure your browser to use Cloudflare (1.1.1.1) or Google (8.8.8.8) DoH. Visit dnsleaktest.com for a thorough test.',
-      details: `Secure context: ${isSecureContext} | Connection type: ${effectiveType || 'unknown'}`,
-    };
-  } catch {
-    return {
-      category: 'Connection',
-      name: 'DNS Configuration',
-      status: 'warning',
-      description: 'Unable to assess DNS configuration',
-      recommendation: 'Use a VPN or configure DNS-over-HTTPS in your browser for encrypted DNS queries.',
-    };
-  }
+  return {
+    category: 'Connection',
+    name: 'DNS Configuration',
+    status: 'info',
+    description: 'DNS leak testing requires an external service for complete verification',
+    recommendation: 'For encrypted DNS, enable DNS-over-HTTPS in your browser settings. Most modern browsers (Chrome, Firefox, Edge) support this. Visit dnsleaktest.com for a thorough check.',
+    details: `Secure context: ${isSecureContext} | Connection type: ${effectiveType || 'unknown'}`,
+  };
 }
 
 export default PrivacyChecker;

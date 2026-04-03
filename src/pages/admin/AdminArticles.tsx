@@ -45,7 +45,6 @@ import {
   Clock,
   Calendar,
   Star,
-  BookOpen,
   ChevronLeft,
   ChevronRight,
   ScrollText,
@@ -66,7 +65,6 @@ interface Article {
   views: number | null;
   created_at: string;
   updated_at: string;
-  content_type?: "article" | "guide";
   is_featured?: boolean;
 }
 
@@ -76,7 +74,7 @@ const CATEGORIES = [
   { value: "AI Tech", label: "AI Tech" },
   { value: "Productivity", label: "Productivity" },
   { value: "How-To", label: "How-To" },
-  { value: "Side Hustles", label: "Side Hustles" },
+  { value: "Smart Income", label: "Smart Income" },
   { value: "Gaming", label: "Gaming" },
   { value: "Accessories", label: "Accessories" },
   { value: "Career in Tech", label: "Career in Tech" },
@@ -94,7 +92,6 @@ const initialArticleState = {
   cover_image: "",
   is_published: false,
   read_time_minutes: 5,
-  content_type: "article" as "article" | "guide",
   is_featured: false,
 };
 
@@ -106,7 +103,6 @@ export default function AdminArticles() {
   const [formData, setFormData] = useState(initialArticleState);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("all");
-  const [filterContentType, setFilterContentType] = useState<string>("all");
   const [uploading, setUploading] = useState(false);
   const [editorMode, setEditorMode] = useState<"markdown" | "richtext">("markdown");
   const [currentPage, setCurrentPage] = useState(1);
@@ -142,7 +138,6 @@ export default function AdminArticles() {
         cover_image: data.cover_image || null,
         is_published: data.is_published,
         read_time_minutes: data.read_time_minutes,
-        content_type: data.content_type,
         is_featured: data.is_featured,
       });
       if (error) throw error;
@@ -171,7 +166,6 @@ export default function AdminArticles() {
           cover_image: data.cover_image || null,
           is_published: data.is_published,
           read_time_minutes: data.read_time_minutes,
-          content_type: data.content_type,
           is_featured: data.is_featured,
           updated_at: new Date().toISOString(),
         })
@@ -235,7 +229,6 @@ export default function AdminArticles() {
       cover_image: article.cover_image || "",
       is_published: article.is_published,
       read_time_minutes: article.read_time_minutes || 5,
-      content_type: article.content_type || "article",
       is_featured: article.is_featured || false,
     });
     setIsDialogOpen(true);
@@ -265,7 +258,7 @@ export default function AdminArticles() {
     }));
   };
 
-  // Handle image upload to Supabase Storage (with client-side optimization)
+  // Handle image upload via VPS API (with client-side optimization)
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -274,16 +267,25 @@ export default function AdminArticles() {
     try {
       const { optimizeImage } = await import("@/lib/image-optimize");
       const { blob, fileName } = await optimizeImage(file);
-      const filePath = `articles/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("images")
-        .upload(filePath, blob, { contentType: blob.type });
+      const uploadForm = new FormData();
+      uploadForm.append("file", blob, fileName);
+      uploadForm.append("folder", "articles");
 
-      if (uploadError) throw uploadError;
+      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
+      const res = await fetch(`${SUPABASE_URL}/api/upload`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` },
+        body: uploadForm,
+      });
 
-      const { data } = supabase.storage.from("images").getPublicUrl(filePath);
-      setFormData((prev) => ({ ...prev, cover_image: data.publicUrl }));
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Upload failed" }));
+        throw new Error(err.error || "Upload failed");
+      }
+
+      const { url } = await res.json();
+      setFormData((prev) => ({ ...prev, cover_image: url }));
       toast({ title: "Image uploaded & optimized!" });
     } catch (error) {
       toast({ title: "Error uploading image", description: String(error), variant: "destructive" });
@@ -314,7 +316,7 @@ export default function AdminArticles() {
     }
     setTranscriptGenerating(true);
     try {
-      const API_BASE = import.meta.env.VITE_ARTICLE_API_URL || "https://db.techtrendi.com/api";
+      const API_BASE = import.meta.env.VITE_ARTICLE_API_URL || "https://db2.techtrendi.com/api";
       const session = await supabase.auth.getSession();
       const token = session.data.session?.access_token || "";
       const res = await fetch(`${API_BASE}/transcript-to-article`, {
@@ -353,15 +355,14 @@ export default function AdminArticles() {
         article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         article.slug.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = filterCategory === "all" || article.category === filterCategory;
-      const matchesContentType = filterContentType === "all" || (article.content_type || "article") === filterContentType;
       let matchesStatus = true;
       if (filterStatus === "published") matchesStatus = article.is_published;
       else if (filterStatus === "drafts") matchesStatus = !article.is_published;
       else if (filterStatus === "today") matchesStatus = article.created_at.slice(0, 10) === today;
       else if (filterStatus === "featured") matchesStatus = !!article.is_featured;
-      return matchesSearch && matchesCategory && matchesContentType && matchesStatus;
+      return matchesSearch && matchesCategory && matchesStatus;
     });
-  }, [articles, searchQuery, filterCategory, filterContentType, filterStatus]);
+  }, [articles, searchQuery, filterCategory, filterStatus]);
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(filteredArticles.length / ITEMS_PER_PAGE));
@@ -630,38 +631,6 @@ export default function AdminArticles() {
                   </p>
                 </div>
 
-                {/* Content Type */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Content Type *</Label>
-                    <Select
-                      value={formData.content_type}
-                      onValueChange={(value) => setFormData((prev) => ({ ...prev, content_type: value as "article" | "guide" }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="article">
-                          <div className="flex items-center gap-2">
-                            <FileText className="w-4 h-4" />
-                            Article (Blog)
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="guide">
-                          <div className="flex items-center gap-2">
-                            <BookOpen className="w-4 h-4" />
-                            Guide (Tutorial)
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-muted-foreground">
-                      Articles appear in Blog, Guides appear in Guides section
-                    </p>
-                  </div>
-                </div>
-
                 {/* Publish & Featured Toggles */}
                 <div className="flex flex-wrap items-center gap-6">
                   <div className="flex items-center gap-3">
@@ -723,16 +692,6 @@ export default function AdminArticles() {
               className="pl-10"
             />
           </div>
-          <Select value={filterContentType} onValueChange={(v) => { setFilterContentType(v); setCurrentPage(1); }}>
-            <SelectTrigger className="w-full md:w-40">
-              <SelectValue placeholder="All Types" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="article">Articles</SelectItem>
-              <SelectItem value="guide">Guides</SelectItem>
-            </SelectContent>
-          </Select>
           <Select value={filterCategory} onValueChange={(v) => { setFilterCategory(v); setCurrentPage(1); }}>
             <SelectTrigger className="w-full md:w-48">
               <SelectValue placeholder="All Categories" />
@@ -749,7 +708,7 @@ export default function AdminArticles() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <button
             onClick={() => { setFilterStatus("all"); setCurrentPage(1); }}
             className={`text-left transition-all hover:shadow-md bg-card border border-border rounded-lg p-4 ${filterStatus === "all" ? "ring-2 ring-primary" : ""}`}
@@ -790,20 +749,6 @@ export default function AdminArticles() {
             </div>
             <p className="text-2xl font-bold">{articles.filter((a) => a.created_at.slice(0, 10) === new Date().toISOString().slice(0, 10)).length}</p>
           </button>
-          <div className="bg-card border border-border rounded-lg p-4">
-            <div className="flex items-center gap-2 text-muted-foreground mb-1">
-              <FileText className="w-4 h-4" />
-              <span className="text-sm">Articles</span>
-            </div>
-            <p className="text-2xl font-bold">{articles.filter((a) => (a.content_type || "article") === "article").length}</p>
-          </div>
-          <div className="bg-card border border-border rounded-lg p-4">
-            <div className="flex items-center gap-2 text-muted-foreground mb-1">
-              <BookOpen className="w-4 h-4" />
-              <span className="text-sm">Guides</span>
-            </div>
-            <p className="text-2xl font-bold">{articles.filter((a) => a.content_type === "guide").length}</p>
-          </div>
           <button
             onClick={() => { setFilterStatus((prev) => prev === "featured" ? "all" : "featured"); setCurrentPage(1); }}
             className={`text-left transition-all hover:shadow-md bg-card border border-border rounded-lg p-4 ${filterStatus === "featured" ? "ring-2 ring-yellow-500" : ""}`}
@@ -837,11 +782,11 @@ export default function AdminArticles() {
               <p>No articles found</p>
             </div>
           ) : (
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Article</TableHead>
-                  <TableHead>Type</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Views</TableHead>
@@ -876,15 +821,6 @@ export default function AdminArticles() {
                           </p>
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={(article.content_type || "article") === "guide" ? "default" : "outline"}>
-                        {(article.content_type || "article") === "guide" ? (
-                          <><BookOpen className="w-3 h-3 mr-1" />Guide</>
-                        ) : (
-                          <><FileText className="w-3 h-3 mr-1" />Article</>
-                        )}
-                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant="secondary">
@@ -950,6 +886,7 @@ export default function AdminArticles() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           )}
 
           {/* Pagination */}

@@ -21,7 +21,7 @@ const exploreCategories = [
   { label: "AI Tech", href: "/ai-tech", icon: Cpu, description: "Artificial intelligence trends" },
   { label: "Productivity", href: "/productivity", icon: Lightbulb, description: "Apps & tools to boost workflow" },
   { label: "How-To", href: "/how-to", icon: BookOpen, description: "Step-by-step tutorials" },
-  { label: "Side Hustles", href: "/make-money", icon: DollarSign, description: "Earn money online & passive income" },
+  { label: "Smart Income", href: "/smart-income", icon: DollarSign, description: "Digital skills & entrepreneurship" },
   { label: "Gaming", href: "/gaming", icon: Gamepad2, description: "Games, consoles & PC builds" },
   { label: "Accessories", href: "/accessories", icon: Watch, description: "Gadgets, wearables & peripherals" },
   { label: "Career in Tech", href: "/career-in-tech", icon: Briefcase, description: "Jobs, interviews & career growth" },

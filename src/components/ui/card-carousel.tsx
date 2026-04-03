@@ -68,7 +68,11 @@ export const CardCarousel: React.FC<CardCarouselProps> = ({
         autoplay={{
           delay: autoplayDelay,
           disableOnInteraction: false,
+          pauseOnMouseEnter: true,
+          waitForTransition: true,
         }}
+        observer={true}
+        observeParents={true}
         effect="coverflow"
         grabCursor={true}
         centeredSlides={true}

@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 const ARTICLES_PER_PAGE = 9;
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db.techtrendi.com";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 
 interface Article {
@@ -48,7 +48,7 @@ const categories: CategoryStyle[] = [
   { name: "Accessories", icon: Watch, gradient: "from-cyan-500 to-teal-600", shadowColor: "shadow-cyan-500/40", textColor: "text-cyan-600 dark:text-cyan-400", iconColor: "text-cyan-500" },
   { name: "AI Tech", icon: Brain, gradient: "from-violet-500 to-purple-600", shadowColor: "shadow-violet-500/40", textColor: "text-violet-600 dark:text-violet-400", iconColor: "text-violet-500" },
   { name: "Career in Tech", icon: GraduationCap, gradient: "from-emerald-500 to-green-600", shadowColor: "shadow-emerald-500/40", textColor: "text-emerald-600 dark:text-emerald-400", iconColor: "text-emerald-500" },
-  { name: "Side Hustles", icon: DollarSign, gradient: "from-green-500 to-emerald-600", shadowColor: "shadow-green-500/40", textColor: "text-green-600 dark:text-green-400", iconColor: "text-green-500" },
+  { name: "Smart Income", icon: DollarSign, gradient: "from-green-500 to-emerald-600", shadowColor: "shadow-green-500/40", textColor: "text-green-600 dark:text-green-400", iconColor: "text-green-500" },
   { name: "Health Tech", icon: HeartPulse, gradient: "from-rose-500 to-pink-600", shadowColor: "shadow-rose-500/40", textColor: "text-rose-600 dark:text-rose-400", iconColor: "text-rose-500" },
   { name: "Remote Work", icon: Wifi, gradient: "from-indigo-500 to-blue-600", shadowColor: "shadow-indigo-500/40", textColor: "text-indigo-600 dark:text-indigo-400", iconColor: "text-indigo-500" },
   { name: "Gaming", icon: Gamepad2, gradient: "from-pink-500 to-fuchsia-600", shadowColor: "shadow-pink-500/40", textColor: "text-pink-600 dark:text-pink-400", iconColor: "text-pink-500" },
@@ -64,7 +64,7 @@ const categoryImages: Record<string, string> = {
   "Accessories": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=400&fit=crop",
   "AI Tech": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop",
   "Career in Tech": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&h=400&fit=crop",
-  "Side Hustles": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&h=400&fit=crop",
+  "Smart Income": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&h=400&fit=crop",
   "Health Tech": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=400&fit=crop",
   "Remote Work": "https://images.unsplash.com/photo-1587825140708-dfaf18c4c5ad?w=800&h=400&fit=crop",
   "Gaming": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&h=400&fit=crop",
@@ -75,11 +75,9 @@ const categoryImages: Record<string, string> = {
 
 // Get image URL with fallback
 function getArticleImage(article: Article): string {
-  // If cover_image is a full URL (starts with http), use it
-  if (article.cover_image?.startsWith("http")) {
+  if (article.cover_image?.startsWith("http") || article.cover_image?.startsWith("/images/")) {
     return article.cover_image;
   }
-  // Otherwise use category fallback
   return categoryImages[article.category] || categoryImages["default"];
 }
 
@@ -103,7 +101,7 @@ export default function Blog() {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-    fetch(`${SUPABASE_URL}/rest/v1/articles?select=id,title,slug,excerpt,category,cover_image,read_time_minutes,created_at,author,tags,views,is_premium&content_type=eq.article&is_published=eq.true&order=created_at.desc`, {
+    fetch(`${SUPABASE_URL}/rest/v1/articles?select=id,title,slug,excerpt,category,cover_image,read_time_minutes,created_at,author,tags,views,is_premium&is_published=eq.true&order=created_at.desc`, {
       headers: { "apikey": SUPABASE_KEY },
       signal: controller.signal,
     })
@@ -126,9 +124,8 @@ export default function Blog() {
             .then(res => res.ok ? res.json() : null)
             .then(data => {
               if (Array.isArray(data) && data.length > 0) {
-                const filtered = data.filter((a: any) => !a.content_type || a.content_type === "article");
-                setArticles(filtered);
-                try { sessionStorage.setItem("blog:articles", JSON.stringify(filtered)); } catch {}
+                setArticles(data);
+                try { sessionStorage.setItem("blog:articles", JSON.stringify(data)); } catch {}
               }
             })
             .catch(() => {})

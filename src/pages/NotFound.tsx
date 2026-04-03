@@ -30,9 +30,9 @@ const NotFound = () => {
               </Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link to="/guides">
+              <Link to="/blog">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Browse Guides
+                Browse Articles
               </Link>
             </Button>
           </div>

@@ -7,7 +7,7 @@ import { Smartphone, Search, X, Loader2, ExternalLink, RotateCcw } from "lucide-
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
-const API_URL = "https://db.techtrendi.com/api/compare-phones";
+const API_URL = "https://db2.techtrendi.com/api/compare-phones";
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 
 interface PhoneSpecCategory {

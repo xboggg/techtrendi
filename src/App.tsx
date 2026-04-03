@@ -42,7 +42,6 @@ const PageLoader = () => (
 // Lazy loaded pages
 const ToolCategory = lazy(() => import("./pages/ToolCategory"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Guides = lazy(() => import("./pages/Guides"));
 const About = lazy(() => import("./pages/About"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Premium = lazy(() => import("./pages/Premium"));
@@ -73,9 +72,7 @@ const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminCreepyTech = lazy(() => import("./pages/admin/AdminCreepyTech"));
 const AdminCyberAwareness = lazy(() => import("./pages/admin/AdminCyberAwareness"));
-const AdminGuides = lazy(() => import("./pages/admin/AdminGuides"));
 const AdminToolFeedback = lazy(() => import("./pages/admin/AdminToolFeedback"));
-const AdminGuideEdit = lazy(() => import("./pages/admin/AdminGuideEdit"));
 
 // Category pages
 const Phones = lazy(() => import("./pages/categories/Phones"));
@@ -83,7 +80,7 @@ const Security = lazy(() => import("./pages/categories/Security"));
 const Productivity = lazy(() => import("./pages/categories/Productivity"));
 const HowTo = lazy(() => import("./pages/categories/HowTo"));
 const AITech = lazy(() => import("./pages/categories/AITech"));
-const MakeMoney = lazy(() => import("./pages/categories/MakeMoney"));
+const SmartIncome = lazy(() => import("./pages/categories/SmartIncome"));
 const Gaming = lazy(() => import("./pages/categories/Gaming"));
 const Accessories = lazy(() => import("./pages/categories/Accessories"));
 const CareerInTech = lazy(() => import("./pages/categories/CareerInTech"));
@@ -429,8 +426,9 @@ const App = () => (
                       <Route path="/productivity" element={<Productivity />} />
                       <Route path="/how-to" element={<HowTo />} />
                       <Route path="/ai-tech" element={<AITech />} />
-                      <Route path="/make-money" element={<MakeMoney />} />
-                      <Route path="/deals" element={<MakeMoney />} />
+                      <Route path="/smart-income" element={<SmartIncome />} />
+                      <Route path="/make-money" element={<SmartIncome />} />
+                      <Route path="/deals" element={<SmartIncome />} />
                       <Route path="/gaming" element={<Gaming />} />
                       <Route path="/accessories" element={<Accessories />} />
                       <Route path="/career-in-tech" element={<CareerInTech />} />
@@ -456,15 +454,11 @@ const App = () => (
                       <Route path="/admin/analytics" element={<AdminAnalytics />} />
                       <Route path="/admin/creepy-tech" element={<AdminCreepyTech />} />
                       <Route path="/admin/cyber-awareness" element={<AdminCyberAwareness />} />
-                      <Route path="/admin/guides" element={<AdminGuides />} />
-                      <Route path="/admin/guides/edit/:id" element={<AdminGuideEdit />} />
                       <Route path="/admin/scam-alerts" element={<AdminScamAlerts />} />
                       <Route path="/admin/daily-tips" element={<AdminDailyTips />} />
                       <Route path="/admin/threat-level" element={<AdminThreatLevel />} />
                       <Route path="/admin/scam-reports" element={<AdminScamReports />} />
                       <Route path="/admin/tool-feedback" element={<AdminToolFeedback />} />
-                      <Route path="/guides" element={<Guides />} />
-                      <Route path="/guides/:category" element={<Guides />} />
                       <Route path="/about" element={<About />} />
                       <Route path="/privacy" element={<Privacy />} />
                       <Route path="/terms" element={<Terms />} />

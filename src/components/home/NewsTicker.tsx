@@ -18,7 +18,7 @@ const categoryColors: Record<string, string> = {
   Productivity: "text-amber-600 dark:text-amber-400",
   "How-To": "text-cyan-600 dark:text-cyan-400",
   Gaming: "text-red-600 dark:text-red-400",
-  "Side Hustles": "text-pink-600 dark:text-pink-400",
+  "Smart Income": "text-pink-600 dark:text-pink-400",
   "Health Tech": "text-teal-600 dark:text-teal-400",
   default: "text-primary",
 };

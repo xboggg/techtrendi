@@ -309,7 +309,7 @@ export default function About() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button asChild size="lg" className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white rounded-xl px-8 shadow-lg">
-                <Link to="/guides">
+                <Link to="/blog">
                   Start Here
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>

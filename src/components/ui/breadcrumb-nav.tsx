@@ -87,7 +87,6 @@ function formatSegment(segment: string): string {
     'blog': 'Blog',
     'reviews': 'Reviews',
     'tools': 'Tools',
-    'guides': 'Guides',
     'about': 'About',
     'admin': 'Admin',
     'profile': 'Profile',

@@ -39,12 +39,12 @@ interface Guide {
   created_at: string;
 }
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db.techtrendi.com";
-const REWRITE_API = import.meta.env.VITE_ARTICLE_API_URL || "https://db.techtrendi.com/api";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
+const REWRITE_API = import.meta.env.VITE_ARTICLE_API_URL || "https://db2.techtrendi.com/api";
 const ITEMS_PER_PAGE = 15;
 
 const GUIDE_CATEGORIES = [
-  "Phones", "Security", "AI Tech", "Productivity", "How-To", "Side Hustles",
+  "Phones", "Security", "AI Tech", "Productivity", "How-To", "Smart Income",
   "Gaming", "Accessories", "Career in Tech", "Health Tech", "Remote Work", "Green Tech",
 ];
 

@@ -77,9 +77,9 @@ const pathways = [
   },
   {
     icon: DollarSign,
-    title: "Make Money Online",
-    description: "Side hustles, freelancing tips, and passive income strategies that work",
-    link: "/make-money",
+    title: "Smart Income",
+    description: "Freelancing tips, digital skills, and entrepreneurship strategies that work",
+    link: "/smart-income",
     gradient: "from-rose-500 to-pink-400",
     bgGlow: "bg-rose-500/10",
     borderGlow: "border-rose-500/20 hover:border-rose-400/40",
@@ -174,10 +174,10 @@ export default function StartHere() {
   const navigate = useNavigate();
   const [popularArticles, setPopularArticles] = useState<PopularItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [siteCounts, setSiteCounts] = useState({ articles: 0, guides: 0, reviews: 0 });
+  const [siteCounts, setSiteCounts] = useState({ articles: 0, reviews: 0 });
 
-  const articleCounter = useCounter(siteCounts.articles + siteCounts.guides, 2500);
-  const toolCounter = useCounter(142, 2000);
+  const articleCounter = useCounter(siteCounts.articles, 2500);
+  const toolCounter = useCounter(123, 2000);
   const reviewCounter = useCounter(siteCounts.reviews, 2000);
 
   useEffect(() => {
@@ -187,14 +187,12 @@ export default function StartHere() {
 
   const fetchCounts = async () => {
     try {
-      const [articlesRes, guidesRes, reviewsRes] = await Promise.all([
-        supabase.from("articles").select("id", { count: "exact" }).eq("is_published", true).eq("content_type", "article"),
-        supabase.from("articles").select("id", { count: "exact" }).eq("is_published", true).eq("content_type", "guide"),
+      const [articlesRes, reviewsRes] = await Promise.all([
+        supabase.from("articles").select("id", { count: "exact" }).eq("is_published", true),
         supabase.from("reviews").select("id", { count: "exact" }),
       ]);
       setSiteCounts({
-        articles: articlesRes.count || 118,
-        guides: guidesRes.count || 60,
+        articles: articlesRes.count || 180,
         reviews: reviewsRes.count || 60,
       });
     } catch {}
@@ -254,7 +252,7 @@ export default function StartHere() {
           {/* Animated Stats */}
           <div className="flex flex-wrap justify-center gap-4 md:gap-6">
             {[
-              { ref: articleCounter.ref, value: articleCounter.count, suffix: "+", label: "Articles & Guides", icon: FileText, gradient: "from-blue-400 to-cyan-300" },
+              { ref: articleCounter.ref, value: articleCounter.count, suffix: "+", label: "Articles", icon: FileText, gradient: "from-blue-400 to-cyan-300" },
               { ref: toolCounter.ref, value: toolCounter.count, suffix: "+", label: "Free Tools", icon: Wrench, gradient: "from-purple-400 to-pink-300" },
               { ref: reviewCounter.ref, value: reviewCounter.count, suffix: "+", label: "Product Reviews", icon: Star, gradient: "from-amber-400 to-orange-300" },
               { ref: null, value: 12, suffix: "", label: "Categories", icon: BookOpen, gradient: "from-emerald-400 to-green-300" },
@@ -457,8 +455,8 @@ export default function StartHere() {
 
             <div className="grid md:grid-cols-2 gap-5 mb-12">
               {[
-                { text: `${siteCounts.articles + siteCounts.guides}+ expert articles and guides across 12 categories`, delay: 0 },
-                { text: "140+ free tools — no signup required", delay: 100 },
+                { text: `${siteCounts.articles}+ expert articles across 12 categories`, delay: 0 },
+                { text: "123+ free tools — no signup required", delay: 100 },
                 { text: `${siteCounts.reviews}+ honest product reviews with real ratings`, delay: 200 },
                 { text: "New content published daily, Mon-Fri", delay: 300 },
                 { text: "Written for a global audience, beginner-friendly", delay: 400 },

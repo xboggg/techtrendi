@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Link, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
-import { LayoutDashboard, FileText, MessageSquare, Users, ArrowLeft, Loader2, PenSquare, Mail, Package, Newspaper, BookOpen, BarChart3, Ghost, Shield, ShieldAlert, Lightbulb, Activity, Flag, Wrench, LogOut } from "lucide-react";
+import { LayoutDashboard, FileText, MessageSquare, Users, ArrowLeft, Loader2, PenSquare, Mail, Package, Newspaper, BarChart3, Ghost, Shield, ShieldAlert, Lightbulb, Activity, Flag, Wrench, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AdminLayoutProps {
@@ -14,7 +14,6 @@ const navItems = [
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "News", href: "/admin/news", icon: Newspaper },
   { label: "Articles", href: "/admin/articles", icon: PenSquare },
-  { label: "Guides", href: "/admin/guides", icon: BookOpen },
   { label: "Reviews", href: "/admin/reviews", icon: FileText },
   { label: "Products", href: "/admin/products", icon: Package },
   { label: "Comments", href: "/admin/comments", icon: MessageSquare },

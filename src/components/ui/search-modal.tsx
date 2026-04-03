@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { Search, X, ArrowRight, FileText, Wrench, BookOpen, Star, Clock, TrendingUp } from 'lucide-react';
+import { Search, X, ArrowRight, FileText, Wrench, Star, Clock, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface SearchResult {
@@ -8,7 +8,7 @@ interface SearchResult {
   title: string;
   description?: string;
   url: string;
-  type: 'article' | 'review' | 'tool' | 'guide' | 'page';
+  type: 'article' | 'review' | 'tool' | 'page';
   category?: string;
 }
 
@@ -34,22 +34,15 @@ const searchableContent: SearchResult[] = [
   { id: 'p1', title: 'Home', description: 'TechTrendi homepage', url: '/', type: 'page' },
   { id: 'p2', title: 'Blog', description: 'Latest tech articles', url: '/blog', type: 'page' },
   { id: 'p3', title: 'Reviews', description: 'Product reviews', url: '/reviews', type: 'page' },
-  { id: 'p4', title: 'Guides', description: 'How-to guides', url: '/guides', type: 'page' },
   { id: 'p5', title: 'Tools', description: 'Free online tools', url: '/tools', type: 'page' },
   { id: 'p6', title: 'Premium', description: 'Premium membership', url: '/premium', type: 'page' },
   { id: 'p7', title: 'About', description: 'About TechTrendi', url: '/about', type: 'page' },
-
-  // Guides
-  { id: 'g1', title: 'Phone Buying Guide', description: 'How to choose the perfect phone', url: '/guides/phones', type: 'guide', category: 'Phones' },
-  { id: 'g2', title: 'Security Guide', description: 'Protect your digital life', url: '/guides/security', type: 'guide', category: 'Security' },
-  { id: 'g3', title: 'Laptop Buying Guide', description: 'Find the right laptop', url: '/guides/laptops', type: 'guide', category: 'Laptops' },
 ];
 
 const typeIcons = {
   article: FileText,
   review: Star,
   tool: Wrench,
-  guide: BookOpen,
   page: ArrowRight,
 };
 
@@ -155,7 +148,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search articles, tools, guides..."
+            placeholder="Search articles, tools, reviews..."
             className="flex-1 bg-transparent text-foreground placeholder-muted-foreground focus:outline-none text-lg"
           />
           <kbd className="hidden sm:inline-flex px-2 py-1 text-xs bg-muted rounded">

@@ -97,7 +97,7 @@ function renderContent(content: string): string {
   return DOMPurify.sanitize(html, { ADD_ATTR: ['target', 'rel', 'class', 'id'], ADD_TAGS: ['iframe'] });
 }
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db.techtrendi.com";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 
 interface NewsItem {
@@ -124,7 +124,7 @@ const categoryImages: Record<string, string> = {
 };
 
 function getNewsImage(news: NewsItem): string {
-  if (news.cover_image?.startsWith("http")) {
+  if (news.cover_image && (news.cover_image.startsWith("http") || news.cover_image.startsWith("/"))) {
     return news.cover_image;
   }
   return categoryImages[news.category] || categoryImages["default"];

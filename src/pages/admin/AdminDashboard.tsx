@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdminLayout } from "./AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  FileText, MessageSquare, Star, Newspaper, BookOpen,
+  FileText, MessageSquare, Star, Newspaper,
   Users, Package, Activity, BarChart3
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -291,10 +291,6 @@ export default function AdminDashboard() {
               <Link to="/admin/news" className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                 <Newspaper className="w-6 h-6 text-purple-500" />
                 <span className="text-sm font-medium">Add News</span>
-              </Link>
-              <Link to="/admin/guides" className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <BookOpen className="w-6 h-6 text-green-500" />
-                <span className="text-sm font-medium">New Guide</span>
               </Link>
               <Link to="/admin/reviews" className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                 <Star className="w-6 h-6 text-yellow-500" />

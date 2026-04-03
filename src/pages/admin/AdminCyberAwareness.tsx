@@ -18,7 +18,7 @@ interface Post {
   created_at: string;
 }
 
-const GENERATE_API = "https://db.techtrendi.com/api/generate-card";
+const GENERATE_API = "https://db2.techtrendi.com/api/generate-card";
 
 export default function AdminCyberAwareness() {
   const [posts, setPosts] = useState<Post[]>([]);

@@ -5,7 +5,6 @@ import {
   FileText,
   Wrench,
   Star,
-  BookOpen,
   Home,
   User,
   Settings,
@@ -63,15 +62,6 @@ export function CommandPalette({
       category: 'Navigation',
       action: () => (window.location.href = '/reviews'),
       keywords: ['reviews', 'products', 'ratings'],
-    },
-    {
-      id: 'guides',
-      title: 'Go to Guides',
-      description: 'Read tech guides',
-      icon: <BookOpen className="w-4 h-4" />,
-      category: 'Navigation',
-      action: () => (window.location.href = '/guides'),
-      keywords: ['guides', 'tutorials', 'how-to'],
     },
     {
       id: 'tools',

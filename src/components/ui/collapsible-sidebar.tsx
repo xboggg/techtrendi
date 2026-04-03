@@ -6,7 +6,6 @@ import {
   Home,
   FileText,
   Star,
-  BookOpen,
   Wrench,
   Settings,
   User,
@@ -33,7 +32,6 @@ interface CollapsibleSidebarProps {
 const defaultItems: SidebarItem[] = [
   { label: 'Home', href: '/', icon: <Home className="w-5 h-5" /> },
   { label: 'Reviews', href: '/reviews', icon: <Star className="w-5 h-5" /> },
-  { label: 'Guides', href: '/guides', icon: <BookOpen className="w-5 h-5" /> },
   { label: 'Blog', href: '/blog', icon: <FileText className="w-5 h-5" /> },
   {
     label: 'Tools',

@@ -1,8 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
-import { sampleReviews, type Review } from "@/data/sampleContent";
-import { Star, ThumbsUp, ThumbsDown, ArrowRight, Filter, Search, X, BarChart3 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Star, ThumbsUp, ThumbsDown, ArrowRight, Filter, Search, X, BarChart3, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+
+interface Review {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  image: string;
+  rating: number;
+  verdict: string;
+  pros: string[];
+  cons: string[];
+  price: string;
+  release_date: string;
+  specs?: Record<string, string>;
+  is_published?: boolean;
+}
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -168,9 +184,31 @@ export default function Reviews() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("rating");
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const REVIEWS_PER_PAGE = 12;
 
-  // Use sample data directly - no loading states needed
-  const reviews = sampleReviews;
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("reviews")
+          .select("id, slug, title, category, image, rating, verdict, pros, cons, price, release_date, specs, is_published")
+          .eq("is_published", true)
+          .order("created_at", { ascending: false });
+
+        if (!error && data) {
+          setReviews(data as Review[]);
+        }
+      } catch (e) {
+        console.error("Failed to fetch reviews:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReviews();
+  }, []);
 
   const filteredReviews = reviews
     .filter((review) => {
@@ -187,6 +225,12 @@ export default function Reviews() {
       }
       return a.title.localeCompare(b.title);
     });
+
+  const totalPages = Math.ceil(filteredReviews.length / REVIEWS_PER_PAGE);
+  const paginatedReviews = filteredReviews.slice(
+    (currentPage - 1) * REVIEWS_PER_PAGE,
+    currentPage * REVIEWS_PER_PAGE
+  );
 
   const compareReviews = reviews.filter((r) => compareIds.includes(r.id));
 
@@ -219,12 +263,12 @@ export default function Reviews() {
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative w-full md:w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Search reviews..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
+              <Input placeholder="Search reviews..." value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }} className="pl-10" />
             </div>
             <div className="flex flex-wrap gap-3 items-center">
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-muted-foreground" />
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <Select value={selectedCategory} onValueChange={(v) => { setSelectedCategory(v); setCurrentPage(1); }}>
                   <SelectTrigger className="w-40"><SelectValue placeholder="Category" /></SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
@@ -264,60 +308,104 @@ export default function Reviews() {
       {/* Reviews Grid */}
       <section className="py-12 md:py-16">
         <div className="container">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredReviews.map((review) => (
-              <article key={review.id} className="group bg-card rounded-2xl border border-border shadow-card overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all duration-300">
-                <div className="relative aspect-video overflow-hidden">
-                  {review.image && (
-                    <img src={review.image} alt={review.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  )}
-                  <div className="absolute top-3 left-3">
-                    <Badge variant="secondary">{review.category}</Badge>
-                  </div>
-                  <div className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm rounded-lg px-2 py-1">
-                    <StarRating rating={review.rating} />
-                  </div>
-                  <div className="absolute bottom-3 left-3">
-                    <label className="flex items-center gap-2 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 cursor-pointer">
-                      <Checkbox checked={compareIds.includes(review.id)} onCheckedChange={() => toggleCompare(review.id)} disabled={!compareIds.includes(review.id) && compareIds.length >= 4} />
-                      <span className="text-xs font-medium text-foreground">Compare</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">{review.release_date}</span>
-                    <span className="text-sm font-semibold text-primary">{review.price}</span>
-                  </div>
-                  <h2 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">{review.title}</h2>
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{review.verdict}</p>
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-start gap-2">
-                      <ThumbsUp className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
-                      <span className="text-sm text-muted-foreground line-clamp-1">{review.pros[0]}</span>
+          {loading ? (
+            <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+          ) : (
+            <>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paginatedReviews.map((review) => (
+                  <article key={review.id} className="group bg-card rounded-2xl border border-border shadow-card overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all duration-300">
+                    <div className="relative aspect-video overflow-hidden">
+                      <Link to={`/reviews/${review.slug}`}>
+                        {review.image && (
+                          <img src={review.image} alt={review.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        )}
+                      </Link>
+                      <div className="absolute top-3 left-3">
+                        <Badge variant="secondary">{review.category}</Badge>
+                      </div>
+                      <div className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm rounded-lg px-2 py-1">
+                        <StarRating rating={review.rating} />
+                      </div>
+                      <div className="absolute bottom-3 left-3">
+                        <label className="flex items-center gap-2 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 cursor-pointer">
+                          <Checkbox checked={compareIds.includes(review.id)} onCheckedChange={() => toggleCompare(review.id)} disabled={!compareIds.includes(review.id) && compareIds.length >= 4} />
+                          <span className="text-xs font-medium text-foreground">Compare</span>
+                        </label>
+                      </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <ThumbsDown className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
-                      <span className="text-sm text-muted-foreground line-clamp-1">{review.cons[0]}</span>
-                    </div>
-                  </div>
-                  <Link to={`/reviews/${review.slug}`} className="inline-flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all">
-                    Read Full Review
-                    <ArrowRight className="w-4 h-4 ml-1" />
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
 
-          {filteredReviews.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No reviews found matching your criteria.</p>
-              <Button variant="outline" className="mt-4" onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}>
-                Clear Filters
-              </Button>
-            </div>
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-muted-foreground">{review.release_date}</span>
+                        <span className="text-sm font-semibold text-primary">{review.price}</span>
+                      </div>
+                      <Link to={`/reviews/${review.slug}`}>
+                        <h2 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">{review.title}</h2>
+                      </Link>
+                      <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{review.verdict}</p>
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-start gap-2">
+                          <ThumbsUp className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                          <span className="text-sm text-muted-foreground line-clamp-1">{review.pros[0]}</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <ThumbsDown className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
+                          <span className="text-sm text-muted-foreground line-clamp-1">{review.cons[0]}</span>
+                        </div>
+                      </div>
+                      <Link to={`/reviews/${review.slug}`} className="inline-flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all">
+                        Read Full Review
+                        <ArrowRight className="w-4 h-4 ml-1" />
+                      </Link>
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-10">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => { setCurrentPage((p) => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-1" /> Previous
+                  </Button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <Button
+                        key={page}
+                        variant={page === currentPage ? "default" : "outline"}
+                        size="sm"
+                        className="w-9 h-9 p-0"
+                        onClick={() => { setCurrentPage(page); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                      >
+                        {page}
+                      </Button>
+                    ))}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => { setCurrentPage((p) => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </div>
+              )}
+
+              {filteredReviews.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No reviews found matching your criteria.</p>
+                  <Button variant="outline" className="mt-4" onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}>
+                    Clear Filters
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>

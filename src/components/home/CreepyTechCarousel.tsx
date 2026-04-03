@@ -66,11 +66,13 @@ function CarouselRow({
   colorMap,
   onCardClick,
   hintScroll = false,
+  scrollDirection = "left",
 }: {
   posts: Post[];
   colorMap: Record<string, string>;
   onCardClick: (post: Post) => void;
   hintScroll?: boolean;
+  scrollDirection?: "left" | "right";
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const offsetRef = useRef(0);
@@ -128,11 +130,23 @@ function CarouselRow({
     const halfWidth = track.scrollWidth / 2;
     halfWidthRef.current = halfWidth;
 
+    // Start right-scrolling from the halfway point so it scrolls into view
+    if (scrollDirection === "right") {
+      offsetRef.current = halfWidth;
+    }
+
     const animate = () => {
       if (!pausedRef.current) {
-        offsetRef.current += 0.5;
-        if (offsetRef.current >= halfWidth) {
-          offsetRef.current -= halfWidth;
+        if (scrollDirection === "right") {
+          offsetRef.current -= 0.5;
+          if (offsetRef.current <= 0) {
+            offsetRef.current += halfWidth;
+          }
+        } else {
+          offsetRef.current += 0.5;
+          if (offsetRef.current >= halfWidth) {
+            offsetRef.current -= halfWidth;
+          }
         }
         track.style.transform = `translateX(-${offsetRef.current}px)`;
       }
@@ -154,7 +168,7 @@ function CarouselRow({
       observer.disconnect();
       cancelAnimationFrame(rafRef.current);
     };
-  }, [hintScroll, posts]);
+  }, [hintScroll, scrollDirection, posts]);
 
   if (posts.length === 0) return null;
 
@@ -299,7 +313,7 @@ export function CreepyTechHomeSection() {
                 </Link>
               </Button>
             </div>
-            <CarouselRow posts={cyberPosts} colorMap={cyberCatColors} onCardClick={(post) => { setModalPost(post); setModalSource("cyber"); }} />
+            <CarouselRow posts={cyberPosts} colorMap={cyberCatColors} onCardClick={(post) => { setModalPost(post); setModalSource("cyber"); }} hintScroll scrollDirection="right" />
           </div>
         )}
       </div>

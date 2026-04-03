@@ -15,7 +15,7 @@ import { sanitizeInput } from "@/lib/security";
 import DOMPurify from "dompurify";
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db.techtrendi.com";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 
 interface Article {
@@ -53,17 +53,15 @@ const categoryImages: Record<string, string> = {
   "how-to": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&h=600&fit=crop",
   "security": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=600&fit=crop",
   "productivity": "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=1200&h=600&fit=crop",
-  "make-money": "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop",
+  "smart-income": "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop",
   "default": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=600&fit=crop",
 };
 
-// Get image URL with fallback - ONLY use http URLs, ignore local paths from static JSON
+// Get image URL with fallback
 function getArticleImage(article: Article): string {
-  // Only use cover_image if it's a real http URL (from database)
-  if (article.cover_image?.startsWith("http")) {
+  if (article.cover_image?.startsWith("http") || article.cover_image?.startsWith("/images/")) {
     return article.cover_image;
   }
-  // Otherwise use category fallback - never use local /images/ paths
   return categoryImages[article.category] || categoryImages["default"];
 }
 
@@ -99,11 +97,8 @@ export default function BlogArticle() {
   const [allArticles, setAllArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(!initialArticle);
 
-  // Check if user came from guides section
-  const cameFromGuides = location.state?.from === 'guides' ||
-    (typeof document !== 'undefined' && document.referrer.includes('/guides'));
-  const backLink = cameFromGuides ? '/guides' : '/blog';
-  const backLabel = cameFromGuides ? 'Back to Guides' : 'Back to Blog';
+  const backLink = '/blog';
+  const backLabel = 'Back to Blog';
 
   // Fetch fresh article data from Supabase, fallback to static JSON on cPanel
   useEffect(() => {
@@ -234,39 +229,58 @@ export default function BlogArticle() {
 
     const sanitizedContent = sanitizeInput(content);
 
-    // Process line by line for proper list grouping
+    // Process line by line for proper list grouping (supports nested sub-bullets)
     const lines = sanitizedContent.split('\n');
     const blocks: string[] = [];
-    let currentList: string[] = [];
-    let listType: 'ul' | 'ol' | null = null;
+    let olItems: { text: string; subItems: string[] }[] = [];
+    let ulItems: string[] = [];
 
-    const flushList = () => {
-      if (currentList.length > 0 && listType) {
-        blocks.push(`<${listType} class="my-2 pl-6">${currentList.join('')}</${listType}>`);
-        currentList = [];
-        listType = null;
+    const flushOl = () => {
+      if (olItems.length > 0) {
+        const lis = olItems.map(item => {
+          if (item.subItems.length > 0) {
+            const subLis = item.subItems.map(s => `<li>${s}</li>`).join('');
+            return `<li>${item.text}<ul class="my-1 pl-6 list-disc">${subLis}</ul></li>`;
+          }
+          return `<li>${item.text}</li>`;
+        }).join('');
+        blocks.push(`<ol class="my-2 pl-6 list-decimal">${lis}</ol>`);
+        olItems = [];
+      }
+    };
+
+    const flushUl = () => {
+      if (ulItems.length > 0) {
+        const lis = ulItems.map(s => `<li>${s}</li>`).join('');
+        blocks.push(`<ul class="my-2 pl-6 list-disc">${lis}</ul>`);
+        ulItems = [];
       }
     };
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      const ulMatch = line.match(/^- (.+)$/);
-      const olMatch = line.match(/^(\d+)\. (.+)$/);
+      const indentedUlMatch = line.match(/^(\s+)- (.+)$/);
+      const topUlMatch = line.match(/^- (.+)$/);
+      const olMatch = line.match(/^\s*(\d+)\. (.+)$/);
 
-      if (ulMatch) {
-        if (listType && listType !== 'ul') flushList();
-        listType = 'ul';
-        currentList.push(`<li>${ulMatch[1]}</li>`);
-      } else if (olMatch) {
-        if (listType && listType !== 'ol') flushList();
-        listType = 'ol';
-        currentList.push(`<li>${olMatch[2]}</li>`);
+      if (olMatch) {
+        // Flush any standalone ul before starting/continuing ol
+        flushUl();
+        olItems.push({ text: olMatch[2], subItems: [] });
+      } else if (indentedUlMatch && olItems.length > 0) {
+        // Indented bullet while in an ol — attach as sub-item to last ol item
+        olItems[olItems.length - 1].subItems.push(indentedUlMatch[2]);
+      } else if (topUlMatch || indentedUlMatch) {
+        // Top-level bullet (not inside an ol)
+        flushOl();
+        ulItems.push((topUlMatch || indentedUlMatch)![topUlMatch ? 1 : 2]);
       } else {
-        flushList();
         if (line.trim() === '') {
-          // Empty line = paragraph break, skip
+          // Empty lines don't break lists — allows gaps within numbered lists
           continue;
         }
+        flushOl();
+        flushUl();
         // Process headings
         let processed = line
           .replace(/^### (.+)$/, (_m, text) => {
@@ -282,16 +296,15 @@ export default function BlogArticle() {
             return `<h1 id="${id}">${text}</h1>`;
           });
 
-        // If it's a heading, push as-is
         if (processed.startsWith('<h')) {
           blocks.push(processed);
         } else {
-          // It's a paragraph line
           blocks.push(`<p>${processed}</p>`);
         }
       }
     }
-    flushList();
+    flushOl();
+    flushUl();
 
     let html = blocks.join('\n');
 

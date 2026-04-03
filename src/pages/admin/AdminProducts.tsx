@@ -186,7 +186,7 @@ export default function AdminProducts() {
     },
   });
 
-  // Upload image (with client-side optimization)
+  // Upload image via VPS API (with client-side optimization)
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -195,19 +195,25 @@ export default function AdminProducts() {
     try {
       const { optimizeImage } = await import("@/lib/image-optimize");
       const { blob, fileName } = await optimizeImage(file);
-      const filePath = `images/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("products")
-        .upload(filePath, blob, { contentType: blob.type });
+      const uploadForm = new FormData();
+      uploadForm.append("file", blob, fileName);
+      uploadForm.append("folder", "products");
 
-      if (uploadError) throw uploadError;
+      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
+      const res = await fetch(`${SUPABASE_URL}/api/upload`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` },
+        body: uploadForm,
+      });
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("products")
-        .getPublicUrl(filePath);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Upload failed" }));
+        throw new Error(err.error || "Upload failed");
+      }
 
-      setFormData((prev) => ({ ...prev, image_url: publicUrl }));
+      const { url } = await res.json();
+      setFormData((prev) => ({ ...prev, image_url: url }));
       toast({ title: "Image uploaded & optimized!" });
     } catch (error) {
       toast({

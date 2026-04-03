@@ -44,7 +44,7 @@ const categories: CategoryStyle[] = [
   { name: "How-To Tutorials", slug: "how-to", icon: Lightbulb, gradient: "from-amber-500 to-orange-600", hoverBg: "hover:bg-amber-500", shadowColor: "shadow-amber-500/40", textColor: "text-amber-600 dark:text-amber-400", iconColor: "text-amber-500", description: "Step-by-step guides for common tech tasks", href: "/guides/how-to" },
   { name: "Career in Tech", slug: "career-in-tech", icon: GraduationCap, gradient: "from-emerald-500 to-green-600", hoverBg: "hover:bg-emerald-500", shadowColor: "shadow-emerald-500/40", textColor: "text-emerald-600 dark:text-emerald-400", iconColor: "text-emerald-500", description: "Launch or advance your tech career", href: "/guides/career-in-tech" },
   { name: "Health Tech", slug: "health-tech", icon: Heart, gradient: "from-pink-500 to-rose-600", hoverBg: "hover:bg-pink-500", shadowColor: "shadow-pink-500/40", textColor: "text-pink-600 dark:text-pink-400", iconColor: "text-pink-500", description: "Fitness trackers, health apps, and wellness tech", href: "/guides/health-tech" },
-  { name: "Side Hustles", slug: "make-money", icon: DollarSign, gradient: "from-green-500 to-emerald-600", hoverBg: "hover:bg-green-500", shadowColor: "shadow-green-500/40", textColor: "text-green-600 dark:text-green-400", iconColor: "text-green-500", description: "Make money online with proven strategies", href: "/guides/make-money" },
+  { name: "Smart Income", slug: "smart-income", icon: DollarSign, gradient: "from-green-500 to-emerald-600", hoverBg: "hover:bg-green-500", shadowColor: "shadow-green-500/40", textColor: "text-green-600 dark:text-green-400", iconColor: "text-green-500", description: "Earn smarter with proven strategies", href: "/guides/smart-income" },
   { name: "Productivity", slug: "productivity", icon: Zap, gradient: "from-orange-500 to-amber-600", hoverBg: "hover:bg-orange-500", shadowColor: "shadow-orange-500/40", textColor: "text-orange-600 dark:text-orange-400", iconColor: "text-orange-500", description: "Apps and techniques to boost your efficiency", href: "/guides/productivity" },
 ];
 
@@ -54,7 +54,7 @@ const categoryLabels: Record<string, string> = {
   security: "Security",
   "how-to": "How-To",
   "ai-tech": "AI Tech",
-  "make-money": "Side Hustles",
+  "smart-income": "Smart Income",
   "career-in-tech": "Career in Tech",
   "health-tech": "Health Tech",
 };
@@ -87,7 +87,8 @@ export default function Guides() {
           "how-to": "How-To",
           "career-in-tech": "Career in Tech",
           "health-tech": "Health Tech",
-          "make-money": "Side Hustles",
+          "smart-income": "Smart Income",
+          "make-money": "Smart Income",
           "productivity": "Productivity",
           "gaming": "Gaming",
           "accessories": "Accessories",

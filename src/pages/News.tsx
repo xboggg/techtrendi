@@ -5,7 +5,7 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import {
   Clock, Calendar, ArrowRight, Search, ChevronLeft, ChevronRight, Zap,
   LayoutGrid, Brain, Building2, Shield, Cpu, Smartphone, Briefcase,
-  Gamepad2, DollarSign, Wifi, Leaf
+  Gamepad2, DollarSign, Wifi, Leaf, Globe, Bitcoin, Rocket, Heart, Lightbulb
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import staticNews from "@/data/news.json";
 
 const NEWS_PER_PAGE = 12;
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db.techtrendi.com";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 
 interface NewsItem {
@@ -48,9 +48,14 @@ const newsCategories: CategoryStyle[] = [
   { name: "Productivity", icon: Briefcase, gradient: "from-orange-500 to-amber-600", shadowColor: "shadow-orange-500/40", textColor: "text-orange-600 dark:text-orange-400", iconColor: "text-orange-500" },
   { name: "Security", icon: Shield, gradient: "from-amber-500 to-orange-600", shadowColor: "shadow-amber-500/40", textColor: "text-amber-600 dark:text-amber-400", iconColor: "text-amber-500" },
   { name: "Gaming", icon: Gamepad2, gradient: "from-pink-500 to-fuchsia-600", shadowColor: "shadow-pink-500/40", textColor: "text-pink-600 dark:text-pink-400", iconColor: "text-pink-500" },
-  { name: "Side Hustles", icon: DollarSign, gradient: "from-green-500 to-emerald-600", shadowColor: "shadow-green-500/40", textColor: "text-green-600 dark:text-green-400", iconColor: "text-green-500" },
+  { name: "Smart Income", icon: DollarSign, gradient: "from-green-500 to-emerald-600", shadowColor: "shadow-green-500/40", textColor: "text-green-600 dark:text-green-400", iconColor: "text-green-500" },
   { name: "Remote Work", icon: Wifi, gradient: "from-indigo-500 to-blue-600", shadowColor: "shadow-indigo-500/40", textColor: "text-indigo-600 dark:text-indigo-400", iconColor: "text-indigo-500" },
   { name: "Green Tech", icon: Leaf, gradient: "from-lime-500 to-green-600", shadowColor: "shadow-lime-500/40", textColor: "text-lime-600 dark:text-lime-400", iconColor: "text-lime-500" },
+  { name: "Africa Tech", icon: Globe, gradient: "from-yellow-500 to-orange-600", shadowColor: "shadow-yellow-500/40", textColor: "text-yellow-600 dark:text-yellow-400", iconColor: "text-yellow-500" },
+  { name: "Crypto", icon: Bitcoin, gradient: "from-amber-500 to-yellow-600", shadowColor: "shadow-amber-500/40", textColor: "text-amber-600 dark:text-amber-400", iconColor: "text-amber-500" },
+  { name: "Space", icon: Rocket, gradient: "from-blue-600 to-purple-700", shadowColor: "shadow-blue-600/40", textColor: "text-blue-700 dark:text-blue-300", iconColor: "text-blue-600" },
+  { name: "Health Tech", icon: Heart, gradient: "from-rose-500 to-pink-600", shadowColor: "shadow-rose-500/40", textColor: "text-rose-600 dark:text-rose-400", iconColor: "text-rose-500" },
+  { name: "Startups", icon: Lightbulb, gradient: "from-teal-500 to-cyan-600", shadowColor: "shadow-teal-500/40", textColor: "text-teal-600 dark:text-teal-400", iconColor: "text-teal-500" },
 ];
 
 // Fallback images by category
@@ -63,14 +68,19 @@ const categoryImages: Record<string, string> = {
   "Productivity": "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=400&fit=crop",
   "Security": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=400&fit=crop",
   "Gaming": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&h=400&fit=crop",
-  "Side Hustles": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&h=400&fit=crop",
+  "Smart Income": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&h=400&fit=crop",
   "Remote Work": "https://images.unsplash.com/photo-1587825140708-dfaf18c4c5ad?w=800&h=400&fit=crop",
   "Green Tech": "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&h=400&fit=crop",
+  "Africa Tech": "https://images.unsplash.com/photo-1489392191049-fc10c97e64b6?w=800&h=400&fit=crop",
+  "Crypto": "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=800&h=400&fit=crop",
+  "Space": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&h=400&fit=crop",
+  "Health Tech": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=400&fit=crop",
+  "Startups": "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&h=400&fit=crop",
   "default": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=400&fit=crop",
 };
 
 function getNewsImage(news: NewsItem): string {
-  if (news.cover_image?.startsWith("http")) {
+  if (news.cover_image && (news.cover_image.startsWith("http") || news.cover_image.startsWith("/"))) {
     return news.cover_image;
   }
   return categoryImages[news.category] || categoryImages["default"];
@@ -80,10 +90,10 @@ export default function News() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const [news, setNews] = useState<NewsItem[]>(staticNews as NewsItem[]);
-  const [loading, setLoading] = useState(false);
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Static data shows instantly, then fetch fresh data in background
+  // Fetch fresh data from API, fall back to static JSON on failure
   useEffect(() => {
     const controller = new AbortController();
 
@@ -95,9 +105,12 @@ export default function News() {
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
           setNews(data);
+        } else {
+          setNews(staticNews as NewsItem[]);
         }
       })
-      .catch(() => {}); // Silent fail - static data already showing
+      .catch(() => { setNews(staticNews as NewsItem[]); })
+      .finally(() => { setLoading(false); });
 
     return () => controller.abort();
   }, []);
@@ -109,7 +122,8 @@ export default function News() {
 
     const matchesCategory =
       selectedCategory === "All" ||
-      item.category === selectedCategory;
+      item.category === selectedCategory ||
+      (selectedCategory === "Cybersecurity" && item.category === "Security");
 
     return matchesSearch && matchesCategory;
   });
