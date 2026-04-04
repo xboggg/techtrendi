@@ -10,17 +10,17 @@ import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { useInView } from "react-intersection-observer";
 
 const stats = [
-  { label: "Articles Published", value: 90, suffix: "+", icon: Newspaper, bg: "bg-blue-500" },
-  { label: "Free Tools", value: 80, suffix: "+", icon: Zap, bg: "bg-purple-500" },
+  { label: "Articles Published", value: 200, suffix: "+", icon: Newspaper, bg: "bg-blue-500" },
+  { label: "Free Tools", value: 130, suffix: "+", icon: Zap, bg: "bg-purple-500" },
   { label: "Topics Covered", value: 12, suffix: "", icon: Users, bg: "bg-orange-500" },
-  { label: "Years Online", value: 10, suffix: "", icon: Heart, bg: "bg-green-500" },
+  { label: "Years Online", value: 1, suffix: "", icon: Heart, bg: "bg-green-500" },
 ];
 
 const expertise = [
   {
     icon: Brain,
     title: "Artificial Intelligence",
-    description: "I test and review AI tools so you don't have to waste time on the ones that don't deliver.",
+    description: "I test and review AI tools so you do not have to waste time on the ones that do not deliver.",
     color: "text-blue-500",
     bg: "bg-blue-500/10",
   },
@@ -41,7 +41,7 @@ const expertise = [
   {
     icon: Building2,
     title: "Digital Economy",
-    description: "Real side hustle ideas, remote work tips, and ways to make money with tech — things I've tried or thoroughly researched.",
+    description: "Smart income strategies, remote work tips, and digital business skills — things I have tried or thoroughly researched.",
     color: "text-orange-500",
     bg: "bg-orange-500/10",
   },
@@ -55,7 +55,7 @@ const expertise = [
   {
     icon: Newspaper,
     title: "Daily Tech News",
-    description: "The tech stories that actually matter, published daily. No clickbait headlines, just what's worth knowing.",
+    description: "The tech stories that actually matter, published daily. No clickbait headlines, just what is worth knowing.",
     color: "text-pink-500",
     bg: "bg-pink-500/10",
   },
@@ -71,19 +71,19 @@ const values = [
   {
     icon: Users,
     title: "Written for Real People",
-    description: "I write the way I talk. If my mom can't understand it, it's not ready to publish.",
+    description: "I write the way I talk. If my mom cannot understand it, it is not ready to publish.",
     color: "bg-purple-500",
   },
   {
     icon: Award,
     title: "Honest Recommendations",
-    description: "Nobody pays me to recommend anything. If I suggest a tool or product, it's because I've used it myself.",
+    description: "Nobody pays me to recommend anything. If I suggest a tool or product, it is because I have used it myself.",
     color: "bg-orange-500",
   },
   {
     icon: Heart,
     title: "Free by Default",
-    description: "Everything on this site — articles, tools, guides — is free. That's not changing.",
+    description: "Everything on this site — articles, tools, guides — is free. That is not changing.",
     color: "bg-green-500",
   },
 ];
@@ -95,7 +95,7 @@ export default function About() {
     <Layout>
       <SEOHead
         title="About TechTrendi - Technology Made Simple"
-        description="Learn about TechTrendi's mission to make technology accessible for everyone through expert guides, honest reviews, and free AI-powered tools."
+        description="Learn about the TechTrendi mission to make technology accessible for everyone through expert guides, honest reviews, and free tools."
         canonicalUrl="https://techtrendi.com/about"
       />
 
@@ -140,7 +140,7 @@ export default function About() {
                 </div>
                 <div className="text-3xl font-bold text-foreground mb-1">
                   {statsInView ? (
-                    <AnimatedCounter end={stat.value} duration={2000} suffix={stat.suffix} />
+                    <AnimatedCounter end={stat.value} duration={2} suffix={stat.suffix} />
                   ) : (
                     <span>0{stat.suffix}</span>
                   )}
@@ -172,9 +172,9 @@ export default function About() {
                   <span className="text-2xl">🤔</span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">The problem I kept running into</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">The problem we kept running into</h3>
                   <p className="text-muted-foreground">
-                    Every time I wanted a straight answer about a phone, a security tool, or an AI app, I'd end up on sites full of ads and vague recommendations. Half the "reviews" were just rewritten press releases. I figured if I'm already doing the research for myself, why not share it properly?
+                    Finding reliable, straightforward tech information should not be this difficult. Too many websites bury useful advice under layers of ads, affiliate promotions, and rewritten press releases. Genuine product reviews are rare. Practical security guidance is even rarer. We saw a gap between what people needed and what the internet was offering — and we decided to fill it.
                   </p>
                 </div>
               </div>
@@ -185,9 +185,9 @@ export default function About() {
                   <Sparkles className="w-6 h-6 text-green-500" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">So I built TechTrendi</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">So we built TechTrendi</h3>
                   <p className="text-muted-foreground">
-                    The domain has been around since 2016, but I really got serious about it in 2025. I write about the things I actually care about — phones, cybersecurity, productivity apps, side hustles, AI tools — and I try to explain them the way I'd explain them to a friend.
+                    TechTrendi launched with a simple mission: make technology accessible to everyone, regardless of their technical background. Since 2016, we have been developing a platform that delivers honest reviews, practical guides, and free tools — all written in plain language. No jargon, no sponsored opinions, no hidden agendas. Just technology explained the way it should be.
                   </p>
                 </div>
               </div>
@@ -200,7 +200,7 @@ export default function About() {
                 <div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">Where things are now</h3>
                   <p className="text-muted-foreground">
-                    TechTrendi now has over 90 articles, 80+ free tools (from password generators to invoice creators), and a growing collection of guides and news. I publish new content regularly and I'm always building new tools that I think people will actually find useful.
+                    Today, TechTrendi serves readers across the globe with over 200 in-depth articles, 130+ free online tools, daily tech news coverage, and a growing library of product reviews. Our content spans 12 categories — from cybersecurity and AI to smartphones and productivity — and we publish fresh content every day. We are committed to remaining free, independent, and genuinely useful.
                   </p>
                 </div>
               </div>
@@ -249,14 +249,14 @@ export default function About() {
 
             <div className="relative z-10 max-w-3xl">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 leading-tight">
-                Tech shouldn't be{" "}
+                Tech should not be{" "}
                 <span className="text-yellow-300">
                   confusing
                 </span>{" "}
-                — and good advice shouldn't cost you anything.
+                — and good advice should not cost you anything.
               </h2>
               <p className="text-white/80 text-lg">
-                Whether you're picking your next phone, setting up a VPN, trying out an AI tool, or looking for a legit side hustle — I've probably written about it. And if I haven't, let me know.
+                Whether you are picking your next phone, setting up a VPN, trying out an AI tool, or exploring digital skills — I have probably written about it. And if I have not, let me know.
               </p>
               <p className="text-white/60 text-sm mt-4">
                 I run this site because I genuinely enjoy helping people make sense of technology. That's it.

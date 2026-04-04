@@ -857,40 +857,37 @@ export default function Index() {
         <div className="absolute top-[30%] right-[30%] w-3 h-3 bg-white rounded-full animate-float opacity-50" style={{ animationDelay: '-5s', boxShadow: '0 0 20px 10px rgba(255, 255, 255, 0.35)' }} />
         <div className="absolute bottom-[25%] left-[40%] w-2 h-2 bg-white rounded-full animate-float opacity-55" style={{ animationDelay: '-3s', boxShadow: '0 0 15px 8px rgba(255, 255, 255, 0.4)' }} />
         <div className="container relative">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex p-4 rounded-3xl bg-white/10 backdrop-blur-sm mb-8 animate-float">
-              <Star className="w-10 h-10 text-white" />
+          <div className="text-center mb-10">
+            <div className="inline-flex p-4 rounded-3xl bg-white/10 backdrop-blur-sm mb-6 animate-float">
+              <Gamepad2 className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Get <span className="text-gradient-accent">Premium</span> Access
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              Take a Break, Try Something <span className="text-gradient-accent">Fun</span>
             </h2>
-            <p className="text-white/80 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
-              Unlock ad-free browsing, premium tools, downloadable guides, and early access to new content.
+            <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto">
+              Quick interactive tools that are actually entertaining
             </p>
-            <div className="flex flex-wrap justify-center gap-4 mb-10">
-              {["Ad-Free Experience", "Premium Tools", "Downloadable Guides", "Early Access"].map((feature) => (
-                <span key={feature} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm font-medium">
-                  <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                  {feature}
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+            {[
+              { title: "Phishing Quiz", hook: "Can you spot the scam?", icon: "🎣", path: "/tools/phishing-quiz" },
+              { title: "This Day in History", hook: "What happened today?", icon: "📅", path: "/tools/this-day-in-history" },
+              { title: "Life Progress Bar", hook: "How far along are you?", icon: "⏳", path: "/tools/life-progress-bar" },
+              { title: "Job Tracker", hook: "Track your applications", icon: "💼", path: "/tools/job-tracker" },
+            ].map((tool) => (
+              <Link
+                key={tool.title}
+                to={tool.path}
+                className="group p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 text-center"
+              >
+                <div className="text-4xl mb-3">{tool.icon}</div>
+                <h3 className="font-bold text-white text-base md:text-lg mb-2">{tool.title}</h3>
+                <p className="text-white/70 text-xs md:text-sm mb-4">{tool.hook}</p>
+                <span className="inline-flex items-center gap-1 text-white text-sm font-medium group-hover:gap-2 transition-all">
+                  Try It <ArrowRight className="w-4 h-4" />
                 </span>
-              ))}
-            </div>
-            <Button
-              size="xl"
-              className="bg-white text-foreground hover:bg-white/90 shadow-elevated rounded-2xl px-10 font-semibold"
-              asChild
-            >
-              <Link to="/premium" className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5" />
-                {subscription.subscribed ? "Manage Subscription" : "Get Premium Access"}
-                <ArrowRight className="w-5 h-5" />
               </Link>
-            </Button>
-            {!subscription.subscribed && (
-              <p className="text-white/60 text-sm mt-6">
-                Just $4.99/month - Cancel anytime
-              </p>
-            )}
+            ))}
           </div>
         </div>
       </section>

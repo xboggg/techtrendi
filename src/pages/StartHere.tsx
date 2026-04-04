@@ -177,7 +177,7 @@ export default function StartHere() {
   const [siteCounts, setSiteCounts] = useState({ articles: 0, reviews: 0 });
 
   const articleCounter = useCounter(siteCounts.articles, 2500);
-  const toolCounter = useCounter(123, 2000);
+  const toolCounter = useCounter(130, 2000);
   const reviewCounter = useCounter(siteCounts.reviews, 2000);
 
   useEffect(() => {
@@ -245,8 +245,8 @@ export default function StartHere() {
             </span>
           </h1>
           <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up" style={{ animationDelay: "200ms" }}>
-            Whether you're buying your next phone, learning AI, or looking for free tools —
-            we've got you covered. Pick your path below.
+            Whether you are buying your next phone, learning AI, or looking for free tools —
+            we have got you covered. Pick your path below.
           </p>
 
           {/* Animated Stats */}
@@ -456,7 +456,7 @@ export default function StartHere() {
             <div className="grid md:grid-cols-2 gap-5 mb-12">
               {[
                 { text: `${siteCounts.articles}+ expert articles across 12 categories`, delay: 0 },
-                { text: "123+ free tools — no signup required", delay: 100 },
+                { text: "130+ free tools — no signup required", delay: 100 },
                 { text: `${siteCounts.reviews}+ honest product reviews with real ratings`, delay: 200 },
                 { text: "New content published daily, Mon-Fri", delay: 300 },
                 { text: "Written for a global audience, beginner-friendly", delay: 400 },
@@ -508,13 +508,13 @@ export default function StartHere() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button asChild size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-full px-8 font-semibold hover:scale-105 transition-transform shadow-xl">
-                <Link to="/premium">
-                  Get Premium Access
+                <Link to="/blog">
+                  Read the Blog
                 </Link>
               </Button>
               <Button asChild size="lg" className="rounded-full px-8 bg-white/15 text-white border-2 border-white/30 hover:bg-white/25 hover:border-white/50 font-semibold hover:scale-105 transition-all shadow-xl backdrop-blur-sm">
-                <Link to="/blog">
-                  Read the Blog
+                <Link to="/about">
+                  Join Our Community
                 </Link>
               </Button>
             </div>

@@ -44,7 +44,6 @@ const ToolCategory = lazy(() => import("./pages/ToolCategory"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const About = lazy(() => import("./pages/About"));
 const Auth = lazy(() => import("./pages/Auth"));
-const Premium = lazy(() => import("./pages/Premium"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogArticle = lazy(() => import("./pages/BlogArticle"));
 const News = lazy(() => import("./pages/News"));
@@ -176,7 +175,7 @@ const WorldClock = lazy(() => import("./pages/tools/WorldClock"));
 const YouTubeThumbnailDownloader = lazy(() => import("./pages/tools/YouTubeThumbnailDownloader"));
 
 // New addictive tools
-const AgeCalculator = lazy(() => import("./pages/tools/AgeCalculator"));
+
 const CurrencyConverter = lazy(() => import("./pages/tools/CurrencyConverter"));
 const HookGenerator = lazy(() => import("./pages/tools/HookGenerator"));
 const IdeaParkingLot = lazy(() => import("./pages/tools/IdeaParkingLot"));
@@ -230,6 +229,13 @@ const StatisticsVisualizer = lazy(() => import("./pages/tools/StatisticsVisualiz
 
 // Batch 4 - Cybersecurity tools
 const PhishingQuiz = lazy(() => import("./pages/tools/PhishingQuiz"));
+const WhatsAppAudit = lazy(() => import("./pages/tools/WhatsAppAudit"));
+const ScamAnalyzer = lazy(() => import("./pages/tools/ScamAnalyzer"));
+const IncidentResponse = lazy(() => import("./pages/tools/IncidentResponse"));
+const PasswordStrength = lazy(() => import("./pages/tools/PasswordStrength"));
+const WifiQrGenerator = lazy(() => import("./pages/tools/WifiQrGenerator"));
+const ThisDayInHistory = lazy(() => import("./pages/tools/ThisDayInHistory"));
+const LifeProgressBar = lazy(() => import("./pages/tools/LifeProgressBar"));
 
 // Security Hub pages
 const ThinkBeforeYouClick = lazy(() => import("./pages/ThinkBeforeYouClick"));
@@ -287,7 +293,6 @@ const App = () => (
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/auth" element={<Auth />} />
-                      <Route path="/premium" element={<Premium />} />
                       <Route path="/profile" element={<Profile />} />
                       <Route path="/dashboard" element={<Dashboard />} />
                       <Route path="/tools" element={<Tools />} />
@@ -372,7 +377,7 @@ const App = () => (
                       <Route path="/tools/text-to-speech" element={<TextToSpeech />} />
                       <Route path="/tools/world-clock" element={<WorldClock />} />
                       <Route path="/tools/youtube-thumbnail-downloader" element={<YouTubeThumbnailDownloader />} />
-                      <Route path="/tools/age-calculator" element={<AgeCalculator />} />
+
                       <Route path="/tools/currency-converter" element={<CurrencyConverter />} />
                       <Route path="/tools/hook-generator" element={<HookGenerator />} />
                       <Route path="/tools/idea-parking-lot" element={<IdeaParkingLot />} />
@@ -415,6 +420,13 @@ const App = () => (
                       <Route path="/tools/business-registration" element={<BusinessRegGuide />} />
                       <Route path="/tools/statistics-visualizer" element={<StatisticsVisualizer />} />
                       <Route path="/tools/phishing-quiz" element={<PhishingQuiz />} />
+                      <Route path="/tools/whatsapp-audit" element={<WhatsAppAudit />} />
+                      <Route path="/tools/scam-analyzer" element={<ScamAnalyzer />} />
+                      <Route path="/tools/incident-response" element={<IncidentResponse />} />
+                      <Route path="/tools/password-strength" element={<PasswordStrength />} />
+                      <Route path="/tools/wifi-qr-generator" element={<WifiQrGenerator />} />
+                      <Route path="/tools/this-day-in-history" element={<ThisDayInHistory />} />
+                      <Route path="/tools/life-progress-bar" element={<LifeProgressBar />} />
                       </Route>
                       <Route path="/tools/:categoryId" element={<ToolCategory />} />
                       <Route path="/blog" element={<Blog />} />
