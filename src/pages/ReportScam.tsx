@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { motion, AnimatePresence } from "framer-motion";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -157,13 +157,11 @@ export default function ReportScam() {
 
   return (
     <Layout>
-      <Helmet>
-        <title>Report a Scam | TechTrendi</title>
-        <meta
-          name="description"
-          content="Report scams you've encountered to help protect others in Ghana. Your report makes the internet safer for everyone."
-        />
-      </Helmet>
+      <SEOHead
+        title="Report a Scam"
+        description="Report a scam or fraud attempt to help protect the community. Your report helps warn others."
+        canonical="/report-scam"
+      />
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-red-50 via-orange-50/50 to-background dark:from-red-950/40 dark:via-orange-950/20 dark:to-background border-b border-border/50">

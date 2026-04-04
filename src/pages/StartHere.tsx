@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/seo/SEOHead";
 import {
   Smartphone,
   Shield,
@@ -218,10 +218,11 @@ export default function StartHere() {
 
   return (
     <Layout>
-      <Helmet>
-        <title>Start Here | TechTrendi</title>
-        <meta name="description" content="New to TechTrendi? Start here. Find the best tech guides, reviews, free tools, and expert advice — organized by what you need." />
-      </Helmet>
+      <SEOHead
+        title="Start Here - New to TechTrendi?"
+        description="Not sure where to begin? Start here for the best of TechTrendi — top articles, essential tools, and recommended reading."
+        canonical="/start-here"
+      />
 
       {/* Hero */}
       <section className="relative py-20 md:py-28 overflow-hidden">

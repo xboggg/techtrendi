@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { HoverGlowCard, CardGrid } from "@/components/ui/hover-glow-card";
 import { Loader2, ChevronLeft, ChevronRight, Eye, Share2, Search, ShieldCheck } from "lucide-react";
@@ -104,6 +105,11 @@ export default function CyberAwareness() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Cyber Awareness - Stay Safe Online"
+        description="Practical cybersecurity tips for everyday people. Protect yourself from scams, phishing, and online threats with simple actionable advice."
+        canonical="/cyber-awareness"
+      />
       {/* Hero */}
       <section className="relative bg-background overflow-hidden border-b border-border">
         <div className="container relative z-10 py-12 md:py-20 text-center">

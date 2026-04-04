@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -195,13 +195,11 @@ const testimonials = [
 export default function ThinkBeforeYouClick() {
   return (
     <Layout>
-      <Helmet>
-        <title>Think Before You Click — Cybersecurity Book for Ghanaians | TechTrendi</title>
-        <meta
-          name="description"
-          content="A practical guide to staying safe online. Written for everyday Ghanaians — parents, traders, students, and seniors."
-        />
-      </Helmet>
+      <SEOHead
+        title="Think Before You Click - Online Safety Guide"
+        description="Learn to identify suspicious links, emails, and messages before clicking. Essential online safety for everyone."
+        canonical="/think-before-you-click"
+      />
 
       {/* HERO */}
       <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 dark:from-slate-950 dark:via-indigo-950 dark:to-slate-950">

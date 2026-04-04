@@ -1,5 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Shield, Mail } from "lucide-react";
 
 export default function Privacy() {
@@ -7,12 +7,11 @@ export default function Privacy() {
 
   return (
     <Layout>
-      <Helmet>
-        <title>Privacy Policy | TechTrendi</title>
-        <meta name="description" content="TechTrendi's Privacy Policy explains how we collect, use, and protect your personal information when you use our website and services." />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://techtrendi.com/privacy" />
-      </Helmet>
+      <SEOHead
+        title="Privacy Policy"
+        description="How TechTrendi handles your data and protects your privacy. Read our complete privacy policy."
+        canonical="/privacy"
+      />
 
       <div className="bg-gradient-hero py-16">
         <div className="container">

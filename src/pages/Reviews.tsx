@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { Star, ThumbsUp, ThumbsDown, ArrowRight, Filter, Search, X, BarChart3, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -242,6 +243,11 @@ export default function Reviews() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Tech Reviews - Honest Product Reviews"
+        description="In-depth, honest reviews of the latest tech products. Real testing, real opinions, no sponsored content."
+        canonical="/reviews"
+      />
       {/* Hero Section */}
       <section className="relative py-16 md:py-24 bg-gradient-to-b from-primary/5 to-background">
         <div className="container">

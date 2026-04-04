@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -398,6 +399,11 @@ export default function Index() {
 
   return (
     <Layout>
+      <SEOHead
+        title="TechTrendi | Tech News, Expert Guides & Free Tools"
+        description="Your smart guide to modern technology. Expert reviews, guides, 130+ free tools, and daily tech news. No jargon, just what works."
+        canonical="/"
+      />
       {/* Hero Carousel Section (includes News Ticker) */}
       <HeroCarousel />
 

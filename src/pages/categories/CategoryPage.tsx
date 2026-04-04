@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Clock, Calendar, ArrowRight, Search, Crown, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/seo/SEOHead";
 
 const ARTICLES_PER_PAGE = 12;
 
@@ -112,10 +112,11 @@ export default function CategoryPage({
 
   return (
     <Layout>
-      <Helmet>
-        <title>{categoryTitle} | TechTrendi</title>
-        <meta name="description" content={categoryDescription} />
-      </Helmet>
+      <SEOHead
+        title={categoryTitle}
+        description={categoryDescription}
+        canonical={`/${categoryName.toLowerCase().replace(/\s+/g, "-")}`}
+      />
 
       <div className="container py-12 md:py-20">
         {/* Hero Section */}

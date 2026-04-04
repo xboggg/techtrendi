@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -13,6 +14,11 @@ const NotFound = () => {
 
   return (
     <Layout>
+      <SEOHead
+        title="Page Not Found"
+        description="The page you are looking for does not exist or has been moved."
+        noindex={true}
+      />
       <div className="container py-20 md:py-32">
         <div className="max-w-lg mx-auto text-center">
           <div className="text-8xl font-bold text-gradient mb-6">404</div>

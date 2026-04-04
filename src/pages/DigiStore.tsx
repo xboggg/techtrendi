@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -173,13 +173,11 @@ export default function DigiStore() {
 
   return (
     <Layout>
-      <Helmet>
-        <title>DigiStore - Digital Products | TechTrendi</title>
-        <meta
-          name="description"
-          content="Download premium digital products including ebooks, templates, spreadsheets, and more. Free and paid resources for tech enthusiasts."
-        />
-      </Helmet>
+      <SEOHead
+        title="DigiStore - Digital Products & Resources"
+        description="Browse digital tools, templates, and resources from TechTrendi. Quality digital products for tech enthusiasts."
+        canonical="/store"
+      />
 
       <div className="min-h-screen">
         {/* Hero Section */}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { HoverGlowCard, CardGrid } from "@/components/ui/hover-glow-card";
 import { Loader2, ChevronLeft, ChevronRight, Eye, Share2, Search } from "lucide-react";
@@ -104,6 +105,11 @@ export default function CreepyTech() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Creepy Tech - Things Your Devices Do Not Want You to Know"
+        description="Discover the unsettling side of technology. Privacy nightmares, surveillance facts, and digital dangers explained in plain language."
+        canonical="/creepy-tech"
+      />
       {/* Hero — uses site theme bg */}
       <section className="relative bg-background overflow-hidden border-b border-border">
         <div className="container relative z-10 py-12 md:py-20 text-center">

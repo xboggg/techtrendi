@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { Star, ThumbsUp, ThumbsDown, ArrowLeft, Calendar, DollarSign, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -259,6 +260,12 @@ export default function ReviewDetail() {
 
   return (
     <Layout>
+      <SEOHead
+        title={review.title ? `${review.title} Review` : "Product Review"}
+        description={review.verdict || "Read our in-depth product review with real testing and honest opinions."}
+        canonical={`/reviews/${slug}`}
+        type="article"
+      />
       <ProductSchema review={review} />
 
       {/* Back Button */}

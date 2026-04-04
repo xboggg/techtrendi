@@ -1,5 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { FileText, Mail } from "lucide-react";
 
 export default function Terms() {
@@ -7,12 +7,11 @@ export default function Terms() {
 
   return (
     <Layout>
-      <Helmet>
-        <title>Terms of Service | TechTrendi</title>
-        <meta name="description" content="Read TechTrendi's Terms of Service to understand the rules and regulations governing your use of our website and services." />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://techtrendi.com/terms" />
-      </Helmet>
+      <SEOHead
+        title="Terms of Service"
+        description="Terms and conditions for using TechTrendi. Read our terms of service."
+        canonical="/terms"
+      />
 
       <div className="bg-gradient-hero py-16">
         <div className="container">

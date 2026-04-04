@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
 import {
   Briefcase, Zap, GraduationCap, Megaphone, Braces, Shield, PenTool, Smartphone,
   ArrowRight, Crown, Star,
@@ -133,6 +134,11 @@ const totalTools = categories.reduce((sum, cat) => sum + cat.toolCount, 0);
 export default function Tools() {
   return (
     <Layout>
+      <SEOHead
+        title="130+ Free Online Tools - No Signup Required"
+        description="Free online tools for everyone: password generators, QR codes, resume builders, calculators, and more. No signup needed."
+        canonical="/tools"
+      />
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-purple-500/5" />

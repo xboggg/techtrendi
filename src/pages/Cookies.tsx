@@ -1,5 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Cookie, Mail, Settings, BarChart3, Target, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -29,12 +29,11 @@ export default function Cookies() {
 
   return (
     <Layout>
-      <Helmet>
-        <title>Cookie Policy | TechTrendi</title>
-        <meta name="description" content="Learn about how TechTrendi uses cookies and similar tracking technologies on our website, and how you can manage your preferences." />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://techtrendi.com/cookies" />
-      </Helmet>
+      <SEOHead
+        title="Cookie Policy"
+        description="Learn how TechTrendi uses cookies to improve your browsing experience and protect your privacy."
+        canonical="/cookies"
+      />
 
       <div className="bg-gradient-hero py-16">
         <div className="container">

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { motion, AnimatePresence } from "framer-motion";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -219,13 +219,11 @@ export default function ScamAlerts() {
 
   return (
     <Layout>
-      <Helmet>
-        <title>Scam Alerts | TechTrendi</title>
-        <meta
-          name="description"
-          content="Live scam alerts and warnings for Ghana. Stay informed about the latest SMS, WhatsApp, email, and mobile money scams."
-        />
-      </Helmet>
+      <SEOHead
+        title="Scam Alerts - Latest Scam Warnings"
+        description="Stay informed about the latest scams and fraud attempts. Real-time scam alerts to protect you and your family."
+        canonical="/scam-alerts"
+      />
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-red-50 via-orange-50/30 to-background dark:from-red-950/30 dark:via-orange-950/15 dark:to-background border-b border-border/50">

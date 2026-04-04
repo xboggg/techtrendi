@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Mail, MessageSquare, Send, Clock, MapPin, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -146,12 +146,11 @@ export default function Contact() {
 
   return (
     <Layout>
-      <Helmet>
-        <title>Contact Us | TechTrendi</title>
-        <meta name="description" content="Get in touch with TechTrendi. We're here to help with questions, feedback, partnership inquiries, and more. Response within 24-48 hours." />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://techtrendi.com/contact" />
-      </Helmet>
+      <SEOHead
+        title="Contact Us"
+        description="Get in touch with the TechTrendi team. Questions, feedback, or partnership inquiries — we would love to hear from you."
+        canonical="/contact"
+      />
 
       <div className="bg-gradient-hero py-16">
         <div className="container">
