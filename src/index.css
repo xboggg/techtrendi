@@ -743,6 +743,15 @@ body {
   }
 }
 
+@keyframes cursor-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.6);
+  }
+}
+
 /* Print Styles */
 @media print {
   /* Hide non-essential elements */

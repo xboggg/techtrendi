@@ -60,6 +60,8 @@ interface Review {
   is_published: boolean;
   is_featured: boolean;
   views: number | null;
+  created_at: string;
+  updated_at: string;
 }
 
 const reviewSchema = z.object({
@@ -72,14 +74,14 @@ const reviewSchema = z.object({
   cons: z.string(),
   price: z.string().optional(),
   release_date: z.string().optional(),
-  image: z.string().url().optional().or(z.literal("")),
+  image: z.string().optional().or(z.literal("")),
   full_review: z.string().optional(),
   specs: z.string(),
   is_published: z.boolean(),
   is_featured: z.boolean(),
 });
 
-const categories = ["Smartphones", "Laptops", "Audio", "Wearables", "Tablets", "Accessories"];
+const categories = ["Smartphones", "Laptops", "Audio", "Wearables", "Tablets", "Smart Home", "TVs", "Gaming", "Cameras", "Networking", "Drones", "VR/AR", "Apps", "SaaS Tools", "Accessories"];
 
 function ReviewForm({ 
   review, 
@@ -106,6 +108,39 @@ function ReviewForm({
     is_published: review?.is_published ?? true,
     is_featured: review?.is_featured ?? false,
   });
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    toast.info("Optimizing and uploading image...");
+    try {
+      const { optimizeImage } = await import("@/lib/image-optimize");
+      const { blob, fileName } = await optimizeImage(file);
+      const uploadForm = new FormData();
+      uploadForm.append("file", blob, fileName);
+      uploadForm.append("folder", "reviews");
+      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
+      const res = await fetch(`${SUPABASE_URL}/api/upload`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` },
+        body: uploadForm,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Upload failed" }));
+        throw new Error(err.error || "Upload failed");
+      }
+      const { url } = await res.json();
+      setFormData(prev => ({ ...prev, image: url }));
+      toast.success("Image uploaded and optimized!");
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Failed to upload image. Try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -252,8 +287,30 @@ function ReviewForm({
             id="image"
             value={formData.image}
             onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-            placeholder="https://..."
+            placeholder="Image URL or upload below"
           />
+          <div className="flex items-center gap-2">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+              id="review-image-upload"
+              disabled={uploading}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={uploading}
+              onClick={() => document.getElementById("review-image-upload")?.click()}
+            >
+              {uploading ? "Uploading..." : "Upload Image"}
+            </Button>
+            {formData.image && (
+              <img src={formData.image} alt="Preview" className="h-10 w-16 object-cover rounded border" />
+            )}
+          </div>
         </div>
       </div>
 
@@ -354,6 +411,8 @@ export default function AdminReviews() {
   const [featuredFilter, setFeaturedFilter] = useState<string>("all");
   const [sortField, setSortField] = useState<string>("created_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const queryClient = useQueryClient();
 
   const { data: reviews = [], isLoading } = useQuery({
@@ -447,6 +506,40 @@ export default function AdminReviews() {
     }
   };
 
+  // Date quick filter helpers
+  const setQuickDateFilter = (preset: "today" | "week" | "month" | "all") => {
+    if (preset === "all") {
+      setDateFrom("");
+      setDateTo("");
+      return;
+    }
+    const now = new Date();
+    const to = now.toISOString().slice(0, 10);
+    let from = to;
+    if (preset === "week") {
+      const d = new Date(now);
+      d.setDate(d.getDate() - 6);
+      from = d.toISOString().slice(0, 10);
+    } else if (preset === "month") {
+      const d = new Date(now);
+      d.setDate(d.getDate() - 29);
+      from = d.toISOString().slice(0, 10);
+    }
+    setDateFrom(from);
+    setDateTo(to);
+    setCurrentPage(1);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   // Filter and sort reviews
   const filteredReviews = useMemo(() => {
     let result = reviews;
@@ -477,6 +570,14 @@ export default function AdminReviews() {
       result = result.filter(r => r.is_featured === isFeatured);
     }
 
+    // Date range filter
+    if (dateFrom) {
+      result = result.filter(r => r.created_at && r.created_at.slice(0, 10) >= dateFrom);
+    }
+    if (dateTo) {
+      result = result.filter(r => r.created_at && r.created_at.slice(0, 10) <= dateTo);
+    }
+
     // Sort
     result = [...result].sort((a, b) => {
       let aVal: any = a[sortField as keyof Review];
@@ -493,7 +594,7 @@ export default function AdminReviews() {
     });
 
     return result;
-  }, [reviews, searchQuery, categoryFilter, statusFilter, featuredFilter, sortField, sortDirection]);
+  }, [reviews, searchQuery, categoryFilter, statusFilter, featuredFilter, sortField, sortDirection, dateFrom, dateTo]);
 
   const toggleSort = (field: string) => {
     if (sortField === field) {
@@ -509,10 +610,12 @@ export default function AdminReviews() {
     setCategoryFilter("all");
     setStatusFilter("all");
     setFeaturedFilter("all");
+    setDateFrom("");
+    setDateTo("");
     setCurrentPage(1);
   };
 
-  const hasActiveFilters = searchQuery || categoryFilter !== "all" || statusFilter !== "all" || featuredFilter !== "all";
+  const hasActiveFilters = searchQuery || categoryFilter !== "all" || statusFilter !== "all" || featuredFilter !== "all" || dateFrom || dateTo;
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(filteredReviews.length / ITEMS_PER_PAGE));
@@ -627,6 +730,34 @@ export default function AdminReviews() {
           )}
         </div>
 
+        {/* Date Range Filter */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-muted-foreground whitespace-nowrap">From</label>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }}
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-muted-foreground whitespace-nowrap">To</label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }}
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+          <div className="flex items-center gap-1">
+            <Button variant={dateFrom && dateFrom === dateTo && dateFrom === new Date().toISOString().slice(0, 10) ? "default" : "outline"} size="sm" onClick={() => setQuickDateFilter("today")}>Today</Button>
+            <Button variant="outline" size="sm" onClick={() => setQuickDateFilter("week")}>This Week</Button>
+            <Button variant="outline" size="sm" onClick={() => setQuickDateFilter("month")}>This Month</Button>
+            <Button variant={!dateFrom && !dateTo ? "default" : "outline"} size="sm" onClick={() => setQuickDateFilter("all")}>All</Button>
+          </div>
+        </div>
+
         <div className="bg-card rounded-xl border border-border overflow-hidden">
           <Table>
             <TableHeader>
@@ -651,6 +782,15 @@ export default function AdminReviews() {
                   </button>
                 </TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>
+                  <button
+                    onClick={() => toggleSort("created_at")}
+                    className="flex items-center gap-1 hover:text-foreground transition-colors"
+                  >
+                    Date
+                    <ArrowUpDown className="w-3 h-3" />
+                  </button>
+                </TableHead>
                 <TableHead>Featured</TableHead>
                 <TableHead>
                   <button
@@ -667,13 +807,13 @@ export default function AdminReviews() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : filteredReviews.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     No reviews yet
                   </TableCell>
                 </TableRow>
@@ -694,6 +834,20 @@ export default function AdminReviews() {
                       <Badge variant={review.is_published ? "default" : "outline"}>
                         {review.is_published ? "Published" : "Draft"}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {review.created_at ? (
+                        <>
+                          <div>{formatDate(review.created_at)}</div>
+                          {review.updated_at && review.updated_at.slice(0, 10) !== review.created_at.slice(0, 10) && (
+                            <div className="text-xs text-muted-foreground/70 mt-0.5">
+                              Updated: {formatDate(review.updated_at)}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-muted-foreground/50">--</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Switch

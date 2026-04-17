@@ -30,6 +30,7 @@ import {
   Loader2,
   Check,
   Tag,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -44,6 +45,8 @@ interface Product {
   category: string;
   type: string; // ebook, template, powerpoint, excel, etc.
   file_url?: string;
+  external_link?: string;
+  currency?: string;
   is_featured: boolean;
   is_premium_only: boolean;
   download_count: number;
@@ -54,6 +57,17 @@ interface Product {
 const categories = ["All", "Marketing", "Business", "Finance", "Security", "AI & Tech", "Productivity", "Spreadsheets"];
 const types = ["All Types", "ebook", "template", "powerpoint", "excel", "course", "software"];
 const priceFilters = ["All Prices", "Free", "Under $5", "Under $10", "Under $20", "$20+"];
+
+const getCurrencySymbol = (currency?: string) => {
+  switch (currency) {
+    case "GHS": return "GH₵";
+    case "EUR": return "€";
+    case "GBP": return "£";
+    case "NGN": return "₦";
+    case "KES": return "KSh";
+    default: return "$";
+  }
+};
 
 const getTypeIcon = (type: string) => {
   switch (type) {
@@ -352,30 +366,28 @@ export default function DigiStore() {
         </section>
 
         {/* CTA Section */}
-        {!subscription.subscribed && (
-          <section className="py-16 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-accent opacity-90" />
-            <div className="container relative text-center">
-              <Crown className="w-12 h-12 mx-auto mb-4 text-white" />
-              <h2 className="text-3xl font-bold text-white mb-4">
-                Get Premium Access
-              </h2>
-              <p className="text-white/80 max-w-xl mx-auto mb-6">
-                Unlock all paid products for free, plus ad-free browsing and exclusive content.
-              </p>
-              <Button
-                size="lg"
-                className="bg-white text-foreground hover:bg-white/90"
-                asChild
-              >
-                <a href="/premium">
-                  <Crown className="w-4 h-4 mr-2" />
-                  Upgrade to Premium - $4.99/mo
-                </a>
-              </Button>
-            </div>
-          </section>
-        )}
+        <section className="py-16 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-accent opacity-90" />
+          <div className="container relative text-center">
+            <Download className="w-12 h-12 mx-auto mb-4 text-white" />
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Digital Resources That Save You Time
+            </h2>
+            <p className="text-white/80 max-w-xl mx-auto mb-6">
+              Ebooks, templates, spreadsheets, and tools built by TechTrendi — designed to help you work smarter, not harder.
+            </p>
+            <Button
+              size="lg"
+              className="bg-white text-foreground hover:bg-white/90"
+              asChild
+            >
+              <a href="/books/think-before-you-click">
+                <BookOpen className="w-4 h-4 mr-2" />
+                Check Out Our Latest Ebook
+              </a>
+            </Button>
+          </div>
+        </section>
       </div>
     </Layout>
   );
@@ -398,11 +410,11 @@ function ProductCard({
   return (
     <div className="group bg-card rounded-2xl border border-border overflow-hidden hover:shadow-elevated hover:border-primary/20 transition-all duration-300">
       {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-muted to-muted/50">
         <img
           src={product.image_url}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500"
         />
 
         {/* Badges */}
@@ -433,7 +445,7 @@ function ProductCard({
         <div className="absolute bottom-3 right-3">
           {product.original_price && (
             <span className="text-xs text-white/70 line-through mr-2">
-              ${product.original_price}
+              {getCurrencySymbol(product.currency)}{product.original_price}
             </span>
           )}
           <Badge
@@ -444,7 +456,7 @@ function ProductCard({
                 : "bg-primary text-white"
             )}
           >
-            {effectivelyFree ? "FREE" : `$${product.price}`}
+            {effectivelyFree ? "FREE" : `${getCurrencySymbol(product.currency)}${product.price}`}
           </Badge>
         </div>
       </div>
@@ -468,27 +480,42 @@ function ProductCard({
         </div>
 
         {/* Action Button */}
-        <Button
-          className={cn(
-            "w-full",
-            effectivelyFree
-              ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-              : "bg-primary hover:bg-primary/90"
-          )}
-          onClick={() => onAddToCart(product)}
-        >
-          {effectivelyFree ? (
-            <>
-              <Download className="w-4 h-4 mr-2" />
-              Download Free
-            </>
-          ) : (
-            <>
-              <ShoppingCart className="w-4 h-4 mr-2" />
-              Add to Cart
-            </>
-          )}
-        </Button>
+        {product.external_link ? (
+          <a
+            href={product.external_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              "w-full inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-10 px-4 py-2 transition-colors",
+              "bg-primary hover:bg-primary/90 text-primary-foreground"
+            )}
+          >
+            <ExternalLink className="w-4 h-4" />
+            Buy Now
+          </a>
+        ) : (
+          <Button
+            className={cn(
+              "w-full",
+              effectivelyFree
+                ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                : "bg-primary hover:bg-primary/90"
+            )}
+            onClick={() => onAddToCart(product)}
+          >
+            {effectivelyFree ? (
+              <>
+                <Download className="w-4 h-4 mr-2" />
+                Download Free
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                Add to Cart
+              </>
+            )}
+          </Button>
+        )}
 
         {/* Premium notice */}
         {!isFree && isPremium && (

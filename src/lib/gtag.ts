@@ -1,7 +1,7 @@
 // Google Analytics 4 (GA4) Integration
 // Replace GA_MEASUREMENT_ID with your actual GA4 Measurement ID (e.g., G-XXXXXXXXXX)
 
-export const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX';
+export const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-3BEQ4KP5CD';
 
 // Check if we're in a browser environment
 const isBrowser = typeof window !== 'undefined';

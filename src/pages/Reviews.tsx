@@ -19,6 +19,7 @@ interface Review {
   release_date: string;
   specs?: Record<string, string>;
   is_published?: boolean;
+  created_at?: string;
 }
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -183,7 +184,7 @@ function ComparisonTable({ reviews, onRemove }: { reviews: Review[]; onRemove: (
 export default function Reviews() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [sortBy, setSortBy] = useState("rating");
+  const [sortBy, setSortBy] = useState("newest");
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -195,7 +196,7 @@ export default function Reviews() {
       try {
         const { data, error } = await supabase
           .from("reviews")
-          .select("id, slug, title, category, image, rating, verdict, pros, cons, price, release_date, specs, is_published")
+          .select("id, slug, title, category, image, rating, verdict, pros, cons, price, release_date, specs, is_published, created_at")
           .eq("is_published", true)
           .order("created_at", { ascending: false });
 
@@ -220,8 +221,8 @@ export default function Reviews() {
     .sort((a, b) => {
       if (sortBy === "rating") return Number(b.rating) - Number(a.rating);
       if (sortBy === "newest") {
-        const dateA = a.release_date ? new Date(a.release_date).getTime() : 0;
-        const dateB = b.release_date ? new Date(b.release_date).getTime() : 0;
+        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
         return dateB - dateA;
       }
       return a.title.localeCompare(b.title);

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdminLayout } from "./AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -60,6 +60,8 @@ interface Product {
   category: string;
   type: string;
   file_url: string | null;
+  external_link: string | null;
+  currency: string;
   is_featured: boolean;
   is_premium_only: boolean;
   is_published: boolean;
@@ -72,10 +74,21 @@ const categories = [
   "Business",
   "Finance",
   "Security",
+  "Cybersecurity",
   "AI & Tech",
   "Productivity",
   "Design",
   "Development",
+  "Education",
+];
+
+const currencies = [
+  { value: "USD", label: "USD ($)", symbol: "$" },
+  { value: "GHS", label: "GHS (GH₵)", symbol: "GH₵" },
+  { value: "EUR", label: "EUR (€)", symbol: "€" },
+  { value: "GBP", label: "GBP (£)", symbol: "£" },
+  { value: "NGN", label: "NGN (₦)", symbol: "₦" },
+  { value: "KES", label: "KES (KSh)", symbol: "KSh" },
 ];
 
 const productTypes = [
@@ -96,6 +109,8 @@ const emptyProduct: Omit<Product, "id" | "created_at" | "download_count"> = {
   category: "Business",
   type: "ebook",
   file_url: "",
+  external_link: "",
+  currency: "USD",
   is_featured: false,
   is_premium_only: false,
   is_published: true,
@@ -277,6 +292,8 @@ export default function AdminProducts() {
       category: product.category,
       type: product.type,
       file_url: product.file_url || "",
+      external_link: product.external_link || "",
+      currency: product.currency || "USD",
       is_featured: product.is_featured,
       is_premium_only: product.is_premium_only,
       is_published: product.is_published,
@@ -466,7 +483,7 @@ export default function AdminProducts() {
                           Free
                         </Badge>
                       ) : (
-                        <span className="font-medium">${product.price}</span>
+                        <span className="font-medium">{currencies.find(c => c.value === (product.currency || "USD"))?.symbol || "$"}{product.price}</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -588,15 +605,14 @@ export default function AdminProducts() {
 
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
+                <Label>Description</Label>
+                <RichTextEditor
                   value={formData.description || ""}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, description: e.target.value }))
+                  onChange={(value) =>
+                    setFormData((prev) => ({ ...prev, description: value }))
                   }
                   placeholder="Describe your product..."
-                  rows={3}
+                  minHeight="150px"
                 />
               </div>
 
@@ -645,10 +661,31 @@ export default function AdminProducts() {
                 </div>
               </div>
 
-              {/* Pricing */}
-              <div className="grid md:grid-cols-2 gap-4">
+              {/* Currency & Pricing */}
+              <div className="grid md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="price">Price ($)</Label>
+                  <Label>Currency</Label>
+                  <Select
+                    value={formData.currency || "USD"}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, currency: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {currencies.map((c) => (
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="price">Price ({currencies.find(c => c.value === (formData.currency || "USD"))?.symbol || "$"})</Label>
                   <Input
                     id="price"
                     type="number"
@@ -669,7 +706,7 @@ export default function AdminProducts() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="original_price">Original Price ($)</Label>
+                  <Label htmlFor="original_price">Original Price ({currencies.find(c => c.value === (formData.currency || "USD"))?.symbol || "$"})</Label>
                   <Input
                     id="original_price"
                     type="number"
@@ -708,7 +745,7 @@ export default function AdminProducts() {
                       disabled={uploading}
                     />
                     <p className="text-xs text-muted-foreground mt-1">
-                      Recommended: 800x600px, JPG or PNG
+                      Recommended: 600x800px (portrait) for ebooks, 800x600px (landscape) for templates. JPG or PNG, max 1MB.
                     </p>
                   </div>
                 </div>
@@ -732,6 +769,21 @@ export default function AdminProducts() {
                     Upload the downloadable file (PDF, PPTX, XLSX, ZIP, etc.)
                   </p>
                 </div>
+              </div>
+
+              {/* External Link */}
+              <div className="space-y-2">
+                <Label>External Buy Link</Label>
+                <Input
+                  placeholder="https://selar.com/... or any external checkout URL"
+                  value={formData.external_link || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, external_link: e.target.value || null }))
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  If set, the Buy button will link to this URL instead of the built-in download. Use for Selar, Gumroad, etc.
+                </p>
               </div>
 
               {/* Toggles */}

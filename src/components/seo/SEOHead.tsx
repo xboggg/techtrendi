@@ -4,6 +4,7 @@ interface SEOHeadProps {
   title: string;
   description: string;
   canonical?: string;
+  canonicalUrl?: string;
   image?: string;
   type?: 'website' | 'article' | 'product';
   noindex?: boolean;
@@ -26,6 +27,7 @@ export function SEOHead({
   title,
   description,
   canonical,
+  canonicalUrl,
   image,
   type = 'website',
   noindex = false,
@@ -39,7 +41,10 @@ export function SEOHead({
   alternateLocales = [],
 }: SEOHeadProps) {
   const fullTitle = `${title} | ${SITE_NAME}`;
-  const fullUrl = canonical ? `${SITE_URL}${canonical.startsWith('/') ? canonical : `/${canonical}`}` : SITE_URL;
+  const canonicalPath = canonical || canonicalUrl;
+  const fullUrl = canonicalPath
+    ? (canonicalPath.startsWith('http') ? canonicalPath : `${SITE_URL}${canonicalPath.startsWith('/') ? canonicalPath : `/${canonicalPath}`}`)
+    : SITE_URL;
   const imageUrl = image ? (image.startsWith('http') ? image : `${SITE_URL}${image}`) : `${SITE_URL}${DEFAULT_IMAGE}`;
   const allKeywords = [...new Set([...keywords, ...tags, 'tech', 'technology', 'guide', 'review'])].join(', ');
 
@@ -56,7 +61,7 @@ export function SEOHead({
       <meta name="bingbot" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
 
       {/* Canonical URL */}
-      {canonical && <link rel="canonical" href={fullUrl} />}
+      {(canonical || canonicalUrl) && <link rel="canonical" href={fullUrl} />}
 
       {/* Language */}
       <meta property="og:locale" content={locale} />
@@ -107,10 +112,7 @@ export function SEOHead({
       <meta name="apple-mobile-web-app-title" content={SITE_NAME} />
       <meta name="format-detection" content="telephone=no" />
 
-      {/* Verification tags (add your actual IDs) */}
-      <meta name="google-site-verification" content="YOUR_GOOGLE_VERIFICATION_ID" />
-      <meta name="msvalidate.01" content="YOUR_BING_VERIFICATION_ID" />
-      <meta name="p:domain_verify" content="YOUR_PINTEREST_VERIFICATION_ID" />
+      {/* Verification tags are set in index.html */}
 
       {/* Preconnect to important third-party domains */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />

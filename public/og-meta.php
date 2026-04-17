@@ -1,15 +1,15 @@
 <?php
 /**
- * TechTrendi OG Meta Tag Renderer for Social Media Crawlers
+ * TechTrendi OG Meta Tag Renderer for Search Engine & Social Media Crawlers
  *
- * When WhatsApp, Facebook, Twitter etc. crawl a URL, they don't execute JS.
- * This script intercepts crawler requests, fetches article data from Supabase,
- * and returns minimal HTML with correct OG meta tags.
- * Regular users never see this — they get the normal React SPA.
+ * Serves pre-rendered HTML with correct meta tags to:
+ * - Googlebot, Bingbot, and other search engine crawlers
+ * - WhatsApp, Facebook, Twitter, and other social media crawlers
+ * Regular users get the normal React SPA via index.html.
  */
 
-// Supabase config
-$SUPABASE_URL = 'https://db.techtrendi.com';
+// Supabase config — use localhost to avoid Cloudflare caching issues
+$SUPABASE_URL = 'http://localhost:8000';
 $SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNjQxNzY5MjAwLCJleHAiOjE3OTk1MzU2MDB9.lbPqMemEL_VFnCma2zeuJ1MfFLNQ7_VXRgaacXeeReQ';
 $SITE_URL = 'https://techtrendi.com';
 $DEFAULT_IMAGE = 'https://techtrendi.com/og-image.jpg';
@@ -50,23 +50,103 @@ $parts = explode('/', $path);
 // Handle single-segment pages (no slug needed)
 $section = $parts[0];
 
-// Static pages with custom OG tags
+// Static pages with custom OG tags — unique title/description per page
 $static_pages = [
+    'books/think-before-you-click' => [
+        'title' => 'Think Before You Click - Cyber Safety Ebook for Ghana',
+        'description' => 'The complete guide to staying safe online in Ghana. Learn to protect your MoMo, passwords, and family from scams. 20 chapters, 25 real scams exposed.',
+        'image' => 'https://techtrendi.com/images/books/think-before-you-click-og.jpg',
+    ],
+    'tools' => [
+        'title' => '125+ Free Online Tools - No Signup Required',
+        'description' => 'Free online tools for everyone: password generators, QR codes, resume builders, calculators, and more. No signup needed.',
+        'image' => $DEFAULT_IMAGE,
+    ],
+    'store' => [
+        'title' => 'DigiStore - Digital Products, Ebooks and Templates',
+        'description' => 'Ebooks, templates, spreadsheets, and tools built by TechTrendi. Designed to help you work smarter.',
+        'image' => $DEFAULT_IMAGE,
+    ],
+    'start-here' => [
+        'title' => 'Start Here - Your Guide to TechTrendi',
+        'description' => 'New to TechTrendi? Start here. 125+ free tools, expert articles, daily tech news, and honest reviews.',
+        'image' => $DEFAULT_IMAGE,
+    ],
+    'security' => [
+        'title' => 'Security Hub - Protect Yourself Online',
+        'description' => 'Your cybersecurity command center. Threat alerts, scam warnings, security tools, and expert advice to keep you safe online.',
+        'image' => $DEFAULT_IMAGE,
+    ],
+    'blog' => [
+        'title' => 'TechTrendi Blog - Expert Tech Guides and Articles',
+        'description' => 'In-depth technology articles covering smartphones, AI, cybersecurity, productivity, and more. Written for real people, not experts.',
+        'image' => $DEFAULT_IMAGE,
+    ],
+    'news' => [
+        'title' => 'Tech News - Latest Technology Headlines',
+        'description' => 'Daily tech news from Ghana and around the world. Smartphones, AI, cybersecurity, gadgets, and more.',
+        'image' => $DEFAULT_IMAGE,
+    ],
+    'reviews' => [
+        'title' => 'Product Reviews - Honest Tech Reviews',
+        'description' => 'Honest, no-nonsense product reviews. Phones, laptops, gadgets, software, and more.',
+        'image' => $DEFAULT_IMAGE,
+    ],
+    'guides' => [
+        'title' => 'Tech Guides and Tutorials - TechTrendi',
+        'description' => 'Practical technology guides for everyday people. From setting up devices to staying safe online.',
+        'image' => $DEFAULT_IMAGE,
+    ],
+    'about' => [
+        'title' => 'About TechTrendi - Technology Made Simple',
+        'description' => 'TechTrendi is a Ghana-based technology education platform helping everyday people stay safe, productive, and informed in the digital age.',
+        'image' => $DEFAULT_IMAGE,
+    ],
+    'contact' => [
+        'title' => 'Contact Us - TechTrendi',
+        'description' => 'Have questions, feedback, or want to partner with us? Get in touch with the TechTrendi team.',
+        'image' => $DEFAULT_IMAGE,
+    ],
+    'privacy' => [
+        'title' => 'Privacy Policy - TechTrendi',
+        'description' => 'How TechTrendi collects, uses, and protects your personal information.',
+        'image' => $DEFAULT_IMAGE,
+    ],
+    'terms' => [
+        'title' => 'Terms of Service - TechTrendi',
+        'description' => 'Terms and conditions for using TechTrendi website and services.',
+        'image' => $DEFAULT_IMAGE,
+    ],
+    'cookies' => [
+        'title' => 'Cookie Policy - TechTrendi',
+        'description' => 'How TechTrendi uses cookies and similar technologies.',
+        'image' => $DEFAULT_IMAGE,
+    ],
+    'disclosure' => [
+        'title' => 'Affiliate Disclosure - TechTrendi',
+        'description' => 'How TechTrendi earns revenue and our commitment to honest, unbiased content.',
+        'image' => $DEFAULT_IMAGE,
+    ],
     'cyber-awareness' => [
-        'title' => 'Cyber Awareness Tips — Protect Yourself Online',
+        'title' => 'Cyber Awareness Tips - Protect Yourself Online',
         'description' => 'Quick, practical cybersecurity tips to keep you safe online. Learn about passwords, phishing, privacy, and more.',
         'image' => $DEFAULT_IMAGE,
     ],
     'creepy-tech' => [
-        'title' => 'Creepy Tech — The Dark Side of Technology',
-        'description' => 'Disturbing tech facts, surveillance stories, and privacy nightmares you need to know about. Technology isn\'t always your friend.',
+        'title' => 'Creepy Tech - The Dark Side of Technology',
+        'description' => 'Disturbing tech facts, surveillance stories, and privacy nightmares you need to know about.',
         'image' => $DEFAULT_IMAGE,
     ],
 ];
 
-if (isset($static_pages[$section])) {
-    $page = $static_pages[$section];
-    $og_url = $SITE_URL . '/' . $section;
+// Check full path first (e.g. books/think-before-you-click), then section for hub pages (only if no slug)
+$static_key = isset($static_pages[$path]) ? $path : null;
+if ($static_key === null && count($parts) < 2 && isset($static_pages[$section])) {
+    $static_key = $section;
+}
+if ($static_key !== null) {
+    $page = $static_pages[$static_key];
+    $og_url = $SITE_URL . '/' . $static_key;
     serve_og(
         htmlspecialchars($page['title'], ENT_QUOTES, 'UTF-8'),
         htmlspecialchars($page['description'], ENT_QUOTES, 'UTF-8'),
@@ -93,7 +173,7 @@ $type = 'article';
 switch ($section) {
     case 'news':
         $table = 'news';
-        $fields = 'title,slug,excerpt,cover_image,category,author,tags,created_at,meta_title,meta_description';
+        $fields = 'title,slug,excerpt,cover_image,category,author,tags,created_at';
         break;
     case 'blog':
     case 'guides':
@@ -106,8 +186,28 @@ switch ($section) {
         $desc_field = 'verdict';
         $image_field = 'image';
         break;
+    case 'tools':
+        // Tools are not in DB — generate title from slug
+        $tool_title = ucwords(str_replace('-', ' ', $slug));
+        $og_url = $SITE_URL . '/tools/' . $slug;
+        serve_og(
+            htmlspecialchars($tool_title . ' - Free Online Tool', ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($tool_title . ' - Free online tool by TechTrendi. No signup required.', ENT_QUOTES, 'UTF-8'),
+            $DEFAULT_IMAGE, 'image/jpeg', $og_url, '', '', '', 'website'
+        );
+        exit;
     default:
-        serve_default();
+        // Category pages (e.g. /ai-tech, /phones, /security)
+        $cat_title = ucwords(str_replace('-', ' ', $section));
+        if (count($parts) >= 2) {
+            $cat_title .= ': ' . ucwords(str_replace('-', ' ', $slug));
+        }
+        $og_url = $SITE_URL . '/' . $path;
+        serve_og(
+            htmlspecialchars($cat_title . ' - TechTrendi', ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($cat_title . ' articles, news, and guides on TechTrendi.', ENT_QUOTES, 'UTF-8'),
+            $DEFAULT_IMAGE, 'image/jpeg', $og_url, '', '', '', 'website'
+        );
         exit;
 }
 
@@ -127,7 +227,8 @@ if (!$item) {
         CURLOPT_HTTPHEADER => [
             'apikey: ' . $SUPABASE_ANON_KEY,
             'Authorization: Bearer ' . $SUPABASE_ANON_KEY,
-            'Accept: application/json'
+            'Accept: application/json',
+            'Accept-Profile: techtrendi'
         ]
     ]);
 
@@ -150,8 +251,8 @@ if (!$item) {
 }
 
 // Build OG data
-$og_title = htmlspecialchars($item['meta_title'] ?? $item[$title_field] ?? $SITE_NAME, ENT_QUOTES, 'UTF-8');
-$og_description = htmlspecialchars($item['meta_description'] ?? $item[$desc_field] ?? '', ENT_QUOTES, 'UTF-8');
+$og_title = htmlspecialchars($item[$title_field] ?? $SITE_NAME, ENT_QUOTES, 'UTF-8');
+$og_description = htmlspecialchars($item[$desc_field] ?? '', ENT_QUOTES, 'UTF-8');
 $og_image = $item[$image_field] ?? $DEFAULT_IMAGE;
 $og_url = $SITE_URL . '/' . $section . '/' . $slug;
 $author = htmlspecialchars($item['author'] ?? 'TechTrendi Team', ENT_QUOTES, 'UTF-8');
@@ -182,6 +283,16 @@ serve_og($og_title, $og_description, $og_image, $og_image_type, $og_url, $author
 
 // ---- Functions ----
 
+function serve_default() {
+    global $SITE_URL, $DEFAULT_IMAGE, $SITE_NAME;
+
+    $title = 'TechTrendi | Tech News, Expert Guides &amp; Free Tools';
+    $desc = 'Get the latest in tech - breaking news, expert guides, honest reviews, and free tools to level up your digital life.';
+    $url = $SITE_URL . '/' . ($_GET['path'] ?? '');
+
+    serve_og($title, $desc, $DEFAULT_IMAGE, 'image/jpeg', $url, '', '', '', 'website');
+}
+
 function serve_og($title, $description, $image, $image_type, $url, $author, $category, $published, $type) {
     global $SITE_NAME, $SITE_URL;
 
@@ -194,6 +305,10 @@ function serve_og($title, $description, $image, $image_type, $url, $author, $cat
 <meta charset="UTF-8">
 <title>' . $title . ' | ' . $SITE_NAME . '</title>
 <meta name="description" content="' . $description . '">
+
+<!-- Allow indexing -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1">
 
 <!-- Open Graph -->
 <meta property="og:title" content="' . $title . '">
@@ -228,24 +343,13 @@ function serve_og($title, $description, $image, $image_type, $url, $author, $cat
 <meta name="twitter:image" content="' . htmlspecialchars($image, ENT_QUOTES, 'UTF-8') . '">
 <meta name="twitter:image:alt" content="' . $title . '">
 
-<!-- Redirect real users to the actual page -->
-<meta http-equiv="refresh" content="0;url=' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">
 <link rel="canonical" href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">
 </head>
 <body>
 <h1>' . $title . '</h1>
 <p>' . $description . '</p>
-<p><a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">Read more on ' . $SITE_NAME . '</a></p>
+<p><a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">Visit this page on TechTrendi</a></p>
 </body>
 </html>';
-}
-
-function serve_default() {
-    global $SITE_URL, $DEFAULT_IMAGE, $SITE_NAME;
-
-    $title = 'TechTrendi | Tech News, Expert Guides &amp; Free Tools';
-    $desc = 'Get the latest in tech — breaking news, expert guides, honest reviews, and free tools to level up your digital life.';
-    $url = $SITE_URL . '/' . ($_GET['path'] ?? '');
-
-    serve_og($title, $desc, $DEFAULT_IMAGE, 'image/jpeg', $url, '', '', '', 'website');
+    exit;
 }

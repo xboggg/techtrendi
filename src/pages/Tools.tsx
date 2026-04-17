@@ -94,7 +94,7 @@ const categories: ToolCategoryCard[] = [
     icon: Shield,
     gradient: "from-red-500 via-rose-500 to-pink-500",
     bgPattern: "radial-gradient(circle at 80% 20%, rgba(239,68,68,0.15) 0%, transparent 50%)",
-    toolCount: 11,
+    toolCount: 7,
     featured: ["Password Generator", "WhatsApp Audit", "Scam Analyzer"],
     accentColor: "text-red-600",
     darkAccent: "dark:text-red-400",
@@ -107,7 +107,7 @@ const categories: ToolCategoryCard[] = [
     icon: PenTool,
     gradient: "from-pink-500 via-rose-400 to-fuchsia-500",
     bgPattern: "radial-gradient(circle at 80% 20%, rgba(236,72,153,0.15) 0%, transparent 50%)",
-    toolCount: 11,
+    toolCount: 10,
     featured: ["Gradient Generator", "QR Generator", "WiFi QR Generator"],
     accentColor: "text-pink-600",
     darkAccent: "dark:text-pink-400",
@@ -120,7 +120,7 @@ const categories: ToolCategoryCard[] = [
     icon: Smartphone,
     gradient: "from-teal-500 via-cyan-500 to-sky-500",
     bgPattern: "radial-gradient(circle at 80% 20%, rgba(20,184,166,0.15) 0%, transparent 50%)",
-    toolCount: 16,
+    toolCount: 15,
     featured: ["This Day in History", "Life Progress Bar", "Tech Trivia"],
     accentColor: "text-teal-600",
     darkAccent: "dark:text-teal-400",
@@ -135,7 +135,7 @@ export default function Tools() {
   return (
     <Layout>
       <SEOHead
-        title="130+ Free Online Tools - No Signup Required"
+        title="125+ Free Online Tools - No Signup Required"
         description="Free online tools for everyone: password generators, QR codes, resume builders, calculators, and more. No signup needed."
         canonical="/tools"
       />
@@ -299,39 +299,18 @@ export default function Tools() {
         </div>
       </div>
 
-      {/* Premium CTA - Full Width Edge to Edge */}
+      {/* Gradient Banner */}
       <div className="relative w-screen left-[50%] right-[50%] -ml-[50vw] -mr-[50vw]">
-        {/* Animated gradient background */}
         <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500" />
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600/50 via-transparent to-rose-500/50" />
-
-        {/* Animated orbs */}
         <div className="absolute top-0 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-
-        {/* Grid pattern overlay */}
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
-
-        <div className="relative container py-16 md:py-20 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium mb-6">
-            <Crown className="w-4 h-4" />
-            Premium Features
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Unlock the Full Power
+        <div className="relative container py-12 md:py-16 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+            Explore All Free Tools
           </h2>
-          <p className="text-white/80 mb-8 max-w-lg mx-auto text-lg">
-            Get unlimited access to Invoice Chaser, Client Portal, Content Repurposer, CRM, and all premium tools.
-          </p>
-          <Link
-            to="/premium"
-            className="inline-flex items-center px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1 group"
-          >
-            Get Premium - $4.99/month
-            <ArrowRight className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
-          </Link>
-          <p className="text-white/60 text-sm mt-4">
-            7-day free trial • Cancel anytime
+          <p className="text-white/80 max-w-lg mx-auto text-lg">
+            125+ free tools to boost your productivity, creativity, and digital life. No signup required.
           </p>
         </div>
       </div>

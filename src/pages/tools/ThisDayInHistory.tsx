@@ -104,12 +104,14 @@ export default function ThisDayInHistory() {
 
         const result: WikiResponse = await response.json();
         setData(result);
+        setLoading(false);
         return;
       } catch {
         // try next URL
       }
     }
 
+    setLoading(false);
     setError("Failed to load historical events. Please try again.");
   }, []);
 

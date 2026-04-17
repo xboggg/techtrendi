@@ -106,6 +106,9 @@ export default function AdminNews() {
   const [filterStatus, setFilterStatus] = useState<"all" | "published" | "drafts" | "today">("all");
   const [uploading, setUploading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   // Fetch news
   const { data: news = [], isLoading } = useQuery({
@@ -286,9 +289,33 @@ export default function AdminNews() {
     }
   };
 
+  // Date quick filter helpers
+  const setQuickDateFilter = (preset: "today" | "week" | "month" | "all") => {
+    if (preset === "all") {
+      setDateFrom("");
+      setDateTo("");
+      return;
+    }
+    const now = new Date();
+    const to = now.toISOString().slice(0, 10);
+    let from = to;
+    if (preset === "week") {
+      const d = new Date(now);
+      d.setDate(d.getDate() - 6);
+      from = d.toISOString().slice(0, 10);
+    } else if (preset === "month") {
+      const d = new Date(now);
+      d.setDate(d.getDate() - 29);
+      from = d.toISOString().slice(0, 10);
+    }
+    setDateFrom(from);
+    setDateTo(to);
+    setCurrentPage(1);
+  };
+
   // Filter news
   const filteredNews = useMemo(() => {
-    return news.filter((item) => {
+    const filtered = news.filter((item) => {
       const matchesSearch =
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -305,9 +332,24 @@ export default function AdminNews() {
         matchesStatus = date.toDateString() === today.toDateString();
       }
 
-      return matchesSearch && matchesCategory && matchesStatus;
+      // Date range filter
+      let matchesDateRange = true;
+      if (dateFrom) {
+        matchesDateRange = item.created_at.slice(0, 10) >= dateFrom;
+      }
+      if (dateTo && matchesDateRange) {
+        matchesDateRange = item.created_at.slice(0, 10) <= dateTo;
+      }
+
+      return matchesSearch && matchesCategory && matchesStatus && matchesDateRange;
     });
-  }, [news, searchQuery, filterCategory, filterStatus]);
+
+    // Sort by date
+    return [...filtered].sort((a, b) => {
+      const cmp = a.created_at.localeCompare(b.created_at);
+      return sortDirection === "desc" ? -cmp : cmp;
+    });
+  }, [news, searchQuery, filterCategory, filterStatus, dateFrom, dateTo, sortDirection]);
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(filteredNews.length / ITEMS_PER_PAGE));
@@ -668,6 +710,34 @@ export default function AdminNews() {
           </button>
         </div>
 
+        {/* Date Range Filter */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-muted-foreground whitespace-nowrap">From</label>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }}
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-muted-foreground whitespace-nowrap">To</label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }}
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+          <div className="flex items-center gap-1">
+            <Button variant={dateFrom && dateFrom === dateTo && dateFrom === new Date().toISOString().slice(0, 10) ? "default" : "outline"} size="sm" onClick={() => setQuickDateFilter("today")}>Today</Button>
+            <Button variant="outline" size="sm" onClick={() => setQuickDateFilter("week")}>This Week</Button>
+            <Button variant="outline" size="sm" onClick={() => setQuickDateFilter("month")}>This Month</Button>
+            <Button variant={!dateFrom && !dateTo ? "default" : "outline"} size="sm" onClick={() => setQuickDateFilter("all")}>All</Button>
+          </div>
+        </div>
+
         {/* News Table */}
         <div className="border rounded-xl overflow-hidden">
           <Table>
@@ -677,7 +747,14 @@ export default function AdminNews() {
                 <TableHead>Title</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead>
+                  <button
+                    onClick={() => setSortDirection(sortDirection === "desc" ? "asc" : "desc")}
+                    className="flex items-center gap-1 hover:text-foreground transition-colors"
+                  >
+                    Date {sortDirection === "desc" ? "\u2193" : "\u2191"}
+                  </button>
+                </TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -730,7 +807,12 @@ export default function AdminNews() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(item.created_at)}
+                      <div>{formatDate(item.created_at)}</div>
+                      {item.updated_at && item.updated_at.slice(0, 10) !== item.created_at.slice(0, 10) && (
+                        <div className="text-xs text-muted-foreground/70 mt-0.5">
+                          Updated: {formatDate(item.updated_at)}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">

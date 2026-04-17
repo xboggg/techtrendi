@@ -33,6 +33,3 @@ Allow: /images/
 
 # Sitemap location
 Sitemap: https://techtrendi.com/sitemap.xml
-
-# Crawl-delay for polite crawling
-Crawl-delay: 1

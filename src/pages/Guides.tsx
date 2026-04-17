@@ -147,7 +147,7 @@ export default function Guides() {
         <SEOHead
           title={`${currentCategory.name} - TechTrendi Guides`}
           description={currentCategory.description}
-          canonicalUrl={`https://techtrendi.com/guides/${category}`}
+          canonical={`https://techtrendi.com/guides/${category}`}
         />
         <div className="container py-12 md:py-20">
           {/* Back Link */}
@@ -293,7 +293,7 @@ export default function Guides() {
       <SEOHead
         title="Tech Guides & Tutorials - TechTrendi"
         description="Expert tech guides to help you navigate the world of technology with confidence. Smartphones, security, AI, productivity, and more."
-        canonicalUrl="https://techtrendi.com/guides"
+        canonical="https://techtrendi.com/guides"
       />
 
       <div className="container py-12 md:py-20">

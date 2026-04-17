@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as HotToast } from "react-hot-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -52,6 +52,7 @@ const Reviews = lazy(() => import("./pages/Reviews"));
 const ReviewDetail = lazy(() => import("./pages/ReviewDetail"));
 const Profile = lazy(() => import("./pages/Profile"));
 const DigiStore = lazy(() => import("./pages/DigiStore"));
+const ThinkBeforeYouClickBook = lazy(() => import("./pages/books/ThinkBeforeYouClick"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Cookies = lazy(() => import("./pages/Cookies"));
@@ -247,6 +248,18 @@ const AdminScamAlerts = lazy(() => import("./pages/admin/AdminScamAlerts"));
 const AdminDailyTips = lazy(() => import("./pages/admin/AdminDailyTips"));
 const AdminThreatLevel = lazy(() => import("./pages/admin/AdminThreatLevel"));
 const AdminScamReports = lazy(() => import("./pages/admin/AdminScamReports"));
+
+// Arcade pages
+const ArcadeHub = lazy(() => import("./pages/Arcade"));
+const ArcadeSpeedTypingRace = lazy(() => import("./pages/arcade/SpeedTypingRace"));
+const ArcadeWordChainBattle = lazy(() => import("./pages/arcade/WordChainBattle"));
+const ArcadeReflexDuel = lazy(() => import("./pages/arcade/ReflexDuel"));
+const ArcadeTriviaChallenge = lazy(() => import("./pages/arcade/TriviaChallenge"));
+const ArcadeMathTugOfWar = lazy(() => import("./pages/arcade/MathTugOfWar"));
+const ArcadeAnagramBlitz = lazy(() => import("./pages/arcade/AnagramBlitz"));
+const ArcadeWordle = lazy(() => import("./pages/arcade/WordleGame"));
+const ArcadeWordBomb = lazy(() => import("./pages/arcade/WordBomb"));
+const ArcadeCrosswordSprint = lazy(() => import("./pages/arcade/CrosswordSprint"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -471,6 +484,16 @@ const App = () => (
                       <Route path="/admin/threat-level" element={<AdminThreatLevel />} />
                       <Route path="/admin/scam-reports" element={<AdminScamReports />} />
                       <Route path="/admin/tool-feedback" element={<AdminToolFeedback />} />
+                      <Route path="/arcade" element={<ArcadeHub />} />
+                      <Route path="/arcade/math-tug-of-war" element={<ArcadeMathTugOfWar />} />
+                      <Route path="/arcade/speed-typing-race" element={<ArcadeSpeedTypingRace />} />
+                      <Route path="/arcade/word-chain-battle" element={<ArcadeWordChainBattle />} />
+                      <Route path="/arcade/reflex-duel" element={<ArcadeReflexDuel />} />
+                      <Route path="/arcade/trivia-challenge" element={<ArcadeTriviaChallenge />} />
+                      <Route path="/arcade/anagram-blitz" element={<ArcadeAnagramBlitz />} />
+                      <Route path="/arcade/wordle" element={<ArcadeWordle />} />
+                      <Route path="/arcade/word-bomb" element={<ArcadeWordBomb />} />
+                      <Route path="/arcade/crossword-sprint" element={<ArcadeCrosswordSprint />} />
                       <Route path="/about" element={<About />} />
                       <Route path="/privacy" element={<Privacy />} />
                       <Route path="/terms" element={<Terms />} />
@@ -478,6 +501,7 @@ const App = () => (
                       <Route path="/contact" element={<Contact />} />
                       <Route path="/disclosure" element={<Disclosure />} />
                       <Route path="/store" element={<DigiStore />} />
+                      <Route path="/books/think-before-you-click" element={<ThinkBeforeYouClickBook />} />
                       <Route path="/design-demo" element={<DesignDemo />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>

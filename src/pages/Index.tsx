@@ -155,6 +155,14 @@ function IntlNewsScroller({ news, formatTimeAgo }: { news: NewsItem[]; formatTim
     resumeTimerRef.current = setTimeout(() => { isPausedRef.current = false; }, 4000);
   };
 
+  const scrollBy = (dir: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    pause();
+    el.scrollBy({ left: dir * 300, behavior: "smooth" });
+    resumeAfterDelay();
+  };
+
   return (
     <section className="py-12 bg-gradient-to-b from-white to-slate-50 dark:from-background dark:to-muted/20 overflow-hidden">
       <div className="container mb-6">
@@ -168,11 +176,27 @@ function IntlNewsScroller({ news, formatTimeAgo }: { news: NewsItem[]; formatTim
               International Tech News
             </h2>
           </div>
-          <Button variant="ghost" size="sm" asChild className="text-purple-600 hover:text-purple-700 dark:text-purple-400">
-            <Link to="/news" className="flex items-center gap-1">
-              View All <ArrowRight className="w-4 h-4" />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => scrollBy(-1)}
+              className="hidden md:flex items-center justify-center w-9 h-9 rounded-full bg-muted hover:bg-purple-100 dark:hover:bg-purple-900/30 border border-border transition-colors"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="w-5 h-5 text-muted-foreground" />
+            </button>
+            <button
+              onClick={() => scrollBy(1)}
+              className="hidden md:flex items-center justify-center w-9 h-9 rounded-full bg-muted hover:bg-purple-100 dark:hover:bg-purple-900/30 border border-border transition-colors"
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </button>
+            <Button variant="ghost" size="sm" asChild className="text-purple-600 hover:text-purple-700 dark:text-purple-400">
+              <Link to="/news" className="flex items-center gap-1">
+                View All <ArrowRight className="w-4 h-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
       <div
@@ -339,16 +363,17 @@ export default function Index() {
         .from("news")
         .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
         .eq("is_published", true)
+        .eq("category", "Africa Tech")
         .order("created_at", { ascending: false })
         .limit(5);
 
       if (!error && data && data.length > 0) {
         setLatestNews(data);
       } else {
-        setLatestNews((staticNews as any[]).slice(0, 5) as NewsItem[]);
+        setLatestNews([]);
       }
     } catch {
-      setLatestNews((staticNews as any[]).slice(0, 5) as NewsItem[]);
+      setLatestNews([]);
     } finally {
       setLoadingNews(false);
     }
@@ -401,7 +426,7 @@ export default function Index() {
     <Layout>
       <SEOHead
         title="TechTrendi | Tech News, Expert Guides & Free Tools"
-        description="Your smart guide to modern technology. Expert reviews, guides, 130+ free tools, and daily tech news. No jargon, just what works."
+        description="Your smart guide to modern technology. Expert reviews, guides, 125+ free tools, and daily tech news. No jargon, just what works."
         canonical="/"
       />
       {/* Hero Carousel Section (includes News Ticker) */}
@@ -421,7 +446,7 @@ export default function Index() {
               </h2>
             </div>
             <Button variant="ghost" size="sm" asChild className="text-blue-600 hover:text-blue-700 dark:text-blue-400">
-              <Link to="/news" className="flex items-center gap-1 font-medium">
+              <Link to="/news?category=Africa Tech" className="flex items-center gap-1 font-medium">
                 View All News
                 <ArrowRight className="w-4 h-4" />
               </Link>
@@ -439,7 +464,7 @@ export default function Index() {
             </div>
           ) : latestNews.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {latestNews.map((news, index) => {
+              {latestNews.slice(0, 5).map((news, index) => {
                 const isLarge = index === 1;
                 return (
                   <Link
@@ -583,20 +608,26 @@ export default function Index() {
               <h2 className="text-2xl font-bold text-foreground">Featured Reviews</h2>
             </div>
             <div className="flex items-center gap-2">
+              <div className="hidden md:flex gap-1">
+                <button
+                  onClick={() => { const el = document.getElementById("reviews-scroll"); if (el) el.scrollBy({ left: -300, behavior: "smooth" }); }}
+                  className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5 text-muted-foreground" />
+                </button>
+                <button
+                  onClick={() => { const el = document.getElementById("reviews-scroll"); if (el) el.scrollBy({ left: 300, behavior: "smooth" }); }}
+                  className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </button>
+              </div>
               <Button variant="ghost" size="sm" asChild className="text-primary hover:text-primary/80">
                 <Link to="/reviews" className="flex items-center gap-1">
                   View All Reviews
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
-              <div className="flex gap-1">
-                <button className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
             </div>
           </div>
 
@@ -609,7 +640,7 @@ export default function Index() {
               ))}
             </div>
           ) : reviews.length > 0 ? (
-            <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
+            <div id="reviews-scroll" className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
               {reviews.map((review) => (
                 <Link
                   key={review.id}
