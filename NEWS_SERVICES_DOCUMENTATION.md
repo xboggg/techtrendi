@@ -350,3 +350,71 @@ Runs daily at **10:00 PM GMT** — after all content pipelines have finished for
 - Runs at 10:00 PM GMT daily
 - Force run: `python3 /opt/tech-news/generate_sitemap.py`
 - Check: `curl -s https://techtrendi.com/sitemap.xml | head -20`
+
+---
+
+## 5. Image Integrity Checker — `image_integrity_check.py`
+
+### What it does
+Scans every article and review in the database for broken cover images, auto-fixes them with contextually relevant Pexels images, and sends a Telegram report summarising what was fixed or could not be repaired.
+
+### Schedule
+| Run | Time (UTC) | Days |
+|-----|-----------|------|
+| Nightly check | 02:30 AM | Mon – Sun |
+
+### What counts as broken
+| Condition | Reason |
+|-----------|--------|
+| Empty or null image field | No image assigned |
+| Path starts with `/images/articles/` | Old cPanel directory never migrated to VPS 144 |
+| URL starts with `https://images.unsplash.com` | Unsplash blocks hotlinking since migration |
+| URL starts with `https://db.techtrendi.com/storage` | Self-hosted Supabase storage is not publicly accessible from browsers |
+| Local `/images/…` path — file missing on disk | File was never copied from old cPanel server |
+| External HTTP URL returns non-200 status | Link rot or server block |
+
+### Fix process (per broken image)
+1. **Supabase storage rescue** (articles only): if the old URL is a Supabase storage link, the script tries to download it directly via the internal API. If the file is still there and > 5 KB, it saves it locally and uses that.
+2. **Pexels fallback**: if rescue fails, the script maps the article/review title to a relevant Pexels search query using 35+ topic-pattern rules, downloads the best result, compresses it to JPEG (max 350 KB), saves to `/var/www/techtrendi/images/news/`, and updates the database record.
+
+### Title-to-query pattern rules (examples)
+| Title contains | Pexels query used |
+|----------------|------------------|
+| "authentication", "2FA" | smartphone security authentication login |
+| "personal brand" | personal branding professional entrepreneur |
+| "RAM shortage", "memory price" | computer ram memory chip circuit board |
+| "myopia", "eye strain", "screen child" | child reading book parent screen time |
+| "electric vehicle", "EV charg" | electric vehicle charging station car |
+| *(no match)* | Meaningful words extracted from title (up to 4) |
+
+### Telegram report format
+Sent at end of every run **only if** at least one image was broken:
+```
+🖼 TechTrendi Image Check
+
+✅ Fixed 3 broken image(s)
+  • [article] Complete Guide to Phone Cases and Scr...
+  • [review] Samsung Galaxy S25 Ultra
+
+❌ 1 could not be fixed:
+  • [article] Some Article With No Matching Image
+```
+If all images are healthy, no Telegram message is sent.
+
+### Key files
+| File | Purpose |
+|------|---------|
+| `/opt/tech-news/image_integrity_check.py` | Main checker script |
+| `/opt/tech-news/logs/image_integrity.log` | Run logs |
+| `/var/www/techtrendi/images/news/` | Fixed images saved here |
+
+### Manual run
+```bash
+cd /opt/tech-news && /opt/tech-news/venv/bin/python -u image_integrity_check.py
+```
+
+### Troubleshooting
+- **Script crashes on import**: ensure Pillow is installed in venv — `pip install Pillow`
+- **Pexels returning no results**: check `PEXELS_API_KEY` in `.env` and monthly quota at pexels.com/api
+- **Images fixed in DB but not showing**: Cloudflare cache — wait ~60 seconds or purge cache for specific URLs
+- **"FAILED to fix" for an article**: Pexels returned a result but the image download timed out — will retry on next nightly run

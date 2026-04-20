@@ -1,6 +1,6 @@
 #!/bin/bash
-# TechTrendi Deploy Script — deploys to VPS 144.91.71.106
-# Usage: bash deploy.sh
+# TechTrendi Deploy Script — syncs to GitHub + deploys to VPS 144.91.71.106
+# Usage: bash deploy.sh ["optional commit message"]
 
 set -e
 
@@ -8,10 +8,23 @@ PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 DIST_DIR="$PROJECT_DIR/dist"
 VPS_HOST="root@144.91.71.106"
 VPS_PATH="/var/www/techtrendi"
+COMMIT_MSG="${1:-Deploy: $(date '+%Y-%m-%d %H:%M')}"
+
+# Step 0: Git sync (local → GitHub)
+echo "==> Syncing to GitHub..."
+cd "$PROJECT_DIR"
+git add -A
+if git diff --cached --quiet; then
+  echo "==> Nothing new to commit — already in sync"
+else
+  git commit -m "$COMMIT_MSG"
+  echo "==> Committed: $COMMIT_MSG"
+fi
+git push origin main
+echo "==> GitHub up to date"
 
 # Step 1: Build
 echo "==> Building project..."
-cd "$PROJECT_DIR"
 rm -rf dist 2>/dev/null || true
 sleep 1
 npm run build 2>&1 | tail -5
@@ -40,4 +53,4 @@ else
   echo "==> WARNING: Expected $NEW_HASH.js but got $LIVE_HASH (Cloudflare cache may need time)"
 fi
 
-echo "==> Done!"
+echo "==> Done! Local → GitHub → VPS all in sync."
