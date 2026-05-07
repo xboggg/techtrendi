@@ -3,7 +3,8 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { Link } from "react-router-dom";
 import {
   Target, Users, Award, Heart, Sparkles, Shield, Zap,
-  TrendingUp, Smartphone, Newspaper, Brain, Building2, ArrowRight, Play
+  TrendingUp, Smartphone, Newspaper, Brain, Building2, ArrowRight, Play,
+  BookOpen, Globe, CheckCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
@@ -95,8 +96,9 @@ export default function About() {
     <Layout>
       <SEOHead
         title="About TechTrendi - Technology Made Simple"
-        description="Learn about the TechTrendi mission to make technology accessible for everyone through expert guides, honest reviews, and free tools."
+        description="TechTrendi is founded by Edmund A., a Ghana-based technology writer and author. Honest tech guides, cybersecurity awareness, free tools, and daily news for Africa and beyond."
         canonicalUrl="https://techtrendi.com/about"
+        keywords={["TechTrendi", "Edmund", "Ghana tech blog", "technology Africa", "cybersecurity awareness", "AI vs Humanity"]}
       />
 
       {/* Hero Section with Gradient */}
@@ -293,6 +295,80 @@ export default function About() {
                 <p className="text-sm text-muted-foreground">{value.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Author Section */}
+      <section className="py-20">
+        <div className="container">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-sm font-medium rounded-full mb-4">
+                The Person Behind TechTrendi
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+                Meet the Founder
+              </h2>
+            </div>
+            <div className="flex flex-col md:flex-row gap-8 items-start bg-card border border-border rounded-3xl p-8">
+              <div className="flex-shrink-0 mx-auto md:mx-0">
+                <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-orange-400 to-purple-600 flex items-center justify-center shadow-xl">
+                  <span className="text-5xl font-bold text-white">E</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-2xl font-bold text-foreground mb-1">Edmund A.</h3>
+                <p className="text-primary font-medium mb-4">Founder & Editor-in-Chief, TechTrendi</p>
+                <p className="text-muted-foreground mb-4 leading-relaxed">
+                  Edmund is a technology writer, digital strategist, and published author based in Ghana. With a background in information technology and public sector digital transformation, he launched TechTrendi to bridge the gap between complex technology and everyday people across Africa and beyond.
+                </p>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  He is the author of the <em>AI vs Humanity</em> book series — a multi-volume exploration of artificial intelligence, ethics, and the future of human work, available on Amazon KDP. His writing spans cybersecurity, AI ethics, digital economy, and practical technology guidance for non-technical audiences.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { icon: BookOpen, label: "Author — AI vs Humanity Series" },
+                    { icon: Globe, label: "Ghana & Africa Tech Coverage" },
+                    { icon: Shield, label: "Cybersecurity Awareness Advocate" },
+                  ].map((item) => (
+                    <div key={item.label} className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-full text-sm text-muted-foreground">
+                      <item.icon className="w-3.5 h-3.5 text-primary" />
+                      {item.label}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Editorial & AI Disclosure */}
+      <section className="py-12 bg-muted/30">
+        <div className="container">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-card border border-border rounded-2xl p-6 md:p-8">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-blue-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground mb-3">Editorial Standards & AI Content Disclosure</h3>
+                  <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+                    <p>
+                      TechTrendi publishes original technology content researched, reviewed, and edited by Edmund Adjekum and the TechTrendi editorial team. To maintain the volume and timeliness of coverage our readers expect — particularly for breaking tech news and tool documentation — we use AI writing assistance as part of our editorial workflow.
+                    </p>
+                    <p>
+                      All AI-assisted content is reviewed for accuracy, edited for clarity and context, and held to the same factual standards as fully manually written articles. We do not publish auto-generated content without editorial oversight. News articles are sourced from reputable technology publications and verified before publication.
+                    </p>
+                    <p>
+                      If you believe any content contains an inaccuracy, please <Link to="/contact" className="text-primary hover:underline">contact us</Link> and we will review and correct it promptly.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
