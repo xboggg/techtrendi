@@ -96,9 +96,9 @@ export default function About() {
     <Layout>
       <SEOHead
         title="About TechTrendi - Technology Made Simple"
-        description="TechTrendi is founded by Edmund A., a Ghana-based technology writer and author. Honest tech guides, cybersecurity awareness, free tools, and daily news for Africa and beyond."
+        description="TechTrendi is founded by Edmund A., a Ghana-based technology writer and author of Think Before You Click. Honest tech guides, cybersecurity awareness, free tools, and daily news for Africa."
         canonicalUrl="https://techtrendi.com/about"
-        keywords={["TechTrendi", "Edmund", "Ghana tech blog", "technology Africa", "cybersecurity awareness", "AI vs Humanity"]}
+        keywords={["TechTrendi", "Edmund A.", "Ghana tech blog", "technology Africa", "cybersecurity awareness", "Think Before You Click"]}
       />
 
       {/* Hero Section with Gradient */}
@@ -313,9 +313,11 @@ export default function About() {
             </div>
             <div className="flex flex-col md:flex-row gap-8 items-start bg-card border border-border rounded-3xl p-8">
               <div className="flex-shrink-0 mx-auto md:mx-0">
-                <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-orange-400 to-purple-600 flex items-center justify-center shadow-xl">
-                  <span className="text-5xl font-bold text-white">E</span>
-                </div>
+                <img
+                  src="/images/author-edmund.jpg"
+                  alt="Edmund A. — Founder of TechTrendi"
+                  className="w-32 h-32 rounded-2xl object-cover shadow-xl"
+                />
               </div>
               <div className="flex-1">
                 <h3 className="text-2xl font-bold text-foreground mb-1">Edmund A.</h3>
@@ -324,11 +326,11 @@ export default function About() {
                   Edmund is a technology writer, digital strategist, and published author based in Ghana. With a background in information technology and public sector digital transformation, he launched TechTrendi to bridge the gap between complex technology and everyday people across Africa and beyond.
                 </p>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  He is the author of the <em>AI vs Humanity</em> book series — a multi-volume exploration of artificial intelligence, ethics, and the future of human work, available on Amazon KDP. His writing spans cybersecurity, AI ethics, digital economy, and practical technology guidance for non-technical audiences.
+                  He is the author of <em>Think Before You Click</em> — a practical cybersecurity guide written specifically for everyday Ghanaians, covering MoMo fraud, WhatsApp scams, phishing, and digital safety. Available on <a href="/store" className="text-primary hover:underline">the TechTrendi DigiStore</a>. His writing spans cybersecurity awareness, AI ethics, digital economy, and practical technology guidance for non-technical audiences.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   {[
-                    { icon: BookOpen, label: "Author — AI vs Humanity Series" },
+                    { icon: BookOpen, label: "Author — Think Before You Click" },
                     { icon: Globe, label: "Ghana & Africa Tech Coverage" },
                     { icon: Shield, label: "Cybersecurity Awareness Advocate" },
                   ].map((item) => (
