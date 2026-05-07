@@ -1,0 +1,91 @@
+import { Layout } from "@/components/layout/Layout";
+import { SEOHead } from "@/components/seo/SEOHead";
+import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
+import { Link } from "react-router-dom";
+import { Mail, Rss, Bell, ArrowRight } from "lucide-react";
+
+export default function NewsletterArchive() {
+  return (
+    <Layout>
+      <SEOHead
+        title="Newsletter — Stay Updated on Tech | TechTrendi"
+        description="Subscribe to the TechTrendi newsletter for weekly tech news, cybersecurity tips, and tool recommendations delivered to your inbox."
+        canonical="/newsletter"
+        keywords={["tech newsletter", "Ghana tech updates", "cybersecurity tips email", "TechTrendi newsletter"]}
+      />
+
+      <div className="container max-w-3xl mx-auto px-4 py-16 md:py-24">
+
+        {/* Hero */}
+        <div className="text-center mb-12">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-6">
+            <Mail className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            TechTrendi Newsletter
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+            Weekly digest of the most important tech stories, cybersecurity alerts, and free tool recommendations — written for people who want the signal without the noise.
+          </p>
+        </div>
+
+        {/* Subscribe form */}
+        <div className="mb-16">
+          <NewsletterForm variant="default" />
+        </div>
+
+        {/* What you get */}
+        <div className="mb-16">
+          <h2 className="text-xl font-bold text-foreground mb-6 text-center">What subscribers receive</h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            {[
+              {
+                icon: Rss,
+                title: "Weekly Tech Digest",
+                desc: "The top 5 tech stories of the week — curated, summarised, and explained in plain language.",
+                color: "bg-blue-500/10 text-blue-500",
+              },
+              {
+                icon: Bell,
+                title: "Scam & Security Alerts",
+                desc: "Immediate alerts when a new scam or security threat is targeting people in Ghana and Africa.",
+                color: "bg-red-500/10 text-red-500",
+              },
+              {
+                icon: ArrowRight,
+                title: "Tool Recommendations",
+                desc: "One free tool recommendation per week — handpicked from the TechTrendi toolbox.",
+                color: "bg-green-500/10 text-green-500",
+              },
+            ].map((item) => (
+              <div key={item.title} className="p-5 bg-card border border-border rounded-xl">
+                <div className={`w-10 h-10 rounded-lg ${item.color} flex items-center justify-center mb-3`}>
+                  <item.icon className="w-5 h-5" />
+                </div>
+                <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Stay up to date links */}
+        <div className="bg-muted/30 border border-border rounded-2xl p-6 text-center">
+          <h3 className="font-semibold text-foreground mb-3">Other ways to stay updated</h3>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link to="/news" className="inline-flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full text-sm hover:border-primary hover:text-primary transition-all">
+              <Rss className="w-3.5 h-3.5" /> Latest News
+            </Link>
+            <Link to="/blog" className="inline-flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full text-sm hover:border-primary hover:text-primary transition-all">
+              <Mail className="w-3.5 h-3.5" /> Blog Articles
+            </Link>
+            <a href="https://whatsapp.com/channel/0029VbCB3R6H5JLt1aJYIT2d" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full text-sm hover:border-primary hover:text-primary transition-all">
+              WhatsApp Channel
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </Layout>
+  );
+}

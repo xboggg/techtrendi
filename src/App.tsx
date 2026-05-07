@@ -43,6 +43,8 @@ const PageLoader = () => (
 const ToolCategory = lazy(() => import("./pages/ToolCategory"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const About = lazy(() => import("./pages/About"));
+const NewsletterArchive = lazy(() => import("./pages/NewsletterArchive"));
+const ReadingList = lazy(() => import("./pages/ReadingList"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogArticle = lazy(() => import("./pages/BlogArticle"));
@@ -497,6 +499,8 @@ const App = () => (
                       <Route path="/arcade/word-bomb" element={<ArcadeWordBomb />} />
                       <Route path="/arcade/crossword-sprint" element={<ArcadeCrosswordSprint />} />
                       <Route path="/about" element={<About />} />
+                      <Route path="/newsletter" element={<NewsletterArchive />} />
+                      <Route path="/reading-list" element={<ReadingList />} />
                       <Route path="/privacy" element={<Privacy />} />
                       <Route path="/terms" element={<Terms />} />
                       <Route path="/cookies" element={<Cookies />} />

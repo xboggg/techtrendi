@@ -22,8 +22,15 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-clip">
+      {/* Skip to main content — accessibility + AdSense compliance */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-medium"
+      >
+        Skip to main content
+      </a>
       <Header />
-      <main className={`flex-1 ${isHomepage ? "" : "pt-16 md:pt-20"}`}>
+      <main id="main-content" className={`flex-1 ${isHomepage ? "" : "pt-16 md:pt-20"}`}>
         {tool && (
           <div className="container pt-4 pb-0">
             <Link

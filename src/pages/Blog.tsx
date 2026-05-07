@@ -85,6 +85,7 @@ export default function Blog() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState<"latest" | "oldest" | "longest">("latest");
 
   // SessionStorage cache for instant repeat visits, API fetch for fresh data
   const [articles, setArticles] = useState<Article[]>(() => {
@@ -137,18 +138,20 @@ export default function Blog() {
     return () => { clearTimeout(timeoutId); controller.abort(); };
   }, []);
 
-  const filteredArticles = articles.filter((article) => {
-    const matchesSearch =
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const selectedCat = categories.find(c => c.name === selectedCategory);
-    const matchesCategory =
-      selectedCat?.name === "All" ||
-      article.category === selectedCat?.name;
-
-    return matchesSearch && matchesCategory;
-  });
+  const filteredArticles = articles
+    .filter((article) => {
+      const matchesSearch =
+        article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
+      const selectedCat = categories.find(c => c.name === selectedCategory);
+      const matchesCategory = selectedCat?.name === "All" || article.category === selectedCat?.name;
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      if (sortBy === "oldest") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      if (sortBy === "longest") return (b.read_time_minutes || 0) - (a.read_time_minutes || 0);
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime(); // latest
+    });
 
   // Pagination logic
   const totalPages = Math.ceil(filteredArticles.length / ARTICLES_PER_PAGE);
@@ -158,7 +161,7 @@ export default function Blog() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, sortBy]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -247,6 +250,24 @@ export default function Blog() {
                 </button>
               );
             })}
+          </div>
+
+          {/* Sort controls */}
+          <div className="flex items-center justify-end gap-2 mt-4">
+            <span className="text-sm text-muted-foreground mr-1">Sort:</span>
+            {(["latest", "oldest", "longest"] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setSortBy(s)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                  sortBy === s
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background text-muted-foreground border-border hover:border-primary hover:text-primary"
+                }`}
+              >
+                {s === "latest" ? "Latest" : s === "oldest" ? "Oldest" : "Longest Read"}
+              </button>
+            ))}
           </div>
         </div>
 

@@ -92,6 +92,7 @@ export default function News() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState<"latest" | "oldest">("latest");
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -117,18 +118,22 @@ export default function News() {
     return () => controller.abort();
   }, []);
 
-  const filteredNews = news.filter((item) => {
-    const matchesSearch =
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesCategory =
-      selectedCategory === "All" ||
-      item.category === selectedCategory ||
-      (selectedCategory === "Cybersecurity" && item.category === "Security");
-
-    return matchesSearch && matchesCategory;
-  });
+  const filteredNews = news
+    .filter((item) => {
+      const matchesSearch =
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "All" ||
+        item.category === selectedCategory ||
+        (selectedCategory === "Cybersecurity" && item.category === "Security");
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) =>
+      sortBy === "oldest"
+        ? new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
 
   const totalPages = Math.ceil(filteredNews.length / NEWS_PER_PAGE);
   const startIndex = (currentPage - 1) * NEWS_PER_PAGE;
@@ -136,7 +141,7 @@ export default function News() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, sortBy]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -237,6 +242,24 @@ export default function News() {
                 </button>
               );
             })}
+          </div>
+
+          {/* Sort controls */}
+          <div className="flex items-center justify-end gap-2 mt-4">
+            <span className="text-sm text-muted-foreground mr-1">Sort:</span>
+            {(["latest", "oldest"] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setSortBy(s)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                  sortBy === s
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background text-muted-foreground border-border hover:border-primary hover:text-primary"
+                }`}
+              >
+                {s === "latest" ? "Latest First" : "Oldest First"}
+              </button>
+            ))}
           </div>
         </div>
 

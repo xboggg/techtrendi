@@ -53,6 +53,8 @@ const footerLinks = {
     { label: "TechTrendi Tools", href: "/tools" },
     { label: "TechTrendi Reviews", href: "/reviews" },
     { label: "TechTrendi DigiStore", href: "/store" },
+    { label: "Newsletter", href: "/newsletter" },
+    { label: "Reading List", href: "/reading-list" },
   ],
   topics: [
     { label: "Security", href: "/security" },
@@ -67,6 +69,7 @@ const footerLinks = {
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Terms", href: "/terms" },
     { label: "Disclosure", href: "/disclosure" },
+    { label: "Sitemap", href: "/sitemap.xml" },
   ],
 };
 

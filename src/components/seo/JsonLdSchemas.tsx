@@ -97,7 +97,7 @@ export function ArticleSchema({
   image,
   publishedTime,
   modifiedTime,
-  author = 'TechTrendi Team',
+  author = 'Edmund A.',
   category,
   tags = [],
   wordCount,
