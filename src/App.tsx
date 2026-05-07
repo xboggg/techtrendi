@@ -237,6 +237,7 @@ const PasswordStrength = lazy(() => import("./pages/tools/PasswordStrength"));
 const WifiQrGenerator = lazy(() => import("./pages/tools/WifiQrGenerator"));
 const ThisDayInHistory = lazy(() => import("./pages/tools/ThisDayInHistory"));
 const LifeProgressBar = lazy(() => import("./pages/tools/LifeProgressBar"));
+const CybersecurityPlaybook = lazy(() => import("./pages/tools/CybersecurityPlaybook"));
 
 // Security Hub pages
 const ThinkBeforeYouClick = lazy(() => import("./pages/ThinkBeforeYouClick"));
@@ -440,6 +441,7 @@ const App = () => (
                       <Route path="/tools/wifi-qr-generator" element={<WifiQrGenerator />} />
                       <Route path="/tools/this-day-in-history" element={<ThisDayInHistory />} />
                       <Route path="/tools/life-progress-bar" element={<LifeProgressBar />} />
+                      <Route path="/tools/cybersecurity-playbook" element={<CybersecurityPlaybook />} />
                       </Route>
                       <Route path="/tools/:categoryId" element={<ToolCategory />} />
                       <Route path="/blog" element={<Blog />} />
