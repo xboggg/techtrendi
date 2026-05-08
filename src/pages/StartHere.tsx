@@ -457,7 +457,7 @@ export default function StartHere() {
             <div className="grid md:grid-cols-2 gap-5 mb-12">
               {[
                 { text: `${siteCounts.articles}+ expert articles across 12 categories`, delay: 0 },
-                { text: "125+ free tools — no signup required", delay: 100 },
+                { text: "130+ free tools — no signup required", delay: 100 },
                 { text: `${siteCounts.reviews}+ honest product reviews with real ratings`, delay: 200 },
                 { text: "New content published daily, Mon-Fri", delay: 300 },
                 { text: "Written for a global audience, beginner-friendly", delay: 400 },

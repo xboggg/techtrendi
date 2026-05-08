@@ -18,7 +18,7 @@ const features = [
   },
   {
     icon: Zap,
-    title: "125+ Free Tools",
+    title: "130+ Free Tools",
     description: "Password generators, resume builders, Pomodoro timers, and more — all free, no sign-up required. Built to save you time, not waste it.",
     gradient: "from-amber-500 to-orange-400",
     glowColor: "rgba(245,158,11,0.5)",

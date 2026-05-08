@@ -251,7 +251,7 @@ export default function NewsArticle() {
         canonical={`/news/${news.slug}`}
         image={getNewsImage(news)}
         type="article"
-        author={news.author || "TechTrendi Team"}
+        author={news.author || "Edmund A."}
         publishedTime={news.created_at}
         category={news.category}
         tags={news.tags || []}
@@ -260,14 +260,16 @@ export default function NewsArticle() {
       <ReadingProgress />
       <div className="container py-12 md:py-16 max-w-7xl mx-auto">
 
-        {/* ── Full-width header ── */}
-        <Link
-          to="/news"
-          className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to News
-        </Link>
+        {/* Breadcrumb */}
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+          <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
+          <span>/</span>
+          <Link to="/news" className="hover:text-foreground transition-colors">News</Link>
+          <span>/</span>
+          <Link to={`/news?category=${news.category}`} className="hover:text-foreground transition-colors">{news.category}</Link>
+          <span>/</span>
+          <span className="text-foreground truncate max-w-[200px]">{news.title}</span>
+        </nav>
 
         <header className="mb-8">
           <div className="flex items-center gap-3 mb-4">
@@ -286,7 +288,7 @@ export default function NewsArticle() {
             <p className="text-xl text-muted-foreground mb-6">{news.excerpt}</p>
           )}
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1"><User className="w-4 h-4" />{news.author || "TechTrendi Team"}</span>
+            <span className="flex items-center gap-1"><User className="w-4 h-4" />{news.author || "Edmund A."}</span>
             <span className="flex items-center gap-1"><Calendar className="w-4 h-4" />{formatDate(news.created_at)}</span>
             <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{news.read_time_minutes || 3} min read</span>
           </div>

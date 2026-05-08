@@ -135,7 +135,7 @@ export default function Tools() {
   return (
     <Layout>
       <SEOHead
-        title="125+ Free Online Tools - No Signup Required"
+        title="130+ Free Online Tools - No Signup Required"
         description="Free online tools for everyone: password generators, QR codes, resume builders, calculators, and more. No signup needed."
         canonical="/tools"
       />
@@ -310,7 +310,7 @@ export default function Tools() {
             Explore All Free Tools
           </h2>
           <p className="text-white/80 max-w-lg mx-auto text-lg">
-            125+ free tools to boost your productivity, creativity, and digital life. No signup required.
+            130+ free tools to boost your productivity, creativity, and digital life. No signup required.
           </p>
         </div>
       </div>

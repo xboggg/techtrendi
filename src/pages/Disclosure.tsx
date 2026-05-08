@@ -78,12 +78,12 @@ export default function Disclosure() {
                 Transparency is important to us. Here's how TechTrendi earns revenue while maintaining our commitment to honest, unbiased content.
               </p>
               <p className="text-sm text-muted-foreground mt-4">
-                Last Updated: January 2026
+                Last Updated: May 2026
               </p>
             </div>
 
             {/* FTC Compliance Notice */}
-            <div className="bg-primary/10 border border-primary/20 rounded-2xl p-6 mb-12">
+            <div className="bg-primary/10 border border-primary/20 rounded-2xl p-6 mb-8">
               <h2 className="text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
                 <AlertCircle className="w-5 h-5 text-primary" />
                 FTC Disclosure Compliance
@@ -91,6 +91,25 @@ export default function Disclosure() {
               <p className="text-muted-foreground">
                 In accordance with the Federal Trade Commission's guidelines concerning the use of endorsements and testimonials in advertising (16 CFR Part 255), TechTrendi makes the following disclosures regarding our material connections with advertisers and affiliate partners.
               </p>
+            </div>
+
+            {/* AdSense + AI Disclosure */}
+            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 rounded-2xl p-6 mb-12">
+              <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-amber-600" />
+                Advertising & AI Content Notice
+              </h2>
+              <div className="space-y-4 text-muted-foreground text-sm leading-relaxed">
+                <p>
+                  <strong className="text-foreground">Google AdSense:</strong> TechTrendi participates in Google AdSense, a display advertising programme operated by Google LLC. Google AdSense serves ads on this website based on your browsing behaviour and interests. Revenue from these ads supports the continued operation of TechTrendi and allows us to provide free content, tools, and resources to our readers at no charge. You can opt out of personalised advertising by visiting <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Google Ad Settings</a>.
+                </p>
+                <p>
+                  <strong className="text-foreground">AI-Assisted Content:</strong> TechTrendi uses artificial intelligence writing tools as part of our editorial workflow to maintain the volume and timeliness of our tech news and article coverage. All AI-assisted content is reviewed, edited, and approved by our editorial team before publication. We do not publish automatically generated content without human oversight. Where AI assistance is used, it serves as a drafting and research tool — not a replacement for editorial judgement.
+                </p>
+                <p>
+                  <strong className="text-foreground">Content Accuracy:</strong> While we make every effort to ensure accuracy, technology information can change rapidly. If you believe any content contains an error, please <Link to="/contact" className="text-primary hover:underline">contact us</Link> and we will review and correct it promptly.
+                </p>
+              </div>
             </div>
 
             {/* How We Earn Revenue */}

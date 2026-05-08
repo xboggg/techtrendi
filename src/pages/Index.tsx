@@ -426,9 +426,43 @@ export default function Index() {
     <Layout>
       <SEOHead
         title="TechTrendi | Tech News, Expert Guides & Free Tools"
-        description="Your smart guide to modern technology. Expert reviews, guides, 125+ free tools, and daily tech news. No jargon, just what works."
+        description="Your smart guide to modern technology. Expert reviews, guides, 130+ free tools, and daily tech news. No jargon, just what works."
         canonical="/"
       />
+      {/* WebSite + Organization Schema */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://techtrendi.com/#website",
+            "url": "https://techtrendi.com",
+            "name": "TechTrendi",
+            "description": "Tech News, Expert Guides & Free Tools for Africa",
+            "publisher": { "@id": "https://techtrendi.com/#organization" },
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": { "@type": "EntryPoint", "urlTemplate": "https://techtrendi.com/blog?q={search_term_string}" },
+              "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://techtrendi.com/#organization",
+            "name": "TechTrendi",
+            "url": "https://techtrendi.com",
+            "logo": { "@type": "ImageObject", "url": "https://techtrendi.com/og-image.jpg" },
+            "founder": { "@type": "Person", "name": "Edmund A.", "url": "https://techtrendi.com/about" },
+            "sameAs": [
+              "https://twitter.com/techtrendi",
+              "https://facebook.com/techtrendi",
+              "https://instagram.com/techtrendi",
+              "https://tiktok.com/@tech.trendi"
+            ],
+            "contactPoint": { "@type": "ContactPoint", "contactType": "editorial", "url": "https://techtrendi.com/contact" }
+          }
+        ]
+      })}} />
       {/* Hero Carousel Section (includes News Ticker) */}
       <HeroCarousel />
 

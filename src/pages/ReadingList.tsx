@@ -43,7 +43,7 @@ export default function ReadingList() {
   return (
     <Layout>
       <SEOHead
-        title="My Reading List | TechTrendi"
+        title="My Reading List"
         description="Your saved TechTrendi articles and news items for reading later."
         canonical="/reading-list"
       />

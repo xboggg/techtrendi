@@ -422,7 +422,7 @@ export default function BlogArticle() {
         canonical={`/blog/${article.slug}`}
         image={getArticleImage(article)}
         type="article"
-        author={article.author || "TechTrendi Team"}
+        author={article.author || "Edmund A."}
         publishedTime={article.created_at}
         category={article.category}
         tags={article.tags || []}
@@ -431,14 +431,16 @@ export default function BlogArticle() {
       <ReadingProgress />
       <article className="container py-12 md:py-20">
         <div className="max-w-4xl mx-auto">
-          {/* Back Link */}
-          <Link
-            to={backLink}
-            className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {backLabel}
-          </Link>
+          {/* Breadcrumb */}
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+            <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
+            <span>/</span>
+            <Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link>
+            <span>/</span>
+            <Link to={`/blog?category=${article.category}`} className="hover:text-foreground transition-colors">{article.category}</Link>
+            <span>/</span>
+            <span className="text-foreground truncate max-w-[200px]">{article.title}</span>
+          </nav>
 
           {/* Article Header */}
           <header className="mb-8">
@@ -463,7 +465,7 @@ export default function BlogArticle() {
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <User className="w-4 h-4" />
-                {article.author || "TechTrendi Team"}
+                {article.author || "Edmund A."}
               </span>
               <span className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />

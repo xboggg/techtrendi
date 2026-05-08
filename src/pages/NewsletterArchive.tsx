@@ -8,7 +8,7 @@ export default function NewsletterArchive() {
   return (
     <Layout>
       <SEOHead
-        title="Newsletter — Stay Updated on Tech | TechTrendi"
+        title="Newsletter — Stay Updated on Tech"
         description="Subscribe to the TechTrendi newsletter for weekly tech news, cybersecurity tips, and tool recommendations delivered to your inbox."
         canonical="/newsletter"
         keywords={["tech newsletter", "Ghana tech updates", "cybersecurity tips email", "TechTrendi newsletter"]}

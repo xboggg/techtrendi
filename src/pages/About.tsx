@@ -202,7 +202,7 @@ export default function About() {
                 <div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">Where things are now</h3>
                   <p className="text-muted-foreground">
-                    Today, TechTrendi serves readers across the globe with over 200 in-depth articles, 125+ free online tools, daily tech news coverage, and a growing library of product reviews. Our content spans 12 categories — from cybersecurity and AI to smartphones and productivity — and we publish fresh content every day. We are committed to remaining free, independent, and genuinely useful.
+                    Today, TechTrendi serves readers across the globe with over 200 in-depth articles, 130+ free online tools, daily tech news coverage, and a growing library of product reviews. Our content spans 12 categories — from cybersecurity and AI to smartphones and productivity — and we publish fresh content every day. We are committed to remaining free, independent, and genuinely useful.
                   </p>
                 </div>
               </div>
