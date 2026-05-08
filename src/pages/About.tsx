@@ -359,7 +359,7 @@ export default function About() {
                   <h3 className="text-lg font-semibold text-foreground mb-3">Editorial Standards & AI Content Disclosure</h3>
                   <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
                     <p>
-                      TechTrendi publishes original technology content researched, reviewed, and edited by Edmund Adjekum and the TechTrendi editorial team. To maintain the volume and timeliness of coverage our readers expect — particularly for breaking tech news and tool documentation — we use AI writing assistance as part of our editorial workflow.
+                      TechTrendi publishes original technology content researched, reviewed, and edited by Edmund A. and the TechTrendi editorial team. To maintain the volume and timeliness of coverage our readers expect — particularly for breaking tech news and tool documentation — we use AI writing assistance as part of our editorial workflow.
                     </p>
                     <p>
                       All AI-assisted content is reviewed for accuracy, edited for clarity and context, and held to the same factual standards as fully manually written articles. We do not publish auto-generated content without editorial oversight. News articles are sourced from reputable technology publications and verified before publication.
