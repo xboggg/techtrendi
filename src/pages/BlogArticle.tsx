@@ -463,6 +463,9 @@ export default function BlogArticle() {
             )}
 
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-xs border border-border">
+                AI-Assisted · Editorially Reviewed
+              </span>
               <span className="flex items-center gap-1">
                 <User className="w-4 h-4" />
                 {article.author || "Edmund A."}

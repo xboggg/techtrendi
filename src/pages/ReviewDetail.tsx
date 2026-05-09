@@ -85,7 +85,7 @@ function StarRating({ rating, size = "default" }: { rating: number; size?: "defa
         />
       ))}
       <span className={`ml-2 font-bold text-foreground ${size === "large" ? "text-2xl" : "text-sm"}`}>
-        {Number(rating).toFixed(1)}
+        {Number(rating).toFixed(1)}<span className={`font-normal text-muted-foreground ${size === "large" ? "text-lg" : "text-xs"}`}>/5</span>
       </span>
     </div>
   );
@@ -300,6 +300,7 @@ export default function ReviewDetail() {
                   {review.title}
                 </h1>
                 <StarRating rating={review.rating} size="large" />
+                <p className="text-xs text-muted-foreground mt-1">Rated out of 5 — based on performance, value, build quality, and real-world usability</p>
               </div>
 
               <p className="text-lg text-muted-foreground">{review.verdict}</p>

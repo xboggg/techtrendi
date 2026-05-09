@@ -65,7 +65,7 @@ function StarRating({ rating }: { rating: number }) {
           }`}
         />
       ))}
-      <span className="ml-1 text-sm font-semibold text-foreground">{Number(rating).toFixed(1)}</span>
+      <span className="ml-1 text-sm font-semibold text-foreground">{Number(rating).toFixed(1)}<span className="text-xs font-normal text-muted-foreground">/5</span></span>
     </div>
   );
 }
