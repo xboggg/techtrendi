@@ -55,7 +55,7 @@ export function AnimatedCounter({
           }}
         />
       ) : (
-        start
+        <>{end}{suffix}</>
       )}
     </span>
   );

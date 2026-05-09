@@ -141,11 +141,7 @@ export default function About() {
                   <stat.icon className="w-6 h-6 text-white" />
                 </div>
                 <div className="text-3xl font-bold text-foreground mb-1">
-                  {statsInView ? (
-                    <AnimatedCounter end={stat.value} duration={2} suffix={stat.suffix} />
-                  ) : (
-                    <span>{stat.value}{stat.suffix}</span>
-                  )}
+                  <AnimatedCounter end={stat.value} duration={2} suffix={stat.suffix} />
                 </div>
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
               </div>
