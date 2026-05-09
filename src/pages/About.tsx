@@ -7,8 +7,6 @@ import {
   BookOpen, Globe, CheckCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AnimatedCounter } from "@/components/ui/animated-counter";
-import { useInView } from "react-intersection-observer";
 
 const stats = [
   { label: "Articles Published", value: 200, suffix: "+", icon: Newspaper, bg: "bg-blue-500" },
@@ -90,7 +88,6 @@ const values = [
 ];
 
 export default function About() {
-  const { ref: statsRef, inView: statsInView } = useInView({ triggerOnce: true, threshold: 0.3 });
 
   return (
     <Layout>
@@ -132,7 +129,7 @@ export default function About() {
       </section>
 
       {/* Stats Section */}
-      <section ref={statsRef} className="py-8 -mt-16 relative z-20">
+      <section className="py-8 -mt-16 relative z-20">
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
             {stats.map((stat) => (
@@ -141,7 +138,7 @@ export default function About() {
                   <stat.icon className="w-6 h-6 text-white" />
                 </div>
                 <div className="text-3xl font-bold text-foreground mb-1">
-                  <AnimatedCounter end={stat.value} duration={2} suffix={stat.suffix} />
+                  {stat.value}{stat.suffix}
                 </div>
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
               </div>
