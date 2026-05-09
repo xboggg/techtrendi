@@ -14,7 +14,7 @@ const stats = [
   { label: "Articles Published", value: 200, suffix: "+", icon: Newspaper, bg: "bg-blue-500" },
   { label: "Free Tools", value: 130, suffix: "+", icon: Zap, bg: "bg-purple-500" },
   { label: "Topics Covered", value: 12, suffix: "", icon: Users, bg: "bg-orange-500" },
-  { label: "Years Online", value: 1, suffix: "", icon: Heart, bg: "bg-green-500" },
+  { label: "Years Online", value: 9, suffix: "+", icon: Heart, bg: "bg-green-500" },
 ];
 
 const expertise = [
@@ -144,7 +144,7 @@ export default function About() {
                   {statsInView ? (
                     <AnimatedCounter end={stat.value} duration={2} suffix={stat.suffix} />
                   ) : (
-                    <span>0{stat.suffix}</span>
+                    <span>{stat.value}{stat.suffix}</span>
                   )}
                 </div>
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
