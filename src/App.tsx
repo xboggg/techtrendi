@@ -240,6 +240,10 @@ const WifiQrGenerator = lazy(() => import("./pages/tools/WifiQrGenerator"));
 const ThisDayInHistory = lazy(() => import("./pages/tools/ThisDayInHistory"));
 const LifeProgressBar = lazy(() => import("./pages/tools/LifeProgressBar"));
 const CybersecurityPlaybook = lazy(() => import("./pages/tools/CybersecurityPlaybook"));
+const MoMoFeeCalculator = lazy(() => import("./pages/tools/MoMoFeeCalculator"));
+const GhanaElectricityCalculator = lazy(() => import("./pages/tools/GhanaElectricityCalculator"));
+const GhanaScamChecker = lazy(() => import("./pages/tools/GhanaScamChecker"));
+const GhsExchangeRate = lazy(() => import("./pages/tools/GhsExchangeRate"));
 
 // Security Hub pages
 const ThinkBeforeYouClick = lazy(() => import("./pages/ThinkBeforeYouClick"));
@@ -444,6 +448,10 @@ const App = () => (
                       <Route path="/tools/this-day-in-history" element={<ThisDayInHistory />} />
                       <Route path="/tools/life-progress-bar" element={<LifeProgressBar />} />
                       <Route path="/tools/cybersecurity-playbook" element={<CybersecurityPlaybook />} />
+                      <Route path="/tools/momo-fee-calculator" element={<MoMoFeeCalculator />} />
+                      <Route path="/tools/ghana-electricity-calculator" element={<GhanaElectricityCalculator />} />
+                      <Route path="/tools/ghana-scam-checker" element={<GhanaScamChecker />} />
+                      <Route path="/tools/ghs-exchange-rate" element={<GhsExchangeRate />} />
                       </Route>
                       <Route path="/tools/:categoryId" element={<ToolCategory />} />
                       <Route path="/blog" element={<Blog />} />

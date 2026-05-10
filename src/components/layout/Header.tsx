@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, User, LogOut, Crown, Shield, Sparkles, Flame, Smartphone, Lock, Cpu, Lightbulb, BookOpen, DollarSign, ShoppingBag, LayoutDashboard, Newspaper, Gamepad2, Watch, Briefcase, HeartPulse, Wifi, Leaf, Zap, Star } from "lucide-react";
+import { Menu, X, ChevronDown, User, LogOut, Crown, Shield, Sparkles, Flame, Smartphone, Lock, Cpu, Lightbulb, BookOpen, DollarSign, ShoppingBag, LayoutDashboard, Newspaper, Gamepad2, Watch, Briefcase, HeartPulse, Wifi, Leaf, Zap, Star, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -46,6 +46,7 @@ const navLinks: NavLink[] = [
     isMegaMenu: true,
   },
   { label: "Security", href: "/security", icon: Shield, isHot: true },
+  { label: "Africa Tech", href: "/news?category=Africa Tech", icon: Globe },
   { label: "News", href: "/news", icon: Newspaper },
   { label: "Toolbox", href: "/tools" },
   { label: "Reviews", href: "/reviews" },

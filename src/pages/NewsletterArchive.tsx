@@ -8,10 +8,10 @@ export default function NewsletterArchive() {
   return (
     <Layout>
       <SEOHead
-        title="Newsletter — Stay Updated on Tech"
-        description="Subscribe to the TechTrendi newsletter for weekly tech news, cybersecurity tips, and tool recommendations delivered to your inbox."
+        title="Africa Tech Brief — Ghana's Weekly Tech Newsletter"
+        description="Join thousands of Ghanaians and Africans who read the Africa Tech Brief every week. Top tech stories, scam alerts, free tools, and Ghana-specific insights — free every Friday."
         canonical="/newsletter"
-        keywords={["tech newsletter", "Ghana tech updates", "cybersecurity tips email", "TechTrendi newsletter"]}
+        keywords={["Ghana tech newsletter", "Africa tech brief", "weekly tech news Ghana", "tech newsletter Africa", "Ghana cybersecurity newsletter"]}
       />
 
       <div className="container max-w-3xl mx-auto px-4 py-16 md:py-24">
@@ -21,11 +21,15 @@ export default function NewsletterArchive() {
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-6">
             <Mail className="w-8 h-8 text-white" />
           </div>
+          <div className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-sm font-semibold rounded-full mb-4">
+            Free Every Friday
+          </div>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            TechTrendi Newsletter
+            Africa Tech Brief
           </h1>
+          <p className="text-sm font-medium text-muted-foreground mb-2">by TechTrendi</p>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Weekly digest of the most important tech stories, cybersecurity alerts, and free tool recommendations — written for people who want the signal without the noise.
+            The weekly newsletter for Ghanaians and Africans who want to stay ahead of technology — without wading through content made for someone else. Top stories, scam alerts, free tools, and one thing worth knowing every week.
           </p>
         </div>
 
@@ -41,20 +45,20 @@ export default function NewsletterArchive() {
             {[
               {
                 icon: Rss,
-                title: "Weekly Tech Digest",
-                desc: "The top 5 tech stories of the week — curated, summarised, and explained in plain language.",
+                title: "🌍 Top 5 Africa Tech Stories",
+                desc: "The week's most important Ghana and Africa tech news — curated, summarised, and explained clearly.",
                 color: "bg-blue-500/10 text-blue-500",
               },
               {
                 icon: Bell,
-                title: "Scam & Security Alerts",
-                desc: "Immediate alerts when a new scam or security threat is targeting people in Ghana and Africa.",
+                title: "🚨 Ghana Scam Alert",
+                desc: "Active scams targeting Ghanaians right now — MoMo fraud, fake job offers, phishing, and investment cons.",
                 color: "bg-red-500/10 text-red-500",
               },
               {
                 icon: ArrowRight,
-                title: "Tool Recommendations",
-                desc: "One free tool recommendation per week — handpicked from the TechTrendi toolbox.",
+                title: "🔧 Free Tool of the Week",
+                desc: "One free tool that saves you time or money — handpicked from the 130+ tools on TechTrendi.",
                 color: "bg-green-500/10 text-green-500",
               },
             ].map((item) => (
