@@ -271,7 +271,7 @@ export default function Index() {
   const [loadingIntlNews, setLoadingIntlNews] = useState(true);
 
   useEffect(() => {
-    fetchTrendingArticles();
+    // Removed fetchTrendingArticles — was fetched but never rendered (dead code)
     fetchFeaturedGuides();
     fetchLatestArticles();
     fetchReviews();
@@ -425,9 +425,10 @@ export default function Index() {
   return (
     <Layout>
       <SEOHead
-        title="TechTrendi | Tech News, Expert Guides & Free Tools"
-        description="Your smart guide to modern technology. Expert reviews, guides, 130+ free tools, and daily tech news. No jargon, just what works."
+        title="TechTrendi – Ghana's Tech News, Tools & Digital Insights"
+        description="Ghana's leading tech destination. Daily tech news from Ghana and Africa, 130+ free tools (MoMo fee calculator, scam checker, electricity calculator), honest reviews, and digital insights built for Africa."
         canonical="/"
+        keywords={["Ghana tech news", "Africa technology", "Ghana technology blog", "MoMo calculator", "Ghana cybersecurity", "Africa tech reviews", "Ghana digital tools"]}
       />
       {/* WebSite + Organization Schema */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
@@ -465,6 +466,37 @@ export default function Index() {
       })}} />
       {/* Hero Carousel Section (includes News Ticker) */}
       <HeroCarousel />
+
+      {/* Ghana Identity Banner */}
+      <section className="relative overflow-hidden bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 py-6 md:py-8">
+        <div className="absolute inset-0 bg-black/10" />
+        <div className="container relative z-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-white">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl md:text-4xl" aria-label="Ghana flag">🇬🇭</span>
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold leading-tight">
+                  Ghana's Home for Tech News, Tools & Insights
+                </h2>
+                <p className="text-sm md:text-base text-white/90 mt-0.5">
+                  Built for Africa. Trusted by tech lovers across Ghana and beyond.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs md:text-sm">
+              <Link to="/news?category=Africa Tech" className="px-3 py-1.5 bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full font-medium border border-white/20 transition-colors">
+                Africa Tech News
+              </Link>
+              <Link to="/tools/momo-fee-calculator" className="px-3 py-1.5 bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full font-medium border border-white/20 transition-colors">
+                MoMo Calculator
+              </Link>
+              <Link to="/tools/ghana-scam-checker" className="px-3 py-1.5 bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full font-medium border border-white/20 transition-colors">
+                Scam Checker
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Latest Tech News Section */}
       <section className="py-14 md:py-20 bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
@@ -819,11 +851,18 @@ export default function Index() {
                 ))}
               </div>
             </div>
-          ) : featuredGuides.length > 0 ? (
+          ) : (() => {
+            // Deduplicate featured guides against articles already shown in Latest Articles section
+            const latestIds = new Set(latestArticles.map(a => a.id));
+            const uniqueFeatured = featuredGuides.filter(g => !latestIds.has(g.id));
+            return uniqueFeatured.length > 0;
+          })() ? (
             <div className="space-y-6">
               {/* Top Row: 2 Big Cards Side by Side */}
               <div className="grid md:grid-cols-2 gap-6">
-                {featuredGuides.slice(0, 2).map((guide) => (
+                {featuredGuides
+                  .filter(g => !new Set(latestArticles.map(a => a.id)).has(g.id))
+                  .slice(0, 2).map((guide) => (
                   <Link
                     key={guide.id}
                     to={`/blog/${guide.slug}`}
@@ -861,7 +900,9 @@ export default function Index() {
 
               {/* Bottom Row: 6 Small Cards in 3x2 Grid */}
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {featuredGuides.slice(2, 8).map((guide) => (
+                {featuredGuides
+                  .filter(g => !new Set(latestArticles.map(a => a.id)).has(g.id))
+                  .slice(2, 8).map((guide) => (
                   <Link
                     key={guide.id}
                     to={`/blog/${guide.slug}`}

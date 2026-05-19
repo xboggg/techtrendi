@@ -110,7 +110,7 @@ export default function About() {
               Technology Made <span className="text-white/90">Simple</span>
             </h1>
             <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed mb-8">
-              I started TechTrendi because I was tired of tech content that either talked down to people or drowned them in jargon. This site is my way of sharing what I actually know and use — no fluff, no sponsored opinions.
+              TechTrendi is Ghana's tech hub — built to serve readers across Ghana and the wider African continent. The mission is simple: deliver tech news, tools, and digital guidance that actually reflect the African context, not just imported content from the United States or Europe.
             </p>
 
             {/* Play Button */}
@@ -182,7 +182,7 @@ export default function About() {
                 <div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">So we built TechTrendi</h3>
                   <p className="text-muted-foreground">
-                    TechTrendi launched with a simple mission: make technology accessible to everyone, regardless of their technical background. Since 2016, we have been developing a platform that delivers honest reviews, practical guides, and free tools — all written in plain language. No jargon, no sponsored opinions, no hidden agendas. Just technology explained the way it should be.
+                    TechTrendi launched with a clear mission: make technology accessible to Ghanaians and Africans through content that reflects their context. Since 2016, we have built a platform that covers Ghana tech news, daily Africa-focused stories, scam awareness for the African market, 130+ free tools (including MoMo fee calculators, Ghana electricity calculators, and scam pattern checkers), and honest reviews — all priced and explained for African readers. Our content is built for Ghana, Nigeria, Kenya, South Africa, and the wider continent — not retrofitted from American or European sources.
                   </p>
                 </div>
               </div>

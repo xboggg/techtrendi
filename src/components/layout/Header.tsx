@@ -90,15 +90,20 @@ export function Header() {
       <div className="container mx-auto">
         <nav className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-0.5 group">
+          <Link to="/" className="flex items-center gap-0.5 group" aria-label="TechTrendi — Ghana's Tech Hub">
             <img
               src="/logo-t.png"
               alt="TechTrendi"
               className="h-12 w-auto group-hover:scale-105 transition-transform duration-300"
             />
-            <span className={`text-xl font-bold ${isOverHero ? "text-white" : "text-foreground"}`}>
-              Tech<span className={isOverHero ? "text-purple-400" : "text-gradient"}>Trendi</span>
-            </span>
+            <div className="flex flex-col leading-tight">
+              <span className={`text-xl font-bold ${isOverHero ? "text-white" : "text-foreground"}`}>
+                Tech<span className={isOverHero ? "text-purple-400" : "text-gradient"}>Trendi</span>
+              </span>
+              <span className={`hidden sm:block text-[10px] font-medium tracking-wide uppercase ${isOverHero ? "text-white/70" : "text-muted-foreground"}`}>
+                Ghana's Tech Hub 🇬🇭
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
