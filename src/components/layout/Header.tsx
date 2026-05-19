@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown, User, LogOut, Crown, Shield, Sparkles, Flame, Smartphone, Lock, Cpu, Lightbulb, BookOpen, DollarSign, ShoppingBag, LayoutDashboard, Newspaper, Gamepad2, Watch, Briefcase, HeartPulse, Wifi, Leaf, Zap, Star, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { GhanaFlag } from "@/components/ui/ghana-flag";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { SearchButton } from "@/components/ui/search-modal";
@@ -100,8 +101,9 @@ export function Header() {
               <span className={`text-xl font-bold ${isOverHero ? "text-white" : "text-foreground"}`}>
                 Tech<span className={isOverHero ? "text-purple-400" : "text-gradient"}>Trendi</span>
               </span>
-              <span className={`block text-[9px] md:text-[10px] font-medium tracking-wide uppercase ${isOverHero ? "text-white/70" : "text-muted-foreground"}`}>
-                Ghana's Tech Hub 🇬🇭
+              <span className={`flex items-center gap-1 text-[9px] md:text-[10px] font-medium tracking-wide uppercase ${isOverHero ? "text-white/70" : "text-muted-foreground"}`}>
+                Ghana's Tech Hub
+                <GhanaFlag className="w-3.5 h-2.5 inline-block rounded-sm border border-current/20" />
               </span>
             </div>
           </Link>
