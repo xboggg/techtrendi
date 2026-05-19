@@ -474,7 +474,8 @@ export default function Index() {
         <div className="container relative z-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-white">
             <div className="flex items-center gap-3">
-              <GhanaFlag className="w-10 h-7 md:w-12 md:h-8 rounded-sm shadow-md border border-white/20 shrink-0" />
+              <span className="md:hidden text-3xl leading-none">🇬🇭</span>
+              <GhanaFlag className="hidden md:block w-12 h-8 rounded-sm shadow-md border border-white/20 shrink-0" />
               <div>
                 <h2 className="text-xl md:text-2xl font-bold leading-tight">
                   Ghana's Home for Tech News, Tools & Insights

@@ -103,7 +103,8 @@ export function Header() {
               </span>
               <span className={`flex items-center gap-1 text-[9px] md:text-[10px] font-medium tracking-wide uppercase ${isOverHero ? "text-white/70" : "text-muted-foreground"}`}>
                 Ghana's Tech Hub
-                <GhanaFlag className="w-3.5 h-2.5 inline-block rounded-sm border border-current/20" />
+                <span className="md:hidden text-xs leading-none">🇬🇭</span>
+                <GhanaFlag className="hidden md:inline-block w-3.5 h-2.5 rounded-sm border border-current/20" />
               </span>
             </div>
           </Link>
