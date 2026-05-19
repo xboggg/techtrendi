@@ -96,7 +96,7 @@ export const CardCarousel: React.FC<CardCarouselProps> = ({
         }
         modules={[EffectCoverflow, Autoplay, Pagination, Navigation]}
       >
-        {items.concat(items).map((item, index) => (
+        {items.map((item, index) => (
           <SwiperSlide key={index}>
             <div
               className="relative rounded-2xl overflow-hidden cursor-pointer group"

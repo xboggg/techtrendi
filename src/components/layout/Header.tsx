@@ -100,7 +100,7 @@ export function Header() {
               <span className={`text-xl font-bold ${isOverHero ? "text-white" : "text-foreground"}`}>
                 Tech<span className={isOverHero ? "text-purple-400" : "text-gradient"}>Trendi</span>
               </span>
-              <span className={`hidden sm:block text-[10px] font-medium tracking-wide uppercase ${isOverHero ? "text-white/70" : "text-muted-foreground"}`}>
+              <span className={`block text-[9px] md:text-[10px] font-medium tracking-wide uppercase ${isOverHero ? "text-white/70" : "text-muted-foreground"}`}>
                 Ghana's Tech Hub 🇬🇭
               </span>
             </div>

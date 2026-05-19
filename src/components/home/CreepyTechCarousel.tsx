@@ -217,13 +217,8 @@ function CarouselRow({
         className="flex gap-4 pb-2 will-change-transform"
         style={{ width: "max-content" }}
       >
-        {/* Original set */}
         {posts.map((post) => (
           <CardItem key={post.id} post={post} colorMap={colorMap} onClick={() => onCardClick(post)} />
-        ))}
-        {/* Duplicate set for seamless loop */}
-        {posts.map((post) => (
-          <CardItem key={`dup-${post.id}`} post={post} colorMap={colorMap} onClick={() => onCardClick(post)} />
         ))}
       </div>
     </div>
