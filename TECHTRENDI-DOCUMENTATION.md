@@ -280,6 +280,7 @@ The `/guides` page displays 8 guide categories with icons:
 11. **Creepy Tech** — Creepy tech content management
 12. **Cyber Awareness** — Cyber awareness content management
 13. **Messages** — Contact form messages
+14. **WhatsApp Queue** — Auto-generated WhatsApp post queue for Channel & Group broadcasting (see Section 11)
 
 ### Auto-Refresh
 
@@ -1188,3 +1189,100 @@ ssh root@38.242.195.0 "crontab -l | grep tech-news"
 # View article generation logs
 ssh root@38.242.195.0 "journalctl -u techtrendi-article-api --since '1 hour ago'"
 ```
+
+---
+
+## 19. WhatsApp Queue (Admin Broadcasting Dashboard)
+
+A custom admin tool at `/admin/whatsapp-queue` that auto-generates pre-formatted WhatsApp posts for every published article and provides one-tap copy buttons for broadcasting to the TechTrendi WhatsApp Channel and Group.
+
+### Purpose
+
+Eliminates the manual bottleneck of writing fresh WhatsApp posts for each article. Posts are auto-templated by category, stored in the database, and can be edited per-row before copying.
+
+### Database
+
+**Table:** `techtrendi.whatsapp_queue`
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `id` | UUID | Primary key |
+| `article_id` | UUID | FK to `articles(id)` ON DELETE CASCADE, UNIQUE |
+| `channel_post` | TEXT | Formatted text for the WhatsApp Channel |
+| `group_post` | TEXT | Formatted text for the WhatsApp Group (editable independently) |
+| `channel_sent_at` | TIMESTAMPTZ | NULL until "Copy for Channel" is clicked |
+| `group_sent_at` | TIMESTAMPTZ | NULL until "Copy for Group" is clicked |
+| `custom_hook` | TEXT | Optional override for the auto-generated hook line |
+| `created_at`, `updated_at` | TIMESTAMPTZ | Audit timestamps |
+
+**Indexes:** `idx_wa_queue_created` (created_at DESC), `idx_wa_queue_article` (article_id), `idx_wa_queue_channel_sent` (partial, where channel_sent_at IS NOT NULL).
+
+**RLS:** Enabled with admin-all policy.
+
+### Template Engine
+
+**PostgreSQL function:** `techtrendi.format_whatsapp_post(title, excerpt, category, slug)`
+
+Generates a WhatsApp-formatted post based on category. The hook is the article excerpt truncated to 100 characters. URL is built as `https://techtrendi.com/blog/{slug}`.
+
+| Category | Template Emoji | Header | CTA |
+|----------|----------------|--------|-----|
+| Security, Cybersecurity | 🚨 | New Scam Alert | Read the full breakdown |
+| How-To | 🛠️ | Fresh on TechTrendi | Try it here |
+| Green Tech | 🇬🇭 | New on TechTrendi | Read more |
+| AI Tech, Productivity, Career in Tech, Smart Income, Remote Work | 💡 | Fresh on TechTrendi | Full article |
+| Phones, Accessories, Gaming | 📱 | New Review | Read it here |
+| Default | ✨ | New on TechTrendi | Read more |
+
+To edit a template, modify the `CASE` branches inside the `format_whatsapp_post` function in PostgreSQL.
+
+### Auto-Creation Trigger
+
+**Trigger:** `trg_articles_whatsapp_queue` on `articles` table
+
+Fires `AFTER INSERT OR UPDATE OF is_published` and inserts a new row into `whatsapp_queue` when an article's `is_published` flips to `true`. `ON CONFLICT DO NOTHING` prevents duplicates if an article is unpublished and republished.
+
+```sql
+-- Manually re-run for a specific article (e.g. if template changed)
+DELETE FROM whatsapp_queue WHERE article_id = 'ARTICLE_UUID';
+UPDATE articles SET is_published = false WHERE id = 'ARTICLE_UUID';
+UPDATE articles SET is_published = true WHERE id = 'ARTICLE_UUID';
+```
+
+### Admin Page Features (`/admin/whatsapp-queue`)
+
+- **3 stat cards:** Pending posts, Sent this week, Sent this month
+- **Filter tabs:** All / Pending / Posted
+- **Search box:** filters by article title or category
+- **Per-row card showing:** category badge, publish age, sent status pills, article title with external link to live article
+- **Copy for Channel button** — copies `channel_post` to clipboard via `navigator.clipboard.writeText` AND atomically sets `channel_sent_at = NOW()`
+- **Copy for Group button** — same for `group_post`
+- **Edit button** — opens two inline textareas for `channel_post` and `group_post` (you can customise each independently before sending)
+- **Mark unsent button** — clears both timestamps so you can re-post
+- Buttons turn muted-grey after sent ("Copy Channel again" instead of green primary)
+- Mobile-responsive — stat cards reflow to 3-col grid, action buttons wrap
+
+### Authentication
+
+Same protection as every other admin page — wrapped in `AdminLayout` which enforces:
+- `useAuth()` → redirects to `/auth` if logged out
+- `useAdminCheck()` → shows "Access Denied" page if logged in but not admin role
+
+### Files Created
+
+- `src/pages/admin/AdminWhatsAppQueue.tsx` — React component
+- Database objects: `whatsapp_queue` table, `format_whatsapp_post()` function, `trg_articles_whatsapp_queue` trigger
+- Route added to `src/App.tsx`: `/admin/whatsapp-queue`
+- Sidebar link added to `src/pages/admin/AdminLayout.tsx`
+
+### Limitations / Future Enhancements
+
+- **News articles not included** — only the `articles` table has the trigger. To extend, add a second trigger on the `news` table with the same pattern.
+- **No bulk actions** — cannot select multiple rows and copy them all at once (planned but not built).
+- **No scheduled reminders** — would require browser Notification API or a server cron + email/Telegram (not built).
+- **No template editor UI** — templates live in the PostgreSQL function. Edit via SQL or psql.
+
+### Backfill Status
+
+On creation, **246 queue entries** were backfilled for all currently published articles. All articles published from that point forward enter the queue automatically via trigger.
+
