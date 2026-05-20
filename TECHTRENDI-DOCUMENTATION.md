@@ -1286,3 +1286,163 @@ Same protection as every other admin page — wrapped in `AdminLayout` which enf
 
 On creation, **246 queue entries** were backfilled for all currently published articles. All articles published from that point forward enter the queue automatically via trigger.
 
+---
+
+## 20. Recent Additions & Changes (April–May 2026)
+
+This section documents everything added or changed in the April–May 2026 sessions that may not be reflected elsewhere in this document.
+
+### 20.1 Prerender.io Integration
+
+The site is a React SPA. Crawlers received empty HTML before content loaded — pages were not being indexed. Prerender.io was integrated to serve fully-rendered HTML to search engine bots.
+
+- **Account email:** itdeshop@gmail.com
+- **Prerender token:** `1EdcYcFlucdH1vVxqYgP` (stored in nginx config)
+- **Integration point:** nginx server block at `/etc/nginx/sites-enabled/techtrendi.com`
+- **Routing logic:**
+  - Search engine bots (Googlebot, Bingbot, DuckDuckBot, Applebot, Yandex, Baidu) → Prerender.io for full JS-rendered HTML
+  - Social media bots (WhatsApp, Facebook, Twitter, Telegram, LinkedIn, Discord, Pinterest) → `og-meta.php` for fast OG tag responses
+  - Normal visitors → React SPA unchanged
+- **Sitemap submitted to Prerender.io dashboard** for proactive recaching every 7 days
+- **Force recache via API:** `POST https://api.prerender.io/recache` with `prerenderToken` and `url` in JSON body
+
+### 20.2 nginx URL Redirects
+
+WordPress URLs from the 2017 version of the site were still indexed by Google. Added 301 redirects:
+
+```nginx
+location ~* ^/20[0-9][0-9]/[0-9]+/[0-9]+/ { return 301 /blog; }
+location ~* ^/news-cats/ { return 301 /news; }
+location ~* ^/author/ { return 301 /about; }
+location ~* ^/category/ { return 301 /blog; }
+location ~* ^/tag/ { return 301 /blog; }
+location ~* ^/wp-content/ { return 410; }
+location ~* ^/wp-includes/ { return 410; }
+location ~* ^/wp-admin/ { return 410; }
+```
+
+Also added redirects for dead routes (`/guides`, `/premium`, `/digistore` → proper destinations).
+
+### 20.3 Content Security Policy
+
+CSP `connect-src` extended to allow:
+- `https://open.er-api.com` (for GHS Exchange Rate tool live rates)
+
+### 20.4 New Public Tools (5 added)
+
+| URL | Purpose |
+|-----|---------|
+| `/tools/cybersecurity-playbook` | Interactive index of 50 cybersecurity threats with category filter, search, pagination |
+| `/tools/momo-fee-calculator` | MTN/Vodafone/AirtelTigo mobile money transfer fee calculator with tier table |
+| `/tools/ghana-electricity-calculator` | ECG 2026 tariff bands + 16-appliance usage estimator |
+| `/tools/ghana-scam-checker` | Pattern-based scam detection. Supports text paste, screenshot upload, and clipboard image paste via Tesseract.js OCR. Detects 17 scam patterns including Pizzaman/Chickenman vendor impersonation |
+| `/tools/ghs-exchange-rate` | Live Ghana Cedi rates vs USD, GBP, EUR, NGN, ZAR, XOF, CAD, AED (powered by open.er-api.com) |
+
+### 20.5 New Public Pages
+
+| URL | Purpose |
+|-----|---------|
+| `/newsletter` | "Africa Tech Brief" subscription page with weekly format description and 3 content pillars |
+| `/reading-list` | Personal bookmarks page reading from localStorage |
+| `/blog/real-life-scam-teardowns-ghana-cybersecurity-guide` | Part 1 of 5-part Cybersecurity Playbook series |
+| `/blog/password-account-mistakes-cybersecurity-guide-2026` | Part 2 |
+| `/blog/smart-home-physical-security-risks-cybersecurity-guide` | Part 3 |
+| `/blog/travel-public-space-cybersecurity-traps-2026` | Part 4 |
+| `/blog/identity-data-protection-cybersecurity-guide-2026` | Part 5 |
+| `/blog/mobile-money-fraud-ghana-momo-scams-2026-guide` | Flagship Ghana MoMo fraud article |
+
+### 20.6 Site Identity Updates
+
+- **Header:** "Ghana's Tech Hub" tagline added below logo (uses responsive SVG flag on desktop, native emoji 🇬🇭 on mobile via Tailwind `md:` breakpoint)
+- **Homepage hero banner:** Full-width section under HeroCarousel with Ghana flag colours (red/yellow/green gradient) and quick-access pills to Africa Tech News, MoMo Calculator, Scam Checker
+- **Navigation:** "Africa Tech" added as primary nav item linking to `/news?category=Africa Tech`
+- **Static `index.html`:** Title now "TechTrendi – Ghana's Tech News, Tools & Digital Insights" with Ghana-focused meta description and keywords (served before React Helmet)
+- **Newsletter rebrand:** Renamed from generic "TechTrendi Newsletter" to "Africa Tech Brief" with Ghana-focused content pillars
+- **Ghana flag SVG component** at `src/components/ui/ghana-flag.tsx` — used because Windows does not render flag emojis as actual flags (shows "GH" text)
+
+### 20.7 Article Pages — Added Elements
+
+Both `BlogArticle.tsx` and `NewsArticle.tsx` now render:
+- **Breadcrumb navigation:** Home / Section / Category / Title
+- **AI-Assisted · Editorially Reviewed badge** in the byline
+- **Author standardized to "Edmund A."** across all articles, news, and reviews (DB migration applied)
+
+### 20.8 Image Integrity Checker
+
+Nightly cron script at `/opt/tech-news/image_integrity_check.py` (runs 02:30 UTC):
+
+- Scans every article and review for broken cover images
+- Detects: Unsplash hotlinks, Supabase storage URLs, missing local files, external HTTP non-200 returns, **duplicate image URLs across articles**
+- Auto-fixes via Pexels search using 35+ title-pattern rules
+- Telegram report sent only if at least one image was broken
+- **Critical:** `/images/articles/` is NOT in the broken-prefix list (this directory exists with user-uploaded Whisk images)
+
+### 20.9 Content Generator Editorial Standards
+
+All Claude-based content generators now enforce:
+- **Third-person editorial voice only** — no "I", "my", "we noticed", "caught my attention", "I find"
+- **No contractions** — "do not" not "don't"
+- **Banned phrases** — "dive into", "delve into", "In a world where", "game-changer", "landscape", "leverage", "robust", "comprehensive", "Furthermore", "Moreover", "crucial", "utilize", "empower", "seamless", "foster", "needless to say", "Here's the thing", "But wait", and 20+ more
+- Applied across: `tech_news_generator.py`, `ghana_tech_news.py`, `generate_article_on_demand.py`, `article_api.py`
+
+### 20.10 Pexels Image Quality Controls
+
+Both `ghana_tech_news.py` and `tech_news_generator.py`:
+- **Strip banned currency terms** ("banknotes", "coins", "euro", "dollar bills", "currency notes") before sending queries to Pexels — prevents Western Euro/USD imagery being returned for Ghana fintech articles
+- **Track used Pexels photo IDs** across articles in the same run — `_used_pexels_ids` set ensures no duplicate images across the 3 articles published per run
+- **Query rules in prompt** explicitly require African country/city in every image query
+
+### 20.11 Telegram Notification Changes
+
+- **Removed:** video script messages, trending topics notifications
+- **Kept:** article published notifications, social media post text
+- **Bot token:** `8726661150:AAEOQpA2L0kLLMUllFUmxHOErvcYHg1pw9w`
+- **Chat ID:** `-1003595231315`
+
+### 20.12 DigiStore Products
+
+4 Ghana-specific products added to the `products` table:
+
+| Product | Price |
+|---------|-------|
+| Ghana Freelancer Starter Pack | GHS 49 |
+| Get Your First Tech Job in Ghana | GHS 39 |
+| Family Digital Safety Guide | GHS 25 |
+| Ghana Smart Money & Tech Bundle | GHS 35 |
+
+Original: "Think Before You Click" cybersecurity ebook by Edmund Adjekum (on the book cover image — book itself is sold via Selar.com).
+
+### 20.13 Database Tables Added
+
+| Table | Purpose | UI Status |
+|-------|---------|-----------|
+| `scam_experiences` | Public-submitted scam stories with admin moderation | ⚠️ Table created with RLS but UI not built yet |
+| `whatsapp_queue` | Auto-generated WhatsApp post queue (see Section 19) | ✅ Live at `/admin/whatsapp-queue` |
+
+### 20.14 SEO & Indexing Status
+
+- Sitemap regenerated to include all individual articles, news, and reviews (current count: ~1,200 URLs)
+- Sitemap submitted to Google Search Console (status: Success, all URLs discovered)
+- Prerender.io processes the sitemap on a 7-day refresh cycle
+- About page stats display: 200+ Articles, 130+ Tools, 12 Topics, 9+ Years Online (static, no animation library — was failing due to double IntersectionObserver issue)
+
+### 20.15 AdSense Compliance Fixes
+
+Before reapplying for AdSense (rejected previously):
+- ✅ Per-article AI disclosure badge
+- ✅ Author attribution to named person (Edmund A.) — required for E-E-A-T
+- ✅ AdSense + AI content sections added to `/disclosure` page
+- ✅ Soft 404 routes redirected (no more "Page Not Found" with 200 status)
+- ✅ All ALL-CAPS sensationalist headings removed from Creepy Tech content
+- ✅ Review scores diversified (no more 4.2 across multiple products)
+- ✅ Scoring scale explanation added: "Rated out of 5 — based on performance, value, build quality, and real-world usability"
+- ✅ Clickbait first-person review/article headlines rewritten
+
+### 20.16 Cloudflare Configuration
+
+- **Browser Integrity Check:** Disabled (was blocking Claude.ai web browsing)
+- **AI Crawl Control:** ClaudeBot, Claude-User, Claude-SearchBot all set to Allow
+- **Block AI Scrapers and Crawlers:** Disabled at the global toggle
+- **Cache:** Standard Cloudflare caching. Manual purge required after deploys that change `index.html` content (visit Caching → Configuration → Purge Everything in Cloudflare dashboard)
+
+
