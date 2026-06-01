@@ -34,3 +34,7 @@ dist-ssr
 *.key
 *.crt
 .deploy-manifest
+
+# Backups (never commit — too large, contains live site snapshot)
+backup-*.tar.gz
+backup-LIVE-*/
