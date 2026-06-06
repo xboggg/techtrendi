@@ -51,6 +51,16 @@ jobs:
         run: npm ci
 
       - name: Build
+        # All VITE_* env vars are inlined into the bundle at build time
+        # via import.meta.env. They live as repo Action secrets so the
+        # public build has the same values as a local `npm run build`.
+        env:
+          VITE_SUPABASE_PROJECT_ID:     ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
+          VITE_SUPABASE_URL:            ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_GA_MEASUREMENT_ID:       ${{ secrets.VITE_GA_MEASUREMENT_ID }}
+          VITE_GROQ_API_KEY:            ${{ secrets.VITE_GROQ_API_KEY }}
+          VITE_GROQ_CHAT_API_KEY:       ${{ secrets.VITE_GROQ_CHAT_API_KEY }}
         run: npm run build
 
       - name: Configure SSH
