@@ -1,73 +1,137 @@
-# Welcome to your Lovable project
+# TechTrendi
 
-## Project info
+**Tech news, reviews, and editorial site for Ghana and beyond.**
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Live at **<https://techtrendi.com>**. Source: <https://github.com/xboggg/trenditrendi>.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## What is this?
 
-**Use Lovable**
+TechTrendi is a static React/Vite site publishing tech news articles,
+product reviews, and editorial content with a focus on the Ghanaian
+audience. Content is editor-curated and stored in Supabase; the build
+prerenders article pages for SEO.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+The site is part of a small portfolio of Edmund Adjekum's projects all
+hosted on the same Contabo VPS — see `/root/SERVER_DOCUMENTATION.md` on
+the server for the full inventory.
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## The docs
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+For anyone picking this up cold, in reading order:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. **[DOCS/ARCHITECTURE.md](DOCS/ARCHITECTURE.md)** — how the app is built.
+   Stack, project structure, routing, where content comes from.
+2. **[DOCS/OPERATIONS.md](DOCS/OPERATIONS.md)** — how the app is run.
+   Server, nginx, Cloudflare, deploy procedure, rollback, DNS, email.
+3. **[DOCS/ADDING_CONTENT.md](DOCS/ADDING_CONTENT.md)** — non-coder
+   workflows: publish a new article, update an emergency link, change
+   the About text.
+4. **[DOCS/DISASTER_RECOVERY.md](DOCS/DISASTER_RECOVERY.md)** — what
+   survives what, what's in the daily Google Drive backup, and the
+   step-by-step recovery for every "the server / laptop / GitHub is
+   gone" scenario.
 
-Follow these steps:
+The legacy comprehensive doc at
+[TECHTRENDI-DOCUMENTATION.md](TECHTRENDI-DOCUMENTATION.md) is kept for
+historical context — the 4 focused docs above supersede most of it.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Stack at a glance
 
-# Step 3: Install the necessary dependencies.
-npm i
+| Layer | What |
+| --- | --- |
+| Frontend | React 18 + TypeScript + Vite |
+| Styling | Tailwind v4 + shadcn/ui (Radix primitives) |
+| Routing | react-router-dom |
+| Content | Supabase Postgres (techtrendi schema) |
+| Hosting | Static build served by nginx on Contabo VPS (Germany) |
+| DNS / CDN | Cloudflare (proxied) |
+| Hosting model | Multi-site shared server (cyberabofra, trendimovies, etc) |
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Full dependency list in [`package.json`](package.json).
+
+---
+
+## Run locally
+
+Prerequisites: Node.js 18 or higher.
+
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Dev server starts on <http://localhost:8080> (Vite default).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## Build for production
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+npm run build
+```
 
-## What technologies are used for this project?
+Outputs a static bundle in `dist/`.
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Deploy
 
-## How can I deploy this project?
+**Push to `main` on GitHub** — that's it. GitHub Actions builds and ships
+in ~50 seconds.
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+```bash
+git add -A
+git commit -m "what changed"
+git push
+```
 
-## Can I connect a custom domain to my Lovable project?
+Watch the run at <https://github.com/xboggg/trenditrendi/actions>.
 
-Yes, you can!
+The workflow definition is at
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). Manual
+runs are available via the **Run workflow** button on the Actions tab.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+If GitHub Actions is ever down or you need to ship a hotfix faster than
+a CI run, the legacy [`deploy.sh`](deploy.sh) is preserved as the
+emergency manual deploy — it does the same thing locally
+(build → tar → scp → install).
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Each deploy snapshots the previous build to `/var/www/techtrendi.backup/`
+on the server for one-step rollback — see
+[DOCS/OPERATIONS.md](DOCS/OPERATIONS.md) for the full procedure and
+disaster recovery.
+
+---
+
+## Project layout
+
+```
+techtrendi/
+├── .github/workflows/         # GitHub Actions auto-deploy on push to main
+├── DOCS/                      # Architecture / operations / content / disaster recovery
+├── deploy/                    # Server-side install + SSH gate scripts (canonical copies)
+├── deploy.sh                  # Legacy emergency manual deploy script
+├── content/                   # Editorial content
+├── public/                    # Static assets shipped as-is
+├── scripts/                   # Article publishing + refresh helpers
+├── src/
+│   ├── components/            # Reusable UI (shadcn-based)
+│   ├── pages/                 # Top-level route components
+│   ├── lib/                   # Pure helpers (supabase client, utils)
+│   └── integrations/          # Third-party API clients
+└── TECHTRENDI-DOCUMENTATION.md  # Legacy comprehensive doc (gradually deprecated)
+```
+
+---
+
+## Contact
+
+- **Admin / editorial:** [info@techtrendi.com](mailto:info@techtrendi.com)
+- **Live site:** <https://techtrendi.com>
+- **Owner:** Edmund Adjekum (xboggg)

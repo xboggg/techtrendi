@@ -1,0 +1,105 @@
+name: Deploy
+
+# Auto-deploys every push to `main` to the Contabo server.
+# Manual re-runs available via the "Run workflow" button on the Actions tab.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   DEPLOY_SSH_KEY  — private key (ed25519) authorised in root@144.91.71.106:~/.ssh/authorized_keys
+#   DEPLOY_HOST     — server hostname or IP (currently 144.91.71.106)
+#   DEPLOY_USER     — SSH user (currently root)
+#
+# The deploy key on the server is LOCKED DOWN via a ForceCommand wrapper at
+# /usr/local/bin/techtrendi-deploy. It only allows two operations:
+#   1. scp -t /tmp/techtrendi-new.tar.gz       (the build upload)
+#   2. /usr/local/bin/techtrendi-install       (the install + reload script)
+# Any other command (shell, ls, whoami, ...) is rejected and logged via
+# syslog (journalctl -t techtrendi-deploy on the server).
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'DOCS/**'
+      - '.gitignore'
+      # Server-side scripts mirror /usr/local/bin/techtrendi-* on the server;
+      # editing them locally doesn't change the React build.
+      - 'deploy/**'
+      # Legacy emergency-deploy shell script — kept for backup only.
+      - 'deploy.sh'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Package build
+        run: tar -czf techtrendi-dist.tar.gz -C dist .
+
+      - name: Upload to server
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          # -O forces legacy scp protocol so SSH_ORIGINAL_COMMAND on the server
+          # matches the exact whitelist entry in the ForceCommand wrapper.
+          scp -O -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            techtrendi-dist.tar.gz \
+            "$DEPLOY_USER@$DEPLOY_HOST:/tmp/techtrendi-new.tar.gz"
+
+      - name: Install on server + reload nginx
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "$DEPLOY_USER@$DEPLOY_HOST" \
+            /usr/local/bin/techtrendi-install
+
+      - name: Smoke test
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          # Use a real browser UA — the server's bot blocker 403s default curl
+          UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+          STATUS=$(curl -sI -A "$UA" -o /dev/null -w '%{http_code}' --max-time 15 https://techtrendi.com/)
+          echo "https://techtrendi.com/ → $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::Site returned $STATUS — investigate"
+            exit 1
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
