@@ -38,3 +38,9 @@ dist-ssr
 # Backups (never commit — too large, contains live site snapshot)
 backup-*.tar.gz
 backup-LIVE-*/
+
+# Build artifacts shipped to the server — never commit these
+*.tar.gz
+*.tgz
+*.zip
+dist-upload*

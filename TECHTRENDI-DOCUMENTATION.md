@@ -36,10 +36,12 @@
 
 | Component | Location | Details |
 |-----------|----------|---------|
-| **Frontend (Production)** | Namecheap cPanel | IP `198.54.125.234`, user `techbhyx`, document root `/public_html/` |
-| **VPS (Supabase + Automation)** | Contabo | IP `38.242.195.0`, Ubuntu, runs all backend services |
-| **Supabase** | Self-hosted on VPS | Accessible at `https://db.techtrendi.com` |
-| **Domain** | techtrendi.com | DNS points to cPanel for frontend, `db.techtrendi.com` proxied to VPS |
+| **Frontend (Production)** | Contabo VPS | IP `144.91.71.106`, served by nginx from `/var/www/techtrendi`. DNS proxied through Cloudflare. (Verified 2026-06-02.) |
+| **VPS (Automation + Bots)** | Contabo | IP `38.242.195.0`, Ubuntu, runs article bot, monitoring, vibelink subdomains |
+| **Supabase (production)** | Self-hosted on 144.91.71.106 | Accessible at `https://db2.techtrendi.com` |
+| **Domain** | techtrendi.com | DNS in Cloudflare → proxied to 144.91.71.106 |
+
+> **Note (2026-06-02):** Frontend hosting was previously Namecheap cPanel (`198.54.125.234`). It has been migrated to Contabo `144.91.71.106`. Old FTP deploy scripts (`deploy.cjs.OLD-NAMECHEAP-do-not-use`, `deploy_sync.py.OLD-NAMECHEAP-do-not-use`) are obsolete — use `bash deploy.sh` instead.
 
 ### Tech Stack
 
@@ -810,66 +812,62 @@ Reviews use images provided in the generation prompt or default to category-base
 
 ### Prerequisites
 
-- SSH access to VPS (`root@38.242.195.0`)
+- SSH access to VPS (`root@144.91.71.106`)
 - Node.js + npm on local machine
 - Source code at local workspace
 
-### Build
+### Deploy (one command)
 
 ```bash
-cd "C:/Users/CyberAware/OneDrive - Government of Ghana - CAGD/ZeroTrust/Visual Studio Code Workspace/techtrendi"
-npm run build
-```
-
-This produces a `dist/` folder with `index.html` and `assets/` containing hashed JS/CSS chunks.
-
-### Deploy (Automated Script)
-
-A Python deploy script on the VPS handles everything:
-
-```bash
-# 1. Tar the dist folder and send to VPS
 cd techtrendi
-tar czf /tmp/tt-dist.tar.gz -C dist .
-scp /tmp/tt-dist.tar.gz root@38.242.195.0:/tmp/tt-dist.tar.gz
-
-# 2. Extract and deploy on VPS
-ssh root@38.242.195.0 "
-  rm -rf /tmp/techtrendi-dist &&
-  mkdir -p /tmp/techtrendi-dist &&
-  tar xzf /tmp/tt-dist.tar.gz -C /tmp/techtrendi-dist &&
-  python3 /opt/techtrendi-deploy.py /tmp/techtrendi-dist
-"
+bash deploy.sh "Optional commit message"
 ```
 
-**What the deploy script does (`/opt/techtrendi-deploy.py`):**
+This single script handles the entire deploy. See [deploy.sh](deploy.sh) for the source.
 
-1. **Connects to cPanel FTP** (198.54.125.234)
-2. **Deletes stale assets** — Compares remote `/public_html/assets/` with local `dist/assets/`, removes files not in the current build
-3. **Uploads ALL assets** — Every file from `dist/assets/` is uploaded (with 3 retries per file and automatic FTP reconnection on failure)
-4. **Uploads `index.html` LAST** — This is critical; uploading it before assets would cause the site to reference JS/CSS files that don't exist yet
+### What `deploy.sh` does
 
-### Verify
+1. **Git sync** — commits any pending changes locally and pushes to `origin/main` on GitHub
+2. **Fresh build** — `rm -rf dist && npm run build` (so stale chunks never ship)
+3. **Remote backup** — tars `/var/www/techtrendi` on the server into `/root/backup-techtrendi-<timestamp>.tar.gz` before touching anything (safety net for rollback)
+4. **Upload** — packages `dist/` into `/tmp/dist.tar.gz`, scp's to VPS, extracts in place
+5. **Verify** — parses the entry bundle hash from local `dist/index.html` and compares against the live site (using a real User-Agent so the bot-blocker doesn't return 403)
+6. **Print rollback command** — every deploy ends with the exact `ssh ... tar xzf ...` command needed to restore from the backup created in step 3
+
+### Verify manually
 
 ```bash
-curl -s "https://techtrendi.com/" | grep -o 'index-[^"]*\.js'
+curl -s -A "Mozilla/5.0" "https://techtrendi.com/" | grep -oE 'assets/index-[a-zA-Z0-9_-]+\.js' | head -1
 ```
 
-The output hash must match the filename in `dist/assets/`.
+The output must match the entry bundle in `dist/index.html`.
 
-### Why ALL Assets Must Be Uploaded
+### Why ALL assets must be uploaded
 
-Vite generates content-hashed filenames (e.g., `Reviews-C6i4Bm8p.js`). Every build regenerates **all** chunk hashes, even for unchanged files. If only some assets are uploaded, pages that depend on missing chunks will crash with "Failed to fetch dynamically imported module" errors.
+Vite generates content-hashed filenames (e.g., `Reviews-C6i4Bm8p.js`). Every build regenerates **all** chunk hashes, even for unchanged files. `deploy.sh` packages the entire `dist/` so the upload is atomic — index.html and the chunks it references arrive together.
 
-### FTP Credentials
+### Server access
 
 | Field | Value |
 |-------|-------|
-| Host | `198.54.125.234` |
-| User | `techbhyx` |
-| Password | `jaesn3fhu@*WE-` |
-| Document Root | `/public_html/` |
-| Assets Dir | `/public_html/assets/` |
+| Host | `144.91.71.106` |
+| User | `root` |
+| Document Root | `/var/www/techtrendi/` |
+| Assets Dir | `/var/www/techtrendi/assets/` |
+| Nginx config | `/etc/nginx/sites-enabled/techtrendi.com` |
+| SSL cert | `/etc/ssl/certs/techtrendi.crt` (not Let's Encrypt) |
+
+### Periodic asset cleanup
+
+Because `tar xzf` adds files without removing old ones, the server's `assets/` directory accumulates stale chunks over time. On 2026-06-02 we removed 3,633 stale chunks (83 MB → 6.9 MB). If/when it grows large again, the cleanup pattern is:
+
+```bash
+# On the server: delete files in assets/ that aren't in the current dist AND are older than 7 days
+ssh root@144.91.71.106 'ls /var/www/techtrendi/assets/' | sort > /tmp/remote-assets.txt
+ls techtrendi/dist/assets/ | sort > /tmp/local-assets.txt
+comm -23 /tmp/remote-assets.txt /tmp/local-assets.txt > /tmp/stale.txt
+# review /tmp/stale.txt, then on server: while read f; do [ -f "$f" ] && [ $(find "$f" -mtime +7 | wc -l) -eq 1 ] && rm -f "$f"; done < /tmp/stale.txt
+```
 
 ---
 

@@ -35,8 +35,9 @@ if [ ! -f "$DIST_DIR/index.html" ]; then
   echo "==> ERROR: Build did not produce dist/index.html. Aborting."
   exit 1
 fi
-NEW_HASH=$(ls dist/assets/index-*.js 2>/dev/null | grep -o 'index-[^.]*' | head -1)
-echo "==> Build hash: $NEW_HASH"
+# Parse the actual entry bundle from index.html (Vite produces many index-*.js chunks)
+NEW_BUNDLE=$(grep -oE 'assets/index-[a-zA-Z0-9_-]+\.js' "$DIST_DIR/index.html" | head -1)
+echo "==> Entry bundle: $NEW_BUNDLE"
 
 # Step 2: Remote backup BEFORE deploy (safety net for rollback)
 echo "==> Creating remote backup..."
@@ -57,13 +58,13 @@ ssh "$VPS_HOST" "cd $VPS_PATH && tar xzf /tmp/dist.tar.gz && rm /tmp/dist.tar.gz
 # Step 4: Verify
 echo "==> Verifying deployment..."
 sleep 2
-LIVE_HASH=$(curl -s "https://techtrendi.com/" | grep -o 'index-[^"]*\.js' | head -1)
-if [[ "$LIVE_HASH" == "$NEW_HASH.js" ]]; then
-  echo "==> DEPLOY SUCCESS: $LIVE_HASH is live"
-  echo "==> Rollback (if needed): ssh $VPS_HOST 'cd /var/www && rm -rf techtrendi && tar xzf $BACKUP_FILE'"
+# Use real User-Agent so the bot-blocker doesn't return 403
+LIVE_BUNDLE=$(curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" "https://techtrendi.com/" | grep -oE 'assets/index-[a-zA-Z0-9_-]+\.js' | head -1)
+if [[ "$LIVE_BUNDLE" == "$NEW_BUNDLE" ]]; then
+  echo "==> DEPLOY SUCCESS: $LIVE_BUNDLE is live"
 else
-  echo "==> WARNING: Expected $NEW_HASH.js but got $LIVE_HASH (Cloudflare cache may need time)"
-  echo "==> Rollback (if needed): ssh $VPS_HOST 'cd /var/www && rm -rf techtrendi && tar xzf $BACKUP_FILE'"
+  echo "==> WARNING: Expected $NEW_BUNDLE but live shows $LIVE_BUNDLE (Cloudflare cache may need time — purge via CF dashboard if urgent)"
 fi
+echo "==> Rollback (if needed): ssh $VPS_HOST 'cd /var/www && rm -rf techtrendi && tar xzf $BACKUP_FILE'"
 
 echo "==> Done! Local → GitHub → VPS all in sync."
