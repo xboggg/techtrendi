@@ -2,7 +2,7 @@
 
 **Tech news, reviews, and editorial site for Ghana and beyond.**
 
-Live at **<https://techtrendi.com>**. Source: <https://github.com/xboggg/trenditrendi>.
+Live at **<https://techtrendi.com>**. Source: <https://github.com/xboggg/techtrendi>.
 
 ---
 
@@ -91,7 +91,7 @@ git commit -m "what changed"
 git push
 ```
 
-Watch the run at <https://github.com/xboggg/trenditrendi/actions>.
+Watch the run at <https://github.com/xboggg/techtrendi/actions>.
 
 The workflow definition is at
 [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). Manual

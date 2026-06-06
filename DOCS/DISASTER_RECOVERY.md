@@ -18,7 +18,7 @@ and [ARCHITECTURE.md](ARCHITECTURE.md) for the data model.
 
 Three places make a deliberate trust split:
 
-- **Source of truth for code:** GitHub (`xboggg/trenditrendi`, public)
+- **Source of truth for code:** GitHub (`xboggg/techtrendi`, public)
 - **Source of truth for runtime:** the Contabo server at `144.91.71.106`
 - **Source of truth for content:** the Supabase Postgres `techtrendi`
   schema on the server
@@ -77,7 +77,7 @@ Fastest recovery, ~5 minutes.
 
 1. On the new machine, install Node 18+ and Git.
 2. `gh auth login` (or sign in to GitHub the regular way).
-3. `git clone https://github.com/xboggg/trenditrendi` into a working
+3. `git clone https://github.com/xboggg/techtrendi` into a working
    folder.
 4. Generate a new deploy keypair:
    `ssh-keygen -t ed25519 -f ~/.ssh/techtrendi_deploy -N "" -C "techtrendi-github-actions@xboggg"`
@@ -85,7 +85,7 @@ Fastest recovery, ~5 minutes.
    (keep the existing `command="..."` and option flags). Remove the old
    line if its private half is no longer needed.
 6. Update the GitHub secret:
-   `gh secret set DEPLOY_SSH_KEY --repo xboggg/trenditrendi < ~/.ssh/techtrendi_deploy`
+   `gh secret set DEPLOY_SSH_KEY --repo xboggg/techtrendi < ~/.ssh/techtrendi_deploy`
 7. Make a tiny doc change and `git push` to trigger a deploy run.
 
 Nothing on the live site changes during this. Visitors keep using
@@ -141,7 +141,7 @@ Recovery target: ~30 minutes for the static site,
    - Append the public key to `root@<new-ip>:~/.ssh/authorized_keys`,
      prefixed with `command="/usr/local/bin/techtrendi-deploy",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,restrict`.
    - Update `DEPLOY_HOST` GitHub secret:
-     `gh secret set DEPLOY_HOST --repo xboggg/trenditrendi --body "<new-ip>"`
+     `gh secret set DEPLOY_HOST --repo xboggg/techtrendi --body "<new-ip>"`
 10. **Trigger a deploy** by pushing any commit. The Actions workflow
     will build, ship, and bring techtrendi.com back online.
 
@@ -152,8 +152,8 @@ Recovery target: ~30 minutes for the static site,
 3. If you suspect the repo has been tampered with, push your local clone
    to a new private repo:
    ```bash
-   gh repo create xboggg/trenditrendi-restore --private
-   git remote set-url origin https://github.com/xboggg/trenditrendi-restore.git
+   gh repo create xboggg/techtrendi-restore --private
+   git remote set-url origin https://github.com/xboggg/techtrendi-restore.git
    git push --force origin main
    ```
 4. Reconfigure GitHub Actions secrets on the new repo
@@ -223,8 +223,8 @@ dump-format problems before you actually need them.
 | Supabase schema (data) | `techtrendi` schema in supabase-db container on 144.91.71.106 |
 | Backup script | `/opt/trendimovies/backup/backup.sh` on 144.91.71.106 |
 | Backup destination | `gdrive:144-main/daily/` (full) and `gdrive:databases/144-main/<date>/` (DB-only) |
-| GitHub repo | <https://github.com/xboggg/trenditrendi> (public) |
-| GitHub secrets | <https://github.com/xboggg/trenditrendi/settings/secrets/actions> |
+| GitHub repo | <https://github.com/xboggg/techtrendi> (public) |
+| GitHub secrets | <https://github.com/xboggg/techtrendi/settings/secrets/actions> |
 | Deploy keypair | `~/.ssh/techtrendi_deploy{,.pub}` on Edmund's Windows laptop |
 | DNS / CDN | Cloudflare account (xboggg) → techtrendi.com zone |
 | Email | `info@techtrendi.com` (see legacy TECHTRENDI-DOCUMENTATION.md for setup) |

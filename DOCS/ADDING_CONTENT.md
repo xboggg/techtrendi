@@ -146,7 +146,7 @@ git push
 
 That's it. GitHub Actions auto-builds and ships to the server in ~50
 seconds. Watch progress at
-<https://github.com/xboggg/trenditrendi/actions>.
+<https://github.com/xboggg/techtrendi/actions>.
 
 Then **purge the Cloudflare cache** if you need the change visible to
 all visitors immediately (Cloudflare dashboard →

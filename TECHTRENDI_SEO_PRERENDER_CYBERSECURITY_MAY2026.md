@@ -3,7 +3,7 @@
 **Session period:** Late April – May 7, 2026  
 **VPS:** 144.91.71.106  
 **Site:** techtrendi.com  
-**GitHub:** https://github.com/xboggg/trenditrendi.git  
+**GitHub:** https://github.com/xboggg/techtrendi.git  
 
 ---
 

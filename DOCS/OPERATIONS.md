@@ -11,7 +11,7 @@ Everything about running production techtrendi.com. Pair with
 | | |
 | --- | --- |
 | **Live URL** | <https://techtrendi.com> (Cloudflare-proxied) |
-| **Source** | <https://github.com/xboggg/trenditrendi> (public) |
+| **Source** | <https://github.com/xboggg/techtrendi> (public) |
 | **CI/CD** | GitHub Actions — auto-deploy on push to `main` (~50 sec) |
 | **Server** | Contabo VPS at `144.91.71.106` (Düsseldorf, Germany) |
 | **SSH (human)** | `ssh root@144.91.71.106` from a laptop with the personal key |
@@ -92,7 +92,7 @@ tail -f /var/log/nginx/error.log               # live error log
 
 ### Normal path — automatic via GitHub Actions
 
-Push to `main` on <https://github.com/xboggg/trenditrendi>:
+Push to `main` on <https://github.com/xboggg/techtrendi>:
 
 ```bash
 git add -A
@@ -117,7 +117,7 @@ That triggers
    `User-Agent` (the server's bot blocker 403s the default curl UA).
 
 Total runtime: 45-60 seconds. Watch live at
-<https://github.com/xboggg/trenditrendi/actions>.
+<https://github.com/xboggg/techtrendi/actions>.
 
 After deploy, **purge the Cloudflare cache** if the change should be
 visible immediately — otherwise CF will serve the old hashed bundles
@@ -161,13 +161,13 @@ commands. Rejections show up in `journalctl -t techtrendi-deploy`.
    `techtrendi-github-actions` line with the new public key, keeping the
    same `command="..."` and option flags.
 3. Replace the `DEPLOY_SSH_KEY` GitHub secret:
-   `gh secret set DEPLOY_SSH_KEY --repo xboggg/trenditrendi < ~/.ssh/techtrendi_deploy`
+   `gh secret set DEPLOY_SSH_KEY --repo xboggg/techtrendi < ~/.ssh/techtrendi_deploy`
 4. Trigger a manual workflow run to verify.
 
 ### GitHub Actions secrets
 
 Three secrets on
-<https://github.com/xboggg/trenditrendi/settings/secrets/actions>:
+<https://github.com/xboggg/techtrendi/settings/secrets/actions>:
 
 | Secret | Value |
 | --- | --- |
