@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <!-- Prerender: wait for the app to signal content is ready (see src/components/PrerenderReady.tsx). No-op for normal visitors. -->
     <script>window.prerenderReady = false;</script>
-    <title>TechTrendi – Ghana's Tech News, Tools & Digital Insights</title>
-    <meta name="description" content="Ghana's leading tech destination. Daily tech news from Ghana and Africa, 130+ free tools (MoMo fee calculator, scam checker, electricity calculator), honest reviews, and digital insights built for Africa." />
-    <meta name="author" content="TechTrendi" />
-    <meta name="keywords" content="Ghana tech news, Africa technology, Ghana technology blog, MoMo calculator, Ghana cybersecurity, Africa tech reviews, Ghana digital tools, MoMo fraud, Africa Tech Brief" />
-    <!-- canonical is set dynamically per page by React Helmet -->
+    <!-- title, description, keywords, author, canonical, robots, Open Graph &
+         Twitter tags are injected PER PAGE by SEOHead via vite-react-ssg <Head>.
+         Do NOT add static versions here — they block/duplicate the per-page ones. -->
 
     <!-- Google Search Console Verification -->
     <meta name="google-site-verification" content="googled7c567aac507448a" />
@@ -18,30 +16,7 @@
 
     <!-- Security headers are set via .htaccess for better browser compatibility -->
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:title" content="TechTrendi – Ghana's Tech News, Tools & Digital Insights" />
-    <meta property="og:description" content="Ghana's leading tech destination. Daily tech news from Ghana and Africa, 130+ free tools, honest reviews, and digital insights built for Africa." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://techtrendi.com" />
-    <meta property="og:site_name" content="TechTrendi" />
-    <meta property="og:image" content="https://techtrendi.com/og-image.jpg" />
-    <meta property="og:image:type" content="image/jpeg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="TechTrendi - Tech News, Expert Guides & Free Tools" />
-    <meta property="og:locale" content="en_US" />
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@techtrendi" />
-    <meta name="twitter:creator" content="@techtrendi" />
-    <meta name="twitter:title" content="TechTrendi – Ghana's Tech News, Tools & Digital Insights" />
-    <meta name="twitter:description" content="Ghana's leading tech destination. Daily tech news from Ghana and Africa, 130+ free tools, honest reviews, and digital insights built for Africa." />
-    <meta name="twitter:image" content="https://techtrendi.com/og-image.jpg" />
-    <meta name="twitter:image:alt" content="TechTrendi - Tech Guides and Tools" />
+    <!-- robots, Open Graph & Twitter tags injected per-page by SEOHead -->
 
     <!-- PWA & Mobile -->
     <meta name="theme-color" content="#0066FF" />
