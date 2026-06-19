@@ -23,4 +23,15 @@ export default defineConfig(({ mode }) => ({
   ssr: {
     noExternal: ["react-helmet-async"],
   },
+  ssgOptions: {
+    // Not pre-rendered (work client-side; ~no SEO value as static snapshots):
+    //  - admin: auth-gated dashboards
+    //  - arcade: purely interactive games
+    //  - dynamic :param routes: need getStaticPaths + build-time data (later phase)
+    includedRoutes(paths: string[]) {
+      return paths.filter(
+        (p) => !p.includes("admin") && !p.includes("arcade") && !p.includes(":")
+      );
+    },
+  },
 }));

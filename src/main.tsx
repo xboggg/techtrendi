@@ -1,3 +1,4 @@
+import "./ssg/ssr-polyfill"; // must run before anything reads storage (build-only)
 import { ViteReactSSG } from "vite-react-ssg";
 import { routes } from "./ssg/routes";
 import "./index.css";
