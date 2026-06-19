@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link, useLocation } from "react-router-dom";
+import { useParams, Link, useLocation, useLoaderData } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 // No static JSON fallback — API-first with sessionStorage cache
@@ -88,10 +88,12 @@ export default function BlogArticle() {
   const { subscription, user } = useAuth();
   const { addToHistory } = useReadingHistory();
 
-  // Try cache/static first, then fall back to router state (partial data from listing page)
+  // Build-time data (vite-react-ssg loader) seeds the article into static HTML;
+  // then cache / router-state for client navigation.
+  const loaderArticle = (useLoaderData() as Article | null) ?? undefined;
   const instant = slug ? getCachedArticle(slug) : undefined;
   const routerArticle = location.state?.article as Article | undefined;
-  const initialArticle = instant || routerArticle;
+  const initialArticle = loaderArticle || instant || routerArticle;
 
   const [article, setArticle] = useState<Article | undefined>(initialArticle);
   const [allArticles, setAllArticles] = useState<Article[]>([]);
@@ -483,7 +485,7 @@ export default function BlogArticle() {
             {/* Action Buttons */}
             <div className="flex items-center gap-4 mt-6">
               <ShareButtons
-                url={window.location.href}
+                url={`https://techtrendi.com/blog/${article.slug}`}
                 title={article.title}
                 description={article.excerpt || undefined}
                 variant="compact"

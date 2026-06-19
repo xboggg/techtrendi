@@ -50,3 +50,23 @@ export async function newsLoader({ params }: { params: { slug?: string } }) {
   const rows = await sbFetch(`news?slug=eq.${encodeURIComponent(params.slug)}&select=*`);
   return rows[0] ?? null;
 }
+
+// Blog articles live in the `articles` table.
+const BLOG_LIMIT = 20; // verification cap — see production-cap decision
+
+export async function blogStaticPaths(): Promise<string[]> {
+  if (!import.meta.env.SSR) return [];
+  const rows = await sbFetch(
+    `articles?select=slug&is_published=eq.true&order=created_at.desc&limit=${BLOG_LIMIT}`
+  );
+  return rows
+    .map((r) => (r as { slug?: string }).slug)
+    .filter((s): s is string => Boolean(s))
+    .map((slug) => `blog/${slug}`);
+}
+
+export async function blogLoader({ params }: { params: { slug?: string } }) {
+  if (!import.meta.env.SSR || !params.slug) return null;
+  const rows = await sbFetch(`articles?slug=eq.${encodeURIComponent(params.slug)}&select=*`);
+  return rows[0] ?? null;
+}
