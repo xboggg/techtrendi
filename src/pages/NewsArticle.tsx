@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLoaderData } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { Clock, Calendar, ArrowLeft, User, Zap } from "lucide-react";
@@ -10,7 +10,7 @@ import { ShareButtons } from "@/components/ui/share-buttons";
 import { BookmarkButton } from "@/components/ui/bookmark-system";
 import { useReadingHistory } from "@/components/ui/reading-history";
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify"; // SSG-safe: works in Node build + browser
 
 /**
  * Renders content that may be HTML or Markdown.
@@ -133,10 +133,14 @@ function getNewsImage(news: NewsItem): string {
 export default function NewsArticle() {
   const { slug } = useParams();
   const { addToHistory } = useReadingHistory();
-  const [news, setNews] = useState<NewsItem | null>(null);
+  // Build-time data: the vite-react-ssg loader seeds the article so its content
+  // is baked into the static HTML. On the client this is the baked data (or null,
+  // in which case the effect below fetches it). Client behavior is unchanged.
+  const loaderArticle = (useLoaderData() as NewsItem | null) ?? null;
+  const [news, setNews] = useState<NewsItem | null>(loaderArticle);
   const [relatedNews, setRelatedNews] = useState<NewsItem[]>([]);
   const [trendingNews, setTrendingNews] = useState<NewsItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!loaderArticle);
 
   useEffect(() => {
     if (!slug) return;
@@ -294,7 +298,7 @@ export default function NewsArticle() {
             <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{news.read_time_minutes || 3} min read</span>
           </div>
           <div className="flex items-center gap-4 mt-4">
-            <ShareButtons url={window.location.href} title={news.title} description={news.excerpt || undefined} variant="compact" />
+            <ShareButtons url={`https://techtrendi.com/news/${news.slug}`} title={news.title} description={news.excerpt || undefined} variant="compact" />
             <BookmarkButton item={{ id: news.id, type: 'news', title: news.title, url: `/news/${news.slug}`, excerpt: news.excerpt || undefined, image: news.cover_image || undefined }} />
           </div>
         </header>

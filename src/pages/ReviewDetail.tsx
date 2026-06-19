@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Helmet } from "react-helmet-async";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify"; // SSG-safe: works in Node build + browser
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
 import { ShareButtons } from "@/components/ui/share-buttons";
 

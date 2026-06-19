@@ -4,6 +4,7 @@ import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import Index from "../pages/Index";
 import Tools from "../pages/Tools";
 import NotFound from "../pages/NotFound";
+import { newsLoader, newsStaticPaths } from "./news-data";
 
 // Adapt our default-export pages to vite-react-ssg's lazy ({ Component }).
 const d = (imp: () => Promise<{ default: React.ComponentType }>) => () =>
@@ -25,7 +26,7 @@ export const routes: RouteRecord[] = [
       { path: "blog", lazy: d(() => import("../pages/Blog")) },
       { path: "blog/:slug", lazy: d(() => import("../pages/BlogArticle")) },
       { path: "news", lazy: d(() => import("../pages/News")) },
-      { path: "news/:slug", lazy: d(() => import("../pages/NewsArticle")) },
+      { path: "news/:slug", lazy: d(() => import("../pages/NewsArticle")), loader: newsLoader, getStaticPaths: newsStaticPaths },
       { path: "phones", lazy: d(() => import("../pages/categories/Phones")) },
       { path: "security", lazy: d(() => import("../pages/categories/Security")) },
       { path: "productivity", lazy: d(() => import("../pages/categories/Productivity")) },

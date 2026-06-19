@@ -12,7 +12,7 @@ import { ShareButtons } from "@/components/ui/share-buttons";
 import { BookmarkButton } from "@/components/ui/bookmark-system";
 import { useReadingHistory } from "@/components/ui/reading-history";
 import { sanitizeInput } from "@/lib/security";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify"; // SSG-safe: works in Node build + browser
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
