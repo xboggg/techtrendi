@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Prerender: wait for the app to signal content is ready (see src/components/PrerenderReady.tsx). No-op for normal visitors. -->
+    <script>window.prerenderReady = false;</script>
     <title>TechTrendi – Ghana's Tech News, Tools & Digital Insights</title>
     <meta name="description" content="Ghana's leading tech destination. Daily tech news from Ghana and Africa, 130+ free tools (MoMo fee calculator, scam checker, electricity calculator), honest reviews, and digital insights built for Africa." />
     <meta name="author" content="TechTrendi" />

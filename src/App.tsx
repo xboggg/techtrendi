@@ -20,6 +20,7 @@ import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { NavigationProgress } from "@/components/ui/NavigationProgress";
+import { PrerenderReady } from "@/components/PrerenderReady";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import { Loader2 } from "lucide-react";
 
@@ -307,6 +308,7 @@ const App = () => (
                       }}
                     />
                     <BrowserRouter>
+                    <PrerenderReady />
                     <NavigationProgress />
                     <ScrollToTop />
                     <GoogleAnalytics />
