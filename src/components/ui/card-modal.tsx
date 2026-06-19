@@ -66,6 +66,11 @@ export function CardModal({
     }
   };
 
+  // SSG-safe: portals render into document.body, which only exists in the
+  // browser. Hooks above run unconditionally; we just skip the portal on the
+  // server (the modal is closed on first paint anyway). Browser unchanged.
+  if (typeof document === "undefined") return null;
+
   return createPortal(
     <AnimatePresence>
       {post && (

@@ -10,7 +10,10 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    // SSG-safe: localStorage only exists in the browser. On the server build
+    // it's undefined (Supabase falls back to in-memory). Browser behavior is
+    // unchanged. NOTE: re-apply this guard if this file is ever regenerated.
+    storage: typeof window !== "undefined" ? window.localStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
   },

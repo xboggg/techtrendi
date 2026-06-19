@@ -39,6 +39,9 @@ export function WaveFeatureCarousel() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
   const [isDark, setIsDark] = useState(() =>
+    // SSG-safe: document only exists in the browser. On the server build this
+    // is false; the MutationObserver effect below sets the real value on mount.
+    typeof document !== "undefined" &&
     document.documentElement.classList.contains("dark")
   );
   const isDarkRef = useRef(isDark);

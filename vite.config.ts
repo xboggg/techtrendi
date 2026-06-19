@@ -18,4 +18,9 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {},
   },
+  // CommonJS deps that break the SSR/SSG build when externalized as ESM.
+  // Bundling them lets Vite handle the CJS->ESM interop so named imports work.
+  ssr: {
+    noExternal: ["react-helmet-async"],
+  },
 }));
