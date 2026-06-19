@@ -29,9 +29,10 @@ export default defineConfig(({ mode }) => ({
     //  - arcade: purely interactive games
     //  - dynamic :param routes: need getStaticPaths + build-time data (later phase)
     includedRoutes(paths: string[]) {
-      return paths.filter(
-        (p) => !p.includes("admin") && !p.includes("arcade") && !p.includes(":")
-      );
+      // Exclude auth-gated/personalized/internal pages (no SEO value) and
+      // dynamic :param routes (those that need data use getStaticPaths instead).
+      const skip = ["admin", "arcade", "auth", "profile", "dashboard", "design-demo"];
+      return paths.filter((p) => !p.includes(":") && !skip.some((s) => p.includes(s)));
     },
   },
 }));
