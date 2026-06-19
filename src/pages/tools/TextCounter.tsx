@@ -1,6 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { TextCounter as TextCounterComponent } from "@/components/tools/TextCounter";
+import { ToolContentSection } from "@/components/tools/ToolContentSection";
 import { AlignJustify } from "lucide-react";
 
 export default function TextCounterPage() {
@@ -51,6 +52,8 @@ export default function TextCounterPage() {
           </div>
         </div>
       </div>
+
+      <ToolContentSection toolId="text-counter" />
     </Layout>
   );
 }

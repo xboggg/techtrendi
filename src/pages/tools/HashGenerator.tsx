@@ -1,6 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { HashGenerator as HashGeneratorComponent } from "@/components/tools/HashGenerator";
+import { ToolContentSection } from "@/components/tools/ToolContentSection";
 import { Hash } from "lucide-react";
 
 export default function HashGeneratorPage() {
@@ -51,6 +52,8 @@ export default function HashGeneratorPage() {
           </div>
         </div>
       </div>
+
+      <ToolContentSection toolId="hash-generator" />
     </Layout>
   );
 }
