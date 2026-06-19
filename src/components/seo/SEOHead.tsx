@@ -1,4 +1,7 @@
-import { Helmet } from 'react-helmet-async';
+// vite-react-ssg's <Head> injects into the static HTML at build time (its own
+// Helmet-based head manager). react-helmet-async's <Helmet> is NOT captured by
+// the SSG build, which is why per-page titles were generic. Same JSX children.
+import { Head } from 'vite-react-ssg';
 
 interface SEOHeadProps {
   title: string;
@@ -49,7 +52,7 @@ export function SEOHead({
   const allKeywords = [...new Set([...keywords, ...tags, 'tech', 'technology', 'guide', 'review'])].join(', ');
 
   return (
-    <Helmet>
+    <Head>
       {/* Primary Meta Tags */}
       <title>{fullTitle}</title>
       <meta name="title" content={fullTitle} />
@@ -68,7 +71,6 @@ export function SEOHead({
       {alternateLocales.map((loc) => (
         <meta key={loc} property="og:locale:alternate" content={loc} />
       ))}
-      <html lang={locale.split('_')[0]} />
 
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
@@ -119,7 +121,7 @@ export function SEOHead({
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
       <link rel="dns-prefetch" href="https://www.google-analytics.com" />
-    </Helmet>
+    </Head>
   );
 }
 
