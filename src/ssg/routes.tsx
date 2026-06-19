@@ -1,5 +1,6 @@
 import type { RouteRecord } from "vite-react-ssg";
 import RootLayout from "./RootLayout";
+import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import Index from "../pages/Index";
 
 // Adapt our pages (which use `export default`) to vite-react-ssg's `lazy`,
@@ -24,6 +25,16 @@ export const routes: RouteRecord[] = [
       { path: "privacy", lazy: d(() => import("../pages/Privacy")) },
       { path: "terms", lazy: d(() => import("../pages/Terms")) },
       { path: "contact", lazy: d(() => import("../pages/Contact")) },
+      // Tools nest under ToolPageLayout (mirrors App.tsx). Two real tools in
+      // the pilot to validate the tool pattern before scaling to all 139.
+      {
+        element: <ToolPageLayout />,
+        entry: "src/components/tools/ToolPageLayout.tsx",
+        children: [
+          { path: "tools/momo-fee-calculator", lazy: d(() => import("../pages/tools/MoMoFeeCalculator")) },
+          { path: "tools/password-generator", lazy: d(() => import("../pages/tools/PasswordGenerator")) },
+        ],
+      },
     ],
   },
 ];
