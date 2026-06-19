@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { cn } from "@/lib/utils";
 import { ThreatLevelBanner } from "@/components/security/ThreatLevelBanner";
 import { DailyTip } from "@/components/security/DailyTip";
@@ -192,11 +192,12 @@ export default function Security() {
 
   return (
     <Layout>
-      <Helmet>
-        <title>Cyber Safety Hub - Stay Safe Online | TechTrendi</title>
-        <meta name="description" content="Simple, practical cybersecurity tips for everyone. Learn how to protect yourself from scams, secure your passwords, and stay safe online. No jargon, just what you need to know." />
-        <meta name="keywords" content="cybersecurity, online safety, scam protection, password security, phishing, privacy, Ghana, cyber awareness" />
-      </Helmet>
+      <SEOHead
+        title="Cyber Safety Hub - Stay Safe Online"
+        description="Simple, practical cybersecurity tips for everyone. Learn how to protect yourself from scams, secure your passwords, and stay safe online. No jargon, just what you need to know."
+        canonical="/security"
+        keywords={["cybersecurity", "online safety", "scam protection", "password security", "phishing", "privacy", "Ghana", "cyber awareness"]}
+      />
 
       {/* ════════════════════════════════════════════════════════════ */}
       {/* HERO — Full animation suite                                */}
