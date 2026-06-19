@@ -170,7 +170,8 @@ export const routes: RouteRecord[] = [
           { path: "tools/startup-cost-calculator", lazy: d(() => import("../pages/tools/StartupCostCalculator")) },
           { path: "tools/text-to-speech", lazy: d(() => import("../pages/tools/TextToSpeech")) },
           { path: "tools/world-clock", lazy: d(() => import("../pages/tools/WorldClock")) },
-          { path: "tools/youtube-thumbnail-downloader", lazy: d(() => import("../pages/tools/YouTubeThumbnailDownloader")) },
+          // youtube-thumbnail-downloader removed (AdSense policy: copyrighted-asset
+          // download / targeting Google's own property). 301'd to thumbnail-tester in nginx.
           { path: "tools/currency-converter", lazy: d(() => import("../pages/tools/CurrencyConverter")) },
           { path: "tools/hook-generator", lazy: d(() => import("../pages/tools/HookGenerator")) },
           { path: "tools/idea-parking-lot", lazy: d(() => import("../pages/tools/IdeaParkingLot")) },

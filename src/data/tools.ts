@@ -129,7 +129,6 @@ export const allTools: Tool[] = [
 
   // Tech Tools
   { id: "file-converter", icon: ArrowRightLeft, title: "File Converter", description: "Convert between JSON, CSV, YAML, Markdown, HTML and more", href: "/tools/file-converter", tier: "free", category: "Developer Tools", categoryId: "developer", isNew: true, gradient: "from-blue-500 to-indigo-600", keywords: ["file", "converter", "json", "csv", "yaml", "markdown", "html"] },
-  { id: "youtube-thumbnail-downloader", icon: Youtube, title: "YouTube Thumbnail Downloader", description: "Download YouTube video thumbnails in all resolutions", href: "/tools/youtube-thumbnail-downloader", tier: "free", category: "Creator & Marketing", categoryId: "creator", isNew: true, gradient: "from-red-500 to-rose-600", keywords: ["youtube", "thumbnail", "downloader", "video", "image"] },
 
   // Money Tools
   { id: "adsense-calculator", icon: MousePointer, title: "AdSense Revenue Calculator", description: "Estimate your Google AdSense earnings with traffic projections", href: "/tools/adsense-calculator", tier: "free", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-green-500 to-emerald-600", keywords: ["adsense", "revenue", "calculator", "earnings", "cpc", "rpm"] },
