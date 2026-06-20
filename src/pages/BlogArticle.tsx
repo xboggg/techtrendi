@@ -315,7 +315,12 @@ export default function BlogArticle() {
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
       .replace(/\[(.+?)\]\((.+?)\)/g, (_m, linkText, url) => {
-        const cleanUrl = url.trim();
+        // sanitizeInput() above HTML-encodes / = & — decode them back in the URL
+        // so internal links (/blog/..., /tools/...) and query strings resolve.
+        const cleanUrl = url.trim()
+          .replace(/&#x2F;/gi, '/')
+          .replace(/&#x3D;/gi, '=')
+          .replace(/&amp;/g, '&');
         if (cleanUrl.match(/^https?:\/\//i) || cleanUrl.startsWith('/')) {
           return `<a href="${cleanUrl}" class="text-primary hover:underline" rel="noopener noreferrer">${linkText}</a>`;
         }
