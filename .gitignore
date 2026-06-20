@@ -44,3 +44,7 @@ backup-LIVE-*/
 *.tgz
 *.zip
 dist-upload*
+
+# Local AdSense relaunch working files (article payloads, scripts)
+_adsense_work/
+_tt_nginx*.conf
