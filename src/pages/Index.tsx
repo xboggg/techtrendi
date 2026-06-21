@@ -571,33 +571,40 @@ export default function Index() {
           </div>
 
           {/* Built for Ghana — flagship local tools (our differentiation) */}
-          <div className="mb-4 flex items-center gap-2">
-            <span className="text-xl">🇬🇭</span>
+          <div className="mb-5 flex items-center gap-3">
+            <GhanaFlag className="w-7 h-5 rounded shadow ring-1 ring-black/5 shrink-0" />
             <h3 className="text-lg font-bold text-foreground">Built for Ghana</h3>
+            <span className="hidden sm:inline text-sm text-muted-foreground">— tools you won't find on any global site</span>
+            <span className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-14">
             {flagshipTools.map((tool, index) => {
               const Icon = tool.icon;
               return (
                 <AnimatedCard key={tool.href} delay={index * 80} animation="fade-up">
                   <Link
                     to={tool.href}
-                    className="group flex flex-col p-5 rounded-2xl bg-card border border-border hover:shadow-lg hover:border-primary/30 transition-all duration-300 h-full"
+                    className="group relative flex flex-col p-5 rounded-2xl bg-card border border-border overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full"
                   >
-                    <div className={cn(
-                      "w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center mb-3 shadow group-hover:scale-110 transition-transform",
-                      tool.gradient
-                    )}>
-                      <Icon className="w-6 h-6 text-white" />
+                    {/* top gradient accent + soft glow behind the icon */}
+                    <div className={cn("absolute top-0 inset-x-0 h-1 bg-gradient-to-r", tool.gradient)} />
+                    <div className={cn("absolute -top-8 -left-8 w-24 h-24 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-300 bg-gradient-to-br", tool.gradient)} aria-hidden="true" />
+                    <div className="relative flex flex-col h-full">
+                      <div className={cn(
+                        "w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300",
+                        tool.gradient
+                      )}>
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+                      <h4 className="font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
+                        {tool.title}
+                      </h4>
+                      <p className="text-sm text-muted-foreground flex-1">{tool.description}</p>
+                      <span className="mt-3 text-primary text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+                        Open tool
+                        <ArrowRight className="w-4 h-4" />
+                      </span>
                     </div>
-                    <h4 className="font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
-                      {tool.title}
-                    </h4>
-                    <p className="text-sm text-muted-foreground flex-1">{tool.description}</p>
-                    <span className="mt-3 text-primary text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
-                      Open tool
-                      <ArrowRight className="w-4 h-4" />
-                    </span>
                   </Link>
                 </AnimatedCard>
               );
@@ -613,10 +620,11 @@ export default function Index() {
                 <AnimatedCard key={cat.id} delay={index * 80} animation="fade-up">
                   <Link
                     to={`/tools/${cat.id}`}
-                    className="group flex flex-col p-6 rounded-2xl bg-card border border-border hover:shadow-lg hover:border-primary/20 transition-all duration-300 h-full"
+                    className="group relative flex flex-col p-6 rounded-2xl bg-card border border-border overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full"
                   >
+                    <div className={cn("absolute top-0 inset-x-0 h-1 bg-gradient-to-r opacity-60 group-hover:opacity-100 transition-opacity", cat.gradient)} />
                     <div className={cn(
-                      "w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform",
+                      "w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300",
                       cat.gradient
                     )}>
                       <Icon className="w-7 h-7 text-white" />
