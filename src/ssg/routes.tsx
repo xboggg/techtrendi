@@ -226,7 +226,9 @@ export const routes: RouteRecord[] = [
           { path: "tools/life-progress-bar", lazy: d(() => import("../pages/tools/LifeProgressBar")) },
           { path: "tools/cybersecurity-playbook", lazy: d(() => import("../pages/tools/CybersecurityPlaybook")) },
           { path: "tools/momo-fee-calculator", lazy: d(() => import("../pages/tools/MoMoFeeCalculator")) },
-          { path: "tools/ghana-electricity-calculator", lazy: d(() => import("../pages/tools/GhanaElectricityCalculator")) },
+          // ghana-electricity-calculator removed 2026-06-21: stale/inaccurate tariff
+          // (orphan, never in catalog). Superseded by /tools/ecg-bill-estimator
+          // (PURC-verified). nginx 301s the old URL to the new one.
           { path: "tools/ghana-scam-checker", lazy: d(() => import("../pages/tools/GhanaScamChecker")) },
           { path: "tools/ghs-exchange-rate", lazy: d(() => import("../pages/tools/GhsExchangeRate")) },
         ],
