@@ -401,33 +401,38 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Ghana Identity Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 py-6 md:py-8">
-        <div className="absolute inset-0 bg-black/10" />
+      {/* Ghana trust bar — premium dark strip with a thin Ghana-flag accent */}
+      <section className="relative overflow-hidden bg-slate-950 py-7 md:py-9">
+        {/* thin Ghana-flag accent line (the tasteful national nod) */}
+        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#ce1126] via-[#fcd116] to-[#006b3f]" />
+        <div className="absolute -top-16 left-1/3 w-72 h-72 rounded-full bg-[#fcd116]/5 blur-3xl pointer-events-none" />
         <div className="container relative z-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-white">
-            <div className="flex items-center gap-3">
-              <span className="md:hidden text-3xl leading-none">🇬🇭</span>
-              <GhanaFlag className="hidden md:block w-12 h-8 rounded-sm shadow-md border border-white/20 shrink-0" />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+            <div className="flex items-center gap-4">
+              <GhanaFlag className="w-11 h-7 rounded shadow-lg ring-1 ring-white/10 shrink-0" />
               <div>
-                <h2 className="text-xl md:text-2xl font-bold leading-tight">
-                  Ghana's Home for Tech News, Tools & Insights
+                <h2 className="text-lg md:text-xl font-bold text-white leading-tight">
+                  Ghana's home for tech news, tools &amp; safety
                 </h2>
-                <p className="text-sm md:text-base text-white/90 mt-0.5">
-                  Built for Africa. Trusted by tech lovers across Ghana and beyond.
+                <p className="text-sm text-white/50 mt-0.5">
+                  Built for Africa — trusted by readers across Ghana and beyond.
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-2 text-xs md:text-sm">
-              <Link to="/news?category=Africa Tech" className="px-3 py-1.5 bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full font-medium border border-white/20 transition-colors">
-                Africa Tech News
-              </Link>
-              <Link to="/tools/momo-fee-calculator" className="px-3 py-1.5 bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full font-medium border border-white/20 transition-colors">
-                MoMo Calculator
-              </Link>
-              <Link to="/tools/ghana-scam-checker" className="px-3 py-1.5 bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full font-medium border border-white/20 transition-colors">
-                Scam Checker
-              </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              {[
+                { label: "Africa Tech News", href: "/news?category=Africa Tech" },
+                { label: "MoMo Calculator", href: "/tools/momo-fee-calculator" },
+                { label: "Scam Checker", href: "/tools/ghana-scam-checker" },
+              ].map((chip) => (
+                <Link
+                  key={chip.href}
+                  to={chip.href}
+                  className="px-4 py-2 rounded-full bg-white/5 border border-white/15 text-sm text-white/75 hover:text-white hover:bg-white/10 hover:border-white/30 transition-all backdrop-blur-sm"
+                >
+                  {chip.label}
+                </Link>
+              ))}
             </div>
           </div>
         </div>
