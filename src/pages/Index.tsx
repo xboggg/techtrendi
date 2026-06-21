@@ -438,20 +438,26 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Latest Tech News Section */}
-      <section className="py-14 md:py-20 bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
+      {/* Africa Tech News — the lead pillar (tightened top so it flows from the dark bar) */}
+      <section className="relative pt-10 md:pt-14 pb-16 md:pb-20 bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
         <div className="container">
-          {/* Section Header */}
-          <div className="flex items-center justify-between mb-8">
+          {/* Section Header — premium eyebrow + gradient headline */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
             <div>
-              <span className="text-sm font-semibold tracking-wider uppercase text-blue-600 dark:text-blue-400 mb-2 block">
-                Africa Tech
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                African Tech News
+              <div className="flex items-center gap-2.5 mb-3">
+                <span className="h-px w-8 bg-gradient-to-r from-blue-500 to-cyan-400" />
+                <span className="text-xs font-semibold tracking-[0.2em] uppercase text-blue-600 dark:text-blue-400">
+                  Africa Tech · Updated daily
+                </span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+                Fresh from{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">
+                  Ghana &amp; Africa
+                </span>
               </h2>
             </div>
-            <Button variant="ghost" size="sm" asChild className="text-blue-600 hover:text-blue-700 dark:text-blue-400">
+            <Button variant="ghost" size="sm" asChild className="self-start sm:self-auto text-blue-600 hover:text-blue-700 dark:text-blue-400">
               <Link to="/news?category=Africa Tech" className="flex items-center gap-1 font-medium">
                 View All News
                 <ArrowRight className="w-4 h-4" />
