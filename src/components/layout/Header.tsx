@@ -50,7 +50,6 @@ const navLinks: NavLink[] = [
   { label: "Africa Tech", href: "/news?category=Africa Tech", icon: Globe },
   { label: "News", href: "/news", icon: Newspaper },
   { label: "Toolbox", href: "/tools" },
-  { label: "Reviews", href: "/reviews" },
   { label: "DigiStore", href: "/store", icon: ShoppingBag },
 ];
 
@@ -332,8 +331,6 @@ export function Header() {
                         <BookOpen className="w-5 h-5 text-white" />
                       ) : link.label === "Toolbox" ? (
                         <Zap className="w-5 h-5 text-white" />
-                      ) : link.label === "Reviews" ? (
-                        <Star className="w-5 h-5 text-white" />
                       ) : (
                         <Sparkles className="w-5 h-5 text-white" />
                       )}

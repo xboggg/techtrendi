@@ -67,15 +67,6 @@ interface NewsItem {
   created_at: string;
 }
 
-interface Review {
-  id: string;
-  title: string;
-  slug: string;
-  category: string;
-  image: string | null;
-  rating: number | null;
-}
-
 const categoryLabels: Record<string, string> = {
   phones: "Phones",
   productivity: "Productivity",
@@ -264,8 +255,6 @@ export default function Index() {
     try { const c = sessionStorage.getItem("home:latest"); if (c) return JSON.parse(c); } catch {} return [];
   });
   const [loadingLatest, setLoadingLatest] = useState(latestArticles.length === 0);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loadingReviews, setLoadingReviews] = useState(true);
   const [latestNews, setLatestNews] = useState<NewsItem[]>([]);
   const [loadingNews, setLoadingNews] = useState(true);
   const [internationalNews, setInternationalNews] = useState<NewsItem[]>([]);
@@ -275,7 +264,6 @@ export default function Index() {
     // Removed fetchTrendingArticles — was fetched but never rendered (dead code)
     fetchFeaturedGuides();
     fetchLatestArticles();
-    fetchReviews();
     fetchLatestNews();
     fetchInternationalNews();
   }, []);
@@ -339,24 +327,6 @@ export default function Index() {
     }
   };
 
-  const fetchReviews = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("reviews")
-        .select("id, title, slug, category, image, rating")
-        .match({ is_published: true, is_featured: true })
-        .order("created_at", { ascending: false })
-        .limit(10);
-
-      if (!error && data && data.length > 0) {
-        setReviews(data);
-      }
-    } catch (error) {
-      // Silent fail
-    } finally {
-      setLoadingReviews(false);
-    }
-  };
 
   const fetchLatestNews = async () => {
     try {
@@ -427,9 +397,9 @@ export default function Index() {
     <Layout>
       <SEOHead
         title="TechTrendi – Ghana's Tech News, Tools & Digital Insights"
-        description="Ghana's leading tech destination. Daily tech news from Ghana and Africa, 130+ free tools (MoMo fee calculator, scam checker, electricity calculator), honest reviews, and digital insights built for Africa."
+        description="Ghana's leading tech destination. Daily tech news from Ghana and Africa, 130+ free tools (MoMo fee calculator, scam checker, electricity calculator), and practical online-safety guides built for Africa."
         canonical="/"
-        keywords={["Ghana tech news", "Africa technology", "Ghana technology blog", "MoMo calculator", "Ghana cybersecurity", "Africa tech reviews", "Ghana digital tools"]}
+        keywords={["Ghana tech news", "Africa technology", "Ghana technology blog", "MoMo calculator", "Ghana cybersecurity", "online safety Ghana", "Ghana digital tools"]}
       />
       {/* WebSite + Organization Schema */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
@@ -667,95 +637,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Featured Reviews - Horizontal Scroll */}
-      <section className="py-16 bg-background">
-        <div className="container">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-8 bg-primary rounded-full" />
-              <h2 className="text-2xl font-bold text-foreground">Featured Reviews</h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="hidden md:flex gap-1">
-                <button
-                  onClick={() => { const el = document.getElementById("reviews-scroll"); if (el) el.scrollBy({ left: -300, behavior: "smooth" }); }}
-                  className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
-                >
-                  <ChevronLeft className="w-5 h-5 text-muted-foreground" />
-                </button>
-                <button
-                  onClick={() => { const el = document.getElementById("reviews-scroll"); if (el) el.scrollBy({ left: 300, behavior: "smooth" }); }}
-                  className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
-                >
-                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                </button>
-              </div>
-              <Button variant="ghost" size="sm" asChild className="text-primary hover:text-primary/80">
-                <Link to="/reviews" className="flex items-center gap-1">
-                  View All Reviews
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-
-          {loadingReviews ? (
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex-shrink-0 w-64 rounded-2xl overflow-hidden animate-pulse">
-                  <div className="aspect-[4/5] bg-muted" />
-                </div>
-              ))}
-            </div>
-          ) : reviews.length > 0 ? (
-            <div id="reviews-scroll" className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
-              {reviews.map((review) => (
-                <Link
-                  key={review.id}
-                  to={`/reviews/${review.slug}`}
-                  className="flex-shrink-0 w-64 rounded-2xl overflow-hidden hover:shadow-xl transition-shadow group"
-                >
-                  <div className="relative aspect-[4/5] bg-muted overflow-hidden">
-                    {review.image ? (
-                      <img
-                        src={review.image}
-                        alt={review.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20" />
-                    )}
-                    {/* Category badge */}
-                    <div className="absolute top-3 left-3">
-                      <Badge className="text-xs bg-blue-500 hover:bg-blue-500 text-white border-0 rounded-full px-3 py-1">
-                        {review.category}
-                      </Badge>
-                    </div>
-                    {/* Rating badge */}
-                    {review.rating && (
-                      <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-400 text-gray-900 text-xs font-semibold">
-                        <Star className="w-3 h-3 fill-current" />
-                        {review.rating}/10
-                      </div>
-                    )}
-                    {/* Gradient overlay and title at bottom */}
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-16 pb-4 px-4">
-                      <h4 className="font-semibold text-white text-base line-clamp-2">
-                        {review.title}
-                      </h4>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              <Star className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p>No reviews yet.</p>
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* 5. Creepy Tech & Cyber Awareness */}
       <CreepyTechHomeSection />

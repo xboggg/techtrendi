@@ -25,7 +25,7 @@ const heroSlides: HeroSlide[] = [
     id: 1,
     title: "Find Your Next",
     highlight: "Smartphone",
-    description: "In-depth reviews, comparisons, and buying guides for the newest phones. Find your perfect device.",
+    description: "Compare the newest phones on specs and price with our free comparison tool. Find your perfect device.",
     cta: "Explore Phones",
     ctaLink: "/phones",
     secondaryCta: "Compare Devices",

@@ -47,8 +47,9 @@ export const routes: RouteRecord[] = [
       { path: "scam-alerts", lazy: d(() => import("../pages/ScamAlerts")) },
       { path: "report-scam", lazy: d(() => import("../pages/ReportScam")) },
       { path: "start-here", lazy: d(() => import("../pages/StartHere")) },
-      { path: "reviews", lazy: d(() => import("../pages/Reviews")) },
-      { path: "reviews/:slug", lazy: d(() => import("../pages/ReviewDetail")) },
+      // Reviews discontinued 2026-06-21 (focus = Africa Tech News · Tools · Security).
+      // Routes removed so /reviews + /reviews/* stop prerendering; nginx 301s the
+      // list to /blog and 410s the old detail URLs.
       { path: "admin", lazy: d(() => import("../pages/admin/AdminDashboard")) },
       { path: "admin/news", lazy: d(() => import("../pages/admin/AdminNews")) },
       { path: "admin/articles", lazy: d(() => import("../pages/admin/AdminArticles")) },

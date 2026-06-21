@@ -51,7 +51,6 @@ const footerLinks = {
     { label: "TechTrendi News", href: "/news" },
     { label: "TechTrendi Blog", href: "/blog" },
     { label: "TechTrendi Tools", href: "/tools" },
-    { label: "TechTrendi Reviews", href: "/reviews" },
     { label: "TechTrendi DigiStore", href: "/store" },
     { label: "Newsletter", href: "/newsletter" },
     { label: "Reading List", href: "/reading-list" },
