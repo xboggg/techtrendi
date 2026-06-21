@@ -43,7 +43,10 @@ export function SEOHead({
   locale = 'en_US',
   alternateLocales = [],
 }: SEOHeadProps) {
-  const fullTitle = `${title} | ${SITE_NAME}`;
+  // Some pages pass a title that already ends in "| TechTrendi"; strip it so we
+  // never emit "... | TechTrendi | TechTrendi".
+  const baseTitle = title.replace(/\s*\|\s*TechTrendi\s*$/i, '').trim();
+  const fullTitle = `${baseTitle} | ${SITE_NAME}`;
   const canonicalPath = canonical || canonicalUrl;
   const fullUrl = canonicalPath
     ? (canonicalPath.startsWith('http') ? canonicalPath : `${SITE_URL}${canonicalPath.startsWith('/') ? canonicalPath : `/${canonicalPath}`}`)

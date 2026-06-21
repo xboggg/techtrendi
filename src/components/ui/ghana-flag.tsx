@@ -12,7 +12,9 @@ export function GhanaFlag({ className = "w-4 h-3", title = "Ghana" }: GhanaFlagP
       aria-label={title}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <title>{title}</title>
+      {/* NB: no <title> element here. role="img" + aria-label cover accessibility,
+          and an SVG <title> gets scraped by naive crawlers as a page <title>
+          (it was surfacing a bare "Ghana" title on every page). */}
       {/* Red stripe */}
       <rect width="60" height="13.33" y="0" fill="#ce1126" />
       {/* Yellow stripe */}
