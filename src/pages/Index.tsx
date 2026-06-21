@@ -16,13 +16,11 @@ import staticNews from "@/data/news.json";
 // No static featured articles fallback
 import staticFeaturedGuides from "@/data/featured-guides.json";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
-import { WaveFeatureCarousel } from "@/components/ui/wave-feature-carousel";
 import { CreepyTechHomeSection } from "@/components/home/CreepyTechCarousel";
 import { cn } from "@/lib/utils";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
-import { CardCarousel } from "@/components/ui/card-carousel";
 
 interface TrendingArticle {
   id: string;
@@ -43,17 +41,6 @@ interface FeaturedGuide {
   category: string;
   cover_image: string | null;
   read_time_minutes: number | null;
-}
-
-interface LatestArticle {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  category: string;
-  cover_image: string | null;
-  read_time_minutes: number | null;
-  created_at: string;
 }
 
 interface NewsItem {
@@ -251,10 +238,6 @@ export default function Index() {
     staticFeaturedGuides as FeaturedGuide[]
   );
   const [loadingGuides, setLoadingGuides] = useState(false);
-  const [latestArticles, setLatestArticles] = useState<LatestArticle[]>(() => {
-    try { const c = sessionStorage.getItem("home:latest"); if (c) return JSON.parse(c); } catch {} return [];
-  });
-  const [loadingLatest, setLoadingLatest] = useState(latestArticles.length === 0);
   const [latestNews, setLatestNews] = useState<NewsItem[]>([]);
   const [loadingNews, setLoadingNews] = useState(true);
   const [internationalNews, setInternationalNews] = useState<NewsItem[]>([]);
@@ -263,7 +246,6 @@ export default function Index() {
   useEffect(() => {
     // Removed fetchTrendingArticles — was fetched but never rendered (dead code)
     fetchFeaturedGuides();
-    fetchLatestArticles();
     fetchLatestNews();
     fetchInternationalNews();
   }, []);
@@ -307,25 +289,6 @@ export default function Index() {
     }
   };
 
-  const fetchLatestArticles = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("articles")
-        .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
-        .eq("is_published", true)
-        .order("created_at", { ascending: false })
-        .limit(10);
-
-      if (!error && data && data.length > 0) {
-        setLatestArticles(data);
-        try { sessionStorage.setItem("home:latest", JSON.stringify(data)); } catch {}
-      }
-    } catch (error) {
-      // Silent fail — cached data showing if available
-    } finally {
-      setLoadingLatest(false);
-    }
-  };
 
 
   const fetchLatestNews = async () => {
@@ -577,65 +540,7 @@ export default function Index() {
       {/* International Tech News - Auto-scrolling row */}
       {internationalNews.length > 0 && <IntlNewsScroller news={internationalNews} formatTimeAgo={formatTimeAgo} />}
 
-      {/* 1. Why Choose TechTrendi - Wave Feature Carousel */}
-      <WaveFeatureCarousel />
 
-      {/* 2. Latest Posts Section - 3D Card Carousel */}
-      <section className="py-16 md:py-24 bg-muted/30 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
-
-        <div className="container relative">
-          <div className="text-center mb-10">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 text-sm font-medium text-blue-600 dark:text-blue-400 mb-4">
-              <TrendingUp className="w-3.5 h-3.5" />
-              Latest Posts
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-              Fresh From the Blog
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-              Our latest articles, guides, and insights — updated daily.
-            </p>
-          </div>
-
-          <div className="mx-auto w-full max-w-5xl rounded-[24px] border border-border/50 p-2 shadow-sm md:rounded-t-[44px]">
-            <div className="relative mx-auto flex w-full flex-col rounded-[24px] border border-border/30 bg-card/50 backdrop-blur-sm p-4 md:rounded-b-[20px] md:rounded-t-[40px]">
-              {loadingLatest ? (
-                <div className="flex items-center justify-center py-20">
-                  <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-                </div>
-              ) : latestArticles.length > 0 ? (
-                <CardCarousel
-                  items={latestArticles.map((article) => ({
-                    src: article.cover_image || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&h=750&fit=crop",
-                    alt: article.title,
-                    label: article.title,
-                    sublabel: `${categoryLabels[article.category] || article.category} · ${article.read_time_minutes || 5} min read`,
-                    link: `/blog/${article.slug}`,
-                  }))}
-                  autoplayDelay={5000}
-                  showPagination={true}
-                />
-              ) : (
-                <div className="text-center py-12 text-muted-foreground">
-                  <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p>No articles yet. Check back soon!</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-10 text-center">
-            <Button variant="outline" size="lg" asChild className="rounded-full px-8 hover:scale-105 transition-transform">
-              <Link to="/blog" className="flex items-center gap-2">
-                View All Articles
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
 
 
       {/* 5. Creepy Tech & Cyber Awareness */}
@@ -708,7 +613,7 @@ export default function Index() {
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
                 Editor's <span className="text-primary">Picks</span>
               </h2>
-              <p className="text-muted-foreground">Hand-picked articles our editors think you should not miss.</p>
+              <p className="text-muted-foreground">Hand-picked guides on Ghana tech, online safety, and the tools worth your time.</p>
             </div>
             <Button variant="outline" asChild className="hidden md:inline-flex rounded-xl">
               <Link to="/blog" className="flex items-center gap-2">
@@ -734,17 +639,11 @@ export default function Index() {
                 ))}
               </div>
             </div>
-          ) : (() => {
-            // Deduplicate featured guides against articles already shown in Latest Articles section
-            const latestIds = new Set(latestArticles.map(a => a.id));
-            const uniqueFeatured = featuredGuides.filter(g => !latestIds.has(g.id));
-            return uniqueFeatured.length > 0;
-          })() ? (
+          ) : featuredGuides.length > 0 ? (
             <div className="space-y-6">
               {/* Top Row: 2 Big Cards Side by Side */}
               <div className="grid md:grid-cols-2 gap-6">
                 {featuredGuides
-                  .filter(g => !new Set(latestArticles.map(a => a.id)).has(g.id))
                   .slice(0, 2).map((guide) => (
                   <Link
                     key={guide.id}
@@ -784,7 +683,6 @@ export default function Index() {
               {/* Bottom Row: 6 Small Cards in 3x2 Grid */}
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {featuredGuides
-                  .filter(g => !new Set(latestArticles.map(a => a.id)).has(g.id))
                   .slice(2, 8).map((guide) => (
                   <Link
                     key={guide.id}
