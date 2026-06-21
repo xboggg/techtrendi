@@ -15,7 +15,6 @@ import { Badge } from "@/components/ui/badge";
 import staticNews from "@/data/news.json";
 // No static featured articles fallback
 import staticFeaturedGuides from "@/data/featured-guides.json";
-import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { CreepyTechHomeSection } from "@/components/home/CreepyTechCarousel";
 import { cn } from "@/lib/utils";
 import { AnimatedCard } from "@/components/ui/animated-card";
@@ -107,129 +106,46 @@ const toolCategories = [
   },
 ];
 
+// World Tech in Brief — international news demoted to a slim text strip
+// (secondary to the Africa-first pillars; no images, no auto-scroll).
 function IntlNewsScroller({ news, formatTimeAgo }: { news: NewsItem[]; formatTimeAgo: (d: string) => string }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const autoScrollRef = useRef<number>(0);
-  const isPausedRef = useRef(false);
-  const resumeTimerRef = useRef<ReturnType<typeof setTimeout>>();
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const step = () => {
-      if (!isPausedRef.current && el) {
-        el.scrollLeft += 0.8;
-        // Loop: when scrolled past halfway (the duplicated content), reset
-        if (el.scrollLeft >= el.scrollWidth / 2) {
-          el.scrollLeft = 0;
-        }
-      }
-      autoScrollRef.current = requestAnimationFrame(step);
-    };
-    autoScrollRef.current = requestAnimationFrame(step);
-
-    return () => cancelAnimationFrame(autoScrollRef.current);
-  }, [news]);
-
-  const pause = () => {
-    isPausedRef.current = true;
-    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-  };
-
-  const resumeAfterDelay = () => {
-    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-    resumeTimerRef.current = setTimeout(() => { isPausedRef.current = false; }, 4000);
-  };
-
-  const scrollBy = (dir: number) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    pause();
-    el.scrollBy({ left: dir * 300, behavior: "smooth" });
-    resumeAfterDelay();
-  };
-
+  const items = news.slice(0, 6);
+  if (items.length === 0) return null;
   return (
-    <section className="py-12 bg-gradient-to-b from-white to-slate-50 dark:from-background dark:to-muted/20 overflow-hidden">
-      <div className="container mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 text-sm font-medium text-purple-600 dark:text-purple-400 mb-3">
-              <Globe className="w-3.5 h-3.5" />
-              World Tech
-            </span>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-              International Tech News
-            </h2>
-          </div>
+    <section className="py-10 border-t border-border bg-muted/20">
+      <div className="container">
+        <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => scrollBy(-1)}
-              className="hidden md:flex items-center justify-center w-9 h-9 rounded-full bg-muted hover:bg-purple-100 dark:hover:bg-purple-900/30 border border-border transition-colors"
-              aria-label="Scroll left"
-            >
-              <ChevronLeft className="w-5 h-5 text-muted-foreground" />
-            </button>
-            <button
-              onClick={() => scrollBy(1)}
-              className="hidden md:flex items-center justify-center w-9 h-9 rounded-full bg-muted hover:bg-purple-100 dark:hover:bg-purple-900/30 border border-border transition-colors"
-              aria-label="Scroll right"
-            >
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
-            </button>
-            <Button variant="ghost" size="sm" asChild className="text-purple-600 hover:text-purple-700 dark:text-purple-400">
-              <Link to="/news" className="flex items-center gap-1">
-                View All <ArrowRight className="w-4 h-4" />
-              </Link>
-            </Button>
+            <Globe className="w-4 h-4 text-muted-foreground" />
+            <h2 className="text-lg font-bold text-foreground">World Tech in Brief</h2>
+            <span className="hidden sm:inline text-xs text-muted-foreground">— global headlines, the short version</span>
           </div>
+          <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">
+            <Link to="/news" className="flex items-center gap-1">
+              More <ArrowRight className="w-4 h-4" />
+            </Link>
+          </Button>
         </div>
-      </div>
-      <div
-        ref={scrollRef}
-        className="flex gap-5 overflow-x-auto scrollbar-hide px-4 md:px-8"
-        style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
-        onMouseEnter={pause}
-        onMouseLeave={resumeAfterDelay}
-        onTouchStart={pause}
-        onTouchEnd={resumeAfterDelay}
-      >
-        {[...news, ...news].map((item, idx) => (
-          <Link
-            key={`${item.id}-${idx}`}
-            to={`/news/${item.slug}`}
-            className="flex-shrink-0 w-64 md:w-72 rounded-2xl overflow-hidden bg-card border border-border hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-lg transition-all duration-300 group"
-          >
-            <div className="relative aspect-[16/10] overflow-hidden">
-              {item.cover_image ? (
-                <img
-                  src={item.cover_image}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30" />
-              )}
-              <div className="absolute top-3 left-3">
-                <Badge className="text-xs bg-purple-600 hover:bg-purple-600 text-white border-0 rounded-full px-3 py-1">
+        <ul className="grid sm:grid-cols-2 gap-x-10">
+          {items.map((item) => (
+            <li key={item.id}>
+              <Link
+                to={`/news/${item.slug}`}
+                className="group flex items-baseline gap-3 py-2.5 border-b border-border/50"
+              >
+                <span className="shrink-0 text-[11px] uppercase tracking-wide text-muted-foreground/60 w-16 truncate">
                   {item.category}
-                </Badge>
-              </div>
-            </div>
-            <div className="p-4">
-              <h3 className="font-semibold text-foreground text-sm line-clamp-2 mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                {item.title}
-              </h3>
-              <div className="flex items-center gap-2 text-muted-foreground text-xs">
-                <Clock className="w-3 h-3" />
-                <span>{formatTimeAgo(item.created_at)}</span>
-                <span>·</span>
-                <span>{item.read_time_minutes || 3} Min Read</span>
-              </div>
-            </div>
-          </Link>
-        ))}
+                </span>
+                <span className="flex-1 text-sm text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                  {item.title}
+                </span>
+                <span className="hidden md:inline shrink-0 text-xs text-muted-foreground">
+                  {formatTimeAgo(item.created_at)}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
@@ -406,8 +322,62 @@ export default function Index() {
           }
         ]
       })}} />
-      {/* Hero Carousel Section (includes News Ticker) */}
-      <HeroCarousel />
+      {/* Hero — static Africa-first promise with a breathing 3D image */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-background via-background to-primary/5 border-b border-border/50">
+        <div className="container relative py-14 md:py-20">
+          <div className="grid md:grid-cols-2 gap-10 items-center">
+            {/* Text */}
+            <div className="text-center md:text-left">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-5">
+                <span aria-hidden="true">🇬🇭</span> Ghana's Tech Hub
+              </span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1] mb-5">
+                Tech made simple,{" "}
+                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  built for Ghana
+                </span>
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-xl mx-auto md:mx-0 mb-8">
+                One home for Africa tech news, online-safety guides, and 130+ free
+                tools made for everyday life — from MoMo fees to your light bill.
+              </p>
+              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                <Button size="lg" asChild className="rounded-xl px-6">
+                  <Link to="/news?category=Africa Tech" className="flex items-center gap-2">
+                    <Globe className="w-5 h-5" /> Africa Tech News
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild className="rounded-xl px-6">
+                  <Link to="/security" className="flex items-center gap-2">
+                    <Shield className="w-5 h-5" /> Stay Safe Online
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild className="rounded-xl px-6">
+                  <Link to="/tools" className="flex items-center gap-2">
+                    <Zap className="w-5 h-5" /> Free Tools
+                  </Link>
+                </Button>
+              </div>
+            </div>
+            {/* Image — breathing float + pulsing glow for a soft 3D effect.
+                Natural DOM order keeps the headline first on mobile. */}
+            <div className="relative flex items-center justify-center">
+              <div
+                className="absolute w-56 h-56 md:w-80 md:h-80 rounded-full bg-gradient-to-br from-blue-500/30 via-purple-500/20 to-pink-500/30 blur-3xl animate-hero-glow"
+                aria-hidden="true"
+              />
+              <img
+                src="/images/hero/hero-smartphone.png"
+                alt="TechTrendi — Ghana's hub for tech news, online safety and free tools"
+                loading="eager"
+                width={400}
+                height={400}
+                className="relative z-10 w-48 sm:w-56 md:w-80 lg:w-96 drop-shadow-2xl animate-hero-float"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Ghana Identity Banner */}
       <section className="relative overflow-hidden bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 py-6 md:py-8">
@@ -545,7 +515,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* International Tech News - Auto-scrolling row */}
+      {/* World Tech in Brief — slim international-news strip (secondary to pillars) */}
       {internationalNews.length > 0 && <IntlNewsScroller news={internationalNews} formatTimeAgo={formatTimeAgo} />}
 
 

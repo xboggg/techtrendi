@@ -924,3 +924,19 @@ body {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
 }
+
+/* Hero image: gentle "breathing" float + scale for a soft 3D depth effect,
+   with a slow-pulsing glow behind it. Respects reduced-motion. */
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-12px) scale(1.03); }
+}
+@keyframes heroGlow {
+  0%, 100% { opacity: 0.4; transform: scale(0.92); }
+  50% { opacity: 0.8; transform: scale(1.08); }
+}
+.animate-hero-float { animation: heroFloat 6s ease-in-out infinite; will-change: transform; }
+.animate-hero-glow { animation: heroGlow 6s ease-in-out infinite; will-change: transform, opacity; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-hero-float, .animate-hero-glow { animation: none; }
+}
