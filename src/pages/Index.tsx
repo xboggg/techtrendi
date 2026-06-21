@@ -106,46 +106,78 @@ const toolCategories = [
   },
 ];
 
-// World Tech in Brief — international news demoted to a slim text strip
-// (secondary to the Africa-first pillars; no images, no auto-scroll).
+// World Tech in Brief — a sleek dark "news wire" panel. International news is
+// secondary to the Africa-first pillars, but presented with a distinctive,
+// premium newsroom/terminal aesthetic (LIVE pulse, mono numbering, colour-coded
+// tags, hover accents) rather than a plain list.
+const WIRE_CAT_COLORS: Record<string, string> = {
+  "AI Tech": "bg-purple-500/20 text-purple-300 ring-purple-500/30",
+  "Big Tech": "bg-blue-500/20 text-blue-300 ring-blue-500/30",
+  "Gadgets": "bg-cyan-500/20 text-cyan-300 ring-cyan-500/30",
+  "Startups": "bg-amber-500/20 text-amber-300 ring-amber-500/30",
+  "Gaming": "bg-pink-500/20 text-pink-300 ring-pink-500/30",
+  "Health Tech": "bg-emerald-500/20 text-emerald-300 ring-emerald-500/30",
+  "Crypto": "bg-orange-500/20 text-orange-300 ring-orange-500/30",
+  "Space": "bg-indigo-500/20 text-indigo-300 ring-indigo-500/30",
+  "Green Tech": "bg-lime-500/20 text-lime-300 ring-lime-500/30",
+};
+const wireCat = (c: string) => WIRE_CAT_COLORS[c] || "bg-white/10 text-white/60 ring-white/15";
+
 function IntlNewsScroller({ news, formatTimeAgo }: { news: NewsItem[]; formatTimeAgo: (d: string) => string }) {
   const items = news.slice(0, 6);
   if (items.length === 0) return null;
   return (
-    <section className="py-10 border-t border-border bg-muted/20">
+    <section className="py-12 md:py-16">
       <div className="container">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2">
-            <Globe className="w-4 h-4 text-muted-foreground" />
-            <h2 className="text-lg font-bold text-foreground">World Tech in Brief</h2>
-            <span className="hidden sm:inline text-xs text-muted-foreground">— global headlines, the short version</span>
-          </div>
-          <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">
-            <Link to="/news" className="flex items-center gap-1">
-              More <ArrowRight className="w-4 h-4" />
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-white/10 p-6 md:p-9 shadow-2xl">
+          {/* animated top accent line + ambient glow */}
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
+          <div className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
+
+          {/* header */}
+          <div className="relative flex items-center justify-between mb-7">
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-2">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
+                </span>
+                <span className="font-mono text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400">Live</span>
+              </span>
+              <h2 className="text-lg md:text-xl font-bold text-white">
+                World Tech <span className="text-white/40 font-normal">in Brief</span>
+              </h2>
+            </div>
+            <Link to="/news" className="group flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+              <span className="font-mono text-xs tracking-wide">THE WIRE</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
-          </Button>
-        </div>
-        <ul className="grid sm:grid-cols-2 gap-x-10">
-          {items.map((item) => (
-            <li key={item.id}>
+          </div>
+
+          {/* headlines */}
+          <div className="relative grid md:grid-cols-2 md:gap-x-12">
+            {items.map((item, i) => (
               <Link
+                key={item.id}
                 to={`/news/${item.slug}`}
-                className="group flex items-baseline gap-3 py-2.5 border-b border-border/50"
+                className="group relative flex items-center gap-3 md:gap-4 py-3 pl-3 border-b border-white/5"
               >
-                <span className="shrink-0 text-[11px] uppercase tracking-wide text-muted-foreground/60 w-16 truncate">
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-0 bg-primary rounded-full transition-all duration-300 group-hover:h-2/3" />
+                <span className="font-mono text-xs text-white/25 w-6 shrink-0 tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                <span className={`shrink-0 px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wide ring-1 ${wireCat(item.category)} hidden sm:inline-block max-w-[96px] truncate`}>
                   {item.category}
                 </span>
-                <span className="flex-1 text-sm text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                <span className="flex-1 text-sm text-white/80 group-hover:text-white line-clamp-1 transition-colors">
                   {item.title}
                 </span>
-                <span className="hidden md:inline shrink-0 text-xs text-muted-foreground">
+                <span className="hidden md:inline font-mono text-[11px] text-white/35 shrink-0 tabular-nums">
                   {formatTimeAgo(item.created_at)}
                 </span>
               </Link>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -322,58 +354,48 @@ export default function Index() {
           }
         ]
       })}} />
-      {/* Hero — static Africa-first promise with a breathing 3D image */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-background via-background to-primary/5 border-b border-border/50">
-        <div className="container relative py-14 md:py-20">
-          <div className="grid md:grid-cols-2 gap-10 items-center">
-            {/* Text */}
-            <div className="text-center md:text-left">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-5">
-                <span aria-hidden="true">🇬🇭</span> Ghana's Tech Hub
-              </span>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1] mb-5">
-                Tech made simple,{" "}
-                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  built for Ghana
-                </span>
-              </h1>
-              <p className="text-lg text-muted-foreground max-w-xl mx-auto md:mx-0 mb-8">
-                One home for Africa tech news, online-safety guides, and 130+ free
-                tools made for everyday life — from MoMo fees to your light bill.
-              </p>
-              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                <Button size="lg" asChild className="rounded-xl px-6">
-                  <Link to="/news?category=Africa Tech" className="flex items-center gap-2">
-                    <Globe className="w-5 h-5" /> Africa Tech News
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild className="rounded-xl px-6">
-                  <Link to="/security" className="flex items-center gap-2">
-                    <Shield className="w-5 h-5" /> Stay Safe Online
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild className="rounded-xl px-6">
-                  <Link to="/tools" className="flex items-center gap-2">
-                    <Zap className="w-5 h-5" /> Free Tools
-                  </Link>
-                </Button>
-              </div>
-            </div>
-            {/* Image — breathing float + pulsing glow for a soft 3D effect.
-                Natural DOM order keeps the headline first on mobile. */}
-            <div className="relative flex items-center justify-center">
-              <div
-                className="absolute w-56 h-56 md:w-80 md:h-80 rounded-full bg-gradient-to-br from-blue-500/30 via-purple-500/20 to-pink-500/30 blur-3xl animate-hero-glow"
-                aria-hidden="true"
-              />
-              <img
-                src="/images/hero/hero-smartphone.png"
-                alt="TechTrendi — Ghana's hub for tech news, online safety and free tools"
-                loading="eager"
-                width={400}
-                height={400}
-                className="relative z-10 w-48 sm:w-56 md:w-80 lg:w-96 drop-shadow-2xl animate-hero-float"
-              />
+      {/* Hero — full-bleed dark image with the Africa-first promise overlaid */}
+      <section className="relative overflow-hidden min-h-[500px] md:min-h-[560px] flex items-center border-b border-border/50">
+        {/* Full-bleed background image with a slow breathing zoom */}
+        <img
+          src="/images/hero/hero-smartphone.png"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover object-center animate-hero-zoom"
+        />
+        {/* Dark overlay — heavier on the left so the headline (and the white nav) stay readable */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/75 to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
+
+        <div className="container relative z-10 py-16 md:py-20">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-sm font-medium text-white mb-5 backdrop-blur-sm">
+              <span aria-hidden="true">🇬🇭</span> Ghana's Tech Hub
+            </span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.1] mb-5 drop-shadow-lg">
+              Tech made simple,{" "}
+              <span className="text-amber-400">built for Ghana</span>
+            </h1>
+            <p className="text-lg text-white/80 max-w-xl mb-8">
+              One home for Africa tech news, online-safety guides, and 130+ free
+              tools made for everyday life — from MoMo fees to your light bill.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Button size="lg" asChild className="rounded-xl px-6">
+                <Link to="/news?category=Africa Tech" className="flex items-center gap-2">
+                  <Globe className="w-5 h-5" /> Africa Tech News
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="rounded-xl px-6 border-white/40 bg-white/5 text-white hover:bg-white/15 hover:text-white">
+                <Link to="/security" className="flex items-center gap-2">
+                  <Shield className="w-5 h-5" /> Stay Safe Online
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="rounded-xl px-6 border-white/40 bg-white/5 text-white hover:bg-white/15 hover:text-white">
+                <Link to="/tools" className="flex items-center gap-2">
+                  <Zap className="w-5 h-5" /> Free Tools
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
