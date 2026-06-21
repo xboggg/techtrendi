@@ -10,6 +10,44 @@ export const toolContentData: Record<string, ToolContent> = {
   // BUSINESS & FREELANCER TOOLS
   // ==========================================
 
+  'momo-fee-calculator': {
+    intro:
+      'Mobile money runs daily life in Ghana, but the fees can be confusing — and most calculators online are flat-out wrong because they still add the E-Levy, which was abolished back in April 2025. This one is current. Pick your network, choose whether you are sending or cashing out, type the amount, and you will see the exact fee before you ever dial *170#. No sign-up, no stored data.',
+    howTo: [
+      'Choose your network — MTN MoMo or AT Money (Telecel is coming once we confirm its current rates)',
+      'Pick the transaction: sending money on the same network, or cashing out at an agent',
+      'Type the amount in cedis',
+      'Read the fee instantly, plus the total you pay and what the recipient receives',
+    ],
+    whyNeedIt:
+      'Nobody likes being surprised by a charge after they have already hit send. Knowing the fee upfront helps you budget, split costs fairly, and avoid the trick where sending GHS 101 suddenly costs more than sending GHS 100. It also quietly confirms something worth knowing: with the E-Levy gone, sending small amounts on MTN is free again.',
+    faqs: [
+      { q: 'Is the E-Levy still charged?', a: 'No. The 1% Electronic Transfer Levy was abolished on 2 April 2025, so it no longer applies to your MoMo transactions. If a calculator still adds it, it is out of date.' },
+      { q: 'Does the recipient pay the fee?', a: 'No. When you send money, the recipient gets the full amount — the fee comes out of your wallet, on top of what you send.' },
+      { q: 'Why is sending small amounts free?', a: 'On MTN MoMo, same-network sends up to GHS 100 are free. Above that it is 0.75%, capped at GHS 7.50 for sends of GHS 1,000 or more.' },
+      { q: 'Why is Telecel Cash not here yet?', a: 'We only publish fees we have verified. Telecel\'s current same-network rate needs confirming, and we would rather leave it out than show you a wrong number. It is coming.' },
+    ],
+  },
+
+  'ecg-bill-estimator': {
+    intro:
+      'Ever stood at the meter wondering how much credit to buy? This estimates your monthly ECG bill using Ghana\'s official PURC residential tariff — the real rates, not a guess. Either type in the units (kWh) from your meter, or, if you have no idea, build an estimate from the appliances in your home. It works for both prepaid top-ups and postpaid budgeting.',
+    howTo: [
+      'Pick a mode: enter your units (kWh) directly, or estimate from your appliances',
+      'For units mode, type the kWh shown on your prepaid meter or ECG bill',
+      'For appliance mode, enter how many of each appliance you have and roughly how many hours a day each runs',
+      'Read your estimated monthly cost, broken into the energy charge and the service charge',
+    ],
+    whyNeedIt:
+      'Electricity is one of the hardest bills to predict, and ECG\'s tariff is tiered — the more you use, the higher the rate on the extra units. Seeing the estimate helps you decide how much credit to load, spot which appliance is quietly draining your wallet (looking at you, water heater), and avoid running out of power at the worst possible moment.',
+    faqs: [
+      { q: 'How accurate is this?', a: 'It uses the official PURC Q2 2026 residential tariff (energy charge + monthly service charge). Your actual bill also adds small statutory levies — street-lighting, national-electrification and applicable VAT/NHIL — so the real figure is a little higher.' },
+      { q: 'What is the lifeline rate?', a: 'Households using 30 units (kWh) or less in a month qualify for a much cheaper "lifeline" rate. Use even one unit above 30 and you move onto the standard residential tiers.' },
+      { q: 'Where do I find my units?', a: 'Your prepaid meter shows remaining units in kWh, and your ECG bill lists units consumed. If you are not sure, use the appliance mode to estimate.' },
+      { q: 'Why does the rate jump after 300 units?', a: 'The tariff is stepped: the first 300 kWh are charged at one rate, and every unit above 300 is charged at a higher rate. That is why heavy months cost more per unit.' },
+    ],
+  },
+
   'invoice-generator': {
     intro:
       'Create clean, professional invoices in seconds without touching a spreadsheet. Includes payment tracking and follow-up reminders so you can chase overdue invoices without the awkward email drafting. I built this because most invoice tools either cost money or make you sign up for an account just to send a bill. Whether you freelance on the side or run a small shop, this gets the job done fast.',
