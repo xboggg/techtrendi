@@ -268,6 +268,28 @@ export function CreepyTechHomeSection() {
       </div>
 
       <div className="container relative z-10">
+        {/* Security pillar header — frames this dark section + links to the safety cluster */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-9">
+          <div>
+            <div className="flex items-center gap-2.5 mb-3">
+              <span className="h-px w-8 bg-gradient-to-r from-emerald-400 to-cyan-400" />
+              <span className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400">Stay Safe Online · Ghana</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+              Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">online safety</span> toolkit
+            </h2>
+            <p className="text-white/50 mt-2 max-w-xl">
+              Plain-English guides and quick alerts — from MoMo fraud to romance scams — drawn from Ghana's CSA and SEC.
+            </p>
+          </div>
+          <Link
+            to="/blog/how-to-stay-safe-online-in-ghana"
+            className="group inline-flex items-center gap-2 self-start sm:self-auto px-5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-sm font-medium text-white hover:bg-white/10 hover:border-white/30 transition-all"
+          >
+            The full safety guide
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
         {/* Creepy Tech Row */}
         {creepyPosts.length > 0 && (
           <div className="mb-12">

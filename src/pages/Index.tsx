@@ -662,16 +662,19 @@ export default function Index() {
       {/* 7. Featured Articles Section - Magazine Layout */}
       <section className="py-16 bg-background">
         <div className="container">
-          {/* Section Header */}
-          <div className="flex items-center justify-between mb-8">
+          {/* Section Header — premium eyebrow + gradient */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
             <div>
-              <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-4">Curated by Our Team</span>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                Editor's <span className="text-primary">Picks</span>
+              <div className="flex items-center gap-2.5 mb-3">
+                <span className="h-px w-8 bg-gradient-to-r from-primary to-purple-400" />
+                <span className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">Curated by our team</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-2">
+                Editor's <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">Picks</span>
               </h2>
               <p className="text-muted-foreground">Hand-picked guides on Ghana tech, online safety, and the tools worth your time.</p>
             </div>
-            <Button variant="outline" asChild className="hidden md:inline-flex rounded-xl">
+            <Button variant="outline" asChild className="self-start sm:self-auto hidden md:inline-flex rounded-xl">
               <Link to="/blog" className="flex items-center gap-2">
                 View All Articles
                 <ArrowRight className="w-4 h-4" />
