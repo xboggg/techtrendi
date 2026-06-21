@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, ChevronLeft, ChevronRight, Skull, ShieldCheck } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Eye, ShieldCheck } from "lucide-react";
 import staticCreepyTech from "@/data/creepy-tech.json";
 import staticCyberAwareness from "@/data/cyber-awareness.json";
 import { Button } from "@/components/ui/button";
@@ -274,10 +274,10 @@ export function CreepyTechHomeSection() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20">
-                  <Skull className="w-5 h-5 text-red-500" />
+                  <Eye className="w-5 h-5 text-red-500" />
                   <span className="font-semibold text-white">Creepy Tech</span>
                 </div>
-                <span className="hidden md:block text-sm text-zinc-500">Things your devices don't want you to know</span>
+                <span className="hidden md:block text-sm text-zinc-500">The surprising things your devices do behind the scenes</span>
               </div>
               <Button variant="ghost" size="sm" asChild className="text-red-400 hover:text-red-300">
                 <Link to="/creepy-tech" className="flex items-center gap-1">

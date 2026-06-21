@@ -106,8 +106,8 @@ export default function CreepyTech() {
   return (
     <Layout>
       <SEOHead
-        title="Creepy Tech - Things Your Devices Do Not Want You to Know"
-        description="Discover the unsettling side of technology. Privacy nightmares, surveillance facts, and digital dangers explained in plain language."
+        title="Creepy Tech - The Surprising Things Your Devices Do Behind the Scenes"
+        description="The surprising, lesser-known things your devices and apps do with your data — explained in plain language, so you can make informed choices about your privacy."
         canonical="/creepy-tech"
       />
       {/* Hero — uses site theme bg */}
@@ -120,13 +120,13 @@ export default function CreepyTech() {
           >
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 dark:text-red-400 text-sm font-medium mb-6">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              50 Things They Don't Want You to Know
+              50 Things Worth Knowing About Your Tech
             </span>
             <h1 className="text-4xl md:text-6xl font-black text-foreground mb-4 tracking-tight">
               Creepy <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-purple-500 to-blue-500">Tech</span>
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              The dark side of your devices. Every card is a truth they hoped you'd never discover. Screenshot it. Share it. Stay aware.
+              The surprising things your devices and apps do behind the scenes — explained simply, so you can decide what you're comfortable with. Learn it, share it, stay informed.
             </p>
           </motion.div>
 
