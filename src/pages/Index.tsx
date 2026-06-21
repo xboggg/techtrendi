@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight, Sparkles, Shield, Zap, BookOpen, Star, TrendingUp, Clock, Eye, FileText,
-  ChevronLeft, ChevronRight, Gamepad2, Send, Globe,
+  ChevronLeft, ChevronRight, Gamepad2, Send, Globe, Calculator,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GhanaFlag } from "@/components/ui/ghana-flag";
@@ -63,39 +63,47 @@ const categoryLabels: Record<string, string> = {
   "smart-income": "Smart Income",
 };
 
-// Tool categories matching image 5
+// Flagship local tools — TechTrendi's real differentiation (no global site has these).
+const flagshipTools = [
+  { title: "MoMo Fee Calculator", description: "Exact MTN & AT Money fees — E-Levy correctly removed", icon: Calculator, gradient: "from-yellow-400 to-orange-500", href: "/tools/momo-fee-calculator" },
+  { title: "ECG Bill Estimator", description: "Estimate your electricity bill on the PURC 2026 tariff", icon: Zap, gradient: "from-amber-500 to-yellow-600", href: "/tools/ecg-bill-estimator" },
+  { title: "Ghana Tax Calculator", description: "PAYE, SSNIT & take-home pay (2026 GRA bands)", icon: Calculator, gradient: "from-green-600 to-emerald-700", href: "/tools/ghana-tax-calculator" },
+  { title: "Ghana Scam Checker", description: "Check a suspicious message before you reply", icon: Shield, gradient: "from-cyan-500 to-blue-600", href: "/tools/ghana-scam-checker" },
+];
+
+// Browse-by-category — the biggest/most relevant categories (counts are real).
 const toolCategories = [
+  {
+    id: "business",
+    title: "Business & Freelancer",
+    description: "Invoicing, calculators, and money tools for hustlers and small businesses",
+    icon: TrendingUp,
+    gradient: "from-green-500 to-emerald-600",
+    count: 28,
+  },
+  {
+    id: "security",
+    title: "Security & Privacy",
+    description: "Scam checkers, password tools, and privacy utilities to keep you safe",
+    icon: Shield,
+    gradient: "from-cyan-500 to-blue-600",
+    count: 7,
+  },
   {
     id: "productivity",
     title: "Productivity",
     description: "Timers, trackers, journals and tools to supercharge your daily workflow",
     icon: Zap,
     gradient: "from-yellow-400 to-orange-500",
-    count: 13,
+    count: 22,
   },
   {
     id: "creator",
     title: "Creator & Marketing",
-    description: "Content tools, caption generators, analytics for creators",
+    description: "Content tools, caption generators, and analytics for creators",
     icon: Send,
     gradient: "from-purple-400 to-pink-500",
-    count: 11,
-  },
-  {
-    id: "career",
-    title: "Career",
-    description: "Resume builders, job trackers, salary tools to land your dream job",
-    icon: BookOpen,
-    gradient: "from-green-400 to-emerald-500",
-    count: 6,
-  },
-  {
-    id: "other",
-    title: "Life & Fun",
-    description: "Decision wheels, life trackers, and fun utilities",
-    icon: Gamepad2,
-    gradient: "from-red-400 to-pink-500",
-    count: 8,
+    count: 23,
   },
 ];
 
@@ -552,12 +560,49 @@ export default function Index() {
           <div className="text-center mb-10">
             <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-4">Free Utilities</span>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-              Explore Our <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Tool Categories</span>
+              Free Tools, <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Built for Ghana</span>
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Free tools to boost productivity, advance your career, and have fun.
+              130+ free tools made for everyday life in Ghana — from MoMo fees to your light bill — plus everything you need to work and create.
             </p>
           </div>
+
+          {/* Built for Ghana — flagship local tools (our differentiation) */}
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-xl">🇬🇭</span>
+            <h3 className="text-lg font-bold text-foreground">Built for Ghana</h3>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+            {flagshipTools.map((tool, index) => {
+              const Icon = tool.icon;
+              return (
+                <AnimatedCard key={tool.href} delay={index * 80} animation="fade-up">
+                  <Link
+                    to={tool.href}
+                    className="group flex flex-col p-5 rounded-2xl bg-card border border-border hover:shadow-lg hover:border-primary/30 transition-all duration-300 h-full"
+                  >
+                    <div className={cn(
+                      "w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center mb-3 shadow group-hover:scale-110 transition-transform",
+                      tool.gradient
+                    )}>
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h4 className="font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
+                      {tool.title}
+                    </h4>
+                    <p className="text-sm text-muted-foreground flex-1">{tool.description}</p>
+                    <span className="mt-3 text-primary text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+                      Open tool
+                      <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </Link>
+                </AnimatedCard>
+              );
+            })}
+          </div>
+
+          {/* Browse by category */}
+          <h3 className="text-lg font-bold text-foreground mb-4">Browse by category</h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {toolCategories.map((cat, index) => {
               const Icon = cat.icon;
