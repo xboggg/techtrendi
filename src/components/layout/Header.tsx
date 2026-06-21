@@ -18,7 +18,6 @@ import {
 // Mega menu categories
 const exploreCategories = [
   { label: "Phones", href: "/phones", icon: Smartphone, description: "Latest smartphones & mobile tech" },
-  { label: "Security", href: "/security", icon: Lock, description: "Cybersecurity tips & guides" },
   { label: "AI Tech", href: "/ai-tech", icon: Cpu, description: "Artificial intelligence trends" },
   { label: "Productivity", href: "/productivity", icon: Lightbulb, description: "Apps & tools to boost workflow" },
   { label: "How-To", href: "/how-to", icon: BookOpen, description: "Step-by-step tutorials" },
@@ -40,16 +39,16 @@ interface NavLink {
   submenu?: { label: string; href: string }[];
 }
 
+// Pillar-aligned: News (Africa Tech) → Security → Tools, then Blog + Store.
 const navLinks: NavLink[] = [
+  { label: "Africa Tech", href: "/news?category=Africa Tech", icon: Globe },
+  { label: "Security", href: "/security", icon: Shield, isHot: true },
+  { label: "Tools", href: "/tools" },
   {
     label: "Blog",
     href: "/blog",
     isMegaMenu: true,
   },
-  { label: "Security", href: "/security", icon: Shield, isHot: true },
-  { label: "Africa Tech", href: "/news?category=Africa Tech", icon: Globe },
-  { label: "News", href: "/news", icon: Newspaper },
-  { label: "Toolbox", href: "/tools" },
   { label: "DigiStore", href: "/store", icon: ShoppingBag },
 ];
 
@@ -329,7 +328,7 @@ export function Header() {
                         <link.icon className="w-5 h-5 text-white" />
                       ) : link.label === "Blog" ? (
                         <BookOpen className="w-5 h-5 text-white" />
-                      ) : link.label === "Toolbox" ? (
+                      ) : link.label === "Tools" ? (
                         <Zap className="w-5 h-5 text-white" />
                       ) : (
                         <Sparkles className="w-5 h-5 text-white" />
