@@ -29,7 +29,14 @@ export default function PrivacyCheckerPage() {
 
           <PrivacyCheckerComponent />
 
-          <div className="mt-10 p-6 rounded-2xl bg-muted/50">
+          <div className="mt-6 flex items-start gap-3 rounded-xl border border-green-500/20 bg-green-500/10 p-4">
+            <Eye className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
+            <p className="text-sm text-foreground">
+              <strong>This checks only your own browser.</strong> It reads what your browser already reveals to the sites you visit — nothing is uploaded to us or stored. Use it to understand and tighten your own privacy.
+            </p>
+          </div>
+
+          <div className="mt-6 p-6 rounded-2xl bg-muted/50">
             <h3 className="font-semibold text-foreground mb-4">Privacy Best Practices</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">

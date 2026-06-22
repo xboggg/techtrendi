@@ -147,6 +147,13 @@ export default function PasswordChecker() {
           </p>
         </div>
 
+        <div className="max-w-xl mx-auto mb-6 flex items-start gap-3 rounded-xl border border-green-500/20 bg-green-500/10 p-4">
+          <Shield className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
+          <p className="text-sm text-foreground">
+            <strong>Checked right here in your browser.</strong> Your password is analysed locally on your own device — it is never sent to us, stored, or logged. Test your own passwords with confidence.
+          </p>
+        </div>
+
         {/* Checker Tool */}
         <div className="max-w-xl mx-auto">
           <div className="bg-card rounded-2xl border border-border shadow-card p-6 md:p-8">

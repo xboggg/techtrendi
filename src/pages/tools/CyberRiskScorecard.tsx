@@ -642,6 +642,12 @@ export default function CyberRiskScorecard() {
             </p>
           </div>
 
+          <div className="max-w-xl mx-auto mb-6 rounded-xl border border-green-500/20 bg-green-500/10 p-4">
+            <p className="text-sm text-foreground">
+              <strong>A private self-check.</strong> This scores <em>your own</em> security habits and gives you an action plan. Your answers stay in your browser — nothing is sent to us or stored.
+            </p>
+          </div>
+
           {!showResults ? (
             <>
               {/* Progress Bar */}

@@ -149,6 +149,13 @@ export default function GhanaScamChecker() {
           </p>
         </div>
 
+        <div className="mb-5 flex items-start gap-3 rounded-xl border border-green-500/20 bg-green-500/10 p-4">
+          <ShieldCheck className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
+          <p className="text-sm text-foreground">
+            <strong>Made to protect you.</strong> Paste a suspicious message <em>you have received</em> to check it against known scam patterns — we do not keep your messages. This tool is for your own safety, not for creating or testing scams.
+          </p>
+        </div>
+
         {/* Mode toggle */}
         <div className="flex gap-2 mb-5">
           {(["message", "number"] as const).map(m => (

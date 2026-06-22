@@ -2,7 +2,7 @@ import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { IPLookup as IPLookupComponent } from "@/components/tools/IPLookup";
 import { ToolContentSection } from "@/components/tools/ToolContentSection";
-import { Globe } from "lucide-react";
+import { Globe, ShieldAlert } from "lucide-react";
 
 export default function IPLookupPage() {
   return (
@@ -29,7 +29,14 @@ export default function IPLookupPage() {
 
           <IPLookupComponent />
 
-          <div className="mt-10 p-6 rounded-2xl bg-muted/50">
+          <div className="mt-6 flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
+            <ShieldAlert className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <p className="text-sm text-foreground">
+              <strong>Use this responsibly.</strong> IP geolocation shows only an approximate city and ISP — never an exact address or a person's identity. It is meant for checking your own connection, network troubleshooting, and understanding a suspicious IP — not for tracking, profiling, or harassing anyone.
+            </p>
+          </div>
+
+          <div className="mt-6 p-6 rounded-2xl bg-muted/50">
             <h3 className="font-semibold text-foreground mb-4">About IP Geolocation</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
