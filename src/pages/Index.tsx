@@ -401,23 +401,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Slim trust strip — flag accent + one quiet credibility line (no duplicate headline/chips) */}
-      <section className="relative bg-slate-950 py-3">
-        <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-[#ce1126] via-[#fcd116] to-[#006b3f]" />
-        <div className="container">
-          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-sm text-white/55">
-            <span className="inline-flex items-center gap-1.5 text-white/80">
-              <GhanaFlag className="w-5 h-3.5 rounded-sm shrink-0" /> Made in Ghana
-            </span>
-            <span className="hidden sm:inline text-white/20">•</span>
-            <span>130+ free tools</span>
-            <span className="hidden sm:inline text-white/20">•</span>
-            <span>Daily Africa tech news</span>
-            <span className="hidden sm:inline text-white/20">•</span>
-            <span>Safety guides sourced from Ghana's CSA &amp; SEC</span>
-          </div>
-        </div>
-      </section>
+      {/* (Trust strip moved to a fixed bottom ticker — rendered at the end of the page) */}
 
       {/* Africa Tech News — the lead pillar (tightened top so it flows from the dark bar) */}
       <section className="relative pt-10 md:pt-14 pb-16 md:pb-20 bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
@@ -824,6 +808,39 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      {/* Spacer so the footer clears the fixed bottom ticker */}
+      <div aria-hidden="true" className="h-10" />
+
+      {/* Fixed bottom ticker — slim trust strip pinned to the viewport bottom:
+          sliding marquee text + a slowly flowing Ghana-flag accent line. */}
+      <div className="ticker-wrap fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-sm border-t border-white/10 overflow-hidden">
+        <div className="h-0.5 bg-gradient-to-r from-[#ce1126] via-[#fcd116] to-[#006b3f] animate-flag-flow" />
+        <div className="overflow-hidden py-2">
+          <div className="flex w-max animate-ticker-scroll">
+            {[0, 1].map((dup) => (
+              <div
+                key={dup}
+                className="flex items-center shrink-0 text-sm text-white/55"
+                aria-hidden={dup === 1 ? true : undefined}
+              >
+                <span className="inline-flex items-center gap-1.5 px-6 text-white/85">
+                  <GhanaFlag className="w-5 h-3.5 rounded-sm" /> Made in Ghana
+                </span>
+                <span className="text-white/15">•</span>
+                <span className="px-6">130+ free tools</span>
+                <span className="text-white/15">•</span>
+                <span className="px-6">Daily Africa tech news</span>
+                <span className="text-white/15">•</span>
+                <span className="px-6">Safety guides sourced from Ghana's CSA &amp; SEC</span>
+                <span className="text-white/15">•</span>
+                <span className="px-6">Built for how we actually live in Ghana</span>
+                <span className="text-white/15">•</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </Layout>
   );
 }

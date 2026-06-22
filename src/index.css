@@ -943,6 +943,20 @@ body {
 .animate-hero-float { animation: heroFloat 6s ease-in-out infinite; will-change: transform; }
 .animate-hero-glow { animation: heroGlow 6s ease-in-out infinite; will-change: transform, opacity; }
 .animate-hero-zoom { animation: heroBgZoom 14s ease-in-out infinite; will-change: transform; }
+
+/* Fixed bottom ticker: sliding marquee text + a slowly flowing Ghana-flag line. */
+@keyframes tickerScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes flagFlow {
+  from { background-position: 0% 0; }
+  to { background-position: -200% 0; }
+}
+.animate-ticker-scroll { animation: tickerScroll 38s linear infinite; will-change: transform; }
+.animate-flag-flow { background-size: 200% 100%; animation: flagFlow 11s linear infinite; will-change: background-position; }
+.ticker-wrap:hover .animate-ticker-scroll { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
-  .animate-hero-float, .animate-hero-glow, .animate-hero-zoom { animation: none; }
+  .animate-hero-float, .animate-hero-glow, .animate-hero-zoom,
+  .animate-ticker-scroll, .animate-flag-flow { animation: none; }
 }
