@@ -108,77 +108,52 @@ const toolCategories = [
   },
 ];
 
-// World Tech in Brief — a sleek dark "news wire" panel. International news is
-// secondary to the Africa-first pillars, but presented with a distinctive,
-// premium newsroom/terminal aesthetic (LIVE pulse, mono numbering, colour-coded
-// tags, hover accents) rather than a plain list.
-const WIRE_CAT_COLORS: Record<string, string> = {
-  "AI Tech": "bg-purple-500/20 text-purple-300 ring-purple-500/30",
-  "Big Tech": "bg-blue-500/20 text-blue-300 ring-blue-500/30",
-  "Gadgets": "bg-cyan-500/20 text-cyan-300 ring-cyan-500/30",
-  "Startups": "bg-amber-500/20 text-amber-300 ring-amber-500/30",
-  "Gaming": "bg-pink-500/20 text-pink-300 ring-pink-500/30",
-  "Health Tech": "bg-emerald-500/20 text-emerald-300 ring-emerald-500/30",
-  "Crypto": "bg-orange-500/20 text-orange-300 ring-orange-500/30",
-  "Space": "bg-indigo-500/20 text-indigo-300 ring-indigo-500/30",
-  "Green Tech": "bg-lime-500/20 text-lime-300 ring-lime-500/30",
-};
-const wireCat = (c: string) => WIRE_CAT_COLORS[c] || "bg-white/10 text-white/60 ring-white/15";
-
+// World Tech in Brief — a light, editorial horizontal strip. International news
+// is secondary to the Africa-first pillars, so it's a clean swipe-rail of
+// headlines (full titles visible, no crowding) rather than a dark terminal panel.
 function IntlNewsScroller({ news, formatTimeAgo }: { news: NewsItem[]; formatTimeAgo: (d: string) => string }) {
-  const items = news.slice(0, 6);
+  const items = news.slice(0, 8);
   if (items.length === 0) return null;
   return (
-    <section className="py-12 md:py-16">
+    <section className="py-10 md:py-14">
       <div className="container">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-white/10 p-6 md:p-9 shadow-2xl">
-          {/* animated top accent line + ambient glow */}
-          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
-          <div className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
-
+        <div className="rounded-2xl md:rounded-3xl bg-card border border-border p-5 md:p-7 shadow-sm">
           {/* header */}
-          <div className="relative flex items-center justify-between mb-7">
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-2">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
-                </span>
-                <span className="font-mono text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400">Live</span>
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2.5">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
               </span>
-              <h2 className="text-lg md:text-xl font-bold text-white">
-                World Tech <span className="text-white/40 font-normal">in Brief</span>
+              <span className="font-mono text-[10px] font-semibold tracking-[0.2em] uppercase text-emerald-600">Live</span>
+              <h2 className="text-base md:text-lg font-bold text-foreground">
+                World Tech <span className="text-muted-foreground font-normal">in Brief</span>
               </h2>
             </div>
-            <Link to="/news" className="group flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+            <Link to="/news" className="group flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors">
               <span className="font-mono text-xs tracking-wide">THE WIRE</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
-          {/* headlines */}
-          <div className="relative grid md:grid-cols-2 md:gap-x-12">
-            {items.map((item, i) => (
+          {/* horizontal editorial strip — swipe-rail on mobile, full headlines visible */}
+          <div className="flex gap-4 md:gap-5 overflow-x-auto pb-2 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {items.map((item) => (
               <Link
                 key={item.id}
                 to={`/news/${item.slug}`}
-                className="group relative flex items-center gap-3 md:gap-4 py-3 pl-3 border-b border-white/5"
+                className="group snap-start shrink-0 w-[230px] md:w-[210px] border-l-2 border-primary/30 hover:border-primary pl-3 md:pl-4 transition-colors"
               >
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-0 bg-primary rounded-full transition-all duration-300 group-hover:h-2/3" />
-                <span className="font-mono text-xs text-white/25 w-6 shrink-0 tabular-nums">{String(i + 1).padStart(2, "0")}</span>
-                <span className={`shrink-0 px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wide ring-1 ${wireCat(item.category)} hidden sm:inline-block max-w-[96px] truncate`}>
-                  {item.category}
+                <span className="text-[10px] font-mono uppercase tracking-wide text-muted-foreground">
+                  {item.category} · {formatTimeAgo(item.created_at)}
                 </span>
-                <span className="flex-1 text-sm text-white/80 group-hover:text-white line-clamp-1 transition-colors">
+                <p className="text-sm md:text-[15px] font-medium text-foreground group-hover:text-primary mt-1 leading-snug line-clamp-3 transition-colors">
                   {item.title}
-                </span>
-                <span className="hidden md:inline font-mono text-[11px] text-white/35 shrink-0 tabular-nums">
-                  {formatTimeAgo(item.created_at)}
-                </span>
+                </p>
               </Link>
             ))}
           </div>
+          <p className="text-center text-[10px] text-muted-foreground/60 mt-1 md:hidden">← swipe for more →</p>
         </div>
       </div>
     </section>
