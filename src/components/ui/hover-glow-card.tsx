@@ -26,6 +26,15 @@ export function HoverGlowCard({
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      // onTap goes through framer-motion's pointer-gesture system, which tracks
+      // the element through its hover-lift transform — so mouse clicks register
+      // reliably (a plain onClick was being dropped by the y:-4 transform).
+      // Ignore taps that land on an inner control (Read more / Share buttons).
+      onTap={(e) => {
+        const target = e.target as HTMLElement | null;
+        if (target?.closest("button")) return;
+        onClick?.();
+      }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
@@ -79,9 +88,8 @@ export function HoverGlowCard({
         )}
       </AnimatePresence>
 
-      {/* Content — also the click target, so the hover-lift transform on the
-          outer motion.div can't swallow mouse clicks (touch was unaffected). */}
-      <div className="relative z-10" onClick={onClick}>{children}</div>
+      {/* Content */}
+      <div className="relative z-10">{children}</div>
     </motion.div>
   );
 }
