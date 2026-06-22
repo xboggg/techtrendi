@@ -370,7 +370,7 @@ export default function Index() {
         <div className="container relative z-10 py-16 md:py-20">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-sm font-medium text-white mb-5 backdrop-blur-sm">
-              <span aria-hidden="true">🇬🇭</span> Ghana's Tech Hub
+              <span aria-hidden="true">🇬🇭</span> News · Tools · Online Safety
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.1] mb-5 drop-shadow-lg">
               Tech made simple,{" "}
