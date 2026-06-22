@@ -401,39 +401,20 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Ghana trust bar — premium dark strip with a thin Ghana-flag accent */}
-      <section className="relative overflow-hidden bg-slate-950 py-7 md:py-9">
-        {/* thin Ghana-flag accent line (the tasteful national nod) */}
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#ce1126] via-[#fcd116] to-[#006b3f]" />
-        <div className="absolute -top-16 left-1/3 w-72 h-72 rounded-full bg-[#fcd116]/5 blur-3xl pointer-events-none" />
-        <div className="container relative z-10">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
-            <div className="flex items-center gap-4">
-              <GhanaFlag className="w-11 h-7 rounded shadow-lg ring-1 ring-white/10 shrink-0" />
-              <div>
-                <h2 className="text-lg md:text-xl font-bold text-white leading-tight">
-                  Ghana's home for tech news, tools &amp; safety
-                </h2>
-                <p className="text-sm text-white/50 mt-0.5">
-                  Built for Africa — trusted by readers across Ghana and beyond.
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {[
-                { label: "Africa Tech News", href: "/news?category=Africa Tech" },
-                { label: "MoMo Calculator", href: "/tools/momo-fee-calculator" },
-                { label: "Scam Checker", href: "/tools/ghana-scam-checker" },
-              ].map((chip) => (
-                <Link
-                  key={chip.href}
-                  to={chip.href}
-                  className="px-4 py-2 rounded-full bg-white/5 border border-white/15 text-sm text-white/75 hover:text-white hover:bg-white/10 hover:border-white/30 transition-all backdrop-blur-sm"
-                >
-                  {chip.label}
-                </Link>
-              ))}
-            </div>
+      {/* Slim trust strip — flag accent + one quiet credibility line (no duplicate headline/chips) */}
+      <section className="relative bg-slate-950 py-3">
+        <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-[#ce1126] via-[#fcd116] to-[#006b3f]" />
+        <div className="container">
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-sm text-white/55">
+            <span className="inline-flex items-center gap-1.5 text-white/80">
+              <GhanaFlag className="w-5 h-3.5 rounded-sm shrink-0" /> Made in Ghana
+            </span>
+            <span className="hidden sm:inline text-white/20">•</span>
+            <span>130+ free tools</span>
+            <span className="hidden sm:inline text-white/20">•</span>
+            <span>Daily Africa tech news</span>
+            <span className="hidden sm:inline text-white/20">•</span>
+            <span>Safety guides sourced from Ghana's CSA &amp; SEC</span>
           </div>
         </div>
       </section>
