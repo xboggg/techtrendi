@@ -26,7 +26,6 @@ export function HoverGlowCard({
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={onClick}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
@@ -80,8 +79,9 @@ export function HoverGlowCard({
         )}
       </AnimatePresence>
 
-      {/* Content */}
-      <div className="relative z-10">{children}</div>
+      {/* Content — also the click target, so the hover-lift transform on the
+          outer motion.div can't swallow mouse clicks (touch was unaffected). */}
+      <div className="relative z-10" onClick={onClick}>{children}</div>
     </motion.div>
   );
 }
