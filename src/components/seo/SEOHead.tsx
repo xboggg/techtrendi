@@ -72,6 +72,33 @@ export function SEOHead({
       }
     : null;
 
+  // Article/guide pages get Article structured data (helps Google understand
+  // author, publish date, publisher, and surface rich results). Emitted at SSG
+  // build time so it's present in the server HTML, not only after hydration.
+  const articleSchema = type === 'article'
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: baseTitle,
+        description,
+        image: [imageUrl],
+        author: { '@type': 'Person', name: author },
+        publisher: {
+          '@type': 'Organization',
+          name: SITE_NAME,
+          url: SITE_URL,
+          logo: { '@type': 'ImageObject', url: `${SITE_URL}/icon-512.png` },
+        },
+        ...(publishedTime ? { datePublished: publishedTime } : {}),
+        dateModified: modifiedTime || publishedTime || undefined,
+        ...(category ? { articleSection: category } : {}),
+        ...(allKeywords ? { keywords: allKeywords } : {}),
+        mainEntityOfPage: { '@type': 'WebPage', '@id': fullUrl },
+        inLanguage: 'en',
+        isAccessibleForFree: true,
+      }
+    : null;
+
   return (
     <Head>
       {/* Primary Meta Tags */}
@@ -146,6 +173,11 @@ export function SEOHead({
       {/* Tool pages: SoftwareApplication structured data */}
       {toolSchema && (
         <script type="application/ld+json">{JSON.stringify(toolSchema)}</script>
+      )}
+
+      {/* Article/guide pages: Article structured data */}
+      {articleSchema && (
+        <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
       )}
     </Head>
   );
