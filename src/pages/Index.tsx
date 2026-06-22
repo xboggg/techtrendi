@@ -354,8 +354,8 @@ export default function Index() {
           }
         ]
       })}} />
-      {/* Hero — full-bleed dark image with the Africa-first promise overlaid */}
-      <section className="relative overflow-hidden min-h-[500px] md:min-h-[560px] flex items-center border-b border-border/50">
+      {/* Hero — full-bleed dark image; fills the viewport so it meets the bottom ticker */}
+      <section className="relative overflow-hidden min-h-[100svh] flex items-center border-b border-border/50">
         {/* Full-bleed background image with a slow breathing zoom */}
         <img
           src="/images/hero/hero-smartphone.png"

@@ -2,6 +2,7 @@
 // Helmet-based head manager). react-helmet-async's <Helmet> is NOT captured by
 // the SSG build, which is why per-page titles were generic. Same JSX children.
 import { Head } from 'vite-react-ssg';
+import { useLocation } from 'react-router-dom';
 
 interface SEOHeadProps {
   title: string;
@@ -53,6 +54,23 @@ export function SEOHead({
     : SITE_URL;
   const imageUrl = image ? (image.startsWith('http') ? image : `${SITE_URL}${image}`) : `${SITE_URL}${DEFAULT_IMAGE}`;
   const allKeywords = [...new Set([...keywords, ...tags, 'tech', 'technology', 'guide', 'review'])].join(', ');
+
+  // Tool pages get SoftwareApplication structured data (free web utility).
+  const { pathname } = useLocation();
+  const toolSchema = pathname.startsWith('/tools/')
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: baseTitle,
+        description,
+        url: `${SITE_URL}${pathname}`,
+        applicationCategory: 'UtilityApplication',
+        operatingSystem: 'Web',
+        isAccessibleForFree: true,
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+      }
+    : null;
 
   return (
     <Head>
@@ -124,6 +142,11 @@ export function SEOHead({
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
       <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+
+      {/* Tool pages: SoftwareApplication structured data */}
+      {toolSchema && (
+        <script type="application/ld+json">{JSON.stringify(toolSchema)}</script>
+      )}
     </Head>
   );
 }
