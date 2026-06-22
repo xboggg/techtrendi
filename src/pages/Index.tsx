@@ -377,13 +377,13 @@ export default function Index() {
               <span className="text-amber-400">built for Ghana</span>
             </h1>
             <p className="text-lg text-white/80 max-w-xl mb-8">
-              One home for Africa tech news, online-safety guides, and 130+ free
-              tools made for everyday life — from MoMo fees to your light bill.
+              News that matters. Tools that work. Safety that sticks. All free —
+              all built for how we actually live in Ghana.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button size="lg" asChild className="rounded-xl px-6">
                 <Link to="/news?category=Africa Tech" className="flex items-center gap-2">
-                  <Globe className="w-5 h-5" /> Africa Tech News
+                  <Globe className="w-5 h-5" /> Read the News
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="rounded-xl px-6 border-white/40 bg-white/5 text-white hover:bg-white/15 hover:text-white">
