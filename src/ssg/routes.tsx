@@ -88,6 +88,7 @@ export const routes: RouteRecord[] = [
       { path: "store", lazy: d(() => import("../pages/DigiStore")) },
       { path: "books/think-before-you-click", lazy: d(() => import("../pages/books/ThinkBeforeYouClick")) },
       { path: "design-demo", lazy: d(() => import("../pages/DesignDemo")) },
+      { path: "wire-preview", lazy: d(() => import("../pages/WirePreviews")) },
       {
         element: <ToolPageLayout />,
         entry: "src/components/tools/ToolPageLayout.tsx",
