@@ -72,6 +72,30 @@ function getRelatedArticles(articles: Article[], category: string, excludeId: st
     .slice(0, 3);
 }
 
+// Parse the visible "Common questions" FAQ out of article HTML so the FAQPage
+// JSON-LD always matches what readers actually see. Looks for the section that
+// starts at the heading with id="common-questions" and reads each <h3>question</h3>
+// followed by its <p>answer</p>. Runs at SSG build time (Node, no DOM) → regex.
+function parseFaqs(content: string): { question: string; answer: string }[] {
+  if (!content || !content.includes('id="common-questions"')) return [];
+  const start = content.indexOf('id="common-questions"');
+  const section = content.slice(start);
+  const strip = (s: string) =>
+    s.replace(/<[^>]+>/g, "")
+      .replace(/&amp;/g, "&").replace(/&#x2F;/g, "/").replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+      .trim();
+  const out: { question: string; answer: string }[] = [];
+  const re = /<h3[^>]*>([\s\S]*?)<\/h3>\s*<p[^>]*>([\s\S]*?)<\/p>/gi;
+  let m;
+  while ((m = re.exec(section)) !== null) {
+    const question = strip(m[1]);
+    const answer = strip(m[2]);
+    if (question && answer) out.push({ question, answer });
+  }
+  return out;
+}
+
 // Try to get article from sessionStorage cache
 function getCachedArticle(slug: string): Article | undefined {
   try {
@@ -434,6 +458,13 @@ export default function BlogArticle() {
         category={article.category}
         tags={article.tags || []}
         keywords={article.tags || [article.category]}
+        faqs={parseFaqs(article.content)}
+        breadcrumbs={[
+          { name: "Home", path: "/" },
+          { name: "Blog", path: "/blog" },
+          { name: article.category, path: `/blog?category=${article.category}` },
+          { name: article.title, path: `/blog/${article.slug}` },
+        ]}
       />
       <ReadingProgress />
       <article className="container py-12 md:py-20">

@@ -20,6 +20,11 @@ interface SEOHeadProps {
   tags?: string[];
   locale?: string;
   alternateLocales?: string[];
+  /** Q&A pairs that appear VISIBLY on the page (parsed from article content);
+   *  emitted as FAQPage structured data. Must match on-page content. */
+  faqs?: { question: string; answer: string }[];
+  /** Breadcrumb trail (label + path); emitted as BreadcrumbList. */
+  breadcrumbs?: { name: string; path: string }[];
 }
 
 const SITE_NAME = 'TechTrendi';
@@ -43,6 +48,8 @@ export function SEOHead({
   tags = [],
   locale = 'en_US',
   alternateLocales = [],
+  faqs = [],
+  breadcrumbs = [],
 }: SEOHeadProps) {
   // Some pages pass a title that already ends in "| TechTrendi"; strip it so we
   // never emit "... | TechTrendi | TechTrendi".
@@ -96,6 +103,34 @@ export function SEOHead({
         mainEntityOfPage: { '@type': 'WebPage', '@id': fullUrl },
         inLanguage: 'en',
         isAccessibleForFree: true,
+      }
+    : null;
+
+  // FAQPage — only emitted when the page actually shows these Q&As (the caller
+  // parses them from the visible article content, so schema matches on-page).
+  const faqSchema = faqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((f) => ({
+          '@type': 'Question',
+          name: f.question,
+          acceptedAnswer: { '@type': 'Answer', text: f.answer },
+        })),
+      }
+    : null;
+
+  // BreadcrumbList — matches the visible breadcrumb trail on article pages.
+  const breadcrumbSchema = breadcrumbs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbs.map((b, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: b.name,
+          item: b.path.startsWith('http') ? b.path : `${SITE_URL}${b.path.startsWith('/') ? b.path : `/${b.path}`}`,
+        })),
       }
     : null;
 
@@ -178,6 +213,16 @@ export function SEOHead({
       {/* Article/guide pages: Article structured data */}
       {articleSchema && (
         <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
+      )}
+
+      {/* FAQ pages: FAQPage structured data (matches visible on-page Q&A) */}
+      {faqSchema && (
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+      )}
+
+      {/* Breadcrumb trail structured data */}
+      {breadcrumbSchema && (
+        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       )}
     </Head>
   );
