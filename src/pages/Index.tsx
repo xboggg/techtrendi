@@ -18,6 +18,8 @@ import staticFeaturedGuides from "@/data/featured-guides.json";
 import { CreepyTechHomeSection } from "@/components/home/CreepyTechCarousel";
 import { cn } from "@/lib/utils";
 import { AnimatedCard } from "@/components/ui/animated-card";
+import { AutoCarousel } from "@/components/home/AutoCarousel";
+import { CarouselItem } from "@/components/ui/carousel";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
 
@@ -542,11 +544,11 @@ export default function Index() {
             <span className="hidden sm:inline text-sm text-muted-foreground">— tools you won't find on any global site</span>
             <span className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-14">
-            {flagshipTools.map((tool, index) => {
+          <AutoCarousel className="mb-14">
+            {flagshipTools.map((tool) => {
               const Icon = tool.icon;
               return (
-                <AnimatedCard key={tool.href} delay={index * 80} animation="fade-up">
+                <CarouselItem key={tool.href} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
                   <Link
                     to={tool.href}
                     className="group relative flex flex-col p-5 rounded-2xl bg-card border border-border overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full"
@@ -571,18 +573,18 @@ export default function Index() {
                       </span>
                     </div>
                   </Link>
-                </AnimatedCard>
+                </CarouselItem>
               );
             })}
-          </div>
+          </AutoCarousel>
 
           {/* Browse by category */}
           <h3 className="text-lg font-bold text-foreground mb-4">Browse by category</h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {toolCategories.map((cat, index) => {
+          <AutoCarousel>
+            {toolCategories.map((cat) => {
               const Icon = cat.icon;
               return (
-                <AnimatedCard key={cat.id} delay={index * 80} animation="fade-up">
+                <CarouselItem key={cat.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
                   <Link
                     to={`/tools/${cat.id}`}
                     className="group relative flex flex-col p-6 rounded-2xl bg-card border border-border overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full"
@@ -608,10 +610,10 @@ export default function Index() {
                       </span>
                     </div>
                   </Link>
-                </AnimatedCard>
+                </CarouselItem>
               );
             })}
-          </div>
+          </AutoCarousel>
           <div className="mt-10 text-center">
             <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-8" asChild>
               <Link to="/tools" className="flex items-center gap-2">
