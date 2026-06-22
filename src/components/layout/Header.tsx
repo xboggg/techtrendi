@@ -43,11 +43,12 @@ interface NavLink {
 const navLinks: NavLink[] = [
   { label: "Africa Tech", href: "/news?category=Africa Tech", icon: Globe },
   { label: "Security", href: "/security", icon: Shield, isHot: true },
-  { label: "Tools", href: "/tools" },
+  { label: "Tools", href: "/tools", icon: Zap },
   {
     label: "Blog",
     href: "/blog",
     isMegaMenu: true,
+    icon: BookOpen,
   },
   { label: "DigiStore", href: "/store", icon: ShoppingBag },
 ];
