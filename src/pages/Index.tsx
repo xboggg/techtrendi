@@ -362,10 +362,11 @@ export default function Index() {
       <section className="relative overflow-hidden min-h-[100svh] flex items-center border-b border-border/50">
         {/* Full-bleed background image with a slow breathing zoom */}
         <img
-          src="/images/hero/hero-smartphone.png"
+          src="/images/hero/hero-ghana-street.jpg"
           alt=""
           aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover object-center animate-hero-zoom"
+          fetchPriority="high"
+          className="absolute inset-0 w-full h-full object-cover object-right md:object-center animate-hero-zoom"
         />
         {/* Dark overlay — heavier on the left so the headline (and the white nav) stay readable */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/75 to-black/40" />
