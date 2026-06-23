@@ -221,14 +221,14 @@ export default function AdminDashboard() {
             <CardContent>
               <div className="space-y-4">
                 {stats?.recentArticles.map((article: any) => (
-                  <div key={article.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                  <div key={article.id} className="flex items-start justify-between gap-3 py-2 border-b border-border last:border-0">
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground truncate">{article.title}</p>
+                      <p className="font-medium text-foreground break-words">{article.title}</p>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                         <span className="px-2 py-0.5 bg-muted rounded">{article.category}</span>
                       </div>
                     </div>
-                    <div className="text-xs text-muted-foreground ml-4">
+                    <div className="text-xs text-muted-foreground shrink-0 whitespace-nowrap">
                       {formatDate(article.created_at)}
                     </div>
                   </div>
@@ -254,14 +254,14 @@ export default function AdminDashboard() {
             <CardContent>
               <div className="space-y-4">
                 {stats?.recentNews.map((news: any) => (
-                  <div key={news.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                  <div key={news.id} className="flex items-start justify-between gap-3 py-2 border-b border-border last:border-0">
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground truncate">{news.title}</p>
+                      <p className="font-medium text-foreground break-words">{news.title}</p>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                         <span className="px-2 py-0.5 bg-muted rounded">{news.category}</span>
                       </div>
                     </div>
-                    <div className="text-xs text-muted-foreground ml-4">
+                    <div className="text-xs text-muted-foreground shrink-0 whitespace-nowrap">
                       {formatDate(news.created_at)}
                     </div>
                   </div>
