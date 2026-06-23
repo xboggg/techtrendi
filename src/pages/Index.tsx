@@ -368,9 +368,10 @@ export default function Index() {
           fetchPriority="high"
           className="absolute inset-0 w-full h-full object-cover object-right md:object-center animate-hero-zoom"
         />
-        {/* Dark overlay — heavier on the left so the headline (and the white nav) stay readable */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/75 to-black/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
+        {/* Overlay — dark on the left for the headline, fading to clear on the
+            right so the golden-hour subject stays visible. Tuned for this image. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 from-10% via-black/45 via-45% to-transparent to-80%" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 
         <div className="container relative z-10 py-16 md:py-20">
           <div className="max-w-2xl">
