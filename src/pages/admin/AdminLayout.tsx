@@ -1,8 +1,8 @@
-import { ReactNode } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { Link, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
-import { LayoutDashboard, FileText, MessageSquare, Users, ArrowLeft, Loader2, PenSquare, Mail, Package, Newspaper, BarChart3, Ghost, Shield, ShieldAlert, Lightbulb, Activity, Flag, Wrench, LogOut, MessageCircle, Megaphone } from "lucide-react";
+import { LayoutDashboard, FileText, MessageSquare, Users, ArrowLeft, Loader2, PenSquare, Mail, Package, Newspaper, BarChart3, Ghost, Shield, ShieldAlert, Lightbulb, Activity, Flag, Wrench, LogOut, MessageCircle, Megaphone, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AdminLayoutProps {
@@ -34,6 +34,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const { user, loading: authLoading, signOut } = useAuth();
   const { isAdmin, isLoading: adminLoading } = useAdminCheck();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Close the mobile drawer whenever the route changes
+  useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
 
   if (authLoading || adminLoading) {
     return (
@@ -63,13 +67,49 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-card border-r border-border flex flex-col">
+      {/* Mobile top bar with hamburger (lg: hidden) */}
+      <div className="lg:hidden sticky top-0 z-40 flex items-center gap-3 px-4 h-14 bg-card border-b border-border">
+        <button
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Open admin menu"
+          className="p-2 -ml-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+        <span className="font-bold text-foreground">Admin Panel</span>
+      </div>
+
+      {/* Backdrop (mobile only, when drawer open) */}
+      {sidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 z-40 bg-black/50"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar — fixed on desktop; off-canvas drawer on mobile */}
+      <aside
+        className={cn(
+          "fixed left-0 top-0 h-full w-64 bg-card border-r border-border flex flex-col z-50 transition-transform duration-300",
+          "lg:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
         <div className="p-4 pb-2">
-          <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4">
-            <ArrowLeft className="w-4 h-4" />
-            Back to site
-          </Link>
+          <div className="flex items-center justify-between mb-4">
+            <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="w-4 h-4" />
+              Back to site
+            </Link>
+            {/* Close button (mobile only) */}
+            <button
+              onClick={() => setSidebarOpen(false)}
+              aria-label="Close admin menu"
+              className="lg:hidden p-1.5 -mr-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
           <h1 className="text-xl font-bold text-foreground">Admin Panel</h1>
         </div>
 
@@ -106,8 +146,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="ml-64 p-8">{children}</main>
+      {/* Main Content — full width on mobile, offset by sidebar on desktop */}
+      <main className="lg:ml-64 p-4 md:p-6 lg:p-8">{children}</main>
     </div>
   );
 }
