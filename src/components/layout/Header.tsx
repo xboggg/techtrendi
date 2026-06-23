@@ -191,7 +191,7 @@ export function Header() {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-2">
-            <SearchButton className="hidden md:flex" isOverHero={isOverHero} />
+            <SearchButton className="flex" isOverHero={isOverHero} />
 
             <ThemeToggle className={isOverHero ? "text-white hover:text-white/80 hover:bg-white/10" : ""} />
 
@@ -258,10 +258,10 @@ export function Header() {
               </DropdownMenu>
             ) : (
               <>
-                <Button variant="ghost" size="sm" asChild className={`hidden md:inline-flex rounded-xl ${isOverHero ? "text-white hover:bg-white/10" : "hover:bg-white/50 dark:hover:bg-white/5"}`}>
+                <Button variant="ghost" size="sm" asChild className={`hidden lg:inline-flex rounded-xl ${isOverHero ? "text-white hover:bg-white/10" : "hover:bg-white/50 dark:hover:bg-white/5"}`}>
                   <Link to="/auth">Sign In</Link>
                 </Button>
-                <Button size="sm" asChild className="hidden md:inline-flex btn-premium rounded-xl text-white shadow-card">
+                <Button size="sm" asChild className="hidden lg:inline-flex btn-premium rounded-xl text-white shadow-card">
                   <Link to="/premium" className="flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4" />
                     Get Premium
