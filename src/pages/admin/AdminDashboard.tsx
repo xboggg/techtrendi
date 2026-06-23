@@ -151,9 +151,9 @@ export default function AdminDashboard() {
     <AdminLayout>
       <div className="space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Dashboard</h1>
             <p className="text-muted-foreground">Welcome back! Here's your content overview.</p>
           </div>
           {stats?.messages.unread ? (

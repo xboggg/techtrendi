@@ -146,8 +146,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </aside>
 
-      {/* Main Content — full width on mobile, offset by sidebar on desktop */}
-      <main className="lg:ml-64 p-4 md:p-6 lg:p-8">{children}</main>
+      {/* Main Content — full width on mobile, offset by sidebar on desktop.
+          min-w-0 + overflow-x-hidden so wide children (long titles, tables)
+          can't force horizontal page scroll on small screens. */}
+      <main className="lg:ml-64 min-w-0 overflow-x-hidden p-4 md:p-6 lg:p-8">{children}</main>
     </div>
   );
 }
