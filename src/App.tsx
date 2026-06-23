@@ -255,6 +255,7 @@ const ReportScam = lazy(() => import("./pages/ReportScam"));
 // Security Hub admin pages
 const AdminScamAlerts = lazy(() => import("./pages/admin/AdminScamAlerts"));
 const AdminDailyTips = lazy(() => import("./pages/admin/AdminDailyTips"));
+const AdminTicker = lazy(() => import("./pages/admin/AdminTicker"));
 const AdminThreatLevel = lazy(() => import("./pages/admin/AdminThreatLevel"));
 const AdminScamReports = lazy(() => import("./pages/admin/AdminScamReports"));
 
@@ -496,6 +497,7 @@ const App = () => (
                       <Route path="/admin/cyber-awareness" element={<AdminCyberAwareness />} />
                       <Route path="/admin/scam-alerts" element={<AdminScamAlerts />} />
                       <Route path="/admin/daily-tips" element={<AdminDailyTips />} />
+                      <Route path="/admin/ticker" element={<AdminTicker />} />
                       <Route path="/admin/threat-level" element={<AdminThreatLevel />} />
                       <Route path="/admin/scam-reports" element={<AdminScamReports />} />
                       <Route path="/admin/tool-feedback" element={<AdminToolFeedback />} />

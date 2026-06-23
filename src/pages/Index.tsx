@@ -55,6 +55,18 @@ interface NewsItem {
   created_at: string;
 }
 
+interface TickerItem {
+  text: string;
+  link: string | null;
+  emoji: string | null;
+  sort_order: number;
+}
+interface TickerSettings {
+  enabled: boolean;
+  position: "fixed" | "static";
+  speed_secs: number;
+}
+
 const categoryLabels: Record<string, string> = {
   phones: "Phones",
   productivity: "Productivity",
@@ -175,13 +187,28 @@ export default function Index() {
   const [loadingNews, setLoadingNews] = useState(true);
   const [internationalNews, setInternationalNews] = useState<NewsItem[]>([]);
   const [loadingIntlNews, setLoadingIntlNews] = useState(true);
+  const [tickerItems, setTickerItems] = useState<TickerItem[]>([]);
+  const [tickerSettings, setTickerSettings] = useState<TickerSettings | null>(null);
 
   useEffect(() => {
     // Removed fetchTrendingArticles — was fetched but never rendered (dead code)
     fetchFeaturedGuides();
     fetchLatestNews();
     fetchInternationalNews();
+    fetchTicker();
   }, []);
+
+  const fetchTicker = async () => {
+    try {
+      const [{ data: its }, { data: st }] = await Promise.all([
+        supabase.from("ticker_items").select("text,link,emoji,sort_order")
+          .eq("is_active", true).order("sort_order", { ascending: true }),
+        supabase.from("ticker_settings").select("enabled,position,speed_secs").eq("id", 1).single(),
+      ]);
+      if (its) setTickerItems(its as TickerItem[]);
+      if (st) setTickerSettings(st as TickerSettings);
+    } catch { /* silent — ticker just won't render */ }
+  };
 
   const fetchTrendingArticles = async () => {
     try {
@@ -786,38 +813,52 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Spacer so the footer clears the fixed bottom ticker */}
-      <div aria-hidden="true" className="h-10" />
-
-      {/* Fixed bottom ticker — slim trust strip pinned to the viewport bottom:
-          sliding marquee text + a slowly flowing Ghana-flag accent line. */}
-      <div className="ticker-wrap fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-sm border-t border-white/10 overflow-hidden">
-        <div className="h-0.5 bg-gradient-to-r from-[#ce1126] via-[#fcd116] to-[#006b3f] animate-flag-flow" />
-        <div className="overflow-hidden py-2">
-          <div className="flex w-max animate-ticker-scroll">
-            {[0, 1].map((dup) => (
-              <div
-                key={dup}
-                className="flex items-center shrink-0 text-sm text-white/55"
-                aria-hidden={dup === 1 ? true : undefined}
-              >
-                <span className="inline-flex items-center gap-1.5 px-6 text-white/85">
-                  <GhanaFlag className="w-5 h-3.5 rounded-sm" /> Made in Ghana
-                </span>
-                <span className="text-white/15">•</span>
-                <span className="px-6">130+ free tools</span>
-                <span className="text-white/15">•</span>
-                <span className="px-6">Daily Africa tech news</span>
-                <span className="text-white/15">•</span>
-                <span className="px-6">Safety guides sourced from Ghana's CSA &amp; SEC</span>
-                <span className="text-white/15">•</span>
-                <span className="px-6">Built for how we actually live in Ghana</span>
-                <span className="text-white/15">•</span>
+      {/* Admin-managed ticker — DB-driven (see /admin/ticker). Renders only when
+          enabled and there are active items. Position fixed (pinned) or static. */}
+      {tickerSettings?.enabled && tickerItems.length > 0 && (() => {
+        const isFixed = tickerSettings.position === "fixed";
+        const dur = `${Math.max(10, tickerSettings.speed_secs || 40)}s`;
+        return (
+          <>
+            {/* Spacer so the footer clears the bar only when it's pinned */}
+            {isFixed && <div aria-hidden="true" className="h-10" />}
+            <div className={`ticker-wrap z-40 bg-slate-950/95 backdrop-blur-sm border-t border-white/10 overflow-hidden ${isFixed ? "fixed bottom-0 inset-x-0" : "relative w-full"}`}>
+              <div className="h-0.5 bg-gradient-to-r from-[#ce1126] via-[#fcd116] to-[#006b3f] animate-flag-flow" />
+              <div className="overflow-hidden py-2">
+                <div className="flex w-max animate-ticker-scroll" style={{ animationDuration: dur }}>
+                  {[0, 1].map((dup) => (
+                    <div
+                      key={dup}
+                      className="flex items-center shrink-0 text-sm text-white/55"
+                      aria-hidden={dup === 1 ? true : undefined}
+                    >
+                      {tickerItems.map((it, idx) => {
+                        const content = (
+                          <span className="inline-flex items-center gap-1.5">
+                            {it.emoji && <span>{it.emoji}</span>}
+                            {it.text}
+                          </span>
+                        );
+                        const inner = it.link
+                          ? (it.link.startsWith("/")
+                              ? <Link to={it.link} className="text-white/85 hover:text-white transition-colors underline-offset-2 hover:underline">{content}</Link>
+                              : <a href={it.link} target="_blank" rel="noopener noreferrer" className="text-white/85 hover:text-white transition-colors underline-offset-2 hover:underline">{content}</a>)
+                          : <span className="text-white/70">{content}</span>;
+                        return (
+                          <span key={idx} className="flex items-center">
+                            <span className="px-6">{inner}</span>
+                            <span className="text-white/15">•</span>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
+            </div>
+          </>
+        );
+      })()}
     </Layout>
   );
 }
