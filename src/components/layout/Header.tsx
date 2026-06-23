@@ -302,8 +302,8 @@ export function Header() {
           }`}
         >
           <div className="container py-5 space-y-3">
-            {/* Primary nav — colorful icon grid */}
-            <div className="grid grid-cols-3 gap-2">
+            {/* Primary nav — colorful icon grid (wider on tablet so it fits without scrolling) */}
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {navLinks.map((link, i) => {
                 const colors = [
                   "from-blue-500 to-indigo-600",
@@ -349,7 +349,7 @@ export function Header() {
             {/* Explore categories — compact 2-column */}
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 px-1">Explore Topics</p>
-              <div className="grid grid-cols-2 gap-1.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5">
                 {exploreCategories.map((category) => (
                   <Link
                     key={category.label}
