@@ -208,7 +208,7 @@ export default function AdminDashboard() {
         {/* Recent Content */}
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Recent Articles */}
-          <Card>
+          <Card className="min-w-0">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-blue-500" />
@@ -241,7 +241,7 @@ export default function AdminDashboard() {
           </Card>
 
           {/* Recent News */}
-          <Card>
+          <Card className="min-w-0">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Newspaper className="w-5 h-5 text-purple-500" />
