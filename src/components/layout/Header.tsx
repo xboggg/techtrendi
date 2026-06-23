@@ -109,7 +109,7 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-0.5">
+          <div className="hidden xl:flex items-center gap-0.5">
             {navLinks.map((link) => (
               <div
                 key={link.label}
@@ -258,10 +258,10 @@ export function Header() {
               </DropdownMenu>
             ) : (
               <>
-                <Button variant="ghost" size="sm" asChild className={`hidden lg:inline-flex rounded-xl ${isOverHero ? "text-white hover:bg-white/10" : "hover:bg-white/50 dark:hover:bg-white/5"}`}>
+                <Button variant="ghost" size="sm" asChild className={`hidden xl:inline-flex rounded-xl ${isOverHero ? "text-white hover:bg-white/10" : "hover:bg-white/50 dark:hover:bg-white/5"}`}>
                   <Link to="/auth">Sign In</Link>
                 </Button>
-                <Button size="sm" asChild className="hidden lg:inline-flex btn-premium rounded-xl text-white shadow-card">
+                <Button size="sm" asChild className="hidden xl:inline-flex btn-premium rounded-xl text-white shadow-card">
                   <Link to="/premium" className="flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4" />
                     Get Premium
@@ -273,7 +273,7 @@ export function Header() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`lg:hidden p-2.5 rounded-xl transition-all duration-200 ${isOverHero ? "text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"}`}
+              className={`xl:hidden p-2.5 rounded-xl transition-all duration-200 ${isOverHero ? "text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"}`}
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -283,7 +283,7 @@ export function Header() {
 
       {/* Mobile Menu — Colorful, Animated, Compact */}
       <div
-        className={`lg:hidden fixed inset-0 top-16 z-40 transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+        className={`xl:hidden fixed inset-0 top-16 z-40 transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
           isMobileMenuOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
