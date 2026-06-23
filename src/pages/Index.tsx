@@ -366,12 +366,20 @@ export default function Index() {
           alt=""
           aria-hidden="true"
           fetchPriority="high"
-          className="absolute inset-0 w-full h-full object-cover object-right md:object-center animate-hero-zoom"
+          className="absolute inset-0 w-full h-full object-cover animate-hero-zoom"
+          style={{ objectPosition: "75% center" }}
         />
         {/* Overlay — dark on the left for the headline, fading to clear on the
-            right so the golden-hour subject stays visible. Tuned for this image. */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/85 from-10% via-black/45 via-45% to-transparent to-80%" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            right so the golden-hour subject stays visible. Inline gradients so
+            the exact stops always render (not dependent on Tailwind utilities). */}
+        <div
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0) 80%)" }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 50%)" }}
+        />
 
         <div className="container relative z-10 py-16 md:py-20">
           <div className="max-w-2xl">
