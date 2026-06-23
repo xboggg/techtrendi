@@ -39,10 +39,10 @@ interface NavLink {
   submenu?: { label: string; href: string }[];
 }
 
-// Pillar-aligned: News (Africa Tech) → Security → Tools, then Blog + Store.
+// Pillar-aligned: News (Africa Tech) → Online Safety → Tools, then Blog + Store.
 const navLinks: NavLink[] = [
-  { label: "Africa Tech", href: "/news?category=Africa Tech", icon: Globe },
-  { label: "Security", href: "/security", icon: Shield, isHot: true },
+  { label: "Africa Tech", href: "/news", icon: Globe },
+  { label: "Online Safety", href: "/security", icon: Shield, isHot: true },
   { label: "Tools", href: "/tools", icon: Zap },
   {
     label: "Blog",

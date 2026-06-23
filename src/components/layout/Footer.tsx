@@ -56,7 +56,7 @@ const footerLinks = {
     { label: "Reading List", href: "/reading-list" },
   ],
   topics: [
-    { label: "Security", href: "/security" },
+    { label: "Online Safety", href: "/security" },
     { label: "AI Tech", href: "/ai-tech" },
     { label: "How-To", href: "/how-to" },
     { label: "Smart Income", href: "/smart-income" },
