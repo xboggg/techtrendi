@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => ({
     includedRoutes(paths: string[]) {
       // Exclude auth-gated/personalized/internal pages (no SEO value) and
       // dynamic :param routes (those that need data use getStaticPaths instead).
-      const skip = ["admin", "arcade", "auth", "profile", "dashboard", "design-demo", "security-preview"];
+      const skip = ["admin", "arcade", "auth", "profile", "dashboard", "design-demo"];
       return paths.filter((p) => !p.includes(":") && !skip.some((s) => p.includes(s)));
     },
   },
