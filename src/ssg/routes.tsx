@@ -45,6 +45,7 @@ export const routes: RouteRecord[] = [
       { path: "news/:slug", lazy: d(() => import("../pages/NewsArticle")), loader: newsLoader, getStaticPaths: newsStaticPaths },
       { path: "phones", lazy: d(() => import("../pages/categories/Phones")) },
       { path: "security", lazy: d(() => import("../pages/categories/Security")) },
+      { path: "security-preview", lazy: d(() => import("../pages/SecurityPreview")) },
       { path: "productivity", lazy: d(() => import("../pages/categories/Productivity")) },
       { path: "how-to", lazy: d(() => import("../pages/categories/HowTo")) },
       { path: "ai-tech", lazy: d(() => import("../pages/categories/AITech")) },
