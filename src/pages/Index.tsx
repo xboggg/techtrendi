@@ -388,6 +388,13 @@ export default function Index() {
             style={{ backgroundImage: `url('${src}')`, backgroundPosition: "75% center" }}
           />
         ))}
+        {/* Soft, slow-pulsing accent glow over the dark-left area — subtle life
+            without busy particles. Behind the overlay so text stays crisp. */}
+        <div
+          aria-hidden="true"
+          className="animate-hero-glow absolute -left-20 top-1/2 -translate-y-1/2 w-[42rem] h-[42rem] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, rgba(245,158,11,0.18) 0%, rgba(245,158,11,0) 65%)" }}
+        />
         {/* Overlay — dark on the left for the headline, fading to clear on the
             right so the subject stays visible. */}
         <div
