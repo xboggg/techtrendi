@@ -466,7 +466,7 @@ export default function Index() {
             </h1>
             <p className="text-lg text-white/80 max-w-xl mb-8">
               News that matters. Tools that work. Safety that sticks. All free —
-              all built for how we actually live in Ghana.
+              and made for how we actually live, right here at home.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button size="lg" asChild className="rounded-xl px-6">
@@ -622,14 +622,14 @@ export default function Index() {
               Free Tools, <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Built for Ghana</span>
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              130+ free tools made for everyday life in Ghana — from MoMo fees to your light bill — plus everything you need to work and create.
+              130+ free tools made for everyday life — from MoMo fees to your light bill — plus everything you need to work and create.
             </p>
           </div>
 
-          {/* Built for Ghana — flagship local tools (our differentiation) */}
+          {/* Flagship local tools (our differentiation) */}
           <div className="mb-5 flex items-center gap-3">
             <GhanaFlag className="w-7 h-5 rounded shadow ring-1 ring-black/5 shrink-0" />
-            <h3 className="text-lg font-bold text-foreground">Built for Ghana</h3>
+            <h3 className="text-lg font-bold text-foreground">Made for here</h3>
             <span className="hidden sm:inline text-sm text-muted-foreground">— tools you won't find on any global site</span>
             <span className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
           </div>
@@ -731,7 +731,7 @@ export default function Index() {
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-2">
                 Editor's <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">Picks</span>
               </h2>
-              <p className="text-muted-foreground">Hand-picked guides on Ghana tech, online safety, and the tools worth your time.</p>
+              <p className="text-muted-foreground">Hand-picked guides on local tech, online safety, and the tools worth your time.</p>
             </div>
             <Button variant="outline" asChild className="self-start sm:self-auto hidden md:inline-flex rounded-xl">
               <Link to="/blog" className="flex items-center gap-2">
