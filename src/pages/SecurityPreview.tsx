@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DailyTip } from "@/components/security/DailyTip";
 import { DailyQuizWidget } from "@/components/security/DailyQuizWidget";
 import { ShareWithFamily } from "@/components/security/ShareWithFamily";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 import {
   Shield, ShieldAlert, ShieldCheck, KeyRound, Lock, EyeOff, Globe, AlertTriangle,
   Smartphone, CreditCard, Phone, ArrowRight, Sparkles, Users, Brain, Baby,
@@ -131,10 +132,14 @@ export default function SecurityPreview() {
 
       {/* ───────── HERO — calm, premium, trust-forward ───────── */}
       <section ref={heroRef} className="relative overflow-hidden bg-[#070b14] flex items-center">
-        {/* restrained ambience: two slow, soft glows + fine grid (no particle storm) */}
+        {/* living gradient-mesh ambience: slow-drifting colour blobs + fine grid */}
         <motion.div style={{ opacity: heroOpacity }} className="absolute inset-0">
-          <div className="absolute -top-20 -left-20 w-[36rem] h-[36rem] rounded-full bg-cyan-500/10 blur-[140px]" />
-          <div className="absolute -bottom-32 right-0 w-[40rem] h-[40rem] rounded-full bg-emerald-500/[0.07] blur-[150px]" />
+          <motion.div className="absolute -top-32 -left-24 w-[40rem] h-[40rem] rounded-full bg-cyan-500/15 blur-[140px]"
+            animate={{ x: [0, 60, 0], y: [0, 40, 0], scale: [1, 1.15, 1] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }} />
+          <motion.div className="absolute top-10 right-[-10rem] w-[44rem] h-[44rem] rounded-full bg-emerald-500/10 blur-[150px]"
+            animate={{ x: [0, -50, 0], y: [0, 60, 0], scale: [1, 1.2, 1] }} transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 3 }} />
+          <motion.div className="absolute bottom-[-12rem] left-1/3 w-[38rem] h-[38rem] rounded-full bg-blue-600/10 blur-[150px]"
+            animate={{ x: [0, 40, 0], y: [0, -40, 0], scale: [1, 1.1, 1] }} transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 6 }} />
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px)", backgroundSize: "44px 44px", maskImage: "radial-gradient(ellipse at center, black, transparent 75%)" }} />
         </motion.div>
 
@@ -162,7 +167,7 @@ export default function SecurityPreview() {
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-wrap gap-3">
-              <button onClick={() => jump("help")} className="group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:scale-[1.02] transition-all">
+              <button onClick={() => jump("help")} className="cta-sheen group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:scale-[1.03] transition-all">
                 <Siren className="w-5 h-5" /> Been scammed? Do this now
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
@@ -174,18 +179,20 @@ export default function SecurityPreview() {
             {/* stats — skeleton while loading, never "..." */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}
               className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-12 pt-7 border-t border-white/10">
-              {[
-                { v: articleCount, l: "safety guides" },
-                { v: TOOLS.length, l: "free tools" },
-                { v: null, l: "updated weekly" },
-              ].map((s, i) => (
-                <div key={i} className="flex items-baseline gap-1.5">
-                  {s.v === null ? <span className="text-base font-semibold text-emerald-400">Fresh</span>
-                    : s.v ? <span className="text-2xl font-bold text-white tabular-nums">{s.v}</span>
-                    : <span className="inline-block w-8 h-6 rounded bg-white/10 animate-pulse" />}
-                  <span className="text-sm text-white/45">{s.l}</span>
-                </div>
-              ))}
+              <div className="flex items-baseline gap-1.5">
+                {articleCount > 0
+                  ? <AnimatedCounter end={articleCount} duration={2} className="text-2xl font-bold text-white" />
+                  : <span className="inline-block w-8 h-6 rounded bg-white/10 animate-pulse" />}
+                <span className="text-sm text-white/45">safety guides</span>
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <AnimatedCounter end={TOOLS.length} duration={1.5} className="text-2xl font-bold text-white" />
+                <span className="text-sm text-white/45">free tools</span>
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-base font-semibold text-emerald-400">Fresh</span>
+                <span className="text-sm text-white/45">updated weekly</span>
+              </div>
             </motion.div>
           </div>
         </div>
@@ -296,15 +303,26 @@ export default function SecurityPreview() {
                 <p className="text-white/60 mt-3 max-w-lg">Answer a few quick questions and get your personal cyber-safety score — with exactly what to fix. Come back any time to watch it improve.</p>
                 <Link to="/tools/cyber-risk-scorecard" className="inline-flex items-center gap-2.5 mt-7 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-900 font-bold shadow-lg shadow-emerald-500/25 hover:scale-[1.02] transition-transform">Check my score <ArrowRight className="w-5 h-5" /></Link>
               </div>
-              {/* faux score ring — decorative, signals the payoff */}
+              {/* score ring — draws on + counts up when scrolled into view */}
               <div className="flex justify-center">
-                <div className="relative w-44 h-44">
-                  <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
+                <div className="relative w-48 h-48">
+                  {/* soft pulsing halo */}
+                  <motion.div className="absolute inset-2 rounded-full bg-emerald-400/20 blur-2xl"
+                    animate={{ scale: [1, 1.12, 1], opacity: [0.4, 0.7, 0.4] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+                  <svg viewBox="0 0 120 120" className="relative w-full h-full -rotate-90">
                     <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="10" />
-                    <circle cx="60" cy="60" r="52" fill="none" stroke="url(#g)" strokeWidth="10" strokeLinecap="round" strokeDasharray="327" strokeDashoffset="98" />
+                    <motion.circle cx="60" cy="60" r="52" fill="none" stroke="url(#g)" strokeWidth="10" strokeLinecap="round"
+                      strokeDasharray="327"
+                      initial={{ strokeDashoffset: 327 }}
+                      whileInView={{ strokeDashoffset: 98 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }} />
                     <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#34d399" /><stop offset="1" stopColor="#22d3ee" /></linearGradient></defs>
                   </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center"><span className="text-4xl font-black text-white">70</span><span className="text-xs text-white/50">your score?</span></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <AnimatedCounter end={70} duration={2} className="text-5xl font-black text-white" />
+                    <span className="text-xs text-white/50 mt-0.5">your score?</span>
+                  </div>
                 </div>
               </div>
             </div>
