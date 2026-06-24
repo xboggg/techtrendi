@@ -943,6 +943,9 @@ body {
 .animate-hero-float { animation: heroFloat 6s ease-in-out infinite; will-change: transform; }
 .animate-hero-glow { animation: heroGlow 6s ease-in-out infinite; will-change: transform, opacity; }
 .animate-hero-zoom { animation: heroBgZoom 14s ease-in-out infinite; will-change: transform; }
+/* Hero crossfade between the two rotating background images */
+.hero-layer { opacity: 0; transition: opacity 1.2s ease-in-out; }
+.hero-layer.is-active { opacity: 1; }
 
 /* Fixed bottom ticker: sliding marquee text + a slowly flowing Ghana-flag line. */
 @keyframes tickerScroll {

@@ -67,6 +67,13 @@ interface TickerSettings {
   speed_secs: number;
 }
 
+// Hero background images (rotate with a crossfade). Fresh filenames so a
+// Cloudflare-cached 404 can't break them. Both ~16:9, subject on the right.
+const HERO_IMAGES = [
+  "/images/hero/hero-ghana-v2.jpg",   // woman on phone, Accra street
+  "/images/hero/hero-ghana-dev.jpg",  // developer at laptop, tech co-working
+];
+
 const categoryLabels: Record<string, string> = {
   phones: "Phones",
   productivity: "Productivity",
@@ -189,6 +196,8 @@ export default function Index() {
   const [loadingIntlNews, setLoadingIntlNews] = useState(true);
   const [tickerItems, setTickerItems] = useState<TickerItem[]>([]);
   const [tickerSettings, setTickerSettings] = useState<TickerSettings | null>(null);
+  // Hero: crossfade between two images (keeps the breathing-zoom effect).
+  const [heroIndex, setHeroIndex] = useState(0);
 
   useEffect(() => {
     // Removed fetchTrendingArticles — was fetched but never rendered (dead code)
@@ -196,6 +205,15 @@ export default function Index() {
     fetchLatestNews();
     fetchInternationalNews();
     fetchTicker();
+  }, []);
+
+  // Rotate the two hero images every 7s (crossfade via CSS). Respects
+  // reduced-motion: if set, stay on the first image (no rotation).
+  useEffect(() => {
+    if (typeof window !== "undefined" &&
+        window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const id = setInterval(() => setHeroIndex((i) => (i + 1) % HERO_IMAGES.length), 7000);
+    return () => clearInterval(id);
   }, []);
 
   const fetchTicker = async () => {
@@ -359,15 +377,19 @@ export default function Index() {
         ]
       })}} />
       {/* Hero — full-bleed dark image; fills the viewport so it meets the bottom ticker */}
-      <section
-        className="relative overflow-hidden min-h-[100svh] flex items-center border-b border-border/50 bg-cover bg-no-repeat"
-        style={{
-          backgroundImage: "url('/images/hero/hero-ghana-v2.jpg')",
-          backgroundPosition: "75% center",
-        }}
-      >
+      <section className="relative overflow-hidden min-h-[100svh] flex items-center border-b border-border/50">
+        {/* Rotating background images — each crossfades in/out and keeps the
+            slow breathing zoom (animate-hero-zoom). */}
+        {HERO_IMAGES.map((src, i) => (
+          <div
+            key={src}
+            aria-hidden="true"
+            className={`hero-layer animate-hero-zoom absolute inset-0 bg-cover bg-no-repeat ${i === heroIndex ? "is-active" : ""}`}
+            style={{ backgroundImage: `url('${src}')`, backgroundPosition: "75% center" }}
+          />
+        ))}
         {/* Overlay — dark on the left for the headline, fading to clear on the
-            right so the golden-hour subject stays visible. */}
+            right so the subject stays visible. */}
         <div
           className="absolute inset-0"
           style={{ background: "linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0) 80%)" }}
