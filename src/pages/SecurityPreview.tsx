@@ -4,6 +4,9 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
+import { DailyTip } from "@/components/security/DailyTip";
+import { DailyQuizWidget } from "@/components/security/DailyQuizWidget";
+import { ShareWithFamily } from "@/components/security/ShareWithFamily";
 import {
   Shield, ShieldAlert, ShieldCheck, KeyRound, Lock, EyeOff, Globe, AlertTriangle,
   Smartphone, CreditCard, Phone, ArrowRight, Sparkles, Users, Brain, Baby,
@@ -36,6 +39,7 @@ const NAV = [
   { id: "now", label: "Scams Now" },
   { id: "score", label: "Your Score" },
   { id: "tools", label: "Tools" },
+  { id: "daily", label: "Daily Check" },
   { id: "guides", label: "Guides" },
 ];
 
@@ -110,7 +114,7 @@ export default function SecurityPreview() {
       </div>
 
       {/* ───────── HERO — calm, premium, trust-forward ───────── */}
-      <section ref={heroRef} className="relative overflow-hidden bg-[#070b14] min-h-[88svh] flex items-center">
+      <section ref={heroRef} className="relative overflow-hidden bg-[#070b14] flex items-center">
         {/* restrained ambience: two slow, soft glows + fine grid (no particle storm) */}
         <motion.div style={{ opacity: heroOpacity }} className="absolute inset-0">
           <div className="absolute -top-20 -left-20 w-[36rem] h-[36rem] rounded-full bg-cyan-500/10 blur-[140px]" />
@@ -206,19 +210,22 @@ export default function SecurityPreview() {
       {/* ───────── AUDIENCE LANES ───────── */}
       <section className="py-16 md:py-20 bg-background">
         <div className="container">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">Where do you want to start?</h2>
-            <p className="text-muted-foreground mt-2">Pick your lane — every level is welcome here.</p>
+          <div className="text-center mb-12">
+            <span className="text-xs font-semibold tracking-[0.25em] uppercase text-primary/70">Choose your path</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 tracking-tight">Where do you want to start?</h2>
+            <p className="text-muted-foreground mt-3 max-w-md mx-auto">Pick your lane — every level is welcome here.</p>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {LANES.map(lane => {
               const Inner = (
-                <div className="group relative h-full rounded-3xl border border-border bg-card p-6 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                  <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full bg-gradient-to-br ${lane.color} opacity-10 blur-2xl group-hover:opacity-20 transition-opacity`} />
-                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${lane.color} flex items-center justify-center shadow-lg mb-4`}><lane.icon className="w-6 h-6 text-white" /></div>
-                  <h3 className="font-bold text-foreground text-lg">{lane.label}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{lane.sub}</p>
-                  <span className="inline-flex items-center gap-1 text-sm font-medium text-primary mt-4">{lane.external ? "Visit CyberAbɔfra" : "Start"} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+                <div className="group relative h-full rounded-3xl border border-border bg-card p-6 overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.25)]">
+                  {/* gradient ring on hover */}
+                  <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br ${lane.color}`} style={{ padding: "1px", WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)", WebkitMaskComposite: "xor", maskComposite: "exclude" }} />
+                  <div className={`absolute -top-12 -right-12 w-36 h-36 rounded-full bg-gradient-to-br ${lane.color} opacity-[0.08] blur-2xl group-hover:opacity-20 transition-opacity`} />
+                  <div className={`relative w-12 h-12 rounded-2xl bg-gradient-to-br ${lane.color} flex items-center justify-center shadow-lg mb-4 group-hover:scale-110 transition-transform`}><lane.icon className="w-6 h-6 text-white" /></div>
+                  <h3 className="relative font-bold text-foreground text-lg">{lane.label}</h3>
+                  <p className="relative text-sm text-muted-foreground mt-1">{lane.sub}</p>
+                  <span className="relative inline-flex items-center gap-1 text-sm font-medium text-primary mt-4">{lane.external ? "Visit CyberAbɔfra" : "Start"} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
                 </div>
               );
               return lane.external
@@ -288,7 +295,7 @@ export default function SecurityPreview() {
       {/* ───────── TOOLS ───────── */}
       <section id="tools" className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30 scroll-mt-24">
         <div className="container">
-          <div className="text-center mb-10"><h2 className="text-3xl md:text-4xl font-bold text-foreground">Free safety tools</h2><p className="text-muted-foreground mt-2">Quick checks you can run right now — no signup.</p></div>
+          <div className="text-center mb-12"><span className="text-xs font-semibold tracking-[0.25em] uppercase text-primary/70">Hands-on</span><h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 tracking-tight">Free safety tools</h2><p className="text-muted-foreground mt-3">Quick checks you can run right now — no signup.</p></div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {TOOLS.map(t => (
               <Link key={t.name} to={t.href} className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 hover:border-primary/30 hover:shadow-lg hover:-translate-y-0.5 transition-all">
@@ -300,8 +307,24 @@ export default function SecurityPreview() {
         </div>
       </section>
 
+      {/* ───────── DAILY CHECK ───────── */}
+      <section id="daily" className="py-16 md:py-20 bg-background scroll-mt-24">
+        <div className="container">
+          <div className="text-center mb-10">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold mb-3"><Flame className="w-3.5 h-3.5" /> Come back daily</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">Your daily safety boost</h2>
+            <p className="text-muted-foreground mt-2">A fresh tip and a quick quiz every day — build your streak.</p>
+          </div>
+          <div className="grid lg:grid-cols-3 gap-5 items-start">
+            <DailyTip />
+            <DailyQuizWidget />
+            <ShareWithFamily />
+          </div>
+        </div>
+      </section>
+
       {/* ───────── GUIDES ───────── */}
-      <section id="guides" className="py-16 md:py-20 bg-background scroll-mt-24">
+      <section id="guides" className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30 scroll-mt-24">
         <div className="container">
           <div className="flex items-end justify-between gap-4 mb-8 flex-wrap">
             <div><h2 className="text-3xl md:text-4xl font-bold text-foreground">Safety guides</h2><p className="text-muted-foreground mt-2">Plain-English, made for real Ghanaian life.</p></div>
