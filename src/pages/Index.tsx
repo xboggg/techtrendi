@@ -619,17 +619,17 @@ export default function Index() {
           <div className="text-center mb-10">
             <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-4">Free Utilities</span>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-              Free Tools, <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Built for Ghana</span>
+              Free Tools That <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Actually Help</span>
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              130+ free tools made for everyday life — from MoMo fees to your light bill — plus everything you need to work and create.
+              130+ free tools for everyday life and work — no signup, no catch.
             </p>
           </div>
 
           {/* Flagship local tools (our differentiation) */}
           <div className="mb-5 flex items-center gap-3">
             <GhanaFlag className="w-7 h-5 rounded shadow ring-1 ring-black/5 shrink-0" />
-            <h3 className="text-lg font-bold text-foreground">Made for here</h3>
+            <h3 className="text-lg font-bold text-foreground">Only on TechTrendi</h3>
             <span className="hidden sm:inline text-sm text-muted-foreground">— tools you won't find on any global site</span>
             <span className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
           </div>

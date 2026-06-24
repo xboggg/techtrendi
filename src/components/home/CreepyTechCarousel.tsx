@@ -280,7 +280,7 @@ export function CreepyTechHomeSection({ variant = "both" }: { variant?: "both" |
             <div>
               <div className="flex items-center gap-2.5 mb-3">
                 <span className="h-px w-8 bg-gradient-to-r from-emerald-400 to-cyan-400" />
-                <span className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400">Stay Safe Online · Ghana</span>
+                <span className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400">Stay Safe Online</span>
               </div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
                 Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">online safety</span> toolkit
