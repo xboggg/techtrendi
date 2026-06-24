@@ -70,8 +70,8 @@ interface TickerSettings {
 // Hero background images (rotate with a crossfade). Fresh filenames so a
 // Cloudflare-cached 404 can't break them. Both ~16:9, subject on the right.
 const HERO_IMAGES = [
-  "/images/hero/hero-ghana-v2.jpg",   // woman on phone, Accra street
-  "/images/hero/hero-ghana-dev.jpg",  // developer at laptop, tech co-working
+  "/images/hero/hero-ghana-v2.jpg",    // woman on phone, Accra street
+  "/images/hero/hero-ghana-dev2.jpg",  // Edmund at laptop, tech co-working (owner)
 ];
 
 const categoryLabels: Record<string, string> = {
