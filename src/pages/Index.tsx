@@ -359,19 +359,15 @@ export default function Index() {
         ]
       })}} />
       {/* Hero — full-bleed dark image; fills the viewport so it meets the bottom ticker */}
-      <section className="relative overflow-hidden min-h-[100svh] flex items-center border-b border-border/50">
-        {/* Full-bleed background image with a slow breathing zoom */}
-        <img
-          src="/images/hero/hero-ghana-street.jpg"
-          alt=""
-          aria-hidden="true"
-          fetchPriority="high"
-          className="absolute inset-0 w-full h-full object-cover animate-hero-zoom"
-          style={{ objectPosition: "75% center" }}
-        />
+      <section
+        className="relative overflow-hidden min-h-[100svh] flex items-center border-b border-border/50 bg-cover bg-no-repeat"
+        style={{
+          backgroundImage: "url('/images/hero/hero-ghana-street.jpg')",
+          backgroundPosition: "75% center",
+        }}
+      >
         {/* Overlay — dark on the left for the headline, fading to clear on the
-            right so the golden-hour subject stays visible. Inline gradients so
-            the exact stops always render (not dependent on Tailwind utilities). */}
+            right so the golden-hour subject stays visible. */}
         <div
           className="absolute inset-0"
           style={{ background: "linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0) 80%)" }}
