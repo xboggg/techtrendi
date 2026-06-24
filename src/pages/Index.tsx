@@ -610,8 +610,8 @@ export default function Index() {
 
 
 
-      {/* 5. Creepy Tech & Cyber Awareness */}
-      <CreepyTechHomeSection />
+      {/* 5. Online Safety — Cyber Awareness (Creepy Tech now has its own section lower down) */}
+      <CreepyTechHomeSection variant="safety" />
 
       {/* 6. Explore Tool Categories Section */}
       <section className="py-16 bg-gradient-to-b from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
@@ -714,6 +714,9 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      {/* 6b. Creepy Tech — standalone curiosity section (moved out of Online Safety) */}
+      <CreepyTechHomeSection variant="creepy" />
 
       {/* 7. Featured Articles Section - Magazine Layout */}
       <section className="py-16 bg-background">

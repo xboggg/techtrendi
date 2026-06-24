@@ -225,15 +225,20 @@ function CarouselRow({
   );
 }
 
-export function CreepyTechHomeSection() {
+// variant "safety" = Cyber Awareness only (under the Online Safety pillar).
+// variant "creepy" = Creepy Tech only (its own curiosity section, lower down).
+export function CreepyTechHomeSection({ variant = "both" }: { variant?: "both" | "safety" | "creepy" }) {
   // Initialize with static data — sections always show, API updates silently
   const [creepyPosts, setCreepyPosts] = useState<Post[]>(staticCreepyTech as Post[]);
   const [cyberPosts, setCyberPosts] = useState<Post[]>(staticCyberAwareness as Post[]);
   const [modalPost, setModalPost] = useState<Post | null>(null);
   const [modalSource, setModalSource] = useState<"creepy" | "cyber">("creepy");
 
+  const showCreepy = variant === "both" || variant === "creepy";
+  const showCyber = variant === "both" || variant === "safety";
+
   useEffect(() => {
-    supabase
+    if (showCreepy) supabase
       .from("creepy_tech_posts")
       .select("id, number, title, emoji, category, content")
       .eq("is_published", true)
@@ -243,7 +248,7 @@ export function CreepyTechHomeSection() {
         if (data && data.length > 0) setCreepyPosts(data);
       });
 
-    supabase
+    if (showCyber) supabase
       .from("cyber_awareness_posts")
       .select("id, number, title, emoji, category, content")
       .eq("is_published", true)
@@ -252,7 +257,7 @@ export function CreepyTechHomeSection() {
       .then(({ data }) => {
         if (data && data.length > 0) setCyberPosts(data);
       });
-  }, []);
+  }, [showCreepy, showCyber]);
 
   return (
     <section className="py-12 md:py-16 bg-zinc-950 relative overflow-hidden">
@@ -268,52 +273,81 @@ export function CreepyTechHomeSection() {
       </div>
 
       <div className="container relative z-10">
-        {/* Security pillar header — frames this dark section + links to the safety cluster */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-9">
-          <div>
-            <div className="flex items-center gap-2.5 mb-3">
-              <span className="h-px w-8 bg-gradient-to-r from-emerald-400 to-cyan-400" />
-              <span className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400">Stay Safe Online · Ghana</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
-              Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">online safety</span> toolkit
-            </h2>
-            <p className="text-white/50 mt-2 max-w-xl">
-              Plain-English guides and quick alerts — from MoMo fraud to romance scams — drawn from Ghana's CSA and SEC.
-            </p>
-          </div>
-          <Link
-            to="/blog/how-to-stay-safe-online-in-ghana"
-            className="group inline-flex items-center gap-2 self-start sm:self-auto px-5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-sm font-medium text-white hover:bg-white/10 hover:border-white/30 transition-all"
-          >
-            The full safety guide
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-        {/* Creepy Tech Row */}
-        {creepyPosts.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20">
-                  <Eye className="w-5 h-5 text-red-500" />
-                  <span className="font-semibold text-white">Creepy Tech</span>
-                </div>
-                <span className="hidden md:block text-sm text-zinc-500">The surprising things your devices do behind the scenes</span>
+        {/* Header — safety framing for the Cyber Awareness pillar; curiosity
+            framing when this is the standalone Creepy Tech section. */}
+        {showCyber ? (
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-9">
+            <div>
+              <div className="flex items-center gap-2.5 mb-3">
+                <span className="h-px w-8 bg-gradient-to-r from-emerald-400 to-cyan-400" />
+                <span className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400">Stay Safe Online · Ghana</span>
               </div>
-              <Button variant="ghost" size="sm" asChild className="text-red-400 hover:text-red-300">
-                <Link to="/creepy-tech" className="flex items-center gap-1">
-                  View All
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+                Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">online safety</span> toolkit
+              </h2>
+              <p className="text-white/50 mt-2 max-w-xl">
+                Plain-English guides and quick alerts — from MoMo fraud to romance scams — drawn from Ghana's CSA and SEC.
+              </p>
             </div>
+            <Link
+              to="/blog/how-to-stay-safe-online-in-ghana"
+              className="group inline-flex items-center gap-2 self-start sm:self-auto px-5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-sm font-medium text-white hover:bg-white/10 hover:border-white/30 transition-all"
+            >
+              The full safety guide
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        ) : (
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-9">
+            <div>
+              <div className="flex items-center gap-2.5 mb-3">
+                <span className="h-px w-8 bg-gradient-to-r from-red-500 to-purple-500" />
+                <span className="text-xs font-semibold tracking-[0.2em] uppercase text-red-400">Did You Know?</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-purple-500">Creepy Tech</span>
+              </h2>
+              <p className="text-white/50 mt-2 max-w-xl">
+                The surprising things your phone, apps and gadgets do behind the scenes — explained in plain language.
+              </p>
+            </div>
+            <Link
+              to="/creepy-tech"
+              className="group inline-flex items-center gap-2 self-start sm:self-auto px-5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-sm font-medium text-white hover:bg-white/10 hover:border-white/30 transition-all"
+            >
+              Explore all 50
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        )}
+        {/* Creepy Tech Row */}
+        {showCreepy && creepyPosts.length > 0 && (
+          <div className={showCyber ? "mb-12" : ""}>
+            {/* Inner pill header only needed when both rows share one section;
+                in the standalone Creepy section the big header already covers it. */}
+            {showCyber && (
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20">
+                    <Eye className="w-5 h-5 text-red-500" />
+                    <span className="font-semibold text-white">Creepy Tech</span>
+                  </div>
+                  <span className="hidden md:block text-sm text-zinc-500">The surprising things your devices do behind the scenes</span>
+                </div>
+                <Button variant="ghost" size="sm" asChild className="text-red-400 hover:text-red-300">
+                  <Link to="/creepy-tech" className="flex items-center gap-1">
+                    View All
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
+            )}
             <CarouselRow posts={creepyPosts} colorMap={creepyCatColors} onCardClick={(post) => { setModalPost(post); setModalSource("creepy"); }} hintScroll />
           </div>
         )}
 
         {/* Cyber Awareness Row */}
-        {cyberPosts.length > 0 && (
+        {showCyber && cyberPosts.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
