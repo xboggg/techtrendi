@@ -334,6 +334,55 @@ export default function Index() {
     Gaming: "bg-rose-500",
   };
 
+  // Admin-managed ticker (see /admin/ticker). Rendered either pinned to the
+  // viewport bottom (fixed) or in-flow right under the hero (static). One
+  // renderer, placed in the right spot below based on the setting.
+  const renderTicker = () => {
+    if (!tickerSettings?.enabled || tickerItems.length === 0) return null;
+    const isFixed = tickerSettings.position === "fixed";
+    const dur = `${Math.max(10, tickerSettings.speed_secs || 40)}s`;
+    return (
+      <>
+        {isFixed && <div aria-hidden="true" className="h-10" />}
+        <div className={`ticker-wrap z-40 bg-slate-950/95 backdrop-blur-sm border-y border-white/10 overflow-hidden ${isFixed ? "fixed bottom-0 inset-x-0" : "relative w-full"}`}>
+          <div className="h-0.5 bg-gradient-to-r from-[#ce1126] via-[#fcd116] to-[#006b3f] animate-flag-flow" />
+          <div className="overflow-hidden py-2">
+            <div className="flex w-max animate-ticker-scroll" style={{ animationDuration: dur }}>
+              {[0, 1].map((dup) => (
+                <div
+                  key={dup}
+                  className="flex items-center shrink-0 text-sm text-white/55"
+                  aria-hidden={dup === 1 ? true : undefined}
+                >
+                  {tickerItems.map((it, idx) => {
+                    const content = (
+                      <span className="inline-flex items-center gap-1.5">
+                        {it.emoji && <span>{it.emoji}</span>}
+                        {it.text}
+                      </span>
+                    );
+                    const inner = it.link
+                      ? (it.link.startsWith("/")
+                          ? <Link to={it.link} className="text-white/85 hover:text-white transition-colors underline-offset-2 hover:underline">{content}</Link>
+                          : <a href={it.link} target="_blank" rel="noopener noreferrer" className="text-white/85 hover:text-white transition-colors underline-offset-2 hover:underline">{content}</a>)
+                      : <span className="text-white/70">{content}</span>;
+                    return (
+                      <span key={idx} className="flex items-center">
+                        <span className="px-6">{inner}</span>
+                        <span className="text-white/15">•</span>
+                      </span>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  };
+  const isTickerStatic = tickerSettings?.enabled && tickerSettings.position === "static" && tickerItems.length > 0;
+
   return (
     <Layout>
       <SEOHead
@@ -440,7 +489,10 @@ export default function Index() {
         </div>
       </section>
 
-      {/* (Trust strip moved to a fixed bottom ticker — rendered at the end of the page) */}
+      {/* Ticker in "scrolls away" (static) mode renders here, right under the
+          hero, so visitors see it on arrival. In "pinned" mode it renders fixed
+          at the end of the page instead. */}
+      {isTickerStatic && renderTicker()}
 
       {/* Africa Tech News — the lead pillar (tightened top so it flows from the dark bar) */}
       <section className="relative pt-10 md:pt-14 pb-16 md:pb-20 bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
@@ -848,52 +900,10 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Admin-managed ticker — DB-driven (see /admin/ticker). Renders only when
-          enabled and there are active items. Position fixed (pinned) or static. */}
-      {tickerSettings?.enabled && tickerItems.length > 0 && (() => {
-        const isFixed = tickerSettings.position === "fixed";
-        const dur = `${Math.max(10, tickerSettings.speed_secs || 40)}s`;
-        return (
-          <>
-            {/* Spacer so the footer clears the bar only when it's pinned */}
-            {isFixed && <div aria-hidden="true" className="h-10" />}
-            <div className={`ticker-wrap z-40 bg-slate-950/95 backdrop-blur-sm border-t border-white/10 overflow-hidden ${isFixed ? "fixed bottom-0 inset-x-0" : "relative w-full"}`}>
-              <div className="h-0.5 bg-gradient-to-r from-[#ce1126] via-[#fcd116] to-[#006b3f] animate-flag-flow" />
-              <div className="overflow-hidden py-2">
-                <div className="flex w-max animate-ticker-scroll" style={{ animationDuration: dur }}>
-                  {[0, 1].map((dup) => (
-                    <div
-                      key={dup}
-                      className="flex items-center shrink-0 text-sm text-white/55"
-                      aria-hidden={dup === 1 ? true : undefined}
-                    >
-                      {tickerItems.map((it, idx) => {
-                        const content = (
-                          <span className="inline-flex items-center gap-1.5">
-                            {it.emoji && <span>{it.emoji}</span>}
-                            {it.text}
-                          </span>
-                        );
-                        const inner = it.link
-                          ? (it.link.startsWith("/")
-                              ? <Link to={it.link} className="text-white/85 hover:text-white transition-colors underline-offset-2 hover:underline">{content}</Link>
-                              : <a href={it.link} target="_blank" rel="noopener noreferrer" className="text-white/85 hover:text-white transition-colors underline-offset-2 hover:underline">{content}</a>)
-                          : <span className="text-white/70">{content}</span>;
-                        return (
-                          <span key={idx} className="flex items-center">
-                            <span className="px-6">{inner}</span>
-                            <span className="text-white/15">•</span>
-                          </span>
-                        );
-                      })}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </>
-        );
-      })()}
+      {/* Ticker in "pinned to bottom" (fixed) mode renders here at the end of
+          the page (it's position:fixed so DOM order doesn't matter). The static
+          mode is rendered under the hero above instead. */}
+      {!isTickerStatic && renderTicker()}
     </Layout>
   );
 }
