@@ -129,7 +129,6 @@ const categories: ToolCategoryCard[] = [
 ];
 
 // Calculate total tools
-const totalTools = categories.reduce((sum, cat) => sum + cat.toolCount, 0);
 
 export default function Tools() {
   return (
@@ -144,7 +143,7 @@ export default function Tools() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-purple-500/5" />
         <div className="container relative py-16 md:py-24 text-center">
           <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-6">
-            {totalTools}+ Free Tools Available
+            130+ Free Tools Available
           </span>
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
             Your Ultimate{" "}
@@ -163,7 +162,7 @@ export default function Tools() {
           {/* Stats */}
           <div className="flex justify-center gap-12 md:gap-16">
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-foreground">{totalTools}+</div>
+              <div className="text-3xl md:text-4xl font-bold text-foreground">130+</div>
               <div className="text-xs text-muted-foreground mt-1">Free Tools</div>
             </div>
             <div className="text-center">
@@ -171,8 +170,8 @@ export default function Tools() {
               <div className="text-xs text-muted-foreground mt-1">Categories</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-foreground">50K+</div>
-              <div className="text-xs text-muted-foreground mt-1">Monthly Users</div>
+              <div className="text-3xl md:text-4xl font-bold text-foreground">₵0</div>
+              <div className="text-xs text-muted-foreground mt-1">Always Free</div>
             </div>
           </div>
         </div>
