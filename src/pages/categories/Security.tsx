@@ -180,12 +180,14 @@ export default function Security() {
                     variants={{ hidden: { opacity: 0, y: 22, filter: "blur(6px)" }, show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } } }}>{w}</motion.span>
                 ))}
                 <br />
-                {"the simple way,".split(" ").map((w, i) => (
+                {"the".split(" ").map((w, i) => (
                   <motion.span key={`b${i}`} className="inline-block mr-[0.25em]"
                     variants={{ hidden: { opacity: 0, y: 22, filter: "blur(6px)" }, show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } } }}>{w}</motion.span>
                 ))}
-                <motion.span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-cyan-300 to-blue-300"
-                  variants={{ hidden: { opacity: 0, y: 22, filter: "blur(6px)" }, show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } }}>for Ghana</motion.span>
+                {"simple way".split(" ").map((w, i) => (
+                  <motion.span key={`g${i}`} className="inline-block mr-[0.25em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-cyan-300 to-blue-300"
+                    variants={{ hidden: { opacity: 0, y: 22, filter: "blur(6px)" }, show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } }}>{w}</motion.span>
+                ))}
               </motion.span>
             </h1>
 
@@ -406,7 +408,7 @@ export default function Security() {
       <section id="guides" className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30 scroll-mt-24">
         <div className="container">
           <Reveal className="flex items-end justify-between gap-4 mb-8 flex-wrap">
-            <div><h2 className="text-3xl md:text-4xl font-bold text-foreground">Safety guides</h2><p className="text-muted-foreground mt-2">Plain-English, made for real Ghanaian life.</p></div>
+            <div><h2 className="text-3xl md:text-4xl font-bold text-foreground">Safety guides</h2><p className="text-muted-foreground mt-2">Plain-English, made for real, everyday life.</p></div>
             <Link to="/blog?category=Security" className="inline-flex items-center gap-1.5 text-primary font-medium hover:gap-2.5 transition-all">All {articleCount || ""} guides <ArrowRight className="w-4 h-4" /></Link>
           </Reveal>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
