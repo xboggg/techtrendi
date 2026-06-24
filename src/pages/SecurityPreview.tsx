@@ -55,6 +55,22 @@ const timeAgo = (d?: string) => {
   return `${Math.floor(days / 7)} week${days >= 14 ? "s" : ""} ago`;
 };
 
+// Scroll-reveal wrapper — fades + rises into view once. Honors reduced-motion
+// via framer-motion's global setting; cheap (transform/opacity only).
+function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export default function SecurityPreview() {
   const [alerts, setAlerts] = useState<ScamAlert[]>([]);
   const [threat, setThreat] = useState<ThreatLevel | null>(null);
@@ -210,15 +226,15 @@ export default function SecurityPreview() {
       {/* ───────── AUDIENCE LANES ───────── */}
       <section className="py-16 md:py-20 bg-background">
         <div className="container">
-          <div className="text-center mb-12">
+          <Reveal className="text-center mb-12">
             <span className="text-xs font-semibold tracking-[0.25em] uppercase text-primary/70">Choose your path</span>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 tracking-tight">Where do you want to start?</h2>
             <p className="text-muted-foreground mt-3 max-w-md mx-auto">Pick your lane — every level is welcome here.</p>
-          </div>
+          </Reveal>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {LANES.map(lane => {
+            {LANES.map((lane, i) => {
               const Inner = (
-                <div className="group relative h-full rounded-3xl border border-border bg-card p-6 overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.25)]">
+                <div className="group relative h-full rounded-3xl border border-border bg-card/70 backdrop-blur-xl p-6 overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.25)]">
                   {/* gradient ring on hover */}
                   <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br ${lane.color}`} style={{ padding: "1px", WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)", WebkitMaskComposite: "xor", maskComposite: "exclude" }} />
                   <div className={`absolute -top-12 -right-12 w-36 h-36 rounded-full bg-gradient-to-br ${lane.color} opacity-[0.08] blur-2xl group-hover:opacity-20 transition-opacity`} />
@@ -228,9 +244,13 @@ export default function SecurityPreview() {
                   <span className="relative inline-flex items-center gap-1 text-sm font-medium text-primary mt-4">{lane.external ? "Visit CyberAbɔfra" : "Start"} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
                 </div>
               );
-              return lane.external
-                ? <a key={lane.id} href={lane.href} target="_blank" rel="noopener noreferrer">{Inner}</a>
-                : <Link key={lane.id} to={lane.href}>{Inner}</Link>;
+              return (
+                <Reveal key={lane.id} delay={i * 0.08} className="h-full">
+                  {lane.external
+                    ? <a href={lane.href} target="_blank" rel="noopener noreferrer" className="block h-full">{Inner}</a>
+                    : <Link to={lane.href} className="block h-full">{Inner}</Link>}
+                </Reveal>
+              );
             })}
           </div>
         </div>
@@ -239,22 +259,22 @@ export default function SecurityPreview() {
       {/* ───────── SCAMS NOW ───────── */}
       <section id="now" className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30 scroll-mt-24">
         <div className="container">
-          <div className="flex items-end justify-between gap-4 mb-8 flex-wrap">
+          <Reveal className="flex items-end justify-between gap-4 mb-8 flex-wrap">
             <div>
               <div className="flex items-center gap-2 mb-2"><span className="relative flex h-2.5 w-2.5"><span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-60 animate-ping" /><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" /></span><span className="text-xs font-bold tracking-[0.2em] uppercase text-red-500">Circulating now</span></div>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground">Scams going round in Ghana</h2>
               <p className="text-muted-foreground mt-2 flex items-center gap-1.5"><Clock className="w-4 h-4" /> Updated {timeAgo(threat?.updated_at)} · from CSA alerts</p>
             </div>
             <Link to="/security#alerts" className="inline-flex items-center gap-1.5 text-primary font-medium hover:gap-2.5 transition-all">See all alerts <ArrowRight className="w-4 h-4" /></Link>
-          </div>
+          </Reveal>
           {alerts.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {alerts.map(a => (
-                <div key={a.id} className="group rounded-2xl border border-border bg-card p-5 hover:border-red-500/30 hover:shadow-lg transition-all">
+              {alerts.map((a, i) => (
+                <Reveal key={a.id} delay={(i % 3) * 0.08}><div className="group h-full rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-5 hover:border-red-500/30 hover:shadow-lg transition-all">
                   <div className="flex items-center gap-2 mb-3"><span className={`w-2 h-2 rounded-full ${SEVERITY[a.severity] || "bg-amber-500"}`} /><span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{a.scam_type}</span></div>
                   <h3 className="font-bold text-foreground leading-snug">{a.title}</h3>
                   <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{a.description}</p>
-                </div>
+                </div></Reveal>
               ))}
             </div>
           ) : (
@@ -266,7 +286,7 @@ export default function SecurityPreview() {
       {/* ───────── SCORECARD CENTERPIECE ───────── */}
       <section id="score" className="py-16 md:py-24 bg-background scroll-mt-24">
         <div className="container">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-white/10 p-8 md:p-12">
+          <Reveal className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-white/10 p-8 md:p-12">
             <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-emerald-500/15 blur-3xl" />
             <div className="absolute -bottom-16 -left-16 w-72 h-72 rounded-full bg-cyan-500/10 blur-3xl" />
             <div className="relative grid md:grid-cols-[1.4fr_1fr] gap-8 items-center">
@@ -288,20 +308,20 @@ export default function SecurityPreview() {
                 </div>
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* ───────── TOOLS ───────── */}
       <section id="tools" className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30 scroll-mt-24">
         <div className="container">
-          <div className="text-center mb-12"><span className="text-xs font-semibold tracking-[0.25em] uppercase text-primary/70">Hands-on</span><h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 tracking-tight">Free safety tools</h2><p className="text-muted-foreground mt-3">Quick checks you can run right now — no signup.</p></div>
+          <Reveal className="text-center mb-12"><span className="text-xs font-semibold tracking-[0.25em] uppercase text-primary/70">Hands-on</span><h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 tracking-tight">Free safety tools</h2><p className="text-muted-foreground mt-3">Quick checks you can run right now — no signup.</p></Reveal>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {TOOLS.map(t => (
-              <Link key={t.name} to={t.href} className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 hover:border-primary/30 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+            {TOOLS.map((t, i) => (
+              <Reveal key={t.name} delay={(i % 3) * 0.07}><Link to={t.href} className="group flex items-start gap-4 h-full rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-5 hover:border-primary/30 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 <div className="shrink-0 w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors"><t.icon className="w-5 h-5 text-primary" /></div>
                 <div><h3 className="font-semibold text-foreground">{t.name}</h3><p className="text-sm text-muted-foreground mt-0.5">{t.desc}</p></div>
-              </Link>
+              </Link></Reveal>
             ))}
           </div>
         </div>
@@ -310,11 +330,11 @@ export default function SecurityPreview() {
       {/* ───────── DAILY CHECK ───────── */}
       <section id="daily" className="py-16 md:py-20 bg-background scroll-mt-24">
         <div className="container">
-          <div className="text-center mb-10">
+          <Reveal className="text-center mb-10">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold mb-3"><Flame className="w-3.5 h-3.5" /> Come back daily</span>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">Your daily safety boost</h2>
             <p className="text-muted-foreground mt-2">A fresh tip and a quick quiz every day — build your streak.</p>
-          </div>
+          </Reveal>
           <div className="grid lg:grid-cols-3 gap-5 items-start">
             <DailyTip />
             <DailyQuizWidget />
@@ -326,10 +346,10 @@ export default function SecurityPreview() {
       {/* ───────── GUIDES ───────── */}
       <section id="guides" className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30 scroll-mt-24">
         <div className="container">
-          <div className="flex items-end justify-between gap-4 mb-8 flex-wrap">
+          <Reveal className="flex items-end justify-between gap-4 mb-8 flex-wrap">
             <div><h2 className="text-3xl md:text-4xl font-bold text-foreground">Safety guides</h2><p className="text-muted-foreground mt-2">Plain-English, made for real Ghanaian life.</p></div>
             <Link to="/blog?category=Security" className="inline-flex items-center gap-1.5 text-primary font-medium hover:gap-2.5 transition-all">All {articleCount || ""} guides <ArrowRight className="w-4 h-4" /></Link>
-          </div>
+          </Reveal>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {articles.map(a => (
               <Link key={a.id} to={`/blog/${a.slug}`} className="group rounded-2xl border border-border bg-card overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all">
@@ -352,12 +372,12 @@ export default function SecurityPreview() {
       {/* ───────── CONSOLIDATED CTA ───────── */}
       <section className="py-16 bg-gradient-to-br from-emerald-600 via-cyan-600 to-blue-600 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "28px 28px" }} />
-        <div className="container relative text-center">
+        <Reveal className="container relative text-center">
           <Flame className="w-10 h-10 text-white/90 mx-auto mb-4" />
           <h2 className="text-3xl md:text-4xl font-bold text-white">Get the weekly safety alert</h2>
           <p className="text-white/80 mt-2 max-w-xl mx-auto">One short message a week — the scams going round and how to dodge them. Free, and you can stop any time.</p>
           <Link to="/newsletter" className="inline-flex items-center gap-2 mt-7 px-7 py-3.5 rounded-2xl bg-white text-slate-900 font-bold hover:scale-[1.02] transition-transform">Subscribe free <ArrowRight className="w-5 h-5" /></Link>
-        </div>
+        </Reveal>
       </section>
     </Layout>
   );
