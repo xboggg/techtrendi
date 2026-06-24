@@ -78,6 +78,7 @@ export default function Security() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [articleCount, setArticleCount] = useState(0);
   const [showNav, setShowNav] = useState(false);
+  const [threatIdx, setThreatIdx] = useState(0);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.15]);
@@ -108,6 +109,14 @@ export default function Security() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Cycle through the live active-threat headlines in the pill
+  const activeThreats = threat?.active_threats?.filter(Boolean) || [];
+  useEffect(() => {
+    if (activeThreats.length < 2) return;
+    const id = setInterval(() => setThreatIdx(i => (i + 1) % activeThreats.length), 3500);
+    return () => clearInterval(id);
+  }, [activeThreats.length]);
 
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   const threatColor = threat?.level?.toLowerCase().includes("high") || threat?.level?.toLowerCase().includes("critical")
@@ -150,15 +159,35 @@ export default function Security() {
               className="group inline-flex items-center gap-2.5 px-3.5 py-2 rounded-full bg-white/[0.06] border border-white/10 backdrop-blur-md mb-7 hover:bg-white/10 transition-colors">
               <span className="relative flex h-2 w-2"><span className={`absolute inline-flex h-full w-full rounded-full ${threatColor.replace("text-", "bg-")} opacity-60 animate-ping`} /><span className={`relative inline-flex rounded-full h-2 w-2 ${threatColor.replace("text-", "bg-")}`} /></span>
               <span className="text-xs font-medium text-white/80">Threat level: <span className={`font-bold uppercase ${threatColor}`}>{threat?.level || "Moderate"}</span></span>
-              <span className="text-xs text-white/40">· updated {timeAgo(threat?.updated_at)}</span>
+              {activeThreats.length > 0 ? (
+                <span className="hidden sm:flex items-center gap-2 text-xs text-white/50 max-w-[20rem]">
+                  <span className="w-px h-3 bg-white/15" />
+                  <span className="relative inline-block min-w-0 truncate">
+                    <motion.span key={threatIdx} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.4 }} className="inline-block truncate">{activeThreats[threatIdx]}</motion.span>
+                  </span>
+                </span>
+              ) : (
+                <span className="text-xs text-white/40">· updated {timeAgo(threat?.updated_at)}</span>
+              )}
               <ChevronRight className="w-3.5 h-3.5 text-white/40 group-hover:translate-x-0.5 transition-transform" />
             </motion.button>
 
-            <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-              className="text-4xl md:text-6xl font-black tracking-tight text-white leading-[1.05] mb-5">
-              Stay safe online —<br />the simple way,{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-cyan-300 to-blue-300">for Ghana</span>
-            </motion.h1>
+            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white leading-[1.05] mb-5">
+              <motion.span className="inline-block" initial="hidden" animate="show"
+                variants={{ show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } } }}>
+                {"Stay safe online —".split(" ").map((w, i) => (
+                  <motion.span key={i} className="inline-block mr-[0.25em]"
+                    variants={{ hidden: { opacity: 0, y: 22, filter: "blur(6px)" }, show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } } }}>{w}</motion.span>
+                ))}
+                <br />
+                {"the simple way,".split(" ").map((w, i) => (
+                  <motion.span key={`b${i}`} className="inline-block mr-[0.25em]"
+                    variants={{ hidden: { opacity: 0, y: 22, filter: "blur(6px)" }, show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } } }}>{w}</motion.span>
+                ))}
+                <motion.span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-cyan-300 to-blue-300"
+                  variants={{ hidden: { opacity: 0, y: 22, filter: "blur(6px)" }, show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } }}>for Ghana</motion.span>
+              </motion.span>
+            </h1>
 
             <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
               className="text-lg text-white/65 max-w-xl mb-9 leading-relaxed">
@@ -213,11 +242,12 @@ export default function Security() {
                     { n: "2", t: "Freeze it", d: "Call your bank / mobile-money network to flag or block the account." },
                     { n: "3", t: "Report to CSA", d: "Cyber Security Authority — call or text 292 (free, 24/7)." },
                     { n: "4", t: "Investment scam?", d: "Report to the SEC on 0800 100 065 or info@sec.gov.gh." },
-                  ].map(s => (
-                    <div key={s.n} className="flex gap-3 rounded-2xl bg-white/[0.04] border border-white/10 p-4">
+                  ].map((s, si) => (
+                    <motion.div key={s.n} initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: si * 0.1, duration: 0.45 }}
+                      className="flex gap-3 rounded-2xl bg-white/[0.04] border border-white/10 p-4 hover:border-red-500/30 hover:bg-white/[0.07] transition-colors">
                       <span className="shrink-0 w-7 h-7 rounded-full bg-red-500 text-white text-sm font-bold flex items-center justify-center">{s.n}</span>
                       <div><p className="font-semibold text-white">{s.t}</p><p className="text-sm text-white/55 mt-0.5">{s.d}</p></div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
                 <div className="flex flex-wrap gap-3 mt-6">
@@ -245,7 +275,7 @@ export default function Security() {
                   {/* gradient ring on hover */}
                   <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br ${lane.color}`} style={{ padding: "1px", WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)", WebkitMaskComposite: "xor", maskComposite: "exclude" }} />
                   <div className={`absolute -top-12 -right-12 w-36 h-36 rounded-full bg-gradient-to-br ${lane.color} opacity-[0.08] blur-2xl group-hover:opacity-20 transition-opacity`} />
-                  <div className={`relative w-12 h-12 rounded-2xl bg-gradient-to-br ${lane.color} flex items-center justify-center shadow-lg mb-4 group-hover:scale-110 transition-transform`}><lane.icon className="w-6 h-6 text-white" /></div>
+                  <div className={`relative w-12 h-12 rounded-2xl bg-gradient-to-br ${lane.color} flex items-center justify-center shadow-lg mb-4 transition-transform group-hover:scale-110 group-hover:rotate-6`}><lane.icon className="w-6 h-6 text-white transition-transform group-hover:scale-110" /></div>
                   <h3 className="relative font-bold text-foreground text-lg">{lane.label}</h3>
                   <p className="relative text-sm text-muted-foreground mt-1">{lane.sub}</p>
                   <span className="relative inline-flex items-center gap-1 text-sm font-medium text-primary mt-4">{lane.external ? "Visit CyberAbɔfra" : "Start"} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
@@ -277,8 +307,8 @@ export default function Security() {
           {alerts.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {alerts.map((a, i) => (
-                <Reveal key={a.id} delay={(i % 3) * 0.08}><div className="group h-full rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-5 hover:border-red-500/30 hover:shadow-lg transition-all">
-                  <div className="flex items-center gap-2 mb-3"><span className={`w-2 h-2 rounded-full ${SEVERITY[a.severity] || "bg-amber-500"}`} /><span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{a.scam_type}</span></div>
+                <Reveal key={a.id} delay={(i % 3) * 0.08}><div className="group h-full rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-5 hover:border-red-500/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <div className="flex items-center gap-2 mb-3"><span className="relative flex h-2 w-2"><span className={`absolute inline-flex h-full w-full rounded-full ${SEVERITY[a.severity] || "bg-amber-500"} opacity-60 animate-ping`} /><span className={`relative inline-flex h-2 w-2 rounded-full ${SEVERITY[a.severity] || "bg-amber-500"}`} /></span><span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{a.scam_type}</span></div>
                   <h3 className="font-bold text-foreground leading-snug">{a.title}</h3>
                   <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{a.description}</p>
                 </div></Reveal>
@@ -296,6 +326,17 @@ export default function Security() {
           <Reveal className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-white/10 p-8 md:p-12">
             <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-emerald-500/15 blur-3xl" />
             <div className="absolute -bottom-16 -left-16 w-72 h-72 rounded-full bg-cyan-500/10 blur-3xl" />
+            {/* floating constellation particles */}
+            {[
+              { l: "12%", t: "20%", d: 7, x: 14 }, { l: "28%", t: "70%", d: 9, x: -10 },
+              { l: "70%", t: "18%", d: 8, x: 12 }, { l: "85%", t: "62%", d: 10, x: -14 },
+              { l: "55%", t: "85%", d: 6, x: 8 }, { l: "40%", t: "30%", d: 11, x: -8 },
+            ].map((p, i) => (
+              <motion.span key={i} className="absolute w-1.5 h-1.5 rounded-full bg-emerald-300/40"
+                style={{ left: p.l, top: p.t }}
+                animate={{ y: [0, -16, 0], x: [0, p.x, 0], opacity: [0.25, 0.7, 0.25] }}
+                transition={{ duration: p.d, repeat: Infinity, ease: "easeInOut", delay: i * 0.6 }} />
+            ))}
             <div className="relative grid md:grid-cols-[1.4fr_1fr] gap-8 items-center">
               <div>
                 <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold mb-4"><ShieldCheck className="w-3.5 h-3.5" /> 2-minute check</span>
@@ -394,7 +435,7 @@ export default function Security() {
           <Flame className="w-10 h-10 text-white/90 mx-auto mb-4" />
           <h2 className="text-3xl md:text-4xl font-bold text-white">Get the weekly safety alert</h2>
           <p className="text-white/80 mt-2 max-w-xl mx-auto">One short message a week — the scams going round and how to dodge them. Free, and you can stop any time.</p>
-          <Link to="/newsletter" className="inline-flex items-center gap-2 mt-7 px-7 py-3.5 rounded-2xl bg-white text-slate-900 font-bold hover:scale-[1.02] transition-transform">Subscribe free <ArrowRight className="w-5 h-5" /></Link>
+          <Link to="/newsletter" className="cta-sheen inline-flex items-center gap-2 mt-7 px-7 py-3.5 rounded-2xl bg-white text-slate-900 font-bold hover:scale-[1.03] transition-transform">Subscribe free <ArrowRight className="w-5 h-5" /></Link>
         </Reveal>
       </section>
     </Layout>
