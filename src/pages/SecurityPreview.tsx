@@ -137,8 +137,8 @@ export default function SecurityPreview() {
 
             <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
               className="text-lg text-white/65 max-w-xl mb-9 leading-relaxed">
-              Scams, MoMo fraud, dodgy links — explained in plain language.
-              No jargon. Sourced from Ghana's <span className="text-white/90 font-medium">CSA &amp; SEC</span>.
+              Scams, MoMo fraud, dodgy links — explained in plain language
+              you can act on. <span className="text-white/90 font-medium">No jargon, no fear.</span>
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-wrap gap-3">
@@ -304,7 +304,7 @@ export default function SecurityPreview() {
       <section id="guides" className="py-16 md:py-20 bg-background scroll-mt-24">
         <div className="container">
           <div className="flex items-end justify-between gap-4 mb-8 flex-wrap">
-            <div><h2 className="text-3xl md:text-4xl font-bold text-foreground">Safety guides</h2><p className="text-muted-foreground mt-2">Plain-English, sourced from Ghana's CSA &amp; SEC.</p></div>
+            <div><h2 className="text-3xl md:text-4xl font-bold text-foreground">Safety guides</h2><p className="text-muted-foreground mt-2">Plain-English, made for real Ghanaian life.</p></div>
             <Link to="/blog?category=Security" className="inline-flex items-center gap-1.5 text-primary font-medium hover:gap-2.5 transition-all">All {articleCount || ""} guides <ArrowRight className="w-4 h-4" /></Link>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
