@@ -7,8 +7,24 @@ import NotFound from "../pages/NotFound";
 import { newsLoader, newsStaticPaths, blogLoader, blogStaticPaths } from "./news-data";
 
 // Adapt our default-export pages to vite-react-ssg's lazy ({ Component }).
+// Also recover from stale-deploy chunk failures: after a deploy, a tab holding
+// the old index.html requests now-missing hashed chunks → the dynamic import
+// rejects ("Failed to fetch dynamically imported module") and the route crashes.
+// Instead, reload ONCE to pull the fresh index.html with the correct chunk names.
+// The sessionStorage guard prevents an infinite reload loop on a genuine failure.
+const reloadForStaleChunk = (err: unknown) => {
+  if (typeof window === "undefined") throw err; // SSR: never reload, just rethrow
+  const KEY = "tt_chunk_reloaded";
+  if (!sessionStorage.getItem(KEY)) {
+    sessionStorage.setItem(KEY, String(Date.now()));
+    window.location.reload();
+    // Return a never-resolving promise so React doesn't render an error before reload.
+    return new Promise<never>(() => {});
+  }
+  throw err; // already tried a reload — let the error surface
+};
 const d = (imp: () => Promise<{ default: React.ComponentType }>) => () =>
-  imp().then((m) => ({ Component: m.default }));
+  imp().then((m) => ({ Component: m.default })).catch(reloadForStaleChunk) as Promise<{ Component: React.ComponentType }>;
 
 // GENERATED from src/App.tsx by scripts/_ssg_gen_routes.cjs. 205 routes.
 export const routes: RouteRecord[] = [
