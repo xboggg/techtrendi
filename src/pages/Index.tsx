@@ -362,7 +362,7 @@ export default function Index() {
       <section
         className="relative overflow-hidden min-h-[100svh] flex items-center border-b border-border/50 bg-cover bg-no-repeat"
         style={{
-          backgroundImage: "url('/images/hero/hero-ghana-street.jpg')",
+          backgroundImage: "url('/images/hero/hero-ghana-v2.jpg')",
           backgroundPosition: "75% center",
         }}
       >
