@@ -63,6 +63,7 @@ export const routes: RouteRecord[] = [
       { path: "admin/cyber-awareness", lazy: d(() => import("../pages/admin/AdminCyberAwareness")) },
       { path: "admin/scam-alerts", lazy: d(() => import("../pages/admin/AdminScamAlerts")) },
       { path: "admin/daily-tips", lazy: d(() => import("../pages/admin/AdminDailyTips")) },
+      { path: "admin/ticker", lazy: d(() => import("../pages/admin/AdminTicker")) },
       { path: "admin/threat-level", lazy: d(() => import("../pages/admin/AdminThreatLevel")) },
       { path: "admin/scam-reports", lazy: d(() => import("../pages/admin/AdminScamReports")) },
       { path: "admin/tool-feedback", lazy: d(() => import("../pages/admin/AdminToolFeedback")) },
