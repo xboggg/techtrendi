@@ -146,7 +146,7 @@ export default function Tools() {
         eyebrow="130+ free tools · no signup"
         title="Free Tools That"
         accentText="Actually Help"
-        subtitle={<>From MoMo fees to developer utilities — find the perfect tool for any task. <strong className="text-foreground">No signup needed.</strong></>}
+        subtitle={<>Calculators, converters, security checks and creative tools — find the perfect one for any task. <strong className="text-foreground">No signup needed.</strong></>}
       >
         <div className="flex justify-center gap-12 md:gap-16">
           {[{ v: "130+", l: "Free Tools" }, { v: "8", l: "Categories" }, { v: "₵0", l: "Always Free" }].map((s) => (
@@ -158,7 +158,7 @@ export default function Tools() {
         </div>
       </PageHero>
 
-      <div className="container pb-20">
+      <div className="container pt-16 md:pt-20 pb-20">
         {/* Section Title */}
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
