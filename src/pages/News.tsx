@@ -180,7 +180,7 @@ export default function News() {
         eyebrow="Updated daily"
         title="Africa Tech"
         accentText="News"
-        subtitle="The latest from Ghana and across Africa — AI, cybersecurity, Big Tech, gadgets and the moves that matter."
+        subtitle="The latest from Ghana and across Africa — AI, cybersecurity, Big Tech and gadgets."
       />
       <div className="container py-12 md:py-20">
         {/* Search and Filters */}
