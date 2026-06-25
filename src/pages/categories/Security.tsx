@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,11 +11,11 @@ import { AnimatedCounter } from "@/components/ui/animated-counter";
 import {
   Shield, ShieldAlert, ShieldCheck, KeyRound, Lock, EyeOff, Globe, AlertTriangle,
   Smartphone, CreditCard, Phone, ArrowRight, Sparkles, Users, Brain, Baby,
-  CheckCircle2, Flame, Clock, ExternalLink, Siren, ChevronRight,
+  CheckCircle2, Flame, Clock, ExternalLink, Siren, ChevronRight, X,
 } from "lucide-react";
 
 // ── data shapes ──────────────────────────────────────────────────────────────
-interface ScamAlert { id: string; title: string; description: string; scam_type: string; severity: string; }
+interface ScamAlert { id: string; title: string; description: string; scam_type: string; severity: string; emoji?: string | null; what_to_do?: string | null; affected_platforms?: string[] | null; created_at?: string; }
 interface ThreatLevel { level: string; title: string; description: string; active_threats: string[]; updated_at: string; }
 interface Article { id: string; title: string; slug: string; excerpt: string | null; category: string; cover_image: string | null; created_at: string; tags: string[] | null; author?: string | null; }
 
@@ -79,12 +79,13 @@ export default function Security() {
   const [articleCount, setArticleCount] = useState(0);
   const [showNav, setShowNav] = useState(false);
   const [threatIdx, setThreatIdx] = useState(0);
+  const [selectedAlert, setSelectedAlert] = useState<ScamAlert | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.15]);
 
   useEffect(() => {
-    supabase.from("security_scam_alerts").select("id,title,description,scam_type,severity")
+    supabase.from("security_scam_alerts").select("id,title,description,scam_type,severity,emoji,what_to_do,affected_platforms,created_at")
       .eq("is_published", true).eq("is_active", true).order("created_at", { ascending: false }).limit(6)
       .then(({ data }) => { if (data) setAlerts(data as ScamAlert[]); });
 
@@ -302,18 +303,21 @@ export default function Security() {
             <div>
               <div className="flex items-center gap-2 mb-2"><span className="relative flex h-2.5 w-2.5"><span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-60 animate-ping" /><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" /></span><span className="text-xs font-bold tracking-[0.2em] uppercase text-red-500">Circulating now</span></div>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground">Scams going round in Ghana</h2>
-              <p className="text-muted-foreground mt-2 flex items-center gap-1.5"><Clock className="w-4 h-4" /> Updated {timeAgo(threat?.updated_at)} · from CSA alerts</p>
+              <p className="text-muted-foreground mt-2 flex items-center gap-1.5"><Clock className="w-4 h-4" /> Updated {timeAgo(alerts[0]?.created_at)} · from CSA alerts</p>
             </div>
-            <Link to="/security#alerts" className="inline-flex items-center gap-1.5 text-primary font-medium hover:gap-2.5 transition-all">See all alerts <ArrowRight className="w-4 h-4" /></Link>
+            <Link to="/scam-alerts" className="inline-flex items-center gap-1.5 text-primary font-medium hover:gap-2.5 transition-all">See all alerts <ArrowRight className="w-4 h-4" /></Link>
           </Reveal>
           {alerts.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {alerts.map((a, i) => (
-                <Reveal key={a.id} delay={(i % 3) * 0.08}><div className="group h-full rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-5 hover:border-red-500/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                  <div className="flex items-center gap-2 mb-3"><span className="relative flex h-2 w-2"><span className={`absolute inline-flex h-full w-full rounded-full ${SEVERITY[a.severity] || "bg-amber-500"} opacity-60 animate-ping`} /><span className={`relative inline-flex h-2 w-2 rounded-full ${SEVERITY[a.severity] || "bg-amber-500"}`} /></span><span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{a.scam_type}</span></div>
-                  <h3 className="font-bold text-foreground leading-snug">{a.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{a.description}</p>
-                </div></Reveal>
+                <Reveal key={a.id} delay={(i % 3) * 0.08}>
+                  <button onClick={() => setSelectedAlert(a)} className="group h-full w-full text-left rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-5 hover:border-red-500/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <div className="flex items-center gap-2 mb-3"><span className="relative flex h-2 w-2"><span className={`absolute inline-flex h-full w-full rounded-full ${SEVERITY[a.severity] || "bg-amber-500"} opacity-60 animate-ping`} /><span className={`relative inline-flex h-2 w-2 rounded-full ${SEVERITY[a.severity] || "bg-amber-500"}`} /></span><span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{a.scam_type}</span></div>
+                    <h3 className="font-bold text-foreground leading-snug">{a.emoji ? `${a.emoji} ` : ""}{a.title}</h3>
+                    <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{a.description}</p>
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-red-500 mt-3 group-hover:gap-1.5 transition-all">Read full alert <ArrowRight className="w-3.5 h-3.5" /></span>
+                  </button>
+                </Reveal>
               ))}
             </div>
           ) : (
@@ -440,6 +444,49 @@ export default function Security() {
           <Link to="/newsletter" className="cta-sheen inline-flex items-center gap-2 mt-7 px-7 py-3.5 rounded-2xl bg-white text-slate-900 font-bold hover:scale-[1.03] transition-transform">Subscribe free <ArrowRight className="w-5 h-5" /></Link>
         </Reveal>
       </section>
+
+      {/* ───────── SCAM ALERT MODAL ───────── */}
+      <AnimatePresence>
+        {selectedAlert && (
+          <motion.div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedAlert(null)} />
+            <motion.div className="relative w-full sm:max-w-lg max-h-[88vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-card border border-border shadow-2xl"
+              initial={{ y: 40, opacity: 0, scale: 0.97 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 40, opacity: 0, scale: 0.97 }} transition={{ type: "spring", damping: 26, stiffness: 280 }}>
+              {/* header */}
+              <div className="sticky top-0 flex items-start justify-between gap-3 p-5 bg-card/95 backdrop-blur border-b border-border">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2.5 w-2.5"><span className={`absolute inline-flex h-full w-full rounded-full ${SEVERITY[selectedAlert.severity] || "bg-amber-500"} opacity-60 animate-ping`} /><span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${SEVERITY[selectedAlert.severity] || "bg-amber-500"}`} /></span>
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{selectedAlert.scam_type} · {selectedAlert.severity} risk</span>
+                </div>
+                <button onClick={() => setSelectedAlert(null)} className="shrink-0 p-1.5 -mr-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"><X className="w-5 h-5" /></button>
+              </div>
+              {/* body */}
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-foreground leading-snug">{selectedAlert.emoji ? `${selectedAlert.emoji} ` : ""}{selectedAlert.title}</h3>
+                {selectedAlert.affected_platforms && selectedAlert.affected_platforms.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-3">
+                    {selectedAlert.affected_platforms.map(p => (
+                      <span key={p} className="px-2 py-0.5 rounded-full bg-muted text-xs text-muted-foreground">{p}</span>
+                    ))}
+                  </div>
+                )}
+                <p className="text-[15px] text-muted-foreground leading-relaxed mt-4 whitespace-pre-line">{selectedAlert.description}</p>
+                {selectedAlert.what_to_do && (
+                  <div className="mt-5 rounded-2xl border-l-4 border-emerald-500 bg-emerald-500/10 p-4">
+                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5"><ShieldCheck className="w-4 h-4" /> What to do</p>
+                    <p className="text-sm text-foreground/80 mt-1.5 leading-relaxed whitespace-pre-line">{selectedAlert.what_to_do}</p>
+                  </div>
+                )}
+                <div className="flex flex-wrap gap-2 mt-6">
+                  <a href="tel:292" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition-colors"><Phone className="w-4 h-4" /> Report to CSA (292)</a>
+                  <Link to="/scam-alerts" onClick={() => setSelectedAlert(null)} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-muted text-sm font-medium text-foreground hover:bg-muted/70 transition-colors">See all alerts <ArrowRight className="w-4 h-4" /></Link>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Layout>
   );
 }
