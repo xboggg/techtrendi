@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
+import { PageHero } from "@/components/layout/PageHero";
 import { SEOHead } from "@/components/seo/SEOHead";
 // No static JSON fallback — API-first with sessionStorage cache
 import {
@@ -179,17 +180,15 @@ export default function Blog() {
         canonical="/blog"
         keywords={["tech blog", "technology articles", "tech guides", "smartphone reviews", "AI articles", "cybersecurity tips"]}
       />
+      <PageHero
+        variant="light"
+        accent="purple"
+        eyebrow="Guides & insights"
+        title="The"
+        accentText="TechTrendi Blog"
+        subtitle="In-depth guides, online-safety know-how, and honest takes — written plainly, for how we actually use tech."
+      />
       <div className="container py-12 md:py-20">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Tech Blog & Insights
-          </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Stay updated with the latest tech trends, in-depth guides, and expert reviews.
-          </p>
-        </div>
-
         {/* Search and Filters */}
         <div className="max-w-4xl mx-auto mb-12">
           <div className="flex flex-col md:flex-row gap-4 mb-6">

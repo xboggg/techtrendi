@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
+import { PageHero } from "@/components/layout/PageHero";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -195,51 +196,34 @@ export default function DigiStore() {
 
       <div className="min-h-screen">
         {/* Hero Section */}
-        <section className="relative py-20 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/10" />
-          <div className="absolute inset-0 bg-gradient-mesh opacity-30" />
-
-          {/* Breathing orbs */}
-          <div className="absolute top-10 right-[20%] w-64 h-64 rounded-full blur-[80px] animate-breathe opacity-40 bg-primary/30" />
-          <div className="absolute bottom-10 left-[10%] w-48 h-48 rounded-full blur-[60px] animate-breathe-slow opacity-30 bg-secondary/30" style={{ animationDelay: "-3s" }} />
-
-          <div className="container relative">
-            <div className="max-w-3xl mx-auto text-center">
-              <Badge className="mb-4 bg-primary/10 text-primary">
-                <Tag className="w-3 h-3 mr-1" />
-                Digital Downloads
-              </Badge>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-                Digi<span className="text-gradient">Store</span>
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground mb-8">
-                Premium digital products to boost your productivity, skills, and business.
-                Free resources and paid downloads for every need.
-              </p>
-
-              {/* Search Bar */}
-              <div className="relative max-w-xl mx-auto">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 pr-4 h-14 text-lg rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm"
-                />
-              </div>
-
-              {/* Premium Badge */}
-              {subscription.subscribed && (
-                <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30">
-                  <Crown className="w-4 h-4 text-amber-500" />
-                  <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
-                    Premium Member - All paid products are FREE for you!
-                  </span>
-                </div>
-              )}
+        <PageHero
+          variant="light"
+          accent="amber"
+          eyebrow="Digital downloads"
+          title="Digi"
+          accentText="Store"
+          subtitle="Digital products to boost your productivity, skills and business — free resources and paid downloads for every need."
+        >
+          <div className="max-w-xl mx-auto">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 pr-4 h-14 text-lg rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm"
+              />
             </div>
+            {subscription.subscribed && (
+              <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30">
+                <Crown className="w-4 h-4 text-amber-500" />
+                <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                  Premium Member - All paid products are FREE for you!
+                </span>
+              </div>
+            )}
           </div>
-        </section>
+        </PageHero>
 
         {/* Filters */}
         <section className="py-6 border-b border-border sticky top-16 z-30 bg-background/80 backdrop-blur-md">

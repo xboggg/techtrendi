@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { PageHero } from "@/components/layout/PageHero";
 import {
   Briefcase, Zap, GraduationCap, Megaphone, Braces, Shield, PenTool, Smartphone,
   ArrowRight, Crown, Star,
@@ -139,48 +140,23 @@ export default function Tools() {
         canonical="/tools"
       />
       {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-purple-500/5" />
-        <div className="container relative py-16 md:py-24 text-center">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-6">
-            130+ Free Tools Available
-          </span>
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
-            Your Ultimate{" "}
-            <span className="relative">
-              <span className="text-primary">Toolbox</span>
-              <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 12" fill="none">
-                <path d="M2 8C50 2 150 2 198 8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-primary/40" />
-              </svg>
-            </span>
-          </h1>
-          <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-10">
-            From business essentials to developer utilities, find the perfect tool for any task.{" "}
-            <strong>No signup needed.</strong>
-          </p>
-
-          {/* Stats */}
-          <div className="flex justify-center gap-12 md:gap-16">
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-foreground">130+</div>
-              <div className="text-xs text-muted-foreground mt-1">Free Tools</div>
+      <PageHero
+        variant="light"
+        accent="primary"
+        eyebrow="130+ free tools · no signup"
+        title="Free Tools That"
+        accentText="Actually Help"
+        subtitle={<>From MoMo fees to developer utilities — find the perfect tool for any task. <strong className="text-foreground">No signup needed.</strong></>}
+      >
+        <div className="flex justify-center gap-12 md:gap-16">
+          {[{ v: "130+", l: "Free Tools" }, { v: "8", l: "Categories" }, { v: "₵0", l: "Always Free" }].map((s) => (
+            <div key={s.l} className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-foreground">{s.v}</div>
+              <div className="text-xs text-muted-foreground mt-1">{s.l}</div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-foreground">8</div>
-              <div className="text-xs text-muted-foreground mt-1">Categories</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-foreground">₵0</div>
-              <div className="text-xs text-muted-foreground mt-1">Always Free</div>
-            </div>
-          </div>
+          ))}
         </div>
-
-        {/* Wave divider */}
-        <svg className="w-full h-12 md:h-16 -mb-1" viewBox="0 0 1440 48" fill="none" preserveAspectRatio="none">
-          <path d="M0 48L60 42C120 36 240 24 360 18C480 12 600 12 720 16C840 20 960 28 1080 30C1200 32 1320 28 1380 26L1440 24V48H0Z" className="fill-background" />
-        </svg>
-      </div>
+      </PageHero>
 
       <div className="container pb-20">
         {/* Section Title */}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
+import { PageHero } from "@/components/layout/PageHero";
 import { SEOHead } from "@/components/seo/SEOHead";
 import {
   Clock, Calendar, ArrowRight, Search, ChevronLeft, ChevronRight, Zap,
@@ -173,21 +174,15 @@ export default function News() {
         canonical="/news"
         keywords={["tech news", "breaking tech", "AI news", "cybersecurity news", "gadget news", "Big Tech news"]}
       />
+      <PageHero
+        variant="dark"
+        accent="blue"
+        eyebrow="Updated daily"
+        title="Africa Tech"
+        accentText="News"
+        subtitle="The latest from Ghana and across Africa — AI, cybersecurity, Big Tech, gadgets and the moves that matter."
+      />
       <div className="container py-12 md:py-20">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-            <Zap className="w-4 h-4" />
-            Breaking Tech Stories
-          </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Tech News
-          </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Stay updated with the latest breaking news in AI, cybersecurity, Big Tech, and gadgets.
-          </p>
-        </div>
-
         {/* Search and Filters */}
         <div className="max-w-4xl mx-auto mb-12">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
