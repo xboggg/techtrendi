@@ -46,7 +46,7 @@ export default function CategoryPage({
 
   useEffect(() => {
     fetchArticles();
-  }, [categoryTags]);
+  }, [categoryName]);
 
   const fetchArticles = async () => {
     try {
@@ -58,17 +58,14 @@ export default function CategoryPage({
 
       if (error) throw error;
 
-      // Filter articles that have any of the category tags
-      const filteredData = (data || []).filter((article) => {
-        const articleTags = article.tags || [];
-        const articleCategory = article.category?.toLowerCase() || "";
-
-        // Check if article matches any of the category tags
-        return categoryTags.some(tag =>
-          articleTags.some((t: string) => t.toLowerCase().includes(tag.toLowerCase())) ||
-          articleCategory.includes(tag.toLowerCase())
-        );
-      });
+      // Match strictly by the article's category field — NOT fuzzy tag overlap.
+      // (Tag matching let e.g. a Security/MoMo article appear under Smart Income
+      //  just because it mentioned "money".) Every article is categorised, so
+      //  this is accurate and stops cross-contamination between category pages.
+      const target = categoryName.trim().toLowerCase();
+      const filteredData = (data || []).filter(
+        (article) => (article.category || "").trim().toLowerCase() === target
+      );
 
       setArticles(filteredData);
     } catch (error) {
