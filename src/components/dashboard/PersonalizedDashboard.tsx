@@ -330,7 +330,7 @@ export function PersonalizedDashboard() {
                 </p>
               </div>
               <Button variant="secondary" className="bg-white text-primary hover:bg-white/90" asChild>
-                <Link to="/premium">Upgrade Now</Link>
+                <Link to="/auth">Upgrade Now</Link>
               </Button>
             </div>
           </div>

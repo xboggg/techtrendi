@@ -425,7 +425,7 @@ export default function BlogArticle() {
                 Upgrade to Premium to access this article and all other exclusive content, tools, and features.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/premium">
+                <Link to="/auth">
                   <Button size="lg" variant="secondary" className="bg-background text-foreground hover:bg-background/90">
                     Upgrade to Premium - $4.99/mo
                   </Button>

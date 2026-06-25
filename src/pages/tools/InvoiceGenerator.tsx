@@ -370,7 +370,7 @@ export default function InvoiceGenerator() {
               </Button>
               {!isPremium && (
                 <Button variant="outline" asChild>
-                  <a href="/premium">
+                  <a href="/auth">
                     <Crown className="w-4 h-4 mr-2" />
                     Upgrade to Download
                   </a>

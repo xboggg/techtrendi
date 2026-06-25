@@ -278,7 +278,7 @@ export default function UpgradeCalculator() {
               <p className="text-primary-foreground/80 mb-6 max-w-md mx-auto">
                 Premium users get AI-powered device recommendations, trade-in value estimates, and best deal alerts.
               </p>
-              <Link to="/premium">
+              <Link to="/auth">
                 <Button variant="secondary" className="bg-background text-foreground hover:bg-background/90">
                   Upgrade to Premium
                 </Button>

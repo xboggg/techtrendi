@@ -243,12 +243,6 @@ export function Header() {
                       </Link>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem asChild className="rounded-xl py-2.5 focus:bg-primary/5">
-                    <Link to="/premium" className="cursor-pointer">
-                      <Crown className="w-4 h-4 mr-2" />
-                      {subscription.subscribed ? "Manage Subscription" : "Upgrade to Premium"}
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-border/50" />
                   <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive rounded-xl py-2.5 focus:bg-destructive/5">
                     <LogOut className="w-4 h-4 mr-2" />
@@ -261,10 +255,10 @@ export function Header() {
                 <Button variant="ghost" size="sm" asChild className={`hidden xl:inline-flex rounded-xl ${isOverHero ? "text-white hover:bg-white/10" : "hover:bg-white/50 dark:hover:bg-white/5"}`}>
                   <Link to="/auth">Sign In</Link>
                 </Button>
-                <Button size="sm" asChild className="hidden xl:inline-flex btn-premium rounded-xl text-white shadow-card">
-                  <Link to="/premium" className="flex items-center gap-1.5">
+                <Button size="sm" asChild className="hidden xl:inline-flex rounded-xl">
+                  <Link to="/auth" className="flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4" />
-                    Get Premium
+                    Sign Up
                   </Link>
                 </Button>
               </>
@@ -396,12 +390,12 @@ export function Header() {
                       </Link>
                     )}
                     <Link
-                      to="/premium"
+                      to="/dashboard"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-sm font-medium text-white shadow-sm"
+                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-muted/50 text-sm font-medium text-foreground hover:bg-muted transition-colors"
                     >
-                      <Crown className="w-4 h-4" />
-                      Premium
+                      <LayoutDashboard className="w-4 h-4" />
+                      Dashboard
                     </Link>
                   </div>
                   <button
@@ -421,12 +415,12 @@ export function Header() {
                     Sign In
                   </Link>
                   <Link
-                    to="/premium"
+                    to="/auth"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-sm font-medium text-white shadow-sm"
                   >
                     <Sparkles className="w-4 h-4" />
-                    Premium
+                    Sign Up
                   </Link>
                 </div>
               )}

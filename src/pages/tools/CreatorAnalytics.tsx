@@ -192,7 +192,7 @@ export default function CreatorAnalytics() {
                 Track your YouTube, Instagram, and Twitter analytics in one unified dashboard. See what's working and grow your audience faster.
               </p>
               <Button asChild size="lg">
-                <a href="/premium">
+                <a href="/auth">
                   <Crown className="w-4 h-4 mr-2" />
                   Get Premium - $4.99/month
                 </a>

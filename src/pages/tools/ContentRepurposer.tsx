@@ -312,7 +312,7 @@ For example:
                 Unlock AI-powered content repurposing and save hours of work every week.
               </p>
               <Button asChild>
-                <a href="/premium">
+                <a href="/auth">
                   <Crown className="w-4 h-4 mr-2" />
                   Get Premium - $4.99/month
                 </a>

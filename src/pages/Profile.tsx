@@ -280,7 +280,7 @@ export default function Profile() {
             {/* Actions */}
             <div className="flex gap-2">
               <Button variant="outline" asChild>
-                <Link to="/premium">
+                <Link to="/auth">
                   <Crown className="w-4 h-4 mr-2" />
                   {subscription.subscribed ? 'Manage' : 'Upgrade'}
                 </Link>
@@ -373,7 +373,7 @@ export default function Profile() {
                       <span className="text-foreground">Premium</span>
                     </div>
                     <Button variant="outline" className="w-full mt-4" asChild>
-                      <Link to="/premium">Manage Subscription</Link>
+                      <Link to="/auth">Manage Subscription</Link>
                     </Button>
                   </div>
                 ) : (
@@ -383,7 +383,7 @@ export default function Profile() {
                       Unlock premium features and ad-free experience
                     </p>
                     <Button asChild>
-                      <Link to="/premium">Upgrade to Premium</Link>
+                      <Link to="/auth">Upgrade to Premium</Link>
                     </Button>
                   </div>
                 )}

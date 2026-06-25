@@ -43,7 +43,7 @@ export function PremiumGate({
             Upgrade to Premium to access {feature} and exclusive features.
           </p>
           <Button asChild className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
-            <Link to="/premium">
+            <Link to="/auth">
               <Crown className="w-4 h-4 mr-2" />
               Upgrade to Premium
             </Link>
@@ -91,7 +91,7 @@ export function PremiumBanner({
           <span className="text-sm font-medium text-foreground">Unlock premium features</span>
         </div>
         <Button size="sm" asChild>
-          <Link to="/premium">Upgrade</Link>
+          <Link to="/auth">Upgrade</Link>
         </Button>
       </div>
     );
@@ -131,7 +131,7 @@ export function PremiumBanner({
           </ul>
           <div className="flex items-center gap-4">
             <Button size="lg" className="bg-white text-primary hover:bg-white/90" asChild>
-              <Link to="/premium">
+              <Link to="/auth">
                 Start Free Trial
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
@@ -162,7 +162,7 @@ export function PremiumBanner({
         </p>
       </div>
       <Button asChild>
-        <Link to="/premium">
+        <Link to="/auth">
           Upgrade
           <ArrowRight className="w-4 h-4 ml-2" />
         </Link>
@@ -208,7 +208,7 @@ export function ContentPaywall({
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Button className="bg-gradient-to-r from-yellow-400 to-orange-500" asChild>
-            <Link to="/premium">
+            <Link to="/auth">
               <Crown className="w-4 h-4 mr-2" />
               Subscribe Now
             </Link>

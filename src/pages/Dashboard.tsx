@@ -148,7 +148,7 @@ export default function Dashboard() {
           </div>
           {!subscription.subscribed && (
             <Button asChild className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
-              <Link to="/premium">
+              <Link to="/auth">
                 <Crown className="w-4 h-4" />
                 Upgrade to Premium
               </Link>
