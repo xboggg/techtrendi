@@ -15,7 +15,7 @@ const SITE = "https://techtrendi.com";
 const DIST = "dist";
 
 // Pages that exist as .html but should NOT be advertised to crawlers.
-const EXCLUDE_EXACT = new Set(["404", "200", "offline", "design-demo", "reading-list"]);
+const EXCLUDE_EXACT = new Set(["404", "200", "offline", "design-demo", "reading-list", "tools-preview"]);
 const EXCLUDE_PREFIX = ["admin", "auth", "profile", "dashboard", "arcade"];
 
 function walk(dir, out = []) {
