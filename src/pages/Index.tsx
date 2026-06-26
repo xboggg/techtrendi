@@ -472,17 +472,19 @@ export default function Index() {
             {/* Buttons: a touch smaller on mobile so the lower hero isn't cloggy;
                 full size from sm: up. */}
             <div className="flex flex-wrap gap-2.5 sm:gap-3">
-              <Button size="lg" asChild className="rounded-xl h-10 px-4 text-sm sm:h-11 sm:px-6 sm:text-base">
+              <Button size="lg" asChild className="order-1 sm:order-none rounded-xl h-10 px-4 text-sm sm:h-11 sm:px-6 sm:text-base">
                 <Link to="/news?category=Africa Tech" className="flex items-center gap-2">
                   <Globe className="w-4 h-4 sm:w-5 sm:h-5" /> Read the News
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="rounded-xl h-10 px-4 text-sm sm:h-11 sm:px-6 sm:text-base border-white/40 bg-white/5 text-white hover:bg-white/15 hover:text-white">
+              {/* On mobile, Free Tools shows above Stay Safe Online (order-2 vs order-3);
+                  desktop keeps the natural News / Safety / Tools order. */}
+              <Button size="lg" variant="outline" asChild className="order-3 sm:order-none rounded-xl h-10 px-4 text-sm sm:h-11 sm:px-6 sm:text-base border-white/40 bg-white/5 text-white hover:bg-white/15 hover:text-white">
                 <Link to="/security" className="flex items-center gap-2">
                   <Shield className="w-4 h-4 sm:w-5 sm:h-5" /> Stay Safe Online
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="rounded-xl h-10 px-4 text-sm sm:h-11 sm:px-6 sm:text-base border-white/40 bg-white/5 text-white hover:bg-white/15 hover:text-white">
+              <Button size="lg" variant="outline" asChild className="order-2 sm:order-none rounded-xl h-10 px-4 text-sm sm:h-11 sm:px-6 sm:text-base border-white/40 bg-white/5 text-white hover:bg-white/15 hover:text-white">
                 <Link to="/tools" className="flex items-center gap-2">
                   <Zap className="w-4 h-4 sm:w-5 sm:h-5" /> Free Tools
                 </Link>
