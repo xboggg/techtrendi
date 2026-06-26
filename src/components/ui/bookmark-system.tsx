@@ -56,7 +56,7 @@ export function BookmarkProvider({ children }: { children: ReactNode }) {
 
     setBookmarks((prev) => [newBookmark, ...prev]);
     toast({
-      title: 'Saved to bookmarks',
+      title: 'Saved to your reading list',
       description: item.title,
     });
   };
@@ -64,7 +64,7 @@ export function BookmarkProvider({ children }: { children: ReactNode }) {
   const removeBookmark = (id: string) => {
     setBookmarks((prev) => prev.filter((item) => item.id !== id));
     toast({
-      title: 'Removed from bookmarks',
+      title: 'Removed from your reading list',
     });
   };
 
@@ -75,7 +75,7 @@ export function BookmarkProvider({ children }: { children: ReactNode }) {
   const clearAllBookmarks = () => {
     setBookmarks([]);
     toast({
-      title: 'All bookmarks cleared',
+      title: 'Reading list cleared',
     });
   };
 
@@ -126,7 +126,7 @@ export function BookmarkButton({ item, variant = 'default', className }: Bookmar
             : 'text-muted-foreground hover:text-foreground hover:bg-muted',
           className
         )}
-        aria-label={saved ? 'Remove bookmark' : 'Add bookmark'}
+        aria-label={saved ? 'Remove from reading list' : 'Add to reading list'}
       >
         {saved ? (
           <BookmarkCheck className="w-5 h-5" />
