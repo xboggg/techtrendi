@@ -5,22 +5,27 @@ import { Link } from "react-router-dom";
 import { Bookmark, Clock, Trash2, BookOpen, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+// Matches the shape saved by <BookmarkButton> (src/components/ui/bookmark-system.tsx).
 interface SavedArticle {
-  slug: string;
+  id: string;
+  type: "article" | "review" | "tool" | "news" | "blog";
   title: string;
+  url: string;
   excerpt?: string;
-  category?: string;
-  read_time_minutes?: number;
+  image?: string;
   savedAt: string;
-  type: "blog" | "news";
 }
+
+// SAME localStorage key the bookmark button writes to. (Previously this page
+// read a different key — 'tt:reading-list' — so it was always empty.)
+const STORAGE_KEY = "techtrendi_bookmarks";
 
 export default function ReadingList() {
   const [saved, setSaved] = useState<SavedArticle[]>([]);
 
   useEffect(() => {
     try {
-      const data = JSON.parse(localStorage.getItem("tt:reading-list") || "[]");
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
       setSaved(Array.isArray(data) ? data.sort((a: SavedArticle, b: SavedArticle) =>
         new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime()
       ) : []);
@@ -29,15 +34,15 @@ export default function ReadingList() {
     }
   }, []);
 
-  const remove = (slug: string) => {
-    const updated = saved.filter(a => a.slug !== slug);
+  const remove = (id: string) => {
+    const updated = saved.filter(a => a.id !== id);
     setSaved(updated);
-    localStorage.setItem("tt:reading-list", JSON.stringify(updated));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   };
 
   const clearAll = () => {
     setSaved([]);
-    localStorage.removeItem("tt:reading-list");
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   return (
@@ -87,18 +92,18 @@ export default function ReadingList() {
         ) : (
           <div className="space-y-3">
             {saved.map((article) => (
-              <div key={article.slug} className="flex items-start gap-4 p-4 bg-card border border-border rounded-xl hover:border-primary/30 transition-all group">
+              <div key={article.id} className="flex items-start gap-4 p-4 bg-card border border-border rounded-xl hover:border-primary/30 transition-all group">
+                {article.image && (
+                  <Link to={article.url} className="shrink-0 w-20 h-16 rounded-lg overflow-hidden bg-muted hidden sm:block">
+                    <img src={article.image} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  </Link>
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    {article.category && (
-                      <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                        {article.category}
-                      </span>
-                    )}
-                    <span className="text-xs text-muted-foreground capitalize">{article.type}</span>
+                    <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full capitalize">{article.type}</span>
                   </div>
                   <Link
-                    to={`/${article.type === "blog" ? "blog" : "news"}/${article.slug}`}
+                    to={article.url}
                     className="font-semibold text-foreground hover:text-primary transition-colors line-clamp-2 block"
                   >
                     {article.title}
@@ -107,16 +112,13 @@ export default function ReadingList() {
                     <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{article.excerpt}</p>
                   )}
                   <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                    {article.read_time_minutes && (
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" /> {article.read_time_minutes} min read
-                      </span>
-                    )}
-                    <span>Saved {new Date(article.savedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" /> Saved {new Date(article.savedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                    </span>
                   </div>
                 </div>
                 <button
-                  onClick={() => remove(article.slug)}
+                  onClick={() => remove(article.id)}
                   className="shrink-0 p-1.5 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
                   title="Remove from reading list"
                 >
