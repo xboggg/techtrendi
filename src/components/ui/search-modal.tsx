@@ -1,15 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Search, X, ArrowRight, FileText, Wrench, Star, Clock, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Search, X, ArrowRight, FileText, Wrench, Newspaper, Clock, TrendingUp, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+// REAL search. As you type it live-queries the actual `articles` and `news`
+// tables in Supabase plus matches the known local tools by keyword. (It used to
+// search a hardcoded sample list with dead pages — now it searches real content.)
 
 interface SearchResult {
   id: string;
   title: string;
   description?: string;
   url: string;
-  type: 'article' | 'review' | 'tool' | 'page';
-  category?: string;
+  type: 'article' | 'news' | 'tool';
+  category?: string | null;
 }
 
 interface SearchModalProps {
@@ -17,47 +22,40 @@ interface SearchModalProps {
   onClose: () => void;
 }
 
-// Sample searchable content - in production, this would come from API/database
-const searchableContent: SearchResult[] = [
-  // Tools
-  { id: 't1', title: 'Password Generator', description: 'Generate secure passwords', url: '/tools/password-generator', type: 'tool', category: 'Security' },
-  { id: 't2', title: 'Password Checker', description: 'Check password strength', url: '/tools/password-checker', type: 'tool', category: 'Security' },
-  { id: 't3', title: 'QR Code Generator', description: 'Create QR codes instantly', url: '/tools/qr-generator', type: 'tool', category: 'Utility' },
-  { id: 't4', title: 'Image Compressor', description: 'Optimize and compress images', url: '/tools/image-compressor', type: 'tool', category: 'Media' },
-  { id: 't5', title: 'Phone Comparison', description: 'Compare phone specifications', url: '/tools/phone-comparison', type: 'tool', category: 'Reviews' },
-  { id: 't6', title: 'Upgrade Calculator', description: 'Should you upgrade your device?', url: '/tools/upgrade-calculator', type: 'tool', category: 'Reviews' },
-  { id: 't7', title: 'JSON Formatter', description: 'Format and validate JSON', url: '/tools/json-formatter', type: 'tool', category: 'Developer' },
-  { id: 't8', title: 'Base64 Encoder', description: 'Encode/decode Base64', url: '/tools/base64-encoder', type: 'tool', category: 'Developer' },
-  { id: 't9', title: 'Color Picker', description: 'Pick and convert colors', url: '/tools/color-picker', type: 'tool', category: 'Design' },
-
-  // Pages
-  { id: 'p1', title: 'Home', description: 'TechTrendi homepage', url: '/', type: 'page' },
-  { id: 'p2', title: 'Blog', description: 'Latest tech articles', url: '/blog', type: 'page' },
-  { id: 'p3', title: 'Reviews', description: 'Product reviews', url: '/reviews', type: 'page' },
-  { id: 'p5', title: 'Tools', description: 'Free online tools', url: '/tools', type: 'page' },
-  { id: 'p6', title: 'Premium', description: 'Premium membership', url: '/premium', type: 'page' },
-  { id: 'p7', title: 'About', description: 'About TechTrendi', url: '/about', type: 'page' },
+// Flagship local tools — tools aren't in the DB, so match them by keyword.
+const LOCAL_TOOLS: { title: string; description: string; url: string; keywords: string }[] = [
+  { title: 'MoMo Fee Calculator', description: 'Exact MTN & AT Money fees (E-Levy removed)', url: '/tools/momo-fee-calculator', keywords: 'momo mobile money fee charge mtn at money transfer e-levy' },
+  { title: 'ECG Bill Estimator', description: 'Estimate your electricity bill (PURC 2026)', url: '/tools/ecg-bill-estimator', keywords: 'ecg electricity bill light prepaid power purc tariff' },
+  { title: 'Ghana Tax Calculator', description: 'PAYE, SSNIT & take-home pay (2026 GRA)', url: '/tools/ghana-tax-calculator', keywords: 'tax paye ssnit salary take home pay gra income' },
+  { title: 'Ghana Scam Checker', description: 'Check a suspicious message before you reply', url: '/tools/ghana-scam-checker', keywords: 'scam fraud check message suspicious fake phishing 419' },
+  { title: 'Password Generator', description: 'Generate secure passwords', url: '/tools/password-generator', keywords: 'password generate secure strong random' },
+  { title: 'Password Checker', description: 'Check password strength', url: '/tools/password-checker', keywords: 'password strength check weak strong' },
+  { title: 'QR Code Generator', description: 'Create QR codes instantly', url: '/tools/qr-generator', keywords: 'qr code generate scan link' },
+  { title: 'Image Compressor', description: 'Optimize and compress images', url: '/tools/image-compressor', keywords: 'image compress optimize photo reduce size' },
 ];
 
 const typeIcons = {
   article: FileText,
-  review: Star,
+  news: Newspaper,
   tool: Wrench,
-  page: ArrowRight,
 };
+const typeLabel = { article: 'Guide', news: 'News', tool: 'Tool' } as const;
 
 export function SearchModal({ isOpen, onClose }: SearchModalProps) {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounce = useRef<ReturnType<typeof setTimeout>>();
 
   // Load recent searches
   useEffect(() => {
     const saved = localStorage.getItem('recent_searches');
     if (saved) {
-      setRecentSearches(JSON.parse(saved).slice(0, 5));
+      try { setRecentSearches(JSON.parse(saved).slice(0, 5)); } catch { /* ignore */ }
     }
   }, []);
 
@@ -71,22 +69,58 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
   }, [isOpen]);
 
-  // Search logic
+  // Live search: instant local tools + debounced Supabase articles/news.
   useEffect(() => {
-    if (!query.trim()) {
+    const q = query.trim();
+    if (debounce.current) clearTimeout(debounce.current);
+    if (q.length < 2) {
       setResults([]);
+      setLoading(false);
       return;
     }
 
-    const searchTerms = query.toLowerCase().split(' ').filter(Boolean);
-    const filtered = searchableContent.filter((item) => {
-      const searchText = `${item.title} ${item.description || ''} ${item.category || ''}`.toLowerCase();
-      return searchTerms.every((term) => searchText.includes(term));
-    });
+    const ql = q.toLowerCase();
+    const toolHits: SearchResult[] = LOCAL_TOOLS
+      .filter((t) => `${t.title} ${t.keywords}`.toLowerCase().includes(ql))
+      .slice(0, 4)
+      .map((t) => ({ id: t.url, title: t.title, description: t.description, url: t.url, type: 'tool' as const, category: 'Tool' }));
+    setResults(toolHits);
 
-    setResults(filtered.slice(0, 10));
-    setSelectedIndex(0);
+    setLoading(true);
+    debounce.current = setTimeout(async () => {
+      try {
+        const pattern = `%${q}%`;
+        const [a, n] = await Promise.all([
+          supabase.from('articles').select('title, slug, category, excerpt').eq('is_published', true).ilike('title', pattern).limit(6),
+          supabase.from('news').select('title, slug, category, excerpt').eq('is_published', true).ilike('title', pattern).limit(5),
+        ]);
+
+        const articleHits: SearchResult[] = (a.data || []).map((r: any) => ({
+          id: `/blog/${r.slug}`, title: r.title, description: r.excerpt || undefined, url: `/blog/${r.slug}`, type: 'article' as const, category: r.category,
+        }));
+        const newsHits: SearchResult[] = (n.data || []).map((r: any) => ({
+          id: `/news/${r.slug}`, title: r.title, description: r.excerpt || undefined, url: `/news/${r.slug}`, type: 'news' as const, category: r.category,
+        }));
+
+        setResults([...toolHits, ...articleHits, ...newsHits].slice(0, 10));
+        setSelectedIndex(0);
+      } catch {
+        // keep tool hits on failure
+      } finally {
+        setLoading(false);
+      }
+    }, 220);
+
+    return () => debounce.current && clearTimeout(debounce.current);
   }, [query]);
+
+  const handleSelect = useCallback((result: SearchResult) => {
+    const updated = [query, ...recentSearches.filter((s) => s !== query)].filter(Boolean).slice(0, 5);
+    setRecentSearches(updated);
+    localStorage.setItem('recent_searches', JSON.stringify(updated));
+    onClose();
+    navigate(result.url);
+  }, [query, recentSearches, onClose, navigate]);
 
   // Keyboard navigation
   const handleKeyDown = useCallback(
@@ -101,26 +135,15 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           setSelectedIndex((prev) => Math.max(prev - 1, 0));
           break;
         case 'Enter':
-          if (results[selectedIndex]) {
-            handleSelect(results[selectedIndex]);
-          }
+          if (results[selectedIndex]) handleSelect(results[selectedIndex]);
           break;
         case 'Escape':
           onClose();
           break;
       }
     },
-    [results, selectedIndex, onClose]
+    [results, selectedIndex, onClose, handleSelect]
   );
-
-  const handleSelect = (result: SearchResult) => {
-    // Save to recent searches
-    const updated = [query, ...recentSearches.filter((s) => s !== query)].slice(0, 5);
-    setRecentSearches(updated);
-    localStorage.setItem('recent_searches', JSON.stringify(updated));
-    onClose();
-    window.location.href = result.url;
-  };
 
   const clearRecentSearches = () => {
     setRecentSearches([]);
@@ -148,9 +171,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search articles, tools, reviews..."
+            placeholder="Search guides, news and tools..."
             className="flex-1 bg-transparent text-foreground placeholder-muted-foreground focus:outline-none text-lg"
           />
+          {loading && <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />}
           <kbd className="hidden sm:inline-flex px-2 py-1 text-xs bg-muted rounded">
             ESC
           </kbd>
@@ -165,20 +189,18 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
         {/* Results */}
         <div className="max-h-[60vh] overflow-y-auto">
           {/* Show results if query exists */}
-          {query && results.length > 0 && (
+          {query.trim().length >= 2 && results.length > 0 && (
             <div className="p-2">
               {results.map((result, index) => {
                 const Icon = typeIcons[result.type];
                 return (
-                  <Link
+                  <button
                     key={result.id}
-                    to={result.url}
                     onClick={() => handleSelect(result)}
+                    onMouseEnter={() => setSelectedIndex(index)}
                     className={cn(
-                      'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
-                      index === selectedIndex
-                        ? 'bg-primary/10 text-primary'
-                        : 'hover:bg-muted'
+                      'w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left',
+                      index === selectedIndex ? 'bg-primary/10 text-primary' : 'hover:bg-muted'
                     )}
                   >
                     <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
@@ -192,28 +214,26 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         </p>
                       )}
                     </div>
-                    {result.category && (
-                      <span className="text-xs px-2 py-1 bg-muted rounded-full">
-                        {result.category}
-                      </span>
-                    )}
-                  </Link>
+                    <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-1 bg-muted rounded-full text-muted-foreground flex-shrink-0">
+                      {typeLabel[result.type]}
+                    </span>
+                  </button>
                 );
               })}
             </div>
           )}
 
           {/* No results */}
-          {query && results.length === 0 && (
+          {query.trim().length >= 2 && !loading && results.length === 0 && (
             <div className="p-8 text-center text-muted-foreground">
               <Search className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>No results found for "{query}"</p>
-              <p className="text-sm mt-1">Try different keywords</p>
+              <p>No results found for "{query.trim()}"</p>
+              <p className="text-sm mt-1">Try a tool name, topic, or keyword</p>
             </div>
           )}
 
           {/* Empty state with suggestions */}
-          {!query && (
+          {query.trim().length < 2 && (
             <div className="p-4 space-y-6">
               {/* Recent Searches */}
               {recentSearches.length > 0 && (
@@ -251,7 +271,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   Popular
                 </h4>
                 <div className="grid grid-cols-2 gap-2">
-                  {['Password Generator', 'Phone Comparison', 'Security Guide', 'QR Generator'].map(
+                  {['MoMo fees', 'Scam checker', 'Tax calculator', 'ECG bill'].map(
                     (item) => (
                       <button
                         key={item}
