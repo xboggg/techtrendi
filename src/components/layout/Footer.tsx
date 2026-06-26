@@ -38,12 +38,13 @@ const TikTokIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// `brand` is each platform's own hover color/gradient (applied on hover).
 const socialLinks = [
-  { icon: FacebookIcon, href: "https://facebook.com/techtrendi", label: "Facebook" },
-  { icon: XIcon, href: "https://twitter.com/techtrendi", label: "X (Twitter)" },
-  { icon: InstagramIcon, href: "https://instagram.com/techtrendi", label: "Instagram" },
-  { icon: WhatsAppIcon, href: "https://whatsapp.com/channel/0029VbCB3R6H5JLt1aJYIT2d", label: "WhatsApp" },
-  { icon: TikTokIcon, href: "https://tiktok.com/@tech.trendi", label: "TikTok" },
+  { icon: FacebookIcon, href: "https://facebook.com/techtrendi", label: "Facebook", brand: "#1877F2" },
+  { icon: XIcon, href: "https://twitter.com/techtrendi", label: "X (Twitter)", brand: "#000000" },
+  { icon: InstagramIcon, href: "https://instagram.com/techtrendi", label: "Instagram", brand: "linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5)" },
+  { icon: WhatsAppIcon, href: "https://whatsapp.com/channel/0029VbCB3R6H5JLt1aJYIT2d", label: "WhatsApp", brand: "#25D366" },
+  { icon: TikTokIcon, href: "https://tiktok.com/@tech.trendi", label: "TikTok", brand: "linear-gradient(135deg,#25F4EE,#000000 45%,#FE2C55)" },
 ];
 
 const footerLinks = {
@@ -204,8 +205,15 @@ export function Footer() {
                     aria-label={social.label}
                     style={{ animationDelay: `${i * 0.05}s` }}
                   >
-                    <span className="absolute inset-0 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <span className="absolute inset-0 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 opacity-0 group-hover:opacity-40 blur-lg transition-opacity duration-300" />
+                    {/* Each icon glows in its own brand color on hover */}
+                    <span
+                      className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      style={{ background: social.brand }}
+                    />
+                    <span
+                      className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-40 blur-lg transition-opacity duration-300"
+                      style={{ background: social.brand }}
+                    />
                     <social.icon className="w-3.5 h-3.5 relative z-10" />
                   </a>
                 ))}
