@@ -175,25 +175,56 @@ export function Footer() {
         <div className="absolute bottom-10 right-[10%] w-72 h-72 bg-purple-500/5 rounded-full blur-3xl animate-pulse-slow pointer-events-none" style={{ animationDelay: "2s" }} />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/3 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container relative z-10 py-16">
-          {/* Single unified section: Brand + Links */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
-            {/* Brand + Social + Newsletter card */}
-            <div className="col-span-2 md:col-span-4 lg:col-span-1">
-              <Link to="/" className="inline-flex items-center gap-2 mb-4 group">
+        <div className="container relative z-10 py-14 md:py-16">
+          {/* ===== Top brand strip: identity left, newsletter CTA right ===== */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-8 md:pb-10 mb-10 border-b border-border/50">
+            <div className="max-w-md">
+              <Link to="/" className="inline-flex items-center gap-2 mb-3 group">
                 <img
                   src="/logo-t.png"
                   alt="TechTrendi"
                   className="h-10 w-auto transition-transform duration-300 group-hover:scale-110"
                 />
-                <span className="text-xl font-bold">
+                <span className="text-2xl font-bold leading-none">
                   <span className="text-foreground">Tech</span>
                   <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">Trendi</span>
                 </span>
+                <span className="ml-1 inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide uppercase text-muted-foreground/80 border border-border/60 rounded-full px-2 py-0.5">
+                  <span aria-hidden="true">🇬🇭</span> Ghana&apos;s Tech Hub
+                </span>
               </Link>
-              <p className="text-muted-foreground text-sm mb-5">
-                Tech tips, tools, and tutorials that make your digital life easier. Stay sharp, stay ahead.
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                News that matters, tools that work, and online-safety help — made for how we actually live, right here at home.
               </p>
+            </div>
+
+            {/* Animated newsletter CTA */}
+            <div className="shrink-0">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2.5">Stay in the loop</p>
+              <Link to="/newsletter" className="newsletter-cta group" aria-label="Subscribe to the TechTrendi newsletter">
+                <span className="newsletter-cta-shine" aria-hidden="true" />
+                <span className="newsletter-cta-icon" aria-hidden="true">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </span>
+                <span className="newsletter-cta-label">Newsletter</span>
+                <svg className="newsletter-cta-arrow w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+
+          {/* ===== Link columns ===== */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+            {/* Connect / Social column */}
+            <div>
+              <h4 className="footer-head">
+                <span className="footer-head-bar bg-gradient-to-r from-emerald-500 to-cyan-500" />
+                CONNECT
+              </h4>
+              <p className="text-sm text-muted-foreground mb-4">Follow us for daily tech, tools &amp; safety tips.</p>
               <div className="flex items-center gap-2 flex-wrap">
                 {socialLinks.map((social, i) => (
                   <a
@@ -218,35 +249,19 @@ export function Footer() {
                   </a>
                 ))}
               </div>
-
-              {/* Animated newsletter button — sits under the socials */}
-              <Link to="/newsletter" className="newsletter-cta group mt-6" aria-label="Subscribe to the TechTrendi newsletter">
-                <span className="newsletter-cta-shine" aria-hidden="true" />
-                <span className="newsletter-cta-icon" aria-hidden="true">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </span>
-                <span className="newsletter-cta-label">Newsletter</span>
-                <svg className="newsletter-cta-arrow w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
             </div>
 
             {/* Explore */}
             <div>
-              <h4 className="font-semibold text-foreground text-sm mb-5 flex items-center gap-2">
-                <span className="w-5 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
+              <h4 className="footer-head">
+                <span className="footer-head-bar bg-gradient-to-r from-blue-500 to-purple-500" />
                 EXPLORE
               </h4>
-              <ul className="space-y-3">
+              <ul className="space-y-2.5">
                 {footerLinks.explore.map((link) => (
                   <li key={link.label}>
-                    <Link
-                      to={link.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-all duration-200 hover:translate-x-1 inline-block"
-                    >
+                    <Link to={link.href} className="footer-link">
+                      <span className="footer-link-dot" aria-hidden="true" />
                       {link.label}
                     </Link>
                   </li>
@@ -256,17 +271,15 @@ export function Footer() {
 
             {/* Topics */}
             <div>
-              <h4 className="font-semibold text-foreground text-sm mb-5 flex items-center gap-2">
-                <span className="w-5 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" />
+              <h4 className="footer-head">
+                <span className="footer-head-bar bg-gradient-to-r from-purple-500 to-pink-500" />
                 TOPICS
               </h4>
-              <ul className="space-y-3">
+              <ul className="space-y-2.5">
                 {footerLinks.topics.map((link) => (
                   <li key={link.label}>
-                    <Link
-                      to={link.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-all duration-200 hover:translate-x-1 inline-block"
-                    >
+                    <Link to={link.href} className="footer-link">
+                      <span className="footer-link-dot" aria-hidden="true" />
                       {link.label}
                     </Link>
                   </li>
@@ -276,11 +289,11 @@ export function Footer() {
 
             {/* Company */}
             <div>
-              <h4 className="font-semibold text-foreground text-sm mb-5 flex items-center gap-2">
-                <span className="w-5 h-0.5 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full" />
+              <h4 className="footer-head">
+                <span className="footer-head-bar bg-gradient-to-r from-pink-500 to-orange-500" />
                 COMPANY
               </h4>
-              <ul className="space-y-3">
+              <ul className="space-y-2.5">
                 {footerLinks.company.map((link) => (
                   <li key={link.label}>
                     {link.href.startsWith('http') || link.href.endsWith('.xml') ? (
@@ -288,15 +301,14 @@ export function Footer() {
                         href={link.href}
                         target={link.href.startsWith('http') ? '_blank' : undefined}
                         rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                        className="text-sm text-muted-foreground hover:text-primary transition-all duration-200 hover:translate-x-1 inline-block"
+                        className="footer-link"
                       >
+                        <span className="footer-link-dot" aria-hidden="true" />
                         {link.label}
                       </a>
                     ) : (
-                      <Link
-                        to={link.href}
-                        className="text-sm text-muted-foreground hover:text-primary transition-all duration-200 hover:translate-x-1 inline-block"
-                      >
+                      <Link to={link.href} className="footer-link">
+                        <span className="footer-link-dot" aria-hidden="true" />
                         {link.label}
                       </Link>
                     )}
@@ -435,6 +447,52 @@ export function Footer() {
           .newsletter-cta::before,
           .newsletter-cta-shine,
           .newsletter-cta-icon { animation: none; }
+        }
+
+        /* ===== Footer column headers + links ===== */
+        .footer-head {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.75rem;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          color: hsl(var(--foreground));
+          margin-bottom: 1.25rem;
+        }
+        .footer-head-bar {
+          display: inline-block;
+          width: 1.25rem;
+          height: 2px;
+          border-radius: 9999px;
+          transition: width 0.3s ease;
+        }
+        .footer-head:hover .footer-head-bar { width: 2rem; }
+
+        .footer-link {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
+          font-size: 0.875rem;
+          color: hsl(var(--muted-foreground));
+          transition: color 0.2s ease, transform 0.2s ease;
+        }
+        .footer-link:hover {
+          color: hsl(var(--primary));
+          transform: translateX(3px);
+        }
+        .footer-link-dot {
+          width: 0;
+          height: 6px;
+          border-radius: 9999px;
+          background: linear-gradient(90deg, #3b82f6, #a855f7);
+          opacity: 0;
+          transition: width 0.25s ease, opacity 0.25s ease;
+        }
+        .footer-link:hover .footer-link-dot {
+          width: 6px;
+          opacity: 1;
         }
       `}</style>
     </footer>
