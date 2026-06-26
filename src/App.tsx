@@ -95,7 +95,6 @@ const GreenTech = lazy(() => import("./pages/categories/GreenTech"));
 // Special pages
 const CreepyTech = lazy(() => import("./pages/CreepyTech"));
 const CyberAwareness = lazy(() => import("./pages/CyberAwareness"));
-const StartHere = lazy(() => import("./pages/StartHere"));
 
 // Tool pages - all lazy loaded
 const PasswordGenerator = lazy(() => import("./pages/tools/PasswordGenerator"));
@@ -481,7 +480,6 @@ const App = () => (
                       <Route path="/think-before-you-click" element={<ThinkBeforeYouClick />} />
                       <Route path="/scam-alerts" element={<ScamAlerts />} />
                       <Route path="/report-scam" element={<ReportScam />} />
-                      <Route path="/start-here" element={<StartHere />} />
                       <Route path="/reviews" element={<Reviews />} />
                       <Route path="/reviews/:slug" element={<ReviewDetail />} />
                       <Route path="/admin" element={<AdminDashboard />} />

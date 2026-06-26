@@ -10,18 +10,25 @@ import { newsLoader, newsStaticPaths, blogLoader, blogStaticPaths } from "./news
 // Also recover from stale-deploy chunk failures: after a deploy, a tab holding
 // the old index.html requests now-missing hashed chunks → the dynamic import
 // rejects ("Failed to fetch dynamically imported module") and the route crashes.
-// Instead, reload ONCE to pull the fresh index.html with the correct chunk names.
-// The sessionStorage guard prevents an infinite reload loop on a genuine failure.
+// Reload to pull the fresh index.html with the correct chunk names.
+//
+// Guard = a TIME-WINDOW cooldown (not a one-time flag). A long-lived tab can hit
+// MANY deploys in one session, each producing a NEW stale chunk — each should
+// recover. But a genuinely-broken chunk fails again within seconds of reload, so
+// if we reloaded < COOLDOWN ago we DON'T reload again (prevents an infinite loop)
+// and let the error surface instead.
 const reloadForStaleChunk = (err: unknown) => {
   if (typeof window === "undefined") throw err; // SSR: never reload, just rethrow
-  const KEY = "tt_chunk_reloaded";
-  if (!sessionStorage.getItem(KEY)) {
+  const KEY = "tt_chunk_reload_at";
+  const COOLDOWN = 20_000; // ms
+  const last = Number(sessionStorage.getItem(KEY) || 0);
+  if (Date.now() - last > COOLDOWN) {
     sessionStorage.setItem(KEY, String(Date.now()));
     window.location.reload();
-    // Return a never-resolving promise so React doesn't render an error before reload.
+    // Never-resolving promise so React doesn't flash an error before the reload.
     return new Promise<never>(() => {});
   }
-  throw err; // already tried a reload — let the error surface
+  throw err; // reloaded very recently → likely a real failure, surface it
 };
 const d = (imp: () => Promise<{ default: React.ComponentType }>) => () =>
   imp().then((m) => ({ Component: m.default })).catch(reloadForStaleChunk) as Promise<{ Component: React.ComponentType }>;
@@ -63,7 +70,6 @@ export const routes: RouteRecord[] = [
       { path: "think-before-you-click", lazy: d(() => import("../pages/ThinkBeforeYouClick")) },
       { path: "scam-alerts", lazy: d(() => import("../pages/ScamAlerts")) },
       { path: "report-scam", lazy: d(() => import("../pages/ReportScam")) },
-      { path: "start-here", lazy: d(() => import("../pages/StartHere")) },
       // Reviews discontinued 2026-06-21 (focus = Africa Tech News · Tools · Security).
       // Routes removed so /reviews + /reviews/* stop prerendering; nginx 301s the
       // list to /blog and 410s the old detail URLs.
