@@ -469,27 +469,29 @@ export default function Index() {
               News that matters. Tools that work. Safety that sticks. All free —
               and made for how we actually live, right here at home.
             </p>
-            <div className="flex flex-wrap gap-3">
-              <Button size="lg" asChild className="rounded-xl px-6">
+            {/* Buttons: a touch smaller on mobile so the lower hero isn't cloggy;
+                full size from sm: up. */}
+            <div className="flex flex-wrap gap-2.5 sm:gap-3">
+              <Button size="lg" asChild className="rounded-xl h-10 px-4 text-sm sm:h-11 sm:px-6 sm:text-base">
                 <Link to="/news?category=Africa Tech" className="flex items-center gap-2">
-                  <Globe className="w-5 h-5" /> Read the News
+                  <Globe className="w-4 h-4 sm:w-5 sm:h-5" /> Read the News
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="rounded-xl px-6 border-white/40 bg-white/5 text-white hover:bg-white/15 hover:text-white">
+              <Button size="lg" variant="outline" asChild className="rounded-xl h-10 px-4 text-sm sm:h-11 sm:px-6 sm:text-base border-white/40 bg-white/5 text-white hover:bg-white/15 hover:text-white">
                 <Link to="/security" className="flex items-center gap-2">
-                  <Shield className="w-5 h-5" /> Stay Safe Online
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5" /> Stay Safe Online
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="rounded-xl px-6 border-white/40 bg-white/5 text-white hover:bg-white/15 hover:text-white">
+              <Button size="lg" variant="outline" asChild className="rounded-xl h-10 px-4 text-sm sm:h-11 sm:px-6 sm:text-base border-white/40 bg-white/5 text-white hover:bg-white/15 hover:text-white">
                 <Link to="/tools" className="flex items-center gap-2">
-                  <Zap className="w-5 h-5" /> Free Tools
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5" /> Free Tools
                 </Link>
               </Button>
             </div>
 
             {/* Real, live search — fills the lower-hero space and gives visitors
                 an instant way into the site's actual content + flagship tools. */}
-            <div className="mt-9">
+            <div className="mt-6 sm:mt-9">
               <HeroSearch />
             </div>
           </div>

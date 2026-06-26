@@ -135,12 +135,12 @@ export function HeroSearch() {
       {/* Search box */}
       <div
         className={cn(
-          "flex items-center gap-3 px-4 py-3.5 rounded-2xl border backdrop-blur-md transition-all",
+          "flex items-center gap-2.5 sm:gap-3 px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl border backdrop-blur-md transition-all",
           "bg-white/10 border-white/25 shadow-lg",
           open && hits.length > 0 ? "rounded-b-none border-b-transparent" : ""
         )}
       >
-        <Search className="w-5 h-5 text-white/70 shrink-0" />
+        <Search className="w-4 h-4 sm:w-5 sm:h-5 text-white/70 shrink-0" />
         <input
           type="text"
           value={query}
@@ -149,7 +149,7 @@ export function HeroSearch() {
           onKeyDown={onKey}
           placeholder="What do you need help with?"
           aria-label="Search TechTrendi"
-          className="flex-1 bg-transparent text-white placeholder-white/55 focus:outline-none text-base md:text-lg"
+          className="flex-1 bg-transparent text-white placeholder-white/55 focus:outline-none text-sm sm:text-base md:text-lg"
         />
         {loading && <Loader2 className="w-4 h-4 text-white/60 animate-spin shrink-0" />}
       </div>
@@ -190,14 +190,14 @@ export function HeroSearch() {
         </div>
       )}
 
-      {/* Quick-tag chips */}
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className="text-xs text-white/55 mr-1">Popular:</span>
+      {/* Quick-tag chips — smaller on mobile to keep the hero uncluttered. */}
+      <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center gap-1.5 sm:gap-2">
+        <span className="text-[11px] sm:text-xs text-white/55 mr-0.5 sm:mr-1">Popular:</span>
         {QUICK_TAGS.map((t) => (
           <button
             key={t.url}
             onClick={() => navigate(t.url)}
-            className="px-3 py-1.5 text-sm rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/90 transition-colors backdrop-blur-sm"
+            className="px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/90 transition-colors backdrop-blur-sm"
           >
             {t.label}
           </button>
