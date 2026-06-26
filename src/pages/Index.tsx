@@ -624,8 +624,8 @@ export default function Index() {
       {/* 5. Online Safety — Cyber Awareness (Creepy Tech now has its own section lower down) */}
       <CreepyTechHomeSection variant="safety" />
 
-      {/* 6. Explore Tool Categories Section */}
-      <section className="py-16 bg-gradient-to-b from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
+      {/* 6. Free Tools — Comic Strip layout */}
+      <section className="comic-tools py-16 bg-gradient-to-b from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
         <div className="container">
           <div className="text-center mb-10">
             <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-sm font-medium text-primary mb-4">Free Utilities</span>
@@ -638,92 +638,160 @@ export default function Index() {
           </div>
 
           {/* Flagship local tools (our differentiation) */}
-          <div className="mb-5 flex items-center gap-3">
+          <div className="mb-6 flex items-center gap-3">
             <GhanaFlag className="w-7 h-5 rounded shadow ring-1 ring-black/5 shrink-0" />
             <h3 className="text-lg font-bold text-foreground">Only on TechTrendi</h3>
             <span className="hidden sm:inline text-sm text-muted-foreground">— tools you won't find on any global site</span>
             <span className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
           </div>
-          <AutoCarousel className="mb-14">
-            {flagshipTools.map((tool) => {
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 mb-14">
+            {flagshipTools.map((tool, i) => {
               const Icon = tool.icon;
+              const burst = ["POW!", "ZAP!", "BAM!", "WHAM!"][i % 4];
+              const tilt = ["-rotate-1", "rotate-1", "rotate-1", "-rotate-1"][i % 4];
               return (
-                <CarouselItem key={tool.href} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
-                  <Link
-                    to={tool.href}
-                    className="group relative flex flex-col p-5 rounded-2xl bg-card border border-border overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full"
-                  >
-                    {/* top gradient accent + soft glow behind the icon */}
-                    <div className={cn("absolute top-0 inset-x-0 h-1 bg-gradient-to-r", tool.gradient)} />
-                    <div className={cn("absolute -top-8 -left-8 w-24 h-24 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-300 bg-gradient-to-br", tool.gradient)} aria-hidden="true" />
-                    <div className="relative flex flex-col h-full">
-                      <div className={cn(
-                        "w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300",
-                        tool.gradient
-                      )}>
-                        <Icon className="w-6 h-6 text-white" />
-                      </div>
-                      <h4 className="font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
-                        {tool.title}
-                      </h4>
-                      <p className="text-sm text-muted-foreground flex-1">{tool.description}</p>
-                      <span className="mt-3 text-primary text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
-                        Open tool
-                        <ArrowRight className="w-4 h-4" />
-                      </span>
-                    </div>
-                  </Link>
-                </CarouselItem>
+                <Link key={tool.href} to={tool.href} className={cn("comic-panel group", tilt)}>
+                  <span className="comic-burst" aria-hidden="true">{burst}</span>
+                  <span className={cn("comic-icon bg-gradient-to-br", tool.gradient)}>
+                    <Icon className="w-6 h-6 text-white" />
+                  </span>
+                  <h4 className="comic-title">{tool.title}</h4>
+                  <p className="text-sm text-muted-foreground flex-1">{tool.description}</p>
+                  <span className="comic-cta">
+                    Open tool <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </Link>
               );
             })}
-          </AutoCarousel>
+          </div>
 
           {/* Browse by category */}
-          <h3 className="text-lg font-bold text-foreground mb-4">Browse by category</h3>
-          <AutoCarousel>
-            {toolCategories.map((cat) => {
+          <h3 className="text-lg font-bold text-foreground mb-6">Browse by category</h3>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+            {toolCategories.map((cat, i) => {
               const Icon = cat.icon;
+              const tilt = ["rotate-1", "-rotate-1", "-rotate-1", "rotate-1"][i % 4];
               return (
-                <CarouselItem key={cat.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
-                  <Link
-                    to={`/tools/${cat.id}`}
-                    className="group relative flex flex-col p-6 rounded-2xl bg-card border border-border overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full"
-                  >
-                    <div className={cn("absolute top-0 inset-x-0 h-1 bg-gradient-to-r opacity-60 group-hover:opacity-100 transition-opacity", cat.gradient)} />
-                    <div className={cn(
-                      "w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300",
-                      cat.gradient
-                    )}>
-                      <Icon className="w-7 h-7 text-white" />
-                    </div>
-                    <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
-                      {cat.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4 flex-1">
-                      {cat.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">{cat.count} tools</span>
-                      <span className="text-primary text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
-                        Explore
-                        <ArrowRight className="w-4 h-4" />
-                      </span>
-                    </div>
-                  </Link>
-                </CarouselItem>
+                <Link key={cat.id} to={`/tools/${cat.id}`} className={cn("comic-panel comic-panel--cat group", tilt)}>
+                  <span className="comic-count" aria-hidden="true">{cat.count}</span>
+                  <span className={cn("comic-icon bg-gradient-to-br", cat.gradient)}>
+                    <Icon className="w-6 h-6 text-white" />
+                  </span>
+                  <h4 className="comic-title">{cat.title}</h4>
+                  <p className="text-sm text-muted-foreground flex-1">{cat.description}</p>
+                  <span className="comic-cta">
+                    Explore <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </Link>
               );
             })}
-          </AutoCarousel>
-          <div className="mt-10 text-center">
-            <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-8" asChild>
-              <Link to="/tools" className="flex items-center gap-2">
-                <Zap className="w-5 h-5" />
-                View All Tools
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            </Button>
+          </div>
+
+          <div className="mt-12 text-center">
+            <Link to="/tools" className="comic-allbtn group">
+              <Zap className="w-5 h-5" />
+              View All Tools
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
         </div>
+
+        {/* Comic styles (scoped to .comic-tools) */}
+        <style>{`
+          .comic-tools .comic-panel {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 1.25rem;
+            border-radius: 0.85rem;
+            background: hsl(var(--card));
+            border: 3px solid hsl(var(--foreground));
+            box-shadow: 5px 5px 0 hsl(var(--foreground));
+            transition: transform .18s ease, box-shadow .18s ease;
+            height: 100%;
+          }
+          .comic-tools .comic-panel:hover {
+            transform: translate(-2px,-2px) rotate(0deg) !important;
+            box-shadow: 8px 8px 0 hsl(var(--foreground));
+          }
+          /* faint halftone dots inside each panel */
+          .comic-tools .comic-panel::after {
+            content: "";
+            position: absolute; inset: 0;
+            border-radius: 0.6rem;
+            background-image: radial-gradient(hsl(var(--foreground)/0.08) 1px, transparent 1px);
+            background-size: 9px 9px;
+            pointer-events: none;
+            opacity: .5;
+          }
+          .comic-tools .comic-icon {
+            position: relative; z-index: 1;
+            width: 3rem; height: 3rem;
+            border-radius: 0.7rem;
+            border: 2.5px solid hsl(var(--foreground));
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 0.75rem;
+            transition: transform .2s ease;
+          }
+          .comic-tools .comic-panel:hover .comic-icon { transform: rotate(-6deg) scale(1.08); }
+          .comic-tools .comic-title {
+            position: relative; z-index: 1;
+            font-weight: 800;
+            color: hsl(var(--foreground));
+            line-height: 1.15;
+            margin-bottom: 0.35rem;
+          }
+          .comic-tools .comic-cta {
+            position: relative; z-index: 1;
+            margin-top: 0.85rem;
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            font-size: 0.8rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.03em;
+            color: hsl(var(--primary));
+          }
+          /* speech-burst badge (flagship) */
+          .comic-tools .comic-burst {
+            position: absolute; top: -0.85rem; right: -0.55rem; z-index: 2;
+            background: #fde047; color: #000;
+            font-weight: 900; font-size: 0.7rem;
+            padding: 0.2rem 0.55rem;
+            border: 2.5px solid #000;
+            border-radius: 0.4rem;
+            transform: rotate(8deg);
+            box-shadow: 2px 2px 0 #000;
+          }
+          /* count badge (category) */
+          .comic-tools .comic-count {
+            position: absolute; top: -0.8rem; right: -0.6rem; z-index: 2;
+            min-width: 2rem; height: 2rem; padding: 0 0.35rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            background: hsl(var(--primary)); color: hsl(var(--primary-foreground));
+            font-weight: 900; font-size: 0.8rem;
+            border: 2.5px solid hsl(var(--foreground));
+            border-radius: 9999px;
+            box-shadow: 2px 2px 0 hsl(var(--foreground));
+          }
+          .comic-tools .comic-allbtn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.8rem 1.75rem;
+            font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em;
+            color: hsl(var(--primary-foreground));
+            background: hsl(var(--primary));
+            border: 3px solid hsl(var(--foreground));
+            border-radius: 0.7rem;
+            box-shadow: 5px 5px 0 hsl(var(--foreground));
+            transition: transform .15s ease, box-shadow .15s ease;
+          }
+          .comic-tools .comic-allbtn:hover {
+            transform: translate(-2px,-2px);
+            box-shadow: 8px 8px 0 hsl(var(--foreground));
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .comic-tools .comic-panel,
+            .comic-tools .comic-icon,
+            .comic-tools .comic-allbtn { transition: none; }
+          }
+        `}</style>
       </section>
 
       {/* 6b. Creepy Tech — standalone curiosity section (moved out of Online Safety) */}
