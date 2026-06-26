@@ -51,6 +51,7 @@ export default function ReadingList() {
         title="My Reading List"
         description="Your saved TechTrendi articles and news items for reading later."
         canonical="/reading-list"
+        noindex
       />
 
       <div className="container max-w-3xl mx-auto px-4 py-16 md:py-20">
