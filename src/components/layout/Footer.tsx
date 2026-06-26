@@ -192,10 +192,7 @@ export function Footer() {
                 </span>
               </Link>
               <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-                <span className="inline-flex items-center gap-1 align-middle">
-                  <span aria-hidden="true">🇬🇭</span> Ghana&apos;s tech hub —
-                </span>{" "}
-                tech tips, tools &amp; online-safety help that make digital life easier.
+                Tech tips, tools, and tutorials that make your digital life easier. Stay sharp, stay ahead.
               </p>
               <div className="flex items-center gap-2 flex-wrap mb-4">
                 {socialLinks.map((social, i) => (
