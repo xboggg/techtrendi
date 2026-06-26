@@ -33,7 +33,6 @@ const LOCAL_TOOLS: { title: string; url: string; keywords: string }[] = [
 
 // Quick-tag chips shown under the search box.
 const QUICK_TAGS: { label: string; url: string }[] = [
-  { label: "MoMo fees", url: "/tools/momo-fee-calculator" },
   { label: "Scam check", url: "/tools/ghana-scam-checker" },
   { label: "Tax calculator", url: "/tools/ghana-tax-calculator" },
   { label: "ECG bill", url: "/tools/ecg-bill-estimator" },

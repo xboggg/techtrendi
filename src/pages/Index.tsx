@@ -491,7 +491,7 @@ export default function Index() {
 
             {/* Real, live search — fills the lower-hero space and gives visitors
                 an instant way into the site's actual content + flagship tools. */}
-            <div className="mt-6 sm:mt-9">
+            <div className="mt-10 sm:mt-12">
               <HeroSearch />
             </div>
           </div>
