@@ -211,25 +211,19 @@ export function Footer() {
                 ))}
               </div>
 
-              {/* Newsletter card — sits under the socials */}
-              <div className="mt-6 max-w-xs rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-5">
-                <h4 className="font-semibold text-foreground text-sm mb-1.5 flex items-center gap-2">
-                  <span className="w-5 h-0.5 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full" />
-                  STAY UPDATED
-                </h4>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Get the latest tech insights delivered to your inbox.
-                </p>
-                <Link
-                  to="/newsletter"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
-                >
-                  Subscribe
+              {/* Animated newsletter button — sits under the socials */}
+              <Link to="/newsletter" className="newsletter-cta group mt-6" aria-label="Subscribe to the TechTrendi newsletter">
+                <span className="newsletter-cta-shine" aria-hidden="true" />
+                <span className="newsletter-cta-icon" aria-hidden="true">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                </Link>
-              </div>
+                </span>
+                <span className="newsletter-cta-label">Newsletter</span>
+                <svg className="newsletter-cta-arrow w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
             </div>
 
             {/* Explore */}
@@ -349,6 +343,90 @@ export function Footer() {
         }
         .animate-pulse-slow {
           animation: pulse-slow 6s ease-in-out infinite;
+        }
+
+        /* ===== Animated Newsletter CTA ===== */
+        .newsletter-cta {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.6rem;
+          padding: 0.7rem 1.4rem 0.7rem 1rem;
+          border-radius: 9999px;
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: #fff;
+          isolation: isolate;
+          overflow: hidden;
+          background-size: 200% 200%;
+          background-image: linear-gradient(110deg, #2563eb 0%, #7c3aed 35%, #db2777 70%, #2563eb 100%);
+          animation: newsletter-flow 6s ease infinite;
+          box-shadow: 0 6px 18px -6px rgba(124, 58, 237, 0.6);
+          transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), box-shadow 0.3s ease;
+        }
+        .newsletter-cta:hover {
+          transform: translateY(-2px) scale(1.03);
+          box-shadow: 0 12px 26px -6px rgba(124, 58, 237, 0.75);
+        }
+        /* breathing glow ring */
+        .newsletter-cta::before {
+          content: "";
+          position: absolute;
+          inset: -2px;
+          z-index: -2;
+          border-radius: 9999px;
+          background: inherit;
+          background-image: linear-gradient(110deg, #2563eb, #7c3aed, #db2777, #2563eb);
+          background-size: 200% 200%;
+          filter: blur(10px);
+          opacity: 0.5;
+          animation: newsletter-flow 6s ease infinite;
+          transition: opacity 0.3s ease;
+        }
+        .newsletter-cta:hover::before { opacity: 0.85; }
+        /* shine sweep */
+        .newsletter-cta-shine {
+          position: absolute;
+          top: 0; left: -75%;
+          z-index: -1;
+          width: 50%; height: 100%;
+          transform: skewX(-20deg);
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+          animation: newsletter-shine 3.6s ease-in-out infinite;
+        }
+        .newsletter-cta-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 1.65rem; height: 1.65rem;
+          border-radius: 9999px;
+          background: rgba(255,255,255,0.18);
+          backdrop-filter: blur(4px);
+          animation: newsletter-bob 2.6s ease-in-out infinite;
+        }
+        .newsletter-cta-label { letter-spacing: 0.01em; }
+        .newsletter-cta-arrow {
+          transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+        }
+        .newsletter-cta:hover .newsletter-cta-arrow { transform: translateX(4px); }
+
+        @keyframes newsletter-flow {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        @keyframes newsletter-shine {
+          0% { left: -75%; }
+          55%, 100% { left: 130%; }
+        }
+        @keyframes newsletter-bob {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-2px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .newsletter-cta,
+          .newsletter-cta::before,
+          .newsletter-cta-shine,
+          .newsletter-cta-icon { animation: none; }
         }
       `}</style>
     </footer>
