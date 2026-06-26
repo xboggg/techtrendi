@@ -22,6 +22,7 @@ import { AutoCarousel } from "@/components/home/AutoCarousel";
 import { CarouselItem } from "@/components/ui/carousel";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
+import { HeroSearch } from "@/components/home/HeroSearch";
 
 interface TrendingArticle {
   id: string;
@@ -484,6 +485,12 @@ export default function Index() {
                   <Zap className="w-5 h-5" /> Free Tools
                 </Link>
               </Button>
+            </div>
+
+            {/* Real, live search — fills the lower-hero space and gives visitors
+                an instant way into the site's actual content + flagship tools. */}
+            <div className="mt-9">
+              <HeroSearch />
             </div>
           </div>
         </div>
