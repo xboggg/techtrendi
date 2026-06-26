@@ -176,9 +176,9 @@ export function Footer() {
 
         <div className="container relative z-10 py-16">
           {/* Single unified section: Brand + Links */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-12">
-            {/* Brand + Social */}
-            <div className="col-span-2 md:col-span-3 lg:col-span-1">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+            {/* Brand + Social + Newsletter card */}
+            <div className="col-span-2 md:col-span-4 lg:col-span-1">
               <Link to="/" className="inline-flex items-center gap-2 mb-4 group">
                 <img
                   src="/logo-t.png"
@@ -209,6 +209,26 @@ export function Footer() {
                     <social.icon className="w-3.5 h-3.5 relative z-10" />
                   </a>
                 ))}
+              </div>
+
+              {/* Newsletter card — sits under the socials */}
+              <div className="mt-6 max-w-xs rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-5">
+                <h4 className="font-semibold text-foreground text-sm mb-1.5 flex items-center gap-2">
+                  <span className="w-5 h-0.5 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full" />
+                  STAY UPDATED
+                </h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Get the latest tech insights delivered to your inbox.
+                </p>
+                <Link
+                  to="/newsletter"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
+                >
+                  Subscribe
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </Link>
               </div>
             </div>
 
@@ -283,25 +303,6 @@ export function Footer() {
               </ul>
             </div>
 
-            {/* Stay Updated */}
-            <div>
-              <h4 className="font-semibold text-foreground text-sm mb-5 flex items-center gap-2">
-                <span className="w-5 h-0.5 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full" />
-                STAY UPDATED
-              </h4>
-              <p className="text-sm text-muted-foreground mb-4">
-                Get the latest tech insights delivered to your inbox.
-              </p>
-              <Link
-                to="/newsletter"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
-              >
-                Subscribe
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
-            </div>
           </div>
 
           {/* Bottom bar */}
