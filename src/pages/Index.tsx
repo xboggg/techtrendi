@@ -299,6 +299,8 @@ export default function Index() {
         .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
         .eq("is_published", true)
         .eq("category", "Africa Tech")
+        // The Rundown lives in its own section below — keep it out of this grid.
+        .not("slug", "like", "the-rundown-%")
         .order("created_at", { ascending: false })
         .limit(5);
 
