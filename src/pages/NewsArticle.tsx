@@ -10,6 +10,7 @@ import { ShareButtons } from "@/components/ui/share-buttons";
 import { BookmarkButton } from "@/components/ui/bookmark-system";
 import { useReadingHistory } from "@/components/ui/reading-history";
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
+import { RundownTabloid } from "@/components/news/RundownTabloid";
 import DOMPurify from "isomorphic-dompurify"; // SSG-safe: works in Node build + browser
 
 /**
@@ -247,6 +248,9 @@ export default function NewsArticle() {
     );
   }
 
+  // "The Rundown" daily briefings get the tabloid newspaper layout.
+  const isRundown = (news.slug || "").startsWith("the-rundown-");
+
   return (
     <Layout>
       <SEOHead
@@ -279,17 +283,22 @@ export default function NewsArticle() {
           <div className="flex items-center gap-3 mb-4">
             <Badge className="bg-primary/90 text-primary-foreground">
               <Zap className="w-3 h-3 mr-1" />
-              {news.category}
+              {isRundown ? "The Rundown" : news.category}
             </Badge>
             <span className="text-sm text-muted-foreground">
               {formatRelativeDate(news.created_at)}
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            {news.title}
-          </h1>
-          {news.excerpt && (
-            <p className="text-xl text-muted-foreground mb-6">{news.excerpt}</p>
+          {/* Rundown supplies its own masthead + headline in the tabloid body. */}
+          {!isRundown && (
+            <>
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+                {news.title}
+              </h1>
+              {news.excerpt && (
+                <p className="text-xl text-muted-foreground mb-6">{news.excerpt}</p>
+              )}
+            </>
           )}
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-xs border border-border">AI-Assisted · Editorially Reviewed</span>
@@ -308,6 +317,16 @@ export default function NewsArticle() {
 
           {/* Left: image + body */}
           <article>
+            {isRundown ? (
+              /* The Rundown daily briefing → tabloid newspaper layout */
+              <RundownTabloid
+                title={news.title}
+                excerpt={news.excerpt}
+                content={news.content}
+                createdAt={news.created_at}
+              />
+            ) : (
+              <>
             {/* Cover Image — constrained height */}
             <div className="rounded-2xl overflow-hidden mb-10">
               <img
@@ -341,6 +360,8 @@ export default function NewsArticle() {
                 prose-td:p-3 prose-td:border-b prose-td:border-border"
               dangerouslySetInnerHTML={{ __html: renderContent(news.content) }}
             />
+              </>
+            )}
 
             {/* Tags */}
             {news.tags && news.tags.length > 0 && (
