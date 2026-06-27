@@ -135,6 +135,7 @@ const toolCategories = [
 function IntlNewsScroller({ news, formatTimeAgo }: { news: NewsItem[]; formatTimeAgo: (d: string) => string }) {
   const items = news.slice(0, 8);
   if (items.length === 0) return null;
+  const [latest, ...rest] = items;
   return (
     <section className="py-10 md:py-14">
       <div className="container">
@@ -151,30 +152,50 @@ function IntlNewsScroller({ news, formatTimeAgo }: { news: NewsItem[]; formatTim
                 The Rundown <span className="text-muted-foreground font-normal">· world tech, briefed</span>
               </h2>
             </div>
-            <Link to="/news" className="group flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors">
-              <span className="font-mono text-xs tracking-wide">THE WIRE</span>
+            <Link to={`/news/${latest.slug}`} className="group flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors">
+              <span className="font-mono text-xs tracking-wide">READ TODAY</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
-          {/* horizontal editorial strip — swipe-rail on mobile, full headlines visible */}
-          <div className="flex gap-4 md:gap-5 overflow-x-auto pb-2 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {items.map((item) => (
-              <Link
-                key={item.id}
-                to={`/news/${item.slug}`}
-                className="group snap-start shrink-0 w-[230px] md:w-[210px] border-l-2 border-primary/30 hover:border-primary pl-3 md:pl-4 transition-colors"
-              >
-                <span className="text-[10px] font-mono uppercase tracking-wide text-muted-foreground">
-                  The Rundown · {formatTimeAgo(item.created_at)}
-                </span>
-                <p className="text-sm md:text-[15px] font-medium text-foreground group-hover:text-primary mt-1 leading-snug line-clamp-3 transition-colors">
-                  {item.title}
-                </p>
-              </Link>
-            ))}
-          </div>
-          <p className="text-center text-[10px] text-muted-foreground/60 mt-1 md:hidden">← swipe for more →</p>
+          {/* Featured: today's Rundown (title + teaser) */}
+          <Link
+            to={`/news/${latest.slug}`}
+            className="group block rounded-xl md:rounded-2xl bg-gradient-to-br from-primary/5 to-purple-500/5 border border-primary/15 p-5 md:p-6 hover:border-primary/40 transition-colors"
+          >
+            <span className="text-[10px] font-mono uppercase tracking-wide text-emerald-600">
+              The Rundown · {formatTimeAgo(latest.created_at)}
+            </span>
+            <h3 className="text-lg md:text-2xl font-bold text-foreground group-hover:text-primary transition-colors mt-1 leading-tight">
+              {latest.title.replace(/^The Rundown\s*[-–—]\s*/i, "")}
+            </h3>
+            {latest.excerpt && (
+              <p className="text-sm md:text-[15px] text-muted-foreground mt-2 line-clamp-2">{latest.excerpt}</p>
+            )}
+            <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
+              Read the full briefing <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </span>
+          </Link>
+
+          {/* Earlier editions (if any) — compact list */}
+          {rest.length > 0 && (
+            <div className="flex gap-4 md:gap-5 overflow-x-auto pb-1 mt-5 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {rest.map((item) => (
+                <Link
+                  key={item.id}
+                  to={`/news/${item.slug}`}
+                  className="group snap-start shrink-0 w-[230px] md:w-[240px] border-l-2 border-primary/30 hover:border-primary pl-3 md:pl-4 transition-colors"
+                >
+                  <span className="text-[10px] font-mono uppercase tracking-wide text-muted-foreground">
+                    {formatTimeAgo(item.created_at)}
+                  </span>
+                  <p className="text-sm font-medium text-foreground group-hover:text-primary mt-1 leading-snug line-clamp-2 transition-colors">
+                    {item.title.replace(/^The Rundown\s*[-–—]\s*/i, "")}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>
