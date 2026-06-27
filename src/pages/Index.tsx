@@ -85,11 +85,12 @@ const categoryLabels: Record<string, string> = {
 };
 
 // Flagship local tools — TechTrendi's real differentiation (no global site has these).
+// `burst` = the comic speech-burst badge (tool-specific).
 const flagshipTools = [
-  { title: "MoMo Fee Calculator", description: "Exact MTN & AT Money fees — E-Levy correctly removed", icon: Calculator, gradient: "from-yellow-400 to-orange-500", href: "/tools/momo-fee-calculator" },
-  { title: "ECG Bill Estimator", description: "Estimate your electricity bill on the PURC 2026 tariff", icon: Zap, gradient: "from-amber-500 to-yellow-600", href: "/tools/ecg-bill-estimator" },
-  { title: "Ghana Tax Calculator", description: "PAYE, SSNIT & take-home pay (2026 GRA bands)", icon: Calculator, gradient: "from-green-600 to-emerald-700", href: "/tools/ghana-tax-calculator" },
-  { title: "Ghana Scam Checker", description: "Check a suspicious message before you reply", icon: Shield, gradient: "from-cyan-500 to-blue-600", href: "/tools/ghana-scam-checker" },
+  { title: "ECG Bill Estimator", description: "Estimate your electricity bill on the PURC 2026 tariff", icon: Zap, gradient: "from-amber-500 to-yellow-600", href: "/tools/ecg-bill-estimator", burst: "ECG!" },
+  { title: "Ghana Tax Calculator", description: "PAYE, SSNIT & take-home pay (2026 GRA bands)", icon: Calculator, gradient: "from-green-600 to-emerald-700", href: "/tools/ghana-tax-calculator", burst: "GRA!" },
+  { title: "Ghana Scam Checker", description: "Check a suspicious message before you reply", icon: Shield, gradient: "from-cyan-500 to-blue-600", href: "/tools/ghana-scam-checker", burst: "419!" },
+  { title: "MoMo Fee Calculator", description: "Exact MTN & AT Money fees — E-Levy correctly removed", icon: Calculator, gradient: "from-yellow-400 to-orange-500", href: "/tools/momo-fee-calculator", burst: "MTN!" },
 ];
 
 // Browse-by-category — the biggest/most relevant categories (counts are real).
@@ -647,11 +648,10 @@ export default function Index() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 mb-14">
             {flagshipTools.map((tool, i) => {
               const Icon = tool.icon;
-              const burst = ["POW!", "ZAP!", "BAM!", "WHAM!"][i % 4];
               const tilt = ["-rotate-1", "rotate-1", "rotate-1", "-rotate-1"][i % 4];
               return (
                 <Link key={tool.href} to={tool.href} className={cn("comic-panel group", tilt)}>
-                  <span className="comic-burst" aria-hidden="true">{burst}</span>
+                  <span className="comic-burst" aria-hidden="true">{tool.burst}</span>
                   <span className={cn("comic-icon bg-gradient-to-br", tool.gradient)}>
                     <Icon className="w-6 h-6 text-white" />
                   </span>
@@ -665,14 +665,14 @@ export default function Index() {
             })}
           </div>
 
-          {/* Browse by category */}
+          {/* Browse by category — horizontal swipe-rail on mobile, grid on desktop */}
           <h3 className="text-lg font-bold text-foreground mb-6">Browse by category</h3>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+          <div className="comic-cat-rail flex lg:grid lg:grid-cols-4 gap-4 md:gap-5 overflow-x-auto lg:overflow-visible snap-x snap-mandatory pt-3 pb-2 lg:pt-0 lg:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {toolCategories.map((cat, i) => {
               const Icon = cat.icon;
               const tilt = ["rotate-1", "-rotate-1", "-rotate-1", "rotate-1"][i % 4];
               return (
-                <Link key={cat.id} to={`/tools/${cat.id}`} className={cn("comic-panel comic-panel--cat group", tilt)}>
+                <Link key={cat.id} to={`/tools/${cat.id}`} className={cn("comic-panel comic-panel--cat group snap-start shrink-0 w-[72%] sm:w-[46%] lg:w-auto", tilt)}>
                   <span className="comic-count" aria-hidden="true">{cat.count}</span>
                   <span className={cn("comic-icon bg-gradient-to-br", cat.gradient)}>
                     <Icon className="w-6 h-6 text-white" />
@@ -686,6 +686,7 @@ export default function Index() {
               );
             })}
           </div>
+          <p className="text-center text-[11px] text-muted-foreground/60 mt-2 lg:hidden">← swipe for more categories →</p>
 
           <div className="mt-12 text-center">
             <Link to="/tools" className="comic-allbtn group">
