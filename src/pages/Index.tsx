@@ -146,9 +146,9 @@ function IntlNewsScroller({ news, formatTimeAgo }: { news: NewsItem[]; formatTim
                 <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
               </span>
-              <span className="font-mono text-[10px] font-semibold tracking-[0.2em] uppercase text-emerald-600">Live</span>
+              <span className="font-mono text-[10px] font-semibold tracking-[0.2em] uppercase text-emerald-600">Daily</span>
               <h2 className="text-base md:text-lg font-bold text-foreground">
-                World Tech <span className="text-muted-foreground font-normal">in Brief</span>
+                The Rundown <span className="text-muted-foreground font-normal">· world tech, briefed</span>
               </h2>
             </div>
             <Link to="/news" className="group flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors">
@@ -166,7 +166,7 @@ function IntlNewsScroller({ news, formatTimeAgo }: { news: NewsItem[]; formatTim
                 className="group snap-start shrink-0 w-[230px] md:w-[210px] border-l-2 border-primary/30 hover:border-primary pl-3 md:pl-4 transition-colors"
               >
                 <span className="text-[10px] font-mono uppercase tracking-wide text-muted-foreground">
-                  {item.category} · {formatTimeAgo(item.created_at)}
+                  The Rundown · {formatTimeAgo(item.created_at)}
                 </span>
                 <p className="text-sm md:text-[15px] font-medium text-foreground group-hover:text-primary mt-1 leading-snug line-clamp-3 transition-colors">
                   {item.title}
@@ -295,11 +295,13 @@ export default function Index() {
 
   const fetchInternationalNews = async () => {
     try {
+      // "The Rundown" — our original daily world-tech briefing (slug the-rundown-*).
+      // (Replaces the old aggregated international-news strip.)
       const { data, error } = await supabase
         .from("news")
         .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
         .eq("is_published", true)
-        .neq("category", "Africa Tech")
+        .like("slug", "the-rundown-%")
         .order("created_at", { ascending: false })
         .limit(12);
 
