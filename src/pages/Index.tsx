@@ -645,12 +645,12 @@ export default function Index() {
             <span className="hidden sm:inline text-sm text-muted-foreground">— tools you won't find on any global site</span>
             <span className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 mb-14">
+          <div className="comic-cat-rail flex lg:grid lg:grid-cols-4 gap-4 md:gap-5 overflow-x-auto lg:overflow-visible snap-x snap-mandatory pt-3 pb-2 lg:pt-0 lg:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {flagshipTools.map((tool, i) => {
               const Icon = tool.icon;
               const tilt = ["-rotate-1", "rotate-1", "rotate-1", "-rotate-1"][i % 4];
               return (
-                <Link key={tool.href} to={tool.href} className={cn("comic-panel group", tilt)}>
+                <Link key={tool.href} to={tool.href} className={cn("comic-panel group snap-start shrink-0 w-[72%] sm:w-[46%] lg:w-auto", tilt)}>
                   <span className="comic-burst" aria-hidden="true">{tool.burst}</span>
                   <span className={cn("comic-icon bg-gradient-to-br", tool.gradient)}>
                     <Icon className="w-6 h-6 text-white" />
@@ -664,6 +664,8 @@ export default function Index() {
               );
             })}
           </div>
+          <p className="text-center text-[11px] text-muted-foreground/60 mt-2 mb-12 lg:hidden">← swipe for more tools →</p>
+          <div className="hidden lg:block mb-14" />
 
           {/* Browse by category — horizontal swipe-rail on mobile, grid on desktop */}
           <h3 className="text-lg font-bold text-foreground mb-6">Browse by category</h3>
