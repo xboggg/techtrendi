@@ -28,6 +28,11 @@ on:
       # Legacy emergency-deploy shell script — kept for backup only.
       - 'deploy.sh'
   workflow_dispatch:
+  # Daily content rebuild: re-runs the SSG build so each day's freshly published
+  # Africa-Tech news gets prerendered (crawlable) and the sitemap regenerated.
+  # 11:30 UTC = 13:30 CEST, after the 08:00 + 12:00 (CEST) news crons publish.
+  schedule:
+    - cron: '30 11 * * *'
 
 concurrency:
   group: deploy-prod
