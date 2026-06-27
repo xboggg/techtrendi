@@ -136,66 +136,80 @@ function IntlNewsScroller({ news, formatTimeAgo }: { news: NewsItem[]; formatTim
   const items = news.slice(0, 8);
   if (items.length === 0) return null;
   const [latest, ...rest] = items;
+  const cleanTitle = (t: string) => t.replace(/^The Rundown\s*[-–—:]\s*/i, "");
+  const editionDate = new Date(latest.created_at).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+
   return (
     <section className="py-10 md:py-14">
       <div className="container">
-        <div className="rounded-2xl md:rounded-3xl bg-card border border-border p-5 md:p-7 shadow-sm">
-          {/* header */}
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2.5">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+        <div className="relative overflow-hidden rounded-3xl bg-[#0b1020] border border-white/10 shadow-2xl">
+          {/* ambient glows */}
+          <div aria-hidden className="pointer-events-none absolute -top-24 -left-16 w-72 h-72 rounded-full bg-emerald-500/15 blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute -bottom-24 -right-10 w-80 h-80 rounded-full bg-primary/20 blur-3xl" />
+          {/* faint grid texture */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.04]"
+               style={{ backgroundImage: "linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)", backgroundSize: "26px 26px" }} />
+
+          <div className="relative p-6 md:p-9">
+            {/* Masthead */}
+            <div className="flex items-center justify-between gap-4 pb-5 mb-6 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <span className="relative flex h-2.5 w-2.5 shrink-0">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
+                </span>
+                <div>
+                  <h2 className="text-lg md:text-2xl font-black tracking-tight text-white leading-none">
+                    The Rundown
+                  </h2>
+                  <span className="text-[11px] md:text-xs text-white/50 tracking-wide">World tech, briefed — every day</span>
+                </div>
+              </div>
+              <span className="hidden sm:inline-flex items-center gap-2 font-mono text-[10px] md:text-xs uppercase tracking-[0.2em] text-emerald-300/80 border border-emerald-400/20 rounded-full px-3 py-1.5">
+                <Globe className="w-3.5 h-3.5" /> Daily Edition
               </span>
-              <span className="font-mono text-[10px] font-semibold tracking-[0.2em] uppercase text-emerald-600">Daily</span>
-              <h2 className="text-base md:text-lg font-bold text-foreground">
-                The Rundown <span className="text-muted-foreground font-normal">· world tech, briefed</span>
-              </h2>
             </div>
-            <Link to={`/news/${latest.slug}`} className="group flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors">
-              <span className="font-mono text-xs tracking-wide">READ TODAY</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+
+            {/* Today's edition — hero */}
+            <Link to={`/news/${latest.slug}`} className="group block">
+              <div className="flex items-center gap-2 mb-2.5">
+                <span className="font-mono text-[10px] md:text-[11px] uppercase tracking-[0.18em] text-emerald-300">{editionDate}</span>
+                <span className="h-px flex-1 bg-gradient-to-r from-emerald-400/30 to-transparent" />
+                <span className="font-mono text-[10px] text-white/40">{formatTimeAgo(latest.created_at)}</span>
+              </div>
+              <h3 className="text-2xl md:text-4xl font-black text-white leading-[1.1] tracking-tight group-hover:text-emerald-200 transition-colors">
+                {cleanTitle(latest.title)}
+              </h3>
+              {latest.excerpt && (
+                <p className="text-sm md:text-lg text-white/65 mt-3 max-w-3xl leading-relaxed line-clamp-2">{latest.excerpt}</p>
+              )}
+              <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-white text-[#0b1020] font-bold text-sm px-5 py-2.5 group-hover:gap-3 transition-all">
+                Read today&apos;s briefing
+                <ArrowRight className="w-4 h-4" />
+              </span>
             </Link>
-          </div>
 
-          {/* Featured: today's Rundown (title + teaser) */}
-          <Link
-            to={`/news/${latest.slug}`}
-            className="group block rounded-xl md:rounded-2xl bg-gradient-to-br from-primary/5 to-purple-500/5 border border-primary/15 p-5 md:p-6 hover:border-primary/40 transition-colors"
-          >
-            <span className="text-[10px] font-mono uppercase tracking-wide text-emerald-600">
-              The Rundown · {formatTimeAgo(latest.created_at)}
-            </span>
-            <h3 className="text-lg md:text-2xl font-bold text-foreground group-hover:text-primary transition-colors mt-1 leading-tight">
-              {latest.title.replace(/^The Rundown\s*[-–—]\s*/i, "")}
-            </h3>
-            {latest.excerpt && (
-              <p className="text-sm md:text-[15px] text-muted-foreground mt-2 line-clamp-2">{latest.excerpt}</p>
+            {/* Earlier editions */}
+            {rest.length > 0 && (
+              <div className="mt-8 pt-6 border-t border-white/10">
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">Earlier editions</span>
+                <div className="flex gap-4 overflow-x-auto pb-1 mt-3 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {rest.map((item) => (
+                    <Link
+                      key={item.id}
+                      to={`/news/${item.slug}`}
+                      className="group snap-start shrink-0 w-[230px] md:w-[260px] rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] hover:border-white/25 p-3.5 transition-colors"
+                    >
+                      <span className="font-mono text-[10px] uppercase tracking-wide text-white/40">{formatTimeAgo(item.created_at)}</span>
+                      <p className="text-sm font-semibold text-white/90 group-hover:text-white mt-1 leading-snug line-clamp-2 transition-colors">
+                        {cleanTitle(item.title)}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             )}
-            <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
-              Read the full briefing <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </span>
-          </Link>
-
-          {/* Earlier editions (if any) — compact list */}
-          {rest.length > 0 && (
-            <div className="flex gap-4 md:gap-5 overflow-x-auto pb-1 mt-5 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {rest.map((item) => (
-                <Link
-                  key={item.id}
-                  to={`/news/${item.slug}`}
-                  className="group snap-start shrink-0 w-[230px] md:w-[240px] border-l-2 border-primary/30 hover:border-primary pl-3 md:pl-4 transition-colors"
-                >
-                  <span className="text-[10px] font-mono uppercase tracking-wide text-muted-foreground">
-                    {formatTimeAgo(item.created_at)}
-                  </span>
-                  <p className="text-sm font-medium text-foreground group-hover:text-primary mt-1 leading-snug line-clamp-2 transition-colors">
-                    {item.title.replace(/^The Rundown\s*[-–—]\s*/i, "")}
-                  </p>
-                </Link>
-              ))}
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </section>
