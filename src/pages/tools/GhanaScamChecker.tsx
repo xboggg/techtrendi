@@ -31,7 +31,48 @@ const SCAM_PATTERNS = [
   { pattern: /momo.*reverse|refund.*momo|mistaken.*transfer|sent.*wrong/i, label: "MoMo reversal request", risk: "high" as const, description: "If someone 'accidentally' sends you money and asks you to return it, the original transfer is likely fraudulent." },
   { pattern: /otp|one.time.*password|code.*sent|verify.*code/i, label: "OTP/code request", risk: "high" as const, description: "No legitimate service will ask you for an OTP sent to your phone. If they ask, hang up or ignore." },
   { pattern: /your package|parcel.*held|dhl|fedex|gha.*post.*delivery/i, label: "Fake delivery fee", risk: "high" as const, description: "Courier companies do not send payment links via SMS for delivery fees." },
+
+  // Free-giveaway / "free data" / freebie bait (very common on WhatsApp & Telegram)
+  { pattern: /free\s*\d+\s*(gb|mb|data|internet)|free (data|internet|mb|gb|airtime|recharge|voucher)/i, label: "Free data / airtime giveaway bait", risk: "high" as const, description: "“Free data/airtime/recharge for everyone” offers are a classic phishing trap. Networks and governments do NOT give away free data through forwarded WhatsApp/Telegram links. The link harvests your details or installs malware." },
+  { pattern: /gift.*to.*everyone|to everyone|everyone.*get.*free|free.*gift.*everyone|recharge voucher/i, label: "“Free gift to EVERYONE” claim", risk: "high" as const, description: "Real promotions target specific customers with terms — not “free gifts to EVERYONE.” This wording is a hallmark of forwarded giveaway scams." },
+  { pattern: /i (just )?got mine|got mine.*get yours|claim yours|get yours (below|now|here)|i already (got|claimed)/i, label: "“I just got mine, get yours” bait", risk: "high" as const, description: "Fake social proof (“I just got mine — get yours below”) is engineered to make you act fast without thinking. Legitimate offers don't rely on this." },
+  { pattern: /tap here|click here|claim (now|here|your)|register (now|here)|sign ?up (now|here)|get it (now|here)/i, label: "Urgent “tap/click here” call-to-action", risk: "high" as const, description: "Scam messages push a single urgent button — “TAP HERE,” “CLAIM NOW” — pointing to an outside link. Don't tap unfamiliar links." },
+  { pattern: /world ?cup|afcon|world\s*cup\s*2026|opening ceremony|victory celebration|qualif(y|ication)|to celebrate/i, label: "Event-celebration giveaway hook", risk: "medium" as const, description: "Scammers attach freebie offers to big events (World Cup, AFCON, elections) to feel timely and trustworthy. The event is real; the “free gift” is not." },
+  { pattern: /presidency.*partner|government.*partner.*network|partners with all.*network|all network operators/i, label: "Fake “government/operator partnership”", risk: "high" as const, description: "Claims that “the Presidency” or “all network operators” are jointly giving away data/cash are fabricated authority used to lower your guard." },
+  { pattern: /go viral|post it across|forward to|share to \d+|broadcast to|share with.*(friends|contacts|groups)/i, label: "Forward/share-to-spread instruction", risk: "medium" as const, description: "Being told to forward or post a message widely is how giveaway and chain scams spread. Genuine offers don't need you to broadcast them." },
 ];
+
+// Known legitimate domains — links to anything else (especially lookalikes) get flagged.
+const TRUSTED_DOMAINS = [
+  "mtn.com.gh", "mtn.com", "mymtn", "vodafone.com.gh", "telecel.com.gh", "airteltigo.com.gh",
+  "gov.gh", "bog.gov.gh", "gra.gov.gh", "ecg.com.gh", "ghana.gov.gh",
+  "facebook.com", "instagram.com", "wa.me", "whatsapp.com", "youtube.com", "twitter.com", "x.com", "tiktok.com",
+  "google.com", "apple.com", "microsoft.com", "paypal.com",
+  "techtrendi.com", "trendimovies.com",
+];
+
+// Pull URLs out of arbitrary (OCR'd) text.
+function extractUrls(text: string): string[] {
+  const re = /\b((?:https?:\/\/)?(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s]*)?)/gi;
+  const found = (text.match(re) || [])
+    .map((u) => u.replace(/[.,)]+$/, ""))
+    // ignore bare words that aren't really domains (need a known-ish TLD)
+    .filter((u) => /\.(com|org|net|gh|info|xyz|online|site|club|top|live|app|me|co|io|html?)\b/i.test(u));
+  return Array.from(new Set(found));
+}
+
+function domainOf(url: string): string {
+  try {
+    const host = new URL(url.startsWith("http") ? url : `http://${url}`).hostname.toLowerCase();
+    return host.replace(/^www\./, "");
+  } catch {
+    return url.toLowerCase();
+  }
+}
+
+function isTrusted(domain: string): boolean {
+  return TRUSTED_DOMAINS.some((t) => domain === t || domain.endsWith(`.${t}`));
+}
 
 const NUMBER_PATTERNS = [
   { pattern: /^(\+?233|0)(20|24|54|55|59)\d{7}$/, label: "MTN Ghana number", risk: "low" as const, description: "Standard MTN Ghana mobile number format." },
@@ -101,6 +142,18 @@ export default function GhanaScamChecker() {
         if (p.pattern.test(input)) {
           indicators.push({ label: p.label, risk: p.risk, description: p.description });
         }
+      }
+      // URL / domain analysis — flag suspicious links found in the message.
+      const urls = extractUrls(input);
+      const untrusted = urls.map(domainOf).filter((d) => d && !isTrusted(d));
+      const uniqueUntrusted = Array.from(new Set(untrusted));
+      if (uniqueUntrusted.length > 0) {
+        const shown = uniqueUntrusted.slice(0, 3).join(", ");
+        indicators.push({
+          label: `Suspicious link${uniqueUntrusted.length > 1 ? "s" : ""}: ${shown}`,
+          risk: "high",
+          description: `This message links to an unrecognised website (${shown}). Scam giveaways use throwaway lookalike domains like these to steal your details or money. Never enter your number, PIN, OTP, or card details on such sites. When in doubt, type the official website address yourself instead of tapping the link.`,
+        });
       }
     } else {
       for (const p of NUMBER_PATTERNS) {
