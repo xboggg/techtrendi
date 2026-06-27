@@ -54,6 +54,7 @@ export const routes: RouteRecord[] = [
       { path: "security", lazy: d(() => import("../pages/categories/Security")) },
       { path: "scam-alerts", lazy: d(() => import("../pages/ScamAlerts")) },
       { path: "tools-preview", lazy: d(() => import("../pages/ToolsPreview")) },
+      { path: "rundown-preview", lazy: d(() => import("../pages/RundownPreview")) },
       { path: "productivity", lazy: d(() => import("../pages/categories/Productivity")) },
       { path: "how-to", lazy: d(() => import("../pages/categories/HowTo")) },
       { path: "ai-tech", lazy: d(() => import("../pages/categories/AITech")) },
