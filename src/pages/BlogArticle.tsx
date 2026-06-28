@@ -373,6 +373,9 @@ export default function BlogArticle() {
   if (!article) {
     return (
       <Layout>
+        {/* noindex so Google drops missing/unpublished article URLs instead of
+            treating the 200 app-shell as a soft 404. */}
+        <SEOHead title="Article Not Found" description="This article doesn't exist or has been removed." noindex />
         <div className="container py-20 text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Article Not Found</h1>
           <p className="text-muted-foreground mb-6">
