@@ -18,11 +18,7 @@ export function ToolJsonLd({ tool }: ToolJsonLdProps) {
       url: `https://techtrendi.com${tool.href}`,
       applicationCategory: "WebApplication",
       operatingSystem: "Any",
-      offers: {
-        "@type": "Offer",
-        price: "0",
-        priceCurrency: "USD",
-      },
+      isAccessibleForFree: true,
       author: {
         "@type": "Organization",
         name: "TechTrendi",

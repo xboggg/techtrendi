@@ -332,6 +332,11 @@ export function SoftwareSchema({
 }: SoftwareSchemaProps) {
   const fullUrl = url.startsWith('http') ? url : `${SITE_URL}${url}`;
 
+  // NOTE: we intentionally OMIT the `offers` block. These tools are free
+  // utilities, not products for sale. A bare Offer (price: 0) made Google's
+  // Merchant-listing / Product-snippet validators flag the pages for missing
+  // shopping fields (shippingDetails, returnPolicy, aggregateRating, etc.).
+  // A SoftwareApplication with no offers is fully valid and avoids those errors.
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
@@ -340,11 +345,7 @@ export function SoftwareSchema({
     url: fullUrl,
     applicationCategory,
     operatingSystem,
-    offers: {
-      '@type': 'Offer',
-      price,
-      priceCurrency: 'USD',
-    },
+    isAccessibleForFree: true,
     aggregateRating: rating ? {
       '@type': 'AggregateRating',
       ratingValue: rating,
