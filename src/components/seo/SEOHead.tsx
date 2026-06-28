@@ -74,7 +74,8 @@ export function SEOHead({
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'Web',
         isAccessibleForFree: true,
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        // No `offers` block: free tools, not products. A bare Offer(price:0)
+        // triggers Google's Merchant/Product-snippet "missing field" errors.
         publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
       }
     : null;
