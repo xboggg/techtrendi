@@ -156,7 +156,8 @@ export function usePageView() {
 
     const record = async () => {
       try {
-        const geo = await getGeo();
+        // Insert the view IMMEDIATELY (don't block on the external geo lookup —
+        // it can be slow/blocked and would otherwise drop the whole view).
         const { data } = await supabase.from("page_views").insert({
           page_path: location.pathname,
           page_title: document.title,
@@ -168,8 +169,8 @@ export function usePageView() {
           os: getOS(),
           screen_width: window.screen.width,
           screen_height: window.screen.height,
-          country: geo.country,
-          city: geo.city,
+          country: null,
+          city: null,
           entry_page: isFirst ? location.pathname : null,
           is_new_visitor: newVisitor,
           is_bounce: true, // Will be updated to false if user visits another page
@@ -180,6 +181,15 @@ export function usePageView() {
 
         if (data) {
           currentViewId.current = data.id;
+          // Backfill geo asynchronously once it resolves (best-effort).
+          getGeo().then((geo) => {
+            if ((geo.country || geo.city) && data.id) {
+              supabase.from("page_views")
+                .update({ country: geo.country, city: geo.city })
+                .eq("id", data.id)
+                .then(() => {}, () => {});
+            }
+          }).catch(() => {});
         }
 
         // If this is page 2+, mark previous pages in session as non-bounce
