@@ -17,6 +17,7 @@ import { CookieConsent } from "@/components/ui/cookie-consent";
 import { OnboardingTour } from "@/components/ui/onboarding-tour";
 import { CartDrawer } from "@/components/store/CartDrawer";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { PageViewTracker } from "@/components/analytics/PageViewTracker";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { NavigationProgress } from "@/components/ui/NavigationProgress";
@@ -78,6 +79,7 @@ export default function RootLayout() {
                         <NavigationProgress />
                         <ScrollToTop />
                         <ClientOnly>{() => <GoogleAnalytics />}</ClientOnly>
+                        <ClientOnly>{() => <PageViewTracker />}</ClientOnly>
                         <PrerenderReady />
 
                         <Outlet />
