@@ -11,6 +11,7 @@ import { BookmarkButton } from "@/components/ui/bookmark-system";
 import { useReadingHistory } from "@/components/ui/reading-history";
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
 import { RundownTabloid } from "@/components/news/RundownTabloid";
+import { CommentsBox } from "@/components/article/CommentsBox";
 import DOMPurify from "isomorphic-dompurify"; // SSG-safe: works in Node build + browser
 
 /**
@@ -376,6 +377,8 @@ export default function NewsArticle() {
                 </div>
               </div>
             )}
+
+            <CommentsBox slug={news.slug} type="news" />
 
             <div className="mt-12"><NewsletterForm variant="default" /></div>
 

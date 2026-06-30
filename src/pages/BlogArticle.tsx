@@ -14,6 +14,7 @@ import { useReadingHistory } from "@/components/ui/reading-history";
 import { sanitizeInput } from "@/lib/security";
 import DOMPurify from "isomorphic-dompurify"; // SSG-safe: works in Node build + browser
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
+import { CommentsBox } from "@/components/article/CommentsBox";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
@@ -613,6 +614,8 @@ export default function BlogArticle() {
               </div>
             </div>
           )}
+
+          <CommentsBox slug={article.slug} type="blog" />
 
           {/* Newsletter Signup */}
           <div className="mt-12">
