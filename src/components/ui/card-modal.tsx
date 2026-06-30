@@ -56,14 +56,21 @@ export function CardModal({
 
   const handleShare = async () => {
     if (!post) return;
-    const text = `${post.emoji} ${post.title}\n\n${post.content?.slice(0, 200)}...\n\n${shareUrl || ""}`;
+    // Strip HTML tags + collapse whitespace for a clean one-line teaser.
+    const plain = (post.content || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const teaser = plain.length > 110 ? plain.slice(0, 110).trimEnd() + "…" : plain;
+    const url = shareUrl ? (shareUrl.startsWith("http") ? shareUrl : `https://${shareUrl}`) : "";
+    // Keep it SHORT and lead with a hook; the URL on its own line lets WhatsApp/
+    // social build a rich link-preview card (using the page's OG image).
+    const text = `${post.emoji || ""} ${post.title}\n\n${teaser}\n\n👉 Read more & stay safe:`;
     if (navigator.share) {
       try {
-        await navigator.share({ title: post.title, text });
+        // Pass url separately so the OS share sheet treats it as a real link.
+        await navigator.share({ title: post.title, text, url: url || undefined });
+        return;
       } catch {}
-    } else {
-      await navigator.clipboard.writeText(text);
     }
+    await navigator.clipboard.writeText(`${text}\n${url}`);
   };
 
   // SSG-safe: portals render into document.body, which only exists in the

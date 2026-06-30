@@ -140,6 +140,7 @@ export default function CreepyTech() {
         title="Creepy Tech - The Surprising Things Your Devices Do Behind the Scenes"
         description="The surprising, lesser-known things your devices and apps do with your data — explained in plain language, so you can make informed choices about your privacy."
         canonical="/creepy-tech"
+        image="https://techtrendi.com/images/og-creepy-tech.jpg"
       />
       {/* Hero — uses site theme bg */}
       <section className="relative bg-background overflow-hidden border-b border-border">

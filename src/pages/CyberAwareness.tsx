@@ -139,6 +139,7 @@ export default function CyberAwareness() {
         title="Cyber Awareness - Stay Safe Online"
         description="Practical cybersecurity tips for everyday people. Protect yourself from scams, phishing, and online threats with simple actionable advice."
         canonical="/cyber-awareness"
+        image="https://techtrendi.com/images/og-cyber-awareness.jpg"
       />
       {/* Hero */}
       <section className="relative bg-background overflow-hidden border-b border-border">
