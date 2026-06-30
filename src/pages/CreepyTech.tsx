@@ -28,6 +28,14 @@ const categoryColors: Record<string, { glow: string; badge: string; text: string
   "Cybersecurity & Scams": { glow: "rgba(34, 197, 94, 0.15)", badge: "bg-green-500/20 text-green-400 border-green-500/30", text: "text-green-400" },
   "AI & The Creepy Future": { glow: "rgba(168, 85, 247, 0.15)", badge: "bg-purple-500/20 text-purple-400 border-purple-500/30", text: "text-purple-400" },
   "The Invisible Web": { glow: "rgba(59, 130, 246, 0.15)", badge: "bg-blue-500/20 text-blue-400 border-blue-500/30", text: "text-blue-400" },
+  "Smart Home Spying": { glow: "rgba(20, 184, 166, 0.15)", badge: "bg-teal-500/20 text-teal-400 border-teal-500/30", text: "text-teal-400" },
+  "Money & Banking Creep": { glow: "rgba(16, 185, 129, 0.15)", badge: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30", text: "text-emerald-400" },
+  "Kids & Tech": { glow: "rgba(244, 114, 182, 0.15)", badge: "bg-pink-500/20 text-pink-400 border-pink-500/30", text: "text-pink-400" },
+  "Big Tech Watching Africa": { glow: "rgba(249, 115, 22, 0.15)", badge: "bg-orange-500/20 text-orange-400 border-orange-500/30", text: "text-orange-400" },
+  "Social Media Secrets": { glow: "rgba(99, 102, 241, 0.15)", badge: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30", text: "text-indigo-400" },
+  "Your Data for Sale": { glow: "rgba(217, 70, 239, 0.15)", badge: "bg-fuchsia-500/20 text-fuchsia-400 border-fuchsia-500/30", text: "text-fuchsia-400" },
+  "Phone Permissions Gone Wrong": { glow: "rgba(245, 158, 11, 0.15)", badge: "bg-amber-500/20 text-amber-400 border-amber-500/30", text: "text-amber-400" },
+  "AI Is Watching": { glow: "rgba(139, 92, 246, 0.15)", badge: "bg-violet-500/20 text-violet-400 border-violet-500/30", text: "text-violet-400" },
 };
 
 const categoryEmojis: Record<string, string> = {
@@ -36,6 +44,14 @@ const categoryEmojis: Record<string, string> = {
   "Cybersecurity & Scams": "🕵️",
   "AI & The Creepy Future": "🤖",
   "The Invisible Web": "🕸️",
+  "Smart Home Spying": "🏠",
+  "Money & Banking Creep": "💳",
+  "Kids & Tech": "👶",
+  "Big Tech Watching Africa": "🌍",
+  "Social Media Secrets": "📲",
+  "Your Data for Sale": "🏷️",
+  "Phone Permissions Gone Wrong": "🔓",
+  "AI Is Watching": "👁️",
 };
 
 export default function CreepyTech() {
@@ -47,8 +63,23 @@ export default function CreepyTech() {
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [modalPost, setModalPost] = useState<CreepyTechPost | null>(null);
+  const [activeCategories, setActiveCategories] = useState<string[]>([]);
 
-  const categories = Object.keys(categoryColors);
+  // Only show category chips that actually have published posts (new categories
+  // appear automatically as the drip-poster publishes their posts).
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("creepy_tech_posts")
+        .select("category")
+        .eq("is_published", true);
+      const ordered = Object.keys(categoryColors);
+      const present = new Set((data || []).map((r: { category: string }) => r.category));
+      setActiveCategories(ordered.filter((c) => present.has(c)));
+    })();
+  }, []);
+
+  const categories = activeCategories;
 
   useEffect(() => {
     fetchPosts();
@@ -120,7 +151,7 @@ export default function CreepyTech() {
           >
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 dark:text-red-400 text-sm font-medium mb-6">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              50 Things Worth Knowing About Your Tech
+              {totalCount > 0 ? `${totalCount} Things` : "Things"} Worth Knowing About Your Tech
             </span>
             <h1 className="text-4xl md:text-6xl font-black text-foreground mb-4 tracking-tight">
               Creepy <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-purple-500 to-blue-500">Tech</span>

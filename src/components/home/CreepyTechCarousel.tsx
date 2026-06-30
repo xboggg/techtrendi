@@ -24,6 +24,14 @@ const creepyCatColors: Record<string, string> = {
   "Cybersecurity & Scams": "from-green-500/20 to-green-900/10 border-green-500/20",
   "AI & The Creepy Future": "from-purple-500/20 to-purple-900/10 border-purple-500/20",
   "The Invisible Web": "from-blue-500/20 to-blue-900/10 border-blue-500/20",
+  "Smart Home Spying": "from-teal-500/20 to-teal-900/10 border-teal-500/20",
+  "Money & Banking Creep": "from-emerald-500/20 to-emerald-900/10 border-emerald-500/20",
+  "Kids & Tech": "from-pink-500/20 to-pink-900/10 border-pink-500/20",
+  "Big Tech Watching Africa": "from-orange-500/20 to-orange-900/10 border-orange-500/20",
+  "Social Media Secrets": "from-indigo-500/20 to-indigo-900/10 border-indigo-500/20",
+  "Your Data for Sale": "from-fuchsia-500/20 to-fuchsia-900/10 border-fuchsia-500/20",
+  "Phone Permissions Gone Wrong": "from-amber-500/20 to-amber-900/10 border-amber-500/20",
+  "AI Is Watching": "from-violet-500/20 to-violet-900/10 border-violet-500/20",
 };
 
 const cyberCatColors: Record<string, string> = {
@@ -32,6 +40,14 @@ const cyberCatColors: Record<string, string> = {
   "Smart Home & Physical Security": "from-green-500/20 to-green-900/10 border-green-500/20",
   "Travel & Public Space Safety": "from-blue-500/20 to-blue-900/10 border-blue-500/20",
   "Identity & Data": "from-purple-500/20 to-purple-900/10 border-purple-500/20",
+  "Money & Banking Scams": "from-emerald-500/20 to-emerald-900/10 border-emerald-500/20",
+  "Social Media & Romance Scams": "from-pink-500/20 to-pink-900/10 border-pink-500/20",
+  "Online Shopping & Marketplace Scams": "from-orange-500/20 to-orange-900/10 border-orange-500/20",
+  "Job & Investment Scams": "from-amber-500/20 to-amber-900/10 border-amber-500/20",
+  "Phishing & Fake Messages": "from-cyan-500/20 to-cyan-900/10 border-cyan-500/20",
+  "Tech Support & Device Scams": "from-rose-500/20 to-rose-900/10 border-rose-500/20",
+  "AI-Powered Scams": "from-violet-500/20 to-violet-900/10 border-violet-500/20",
+  "Everyday Safety Habits": "from-teal-500/20 to-teal-900/10 border-teal-500/20",
 };
 
 function CardItem({ post, colorMap, onClick }: { post: Post; colorMap: Record<string, string>; onClick: () => void }) {
