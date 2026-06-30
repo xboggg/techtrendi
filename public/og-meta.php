@@ -60,12 +60,12 @@ $static_pages = [
     'tools' => [
         'title' => '125+ Free Online Tools - No Signup Required',
         'description' => 'Free online tools for everyone: password generators, QR codes, resume builders, calculators, and more. No signup needed.',
-        'image' => $DEFAULT_IMAGE,
+        'image' => 'https://techtrendi.com/images/og-tools.jpg',
     ],
     'store' => [
         'title' => 'DigiStore - Digital Products, Ebooks and Templates',
         'description' => 'Ebooks, templates, spreadsheets, and tools built by TechTrendi. Designed to help you work smarter.',
-        'image' => $DEFAULT_IMAGE,
+        'image' => 'https://techtrendi.com/images/og-store.jpg',
     ],
     'start-here' => [
         'title' => 'Start Here - Your Guide to TechTrendi',
@@ -75,17 +75,17 @@ $static_pages = [
     'security' => [
         'title' => 'Security Hub - Protect Yourself Online',
         'description' => 'Your cybersecurity command center. Threat alerts, scam warnings, security tools, and expert advice to keep you safe online.',
-        'image' => $DEFAULT_IMAGE,
+        'image' => 'https://techtrendi.com/images/og-security.jpg',
     ],
     'blog' => [
         'title' => 'TechTrendi Blog - Expert Tech Guides and Articles',
         'description' => 'In-depth technology articles covering smartphones, AI, cybersecurity, productivity, and more. Written for real people, not experts.',
-        'image' => $DEFAULT_IMAGE,
+        'image' => 'https://techtrendi.com/images/og-blog.jpg',
     ],
     'news' => [
         'title' => 'Tech News - Latest Technology Headlines',
         'description' => 'Daily tech news from Ghana and around the world. Smartphones, AI, cybersecurity, gadgets, and more.',
-        'image' => $DEFAULT_IMAGE,
+        'image' => 'https://techtrendi.com/images/og-news.jpg',
     ],
     'reviews' => [
         'title' => 'Product Reviews - Honest Tech Reviews',
@@ -130,12 +130,12 @@ $static_pages = [
     'cyber-awareness' => [
         'title' => 'Cyber Awareness Tips - Protect Yourself Online',
         'description' => 'Quick, practical cybersecurity tips to keep you safe online. Learn about passwords, phishing, privacy, and more.',
-        'image' => $DEFAULT_IMAGE,
+        'image' => 'https://techtrendi.com/images/og-cyber-awareness.jpg',
     ],
     'creepy-tech' => [
         'title' => 'Creepy Tech - The Dark Side of Technology',
         'description' => 'Disturbing tech facts, surveillance stories, and privacy nightmares you need to know about.',
-        'image' => $DEFAULT_IMAGE,
+        'image' => 'https://techtrendi.com/images/og-creepy-tech.jpg',
     ],
 ];
 
