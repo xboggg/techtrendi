@@ -59,7 +59,10 @@ export function CardModal({
     // Strip HTML tags + collapse whitespace for a clean one-line teaser.
     const plain = (post.content || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
     const teaser = plain.length > 110 ? plain.slice(0, 110).trimEnd() + "…" : plain;
-    const url = shareUrl ? (shareUrl.startsWith("http") ? shareUrl : `https://${shareUrl}`) : "";
+    // Deep-link to THIS post via an anchor. Clicking the shared link lands on the
+    // page and opens this exact post (the page reads #post-<number> on load).
+    const base = shareUrl ? (shareUrl.startsWith("http") ? shareUrl : `https://${shareUrl}`) : "";
+    const url = base ? `${base}#post-${post.number}` : "";
     // Keep it SHORT and lead with a hook; the URL on its own line lets WhatsApp/
     // social build a rich link-preview card (using the page's OG image).
     const text = `${post.emoji || ""} ${post.title}\n\n${teaser}\n\n👉 Read more & stay safe:`;

@@ -124,15 +124,36 @@ export default function CreepyTech() {
     : posts;
 
   const handleShare = async (post: CreepyTechPost) => {
-    const text = `${post.emoji} ${post.title}\n\n${post.content?.slice(0, 200)}...\n\nMore at techtrendi.com/creepy-tech`;
+    // Deep-link straight to this post so clicking the shared link opens it.
+    const url = `https://techtrendi.com/creepy-tech#post-${post.number}`;
+    const teaser = (post.content || "").replace(/\s+/g, " ").trim().slice(0, 160);
+    const text = `${post.emoji} ${post.title}\n\n${teaser}…\n\n👉 Read more:`;
     if (navigator.share) {
       try {
-        await navigator.share({ title: post.title, text });
+        await navigator.share({ title: post.title, text, url });
       } catch {}
     } else {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(`${text}\n${url}`);
     }
   };
+
+  // Deep-link landing: if the URL has #post-<number>, fetch that exact post and
+  // open it in the modal on load — independent of pagination/filters/draft gaps.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const m = window.location.hash.match(/^#post-(\d+)$/);
+    if (!m) return;
+    const num = parseInt(m[1], 10);
+    (async () => {
+      const { data } = await supabase
+        .from("creepy_tech_posts")
+        .select("*")
+        .eq("number", num)
+        .eq("is_published", true)
+        .maybeSingle();
+      if (data) setModalPost(data as CreepyTechPost);
+    })();
+  }, []);
 
   return (
     <Layout>
