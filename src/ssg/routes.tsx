@@ -4,7 +4,7 @@ import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import Index from "../pages/Index";
 import Tools from "../pages/Tools";
 import NotFound from "../pages/NotFound";
-import { newsLoader, newsStaticPaths, blogLoader, blogStaticPaths } from "./news-data";
+import { newsLoader, newsStaticPaths, blogLoader, blogStaticPaths, blogListLoader, newsListLoader } from "./news-data";
 
 // Adapt our default-export pages to vite-react-ssg's lazy ({ Component }).
 // Also recover from stale-deploy chunk failures: after a deploy, a tab holding
@@ -46,9 +46,9 @@ export const routes: RouteRecord[] = [
       { path: "dashboard", lazy: d(() => import("../pages/Dashboard")) },
       { path: "tools", element: <Tools /> },
       { path: "tools/:categoryId", lazy: d(() => import("../pages/ToolCategory")) },
-      { path: "blog", lazy: d(() => import("../pages/Blog")) },
+      { path: "blog", lazy: d(() => import("../pages/Blog")), loader: blogListLoader },
       { path: "blog/:slug", lazy: d(() => import("../pages/BlogArticle")), loader: blogLoader, getStaticPaths: blogStaticPaths },
-      { path: "news", lazy: d(() => import("../pages/News")) },
+      { path: "news", lazy: d(() => import("../pages/News")), loader: newsListLoader },
       { path: "news/:slug", lazy: d(() => import("../pages/NewsArticle")), loader: newsLoader, getStaticPaths: newsStaticPaths },
       { path: "phones", lazy: d(() => import("../pages/categories/Phones")) },
       { path: "security", lazy: d(() => import("../pages/categories/Security")) },

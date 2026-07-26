@@ -89,3 +89,18 @@ export async function blogLoader({ params }: { params: { slug?: string } }) {
   if (!import.meta.env.SSR || !params.slug) return null;
   return (await getBlogMap()).get(params.slug) ?? null;
 }
+
+// List-page loaders: seed /blog and /news with the same build-time data so
+// their article cards exist in the static HTML (2026-07-26 — the pages were
+// previously 100% client-fetched via useEffect, so crawlers saw an empty
+// shell). Client-side fetch still runs after hydration for freshness; this
+// only fixes what ships in the prerendered HTML.
+export async function blogListLoader() {
+  if (!import.meta.env.SSR) return null;
+  return [...(await getBlogMap()).values()];
+}
+
+export async function newsListLoader() {
+  if (!import.meta.env.SSR) return null;
+  return [...(await getNewsMap()).values()];
+}

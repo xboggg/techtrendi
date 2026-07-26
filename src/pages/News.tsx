@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useLoaderData } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { PageHero } from "@/components/layout/PageHero";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -94,8 +94,14 @@ export default function News() {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<"latest" | "oldest">("latest");
-  const [news, setNews] = useState<NewsItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Build-time data (vite-react-ssg loader) seeds the list into static HTML so
+  // crawlers see real article cards without running JS (2026-07-26 fix — this
+  // page was previously 100% client-fetched, same issue as Blog.tsx). Note:
+  // the loader only covers "Africa Tech" category articles by design (see
+  // news-data.ts) — international news still arrives via the client fetch below.
+  const loaderNews = (useLoaderData() as NewsItem[] | null) ?? undefined;
+  const [news, setNews] = useState<NewsItem[]>(loaderNews ?? []);
+  const [loading, setLoading] = useState(news.length === 0);
 
   // Fetch fresh data from API, fall back to static JSON on failure
   useEffect(() => {

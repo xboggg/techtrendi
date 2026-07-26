@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { PageHero } from "@/components/layout/PageHero";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -88,13 +88,16 @@ export default function Blog() {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<"latest" | "oldest" | "longest">("latest");
 
-  // SessionStorage cache for instant repeat visits, API fetch for fresh data
+  // Build-time data (vite-react-ssg loader) seeds the list into static HTML so
+  // crawlers see real article cards without running JS; sessionStorage cache
+  // then API fetch take over for freshness on the client, same as BlogArticle.
+  const loaderArticles = (useLoaderData() as Article[] | null) ?? undefined;
   const [articles, setArticles] = useState<Article[]>(() => {
     try {
       const cached = sessionStorage.getItem("blog:articles");
       if (cached) return JSON.parse(cached);
     } catch {}
-    return [];
+    return loaderArticles ?? [];
   });
   const [loading, setLoading] = useState(articles.length === 0);
 
