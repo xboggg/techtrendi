@@ -120,3 +120,34 @@ export async function productsListLoader() {
   }
   return productsCache;
 }
+
+// Same fix for /security — the "Scams going round in Ghana" hub fetched its
+// scam-alert cards, threat-level banner, and related articles entirely
+// client-side via three separate useEffect calls, so none of it existed in
+// the prerendered HTML (2026-07-27 — found because a NEW scam wasn't showing
+// up here even though it had just been added to the /blog roundup article).
+export async function securityPageLoader() {
+  if (!import.meta.env.SSR) return null;
+  const [alerts, threatRows, articleRows] = await Promise.all([
+    sbFetch(
+      "security_scam_alerts?select=id,title,description,scam_type,severity,emoji,what_to_do,affected_platforms,created_at&is_published=eq.true&is_active=eq.true&order=created_at.desc&limit=6"
+    ),
+    sbFetch(
+      "security_threat_level?select=level,title,description,active_threats,updated_at&order=updated_at.desc&limit=1"
+    ),
+    getBlogMap(), // reuse the already-cached full article list rather than a 4th fetch
+  ]);
+
+  const secTags = ["scam", "security", "phishing", "password", "privacy", "fraud", "cyber", "online safety"];
+  const articles = [...articleRows.values()].filter((a: any) =>
+    (a.tags || []).some((t: string) => secTags.some((s) => t.toLowerCase().includes(s))) ||
+    secTags.some((s) => (a.category || "").toLowerCase().includes(s))
+  );
+
+  return {
+    alerts,
+    threat: threatRows[0] ?? null,
+    articles: articles.slice(0, 6),
+    articleCount: articles.length,
+  };
+}

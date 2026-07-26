@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -72,11 +72,25 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
   );
 }
 
+interface SecurityLoaderData {
+  alerts: ScamAlert[];
+  threat: ThreatLevel | null;
+  articles: Article[];
+  articleCount: number;
+}
+
 export default function Security() {
-  const [alerts, setAlerts] = useState<ScamAlert[]>([]);
-  const [threat, setThreat] = useState<ThreatLevel | null>(null);
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [articleCount, setArticleCount] = useState(0);
+  // Build-time data (vite-react-ssg loader) seeds the scam alerts, threat
+  // banner, and related articles into static HTML (2026-07-27 fix — this page
+  // was previously 100% client-fetched across 3 separate useEffect calls, so
+  // newly-added scam alerts didn't show up for crawlers). Client fetch below
+  // still runs after hydration for freshness.
+  const loaderData = useLoaderData() as SecurityLoaderData | null;
+
+  const [alerts, setAlerts] = useState<ScamAlert[]>(loaderData?.alerts ?? []);
+  const [threat, setThreat] = useState<ThreatLevel | null>(loaderData?.threat ?? null);
+  const [articles, setArticles] = useState<Article[]>(loaderData?.articles ?? []);
+  const [articleCount, setArticleCount] = useState(loaderData?.articleCount ?? 0);
   const [showNav, setShowNav] = useState(false);
   const [threatIdx, setThreatIdx] = useState(0);
   const [selectedAlert, setSelectedAlert] = useState<ScamAlert | null>(null);
