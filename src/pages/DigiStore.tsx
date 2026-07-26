@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLoaderData } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { PageHero } from "@/components/layout/PageHero";
@@ -87,7 +88,19 @@ export default function DigiStore() {
   const { subscription } = useAuth();
   const { addToCart, totalItems, setIsOpen } = useCart();
   const { toast } = useToast();
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+
+  // Build-time data (vite-react-ssg loader) seeds the product list into static
+  // HTML so crawlers see real product cards — including the one published
+  // book — without running JS (2026-07-26 fix; this page was previously 100%
+  // client-fetched via useQuery with no initial data, same issue as
+  // Blog.tsx/News.tsx). React Query still refetches after hydration for
+  // freshness, this only supplies its initial/placeholder data.
+  const loaderProducts = (useLoaderData() as Product[] | null) ?? undefined;
+
+  // filteredProducts starts from the loader data too — it was previously []
+  // until the filter useEffect ran, which never happens during the SSG build,
+  // so the loader data alone wasn't enough to make cards appear server-side.
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(loaderProducts ?? []);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedType, setSelectedType] = useState("All Types");
@@ -107,6 +120,7 @@ export default function DigiStore() {
       if (error) throw error;
       return data as Product[];
     },
+    initialData: loaderProducts,
   });
 
   // Filter products based on search and filters

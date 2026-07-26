@@ -4,7 +4,7 @@ import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import Index from "../pages/Index";
 import Tools from "../pages/Tools";
 import NotFound from "../pages/NotFound";
-import { newsLoader, newsStaticPaths, blogLoader, blogStaticPaths, blogListLoader, newsListLoader } from "./news-data";
+import { newsLoader, newsStaticPaths, blogLoader, blogStaticPaths, blogListLoader, newsListLoader, productsListLoader } from "./news-data";
 
 // Adapt our default-export pages to vite-react-ssg's lazy ({ Component }).
 // Also recover from stale-deploy chunk failures: after a deploy, a tab holding
@@ -109,7 +109,7 @@ export const routes: RouteRecord[] = [
       { path: "cookies", lazy: d(() => import("../pages/Cookies")) },
       { path: "contact", lazy: d(() => import("../pages/Contact")) },
       { path: "disclosure", lazy: d(() => import("../pages/Disclosure")) },
-      { path: "store", lazy: d(() => import("../pages/DigiStore")) },
+      { path: "store", lazy: d(() => import("../pages/DigiStore")), loader: productsListLoader },
       { path: "books/think-before-you-click", lazy: d(() => import("../pages/books/ThinkBeforeYouClick")) },
       { path: "design-demo", lazy: d(() => import("../pages/DesignDemo")) },
       {

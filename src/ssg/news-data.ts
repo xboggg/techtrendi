@@ -104,3 +104,19 @@ export async function newsListLoader() {
   if (!import.meta.env.SSR) return null;
   return [...(await getNewsMap()).values()];
 }
+
+// Same fix for /store — DigiStore.tsx fetched products entirely client-side
+// via useQuery, so the store page's raw HTML had zero product cards, even the
+// one published book (2026-07-26). No per-product SSG pages exist, so this is
+// a flat fetch (not cached/keyed by slug like blog/news).
+let productsCache: Row[] | null = null;
+
+export async function productsListLoader() {
+  if (!import.meta.env.SSR) return null;
+  if (!productsCache) {
+    productsCache = await sbFetch(
+      `products?select=*&is_published=eq.true&order=is_featured.desc&order=created_at.desc`
+    );
+  }
+  return productsCache;
+}
