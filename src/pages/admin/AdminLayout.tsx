@@ -2,7 +2,7 @@ import { ReactNode, useState, useEffect } from "react";
 import { Link, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
-import { LayoutDashboard, FileText, MessageSquare, Users, ArrowLeft, Loader2, PenSquare, Mail, Package, Newspaper, BarChart3, Ghost, Shield, ShieldAlert, Lightbulb, Activity, Flag, Wrench, LogOut, MessageCircle, Megaphone, Menu, X } from "lucide-react";
+import { LayoutDashboard, FileText, MessageSquare, Users, ArrowLeft, Loader2, PenSquare, Mail, Package, Newspaper, BarChart3, Ghost, Shield, ShieldAlert, Lightbulb, Activity, Flag, Wrench, LogOut, MessageCircle, Megaphone, Menu, X, BookHeart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AdminLayoutProps {
@@ -27,6 +27,7 @@ const navItems = [
   { label: "Ticker", href: "/admin/ticker", icon: Megaphone },
   { label: "Threat Level", href: "/admin/threat-level", icon: Activity },
   { label: "Scam Reports", href: "/admin/scam-reports", icon: Flag },
+  { label: "Scam Stories", href: "/admin/scam-stories", icon: BookHeart },
   { label: "Tool Feedback", href: "/admin/tool-feedback", icon: Wrench },
 ];
 

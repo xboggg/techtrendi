@@ -70,6 +70,7 @@ export const routes: RouteRecord[] = [
       { path: "think-before-you-click", lazy: d(() => import("../pages/ThinkBeforeYouClick")) },
       { path: "scam-alerts", lazy: d(() => import("../pages/ScamAlerts")) },
       { path: "report-scam", lazy: d(() => import("../pages/ReportScam")) },
+      { path: "scam-stories", lazy: d(() => import("../pages/ScamStories")) },
       // Reviews discontinued 2026-06-21 (focus = Africa Tech News · Tools · Security).
       // Routes removed so /reviews + /reviews/* stop prerendering; nginx 301s the
       // list to /blog and 410s the old detail URLs.
@@ -89,6 +90,7 @@ export const routes: RouteRecord[] = [
       { path: "admin/ticker", lazy: d(() => import("../pages/admin/AdminTicker")) },
       { path: "admin/threat-level", lazy: d(() => import("../pages/admin/AdminThreatLevel")) },
       { path: "admin/scam-reports", lazy: d(() => import("../pages/admin/AdminScamReports")) },
+      { path: "admin/scam-stories", lazy: d(() => import("../pages/admin/AdminScamStories")) },
       { path: "admin/tool-feedback", lazy: d(() => import("../pages/admin/AdminToolFeedback")) },
       { path: "admin/whatsapp-queue", lazy: d(() => import("../pages/admin/AdminWhatsAppQueue")) },
       { path: "arcade", lazy: d(() => import("../pages/Arcade")) },

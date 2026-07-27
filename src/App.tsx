@@ -250,6 +250,7 @@ const GhsExchangeRate = lazy(() => import("./pages/tools/GhsExchangeRate"));
 const ThinkBeforeYouClick = lazy(() => import("./pages/ThinkBeforeYouClick"));
 const ScamAlerts = lazy(() => import("./pages/ScamAlerts"));
 const ReportScam = lazy(() => import("./pages/ReportScam"));
+const ScamStories = lazy(() => import("./pages/ScamStories"));
 
 // Security Hub admin pages
 const AdminScamAlerts = lazy(() => import("./pages/admin/AdminScamAlerts"));
@@ -257,6 +258,7 @@ const AdminDailyTips = lazy(() => import("./pages/admin/AdminDailyTips"));
 const AdminTicker = lazy(() => import("./pages/admin/AdminTicker"));
 const AdminThreatLevel = lazy(() => import("./pages/admin/AdminThreatLevel"));
 const AdminScamReports = lazy(() => import("./pages/admin/AdminScamReports"));
+const AdminScamStories = lazy(() => import("./pages/admin/AdminScamStories"));
 
 // Arcade pages
 const ArcadeHub = lazy(() => import("./pages/Arcade"));
@@ -480,6 +482,7 @@ const App = () => (
                       <Route path="/think-before-you-click" element={<ThinkBeforeYouClick />} />
                       <Route path="/scam-alerts" element={<ScamAlerts />} />
                       <Route path="/report-scam" element={<ReportScam />} />
+                      <Route path="/scam-stories" element={<ScamStories />} />
                       <Route path="/reviews" element={<Reviews />} />
                       <Route path="/reviews/:slug" element={<ReviewDetail />} />
                       <Route path="/admin" element={<AdminDashboard />} />
@@ -498,6 +501,7 @@ const App = () => (
                       <Route path="/admin/ticker" element={<AdminTicker />} />
                       <Route path="/admin/threat-level" element={<AdminThreatLevel />} />
                       <Route path="/admin/scam-reports" element={<AdminScamReports />} />
+                      <Route path="/admin/scam-stories" element={<AdminScamStories />} />
                       <Route path="/admin/tool-feedback" element={<AdminToolFeedback />} />
                       <Route path="/admin/whatsapp-queue" element={<AdminWhatsAppQueue />} />
                       <Route path="/arcade" element={<ArcadeHub />} />
