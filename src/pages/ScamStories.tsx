@@ -15,7 +15,14 @@ import {
   CheckCircle2, Sparkles, ChevronDown,
 } from "lucide-react";
 import { GHANA_REGIONS, COUNTRIES, SCAM_CATEGORIES, categoryLabel, categoryEmoji, getSubmitCooldown, recordSubmit, hasReacted, markReacted } from "@/lib/scamStories";
+import { optimizeImage } from "@/lib/image-optimize";
 import { cn } from "@/lib/utils";
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 interface Story {
   id: string;
@@ -123,14 +130,20 @@ function SubmitModal({ open, onClose, onSubmitted }: { open: boolean; onClose: (
 
   if (!open) return null;
 
+  const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/quicktime", "video/webm"];
+
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error("File is too large — please keep it under 50MB.");
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      toast.error("That file type isn't supported. Please use a JPG, PNG, WEBP, GIF photo, or MP4/MOV/WEBM video.");
       return;
     }
     const kind = file.type.startsWith("video/") ? "video" : "photo";
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error(kind === "video" ? "Video is too large — please keep it under 50MB (try a shorter clip)." : "Photo is too large — please keep it under 50MB.");
+      return;
+    }
     setMediaFile(file);
     setMediaKind(kind);
     setMediaPreview(URL.createObjectURL(file));
@@ -163,11 +176,18 @@ function SubmitModal({ open, onClose, onSubmitted }: { open: boolean; onClose: (
       let media_type: "none" | "photo" | "video" = "none";
 
       if (mediaFile && mediaKind) {
-        const ext = mediaFile.name.split(".").pop();
-        const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from("scam-stories").upload(path, mediaFile);
+        let uploadBlob: Blob = mediaFile;
+        let fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${mediaFile.name.split(".").pop()}`;
+
+        if (mediaKind === "photo") {
+          const optimized = await optimizeImage(mediaFile);
+          uploadBlob = optimized.blob;
+          fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${optimized.fileName}`;
+        }
+
+        const { error: uploadError } = await supabase.storage.from("scam-stories").upload(fileName, uploadBlob);
         if (uploadError) throw uploadError;
-        const { data } = supabase.storage.from("scam-stories").getPublicUrl(path);
+        const { data } = supabase.storage.from("scam-stories").getPublicUrl(fileName);
         media_url = data.publicUrl;
         media_type = mediaKind;
       }
@@ -221,7 +241,7 @@ function SubmitModal({ open, onClose, onSubmitted }: { open: boolean; onClose: (
 
           <div className="space-y-1.5">
             <Label>Add a photo or video (optional)</Label>
-            {mediaPreview ? (
+            {mediaPreview && mediaFile ? (
               <div className="relative rounded-xl overflow-hidden border border-border">
                 {mediaKind === "video" ? (
                   <video src={mediaPreview} controls className="w-full max-h-48 object-contain bg-black" />
@@ -231,6 +251,10 @@ function SubmitModal({ open, onClose, onSubmitted }: { open: boolean; onClose: (
                 <button type="button" onClick={clearFile} className="absolute top-2 right-2 p-1 bg-background/80 rounded-full hover:bg-background">
                   <X className="w-4 h-4" />
                 </button>
+                <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[11px] px-2.5 py-1.5 flex items-center justify-between">
+                  <span>{mediaFile.name} · {formatBytes(mediaFile.size)}</span>
+                  {mediaKind === "photo" && <span className="text-emerald-300">will be compressed before upload</span>}
+                </div>
               </div>
             ) : (
               <button
@@ -241,7 +265,8 @@ function SubmitModal({ open, onClose, onSubmitted }: { open: boolean; onClose: (
                 <Upload className="w-4 h-4" /> Upload a screenshot or short video
               </button>
             )}
-            <input ref={fileRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleFile} />
+            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm" className="hidden" onChange={handleFile} />
+            <p className="text-xs text-muted-foreground">JPG, PNG, WEBP, GIF, or MP4/MOV/WEBM — up to 50MB. Photos are automatically compressed before upload.</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
