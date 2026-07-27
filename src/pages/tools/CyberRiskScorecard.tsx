@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { saveRiskScore } from "@/lib/riskScoreStorage";
 import {
   Shield,
   AlertTriangle,
@@ -604,7 +605,9 @@ export default function CyberRiskScorecard() {
   }
 
   function handleSubmit() {
-    if (allAnswered) setShowResults(true);
+    if (!allAnswered) return;
+    setShowResults(true);
+    saveRiskScore(calculateOverallScore());
   }
 
   function handleRetake() {

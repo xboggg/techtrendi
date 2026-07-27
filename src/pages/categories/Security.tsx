@@ -9,6 +9,7 @@ import { DailyQuizWidget } from "@/components/security/DailyQuizWidget";
 import { ShareWithFamily } from "@/components/security/ShareWithFamily";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { checkMessage } from "@/lib/scamPatterns";
+import { getRiskScore, type StoredRiskScore } from "@/lib/riskScoreStorage";
 import { cn } from "@/lib/utils";
 import {
   Shield, ShieldAlert, ShieldCheck, KeyRound, Lock, EyeOff, Globe, AlertTriangle,
@@ -234,9 +235,17 @@ export default function Security() {
   const [showNav, setShowNav] = useState(false);
   const [threatIdx, setThreatIdx] = useState(0);
   const [selectedAlert, setSelectedAlert] = useState<ScamAlert | null>(null);
+  // Read-only mirror of the real Cyber Risk Scorecard result, if this visitor
+  // has taken it before — never a fake/hardcoded number. null until we know
+  // there ISN'T one (SSR has no localStorage, so this starts undefined).
+  const [riskScore, setRiskScore] = useState<StoredRiskScore | null | undefined>(undefined);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.15]);
+
+  useEffect(() => {
+    setRiskScore(getRiskScore());
+  }, []);
 
   useEffect(() => {
     supabase.from("security_scam_alerts").select("id,title,description,scam_type,severity,emoji,what_to_do,affected_platforms,created_at")
@@ -509,28 +518,46 @@ export default function Security() {
               <div>
                 <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold mb-4"><ShieldCheck className="w-3.5 h-3.5" /> 2-minute check</span>
                 <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">How safe are you online, really?</h2>
-                <p className="text-white/60 mt-3 max-w-lg">Answer a few quick questions and get your personal cyber-safety score — with exactly what to fix. Come back any time to watch it improve.</p>
-                <Link to="/tools/cyber-risk-scorecard" className="inline-flex items-center gap-2.5 mt-7 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-900 font-bold shadow-lg shadow-emerald-500/25 hover:scale-[1.02] transition-transform">Check my score <ArrowRight className="w-5 h-5" /></Link>
+                <p className="text-white/60 mt-3 max-w-lg">
+                  {riskScore
+                    ? "Your last real result, from your own answers. Retake it any time to see if it's improved."
+                    : "Answer a few quick questions and get your personal cyber-safety score — with exactly what to fix."}
+                </p>
+                <Link to="/tools/cyber-risk-scorecard" className="inline-flex items-center gap-2.5 mt-7 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-900 font-bold shadow-lg shadow-emerald-500/25 hover:scale-[1.02] transition-transform">
+                  {riskScore ? "Retake the check" : "Check my score"} <ArrowRight className="w-5 h-5" />
+                </Link>
               </div>
-              {/* score ring — draws on + counts up when scrolled into view */}
+              {/* score ring — shows the visitor's OWN stored result if they've
+                  taken the real assessment before, otherwise an honest empty
+                  ring (never a fake pre-filled number). */}
               <div className="flex justify-center">
                 <div className="relative w-48 h-48">
-                  {/* soft pulsing halo */}
                   <motion.div className="absolute inset-2 rounded-full bg-emerald-400/20 blur-2xl"
                     animate={{ scale: [1, 1.12, 1], opacity: [0.4, 0.7, 0.4] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
                   <svg viewBox="0 0 120 120" className="relative w-full h-full -rotate-90">
                     <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="10" />
-                    <motion.circle cx="60" cy="60" r="52" fill="none" stroke="url(#g)" strokeWidth="10" strokeLinecap="round"
-                      strokeDasharray="327"
-                      initial={{ strokeDashoffset: 327 }}
-                      whileInView={{ strokeDashoffset: 98 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }} />
+                    {riskScore && (
+                      <motion.circle cx="60" cy="60" r="52" fill="none" stroke="url(#g)" strokeWidth="10" strokeLinecap="round"
+                        strokeDasharray="327"
+                        initial={{ strokeDashoffset: 327 }}
+                        whileInView={{ strokeDashoffset: 327 - (riskScore.score / 100) * 327 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }} />
+                    )}
                     <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#34d399" /><stop offset="1" stopColor="#22d3ee" /></linearGradient></defs>
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <AnimatedCounter end={70} duration={2} className="text-5xl font-black text-white" />
-                    <span className="text-xs text-white/50 mt-0.5">your score?</span>
+                    {riskScore ? (
+                      <>
+                        <AnimatedCounter end={riskScore.score} duration={1.5} className="text-5xl font-black text-white" />
+                        <span className="text-xs text-white/50 mt-0.5">{timeAgo(riskScore.takenAt)}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-5xl font-black text-white/25">?</span>
+                        <span className="text-xs text-white/50 mt-0.5">not checked yet</span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
