@@ -8,10 +8,12 @@ import { DailyTip } from "@/components/security/DailyTip";
 import { DailyQuizWidget } from "@/components/security/DailyQuizWidget";
 import { ShareWithFamily } from "@/components/security/ShareWithFamily";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { checkMessage } from "@/lib/scamPatterns";
+import { cn } from "@/lib/utils";
 import {
   Shield, ShieldAlert, ShieldCheck, KeyRound, Lock, EyeOff, Globe, AlertTriangle,
-  Smartphone, CreditCard, Phone, ArrowRight, Sparkles, Users, Brain, Baby,
-  CheckCircle2, Flame, Clock, ExternalLink, Siren, ChevronRight, X,
+  Smartphone, CreditCard, Phone, ArrowRight, Sparkles,
+  Flame, Clock, ExternalLink, Siren, ChevronRight, X,
 } from "lucide-react";
 
 // ── data shapes ──────────────────────────────────────────────────────────────
@@ -28,17 +30,6 @@ const TOOLS = [
   { name: "Ghana Scam Checker", href: "/tools/ghana-scam-checker", icon: Shield, desc: "Check a suspicious message before you reply" },
 ];
 
-// Each lane is a GUIDED TOUR through this page's own sections, in the order
-// that makes sense for that visitor — not a link away to one dead-end post.
-// Goal: more time on THIS page (read the alerts, take the score, try a tool),
-// not a quick exit. "Family & Kids" is the one deliberate exception since
-// CyberAbɔfra is a genuinely separate, kid-focused product.
-const LANES = [
-  { id: "new", label: "I'm just getting started", sub: "The basics, no jargon", icon: Baby, color: "from-emerald-400 to-teal-500", path: ["help", "score", "guides"] },
-  { id: "essentials", label: "I want the must-dos", sub: "Cover the essentials fast", icon: CheckCircle2, color: "from-blue-400 to-indigo-500", path: ["score", "tools", "daily"] },
-  { id: "techie", label: "I've spotted something odd", sub: "Check it, then go deep", icon: Brain, color: "from-purple-400 to-violet-500", path: ["now", "tools", "guides"] },
-  { id: "family", label: "I'm a parent", sub: "Keep the kids safe too", icon: Users, color: "from-amber-400 to-orange-500", href: "https://cyberabofra.com", external: true },
-];
 
 const NAV = [
   { id: "help", label: "Quick Help" },
@@ -151,6 +142,76 @@ function MobileCarousel<T>({ items, renderItem, keyFn, accent = "bg-primary" }: 
   );
 }
 
+const VERDICT_CONFIG = {
+  high: { icon: ShieldAlert, color: "text-red-600 dark:text-red-400", bg: "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800/40", label: "High Scam Risk", msg: "Multiple serious red flags. Don't send money, click links, or share codes — report it instead." },
+  medium: { icon: AlertTriangle, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800/40", label: "Some Red Flags", msg: "Suspicious patterns found. Verify the sender through a separate, trusted channel before acting." },
+  low: { icon: AlertTriangle, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-800/40", label: "Minor Indicators", msg: "A couple of things worth noting. Use your judgment and verify if unsure." },
+  clear: { icon: ShieldCheck, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800/40", label: "No Obvious Red Flags", msg: "No known scam patterns detected — but that's never a full guarantee. Still verify anything unsolicited." },
+} as const;
+
+// The inline diagnostic that replaced the "Choose your path" tile picker.
+// Reasoning: the #1 reason anyone lands on a scam-alert page is "I have a
+// message and I'm not sure" — so give them a real answer using the SAME
+// detection logic as the full /tools/ghana-scam-checker, right on this page,
+// then hand off into the rest of the page (score, tools) instead of a
+// generic self-sort that just scrolls people around.
+function InlineScamCheck() {
+  const [input, setInput] = useState("");
+  const [checked, setChecked] = useState(false);
+
+  const result = checked && input.trim() ? checkMessage(input) : null;
+  const cfg = result ? VERDICT_CONFIG[result.verdict] : null;
+
+  return (
+    <div className="rounded-3xl border border-border bg-card/70 backdrop-blur-xl p-5 md:p-6">
+      <textarea
+        value={input}
+        onChange={(e) => { setInput(e.target.value); setChecked(false); }}
+        placeholder="Paste the message here — e.g. 'Congratulations! You've won GHS 2,500 cashback, dial *170# to claim...'"
+        rows={4}
+        className="w-full bg-muted rounded-xl p-4 text-sm border border-border focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+      />
+      <div className="flex flex-wrap items-center gap-3 mt-3">
+        <button
+          onClick={() => setChecked(true)}
+          disabled={!input.trim()}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        >
+          <Shield className="w-4 h-4" /> Check it
+        </button>
+        <Link to="/tools/ghana-scam-checker" className="text-sm text-muted-foreground hover:text-primary transition-colors">Have a screenshot instead? Use the full checker →</Link>
+      </div>
+
+      {result && cfg && (
+        <div className={cn("rounded-2xl border p-4 mt-5", cfg.bg)}>
+          <div className="flex items-center gap-2.5 mb-2">
+            <cfg.icon className={cn("w-5 h-5", cfg.color)} />
+            <h3 className={cn("font-bold", cfg.color)}>{cfg.label}</h3>
+          </div>
+          <p className="text-sm text-foreground/80">{cfg.msg}</p>
+          {result.indicators.length > 0 && (
+            <ul className="mt-3 space-y-1.5">
+              {result.indicators.slice(0, 3).map((ind, i) => (
+                <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                  <span className="mt-1 w-1 h-1 rounded-full bg-current shrink-0" /> {ind.label}
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="flex flex-wrap gap-2 mt-4">
+            <button onClick={() => document.getElementById("score")?.scrollIntoView({ behavior: "smooth", block: "start" })} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-sm font-medium text-foreground transition-colors">
+              See your safety score <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+            {result.verdict === "high" && (
+              <a href="tel:292" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-sm font-semibold text-white transition-colors">Report to CSA (292)</a>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface SecurityLoaderData {
   alerts: ScamAlert[];
   threat: ThreatLevel | null;
@@ -173,9 +234,6 @@ export default function Security() {
   const [showNav, setShowNav] = useState(false);
   const [threatIdx, setThreatIdx] = useState(0);
   const [selectedAlert, setSelectedAlert] = useState<ScamAlert | null>(null);
-  // Guided tour: a lane sets a queue of section ids; the floating bar walks
-  // the visitor through them one at a time instead of exiting the page.
-  const [tour, setTour] = useState<{ laneLabel: string; stops: string[]; step: number } | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.15]);
@@ -217,20 +275,6 @@ export default function Security() {
 
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  const startTour = (lane: typeof LANES[number]) => {
-    if (!("path" in lane) || !lane.path?.length) return;
-    setTour({ laneLabel: lane.label, stops: lane.path, step: 0 });
-    jump(lane.path[0]);
-  };
-  const advanceTour = () => {
-    setTour(t => {
-      if (!t) return t;
-      const next = t.step + 1;
-      if (next >= t.stops.length) return null;
-      jump(t.stops[next]);
-      return { ...t, step: next };
-    });
-  };
   const threatColor = threat?.level?.toLowerCase().includes("high") || threat?.level?.toLowerCase().includes("critical")
     ? "text-red-400" : threat?.level?.toLowerCase().includes("low") ? "text-emerald-400" : "text-amber-400";
 
@@ -250,33 +294,6 @@ export default function Security() {
           </div>
         </div>
       </div>
-
-      {/* Guided-tour bar — appears once a "Choose your path" lane is picked,
-          walks the visitor through this page's own sections instead of
-          sending them away, then quietly disappears at the last stop. */}
-      <AnimatePresence>
-        {tour && (
-          <motion.div initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }} transition={{ type: "spring", damping: 24, stiffness: 260 }}
-            className="fixed bottom-4 inset-x-0 z-40 px-4">
-            <div className="mx-auto max-w-md flex items-center gap-3 rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-white/10 p-3 pl-4 shadow-2xl">
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] text-white/50 truncate">Your path · {tour.laneLabel}</p>
-                <div className="flex items-center gap-1 mt-1">
-                  {tour.stops.map((s, i) => (
-                    <span key={s} className={`h-1 rounded-full transition-all ${i === tour.step ? "w-6 bg-emerald-400" : i < tour.step ? "w-1.5 bg-emerald-400/50" : "w-1.5 bg-white/15"}`} />
-                  ))}
-                </div>
-              </div>
-              {tour.step < tour.stops.length - 1 ? (
-                <button onClick={advanceTour} className="shrink-0 inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-emerald-400 text-slate-900 text-xs font-bold hover:bg-emerald-300 transition-colors">Next stop <ChevronRight className="w-3.5 h-3.5" /></button>
-              ) : (
-                <button onClick={() => setTour(null)} className="shrink-0 px-3.5 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold hover:bg-white/15 transition-colors">Done</button>
-              )}
-              <button onClick={() => setTour(null)} aria-label="End tour" className="shrink-0 p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"><X className="w-4 h-4" /></button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* ───────── HERO — calm, premium, trust-forward ───────── */}
       <section ref={heroRef} className="relative overflow-hidden bg-[#070b14] flex items-center">
@@ -401,35 +418,26 @@ export default function Security() {
         </div>
       </section>
 
-      {/* ───────── AUDIENCE LANES ───────── */}
+      {/* ───────── INLINE SCAM CHECK — the actual reason most people land on
+          this page: they have a message and aren't sure. Real verdict, not
+          a mood-board tile picker; naturally hands off into Score/Tools. ───────── */}
       <section className="py-16 md:py-20 bg-background">
         <div className="container">
-          <Reveal className="text-center mb-12">
-            <span className="text-xs font-semibold tracking-[0.25em] uppercase text-primary/70">Choose your path</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 tracking-tight">Which sounds like you?</h2>
-            <p className="text-muted-foreground mt-3 max-w-md mx-auto">We'll guide you through this page in the order that actually matters for you.</p>
-          </Reveal>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {LANES.map((lane, i) => {
-              const Inner = (
-                <div className="group relative h-full rounded-3xl border border-border bg-card/70 backdrop-blur-xl p-6 overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.25)]">
-                  {/* gradient ring on hover */}
-                  <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br ${lane.color}`} style={{ padding: "1px", WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)", WebkitMaskComposite: "xor", maskComposite: "exclude" }} />
-                  <div className={`absolute -top-12 -right-12 w-36 h-36 rounded-full bg-gradient-to-br ${lane.color} opacity-[0.08] blur-2xl group-hover:opacity-20 transition-opacity`} />
-                  <div className={`relative w-12 h-12 rounded-2xl bg-gradient-to-br ${lane.color} flex items-center justify-center shadow-lg mb-4 transition-transform group-hover:scale-110 group-hover:rotate-6`}><lane.icon className="w-6 h-6 text-white transition-transform group-hover:scale-110" /></div>
-                  <h3 className="relative font-bold text-foreground text-lg">{lane.label}</h3>
-                  <p className="relative text-sm text-muted-foreground mt-1">{lane.sub}</p>
-                  <span className="relative inline-flex items-center gap-1 text-sm font-medium text-primary mt-4">{lane.external ? "Visit CyberAbɔfra" : "Start my path"} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
-                </div>
-              );
-              return (
-                <Reveal key={lane.id} delay={i * 0.08} className="h-full">
-                  {lane.external
-                    ? <a href={lane.href} target="_blank" rel="noopener noreferrer" className="block h-full">{Inner}</a>
-                    : <button onClick={() => startTour(lane)} className="block h-full w-full text-left">{Inner}</button>}
-                </Reveal>
-              );
-            })}
+          <div className="max-w-2xl mx-auto">
+            <Reveal className="text-center mb-8">
+              <span className="text-xs font-semibold tracking-[0.25em] uppercase text-primary/70">Got something suspicious?</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 tracking-tight">Paste it. We'll check it now.</h2>
+              <p className="text-muted-foreground mt-3">No signup, nothing saved — just a straight answer on the message you're holding.</p>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <InlineScamCheck />
+            </Reveal>
+            <Reveal delay={0.15} className="text-center mt-5">
+              <p className="text-sm text-muted-foreground">
+                Checking on behalf of your kids instead?{" "}
+                <a href="https://cyberabofra.com" target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline">Visit CyberAbɔfra <ArrowRight className="inline w-3.5 h-3.5" /></a>
+              </p>
+            </Reveal>
           </div>
         </div>
       </section>
