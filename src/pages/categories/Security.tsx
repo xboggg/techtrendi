@@ -434,8 +434,9 @@ export default function Security() {
             </Reveal>
             <Reveal delay={0.15} className="text-center mt-5">
               <p className="text-sm text-muted-foreground">
-                Checking on behalf of your kids instead?{" "}
-                <a href="https://cyberabofra.com" target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline">Visit CyberAbɔfra <ArrowRight className="inline w-3.5 h-3.5" /></a>
+                Got kids online? Teach them to spot this stuff themselves —{" "}
+                <a href="https://cyberabofra.com" target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline">CyberAbɔfra <ArrowRight className="inline w-3.5 h-3.5" /></a>{" "}
+                makes online safety fun for kids.
               </p>
             </Reveal>
           </div>
