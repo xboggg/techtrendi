@@ -28,11 +28,16 @@ const TOOLS = [
   { name: "Ghana Scam Checker", href: "/tools/ghana-scam-checker", icon: Shield, desc: "Check a suspicious message before you reply" },
 ];
 
+// Each lane is a GUIDED TOUR through this page's own sections, in the order
+// that makes sense for that visitor — not a link away to one dead-end post.
+// Goal: more time on THIS page (read the alerts, take the score, try a tool),
+// not a quick exit. "Family & Kids" is the one deliberate exception since
+// CyberAbɔfra is a genuinely separate, kid-focused product.
 const LANES = [
-  { id: "new", label: "New to this", sub: "Start simple", icon: Baby, color: "from-emerald-400 to-teal-500", href: "/blog/how-to-stay-safe-online-in-ghana" },
-  { id: "essentials", label: "The essentials", sub: "The must-dos", icon: CheckCircle2, color: "from-blue-400 to-indigo-500", href: "/blog?category=Security" },
-  { id: "techie", label: "Tech-savvy", sub: "Deep dives", icon: Brain, color: "from-purple-400 to-violet-500", href: "/blog/sim-swap-fraud-ghana" },
-  { id: "family", label: "Family & Kids", sub: "Teach the young ones", icon: Users, color: "from-amber-400 to-orange-500", href: "https://cyberabofra.com", external: true },
+  { id: "new", label: "I'm just getting started", sub: "The basics, no jargon", icon: Baby, color: "from-emerald-400 to-teal-500", path: ["help", "score", "guides"] },
+  { id: "essentials", label: "I want the must-dos", sub: "Cover the essentials fast", icon: CheckCircle2, color: "from-blue-400 to-indigo-500", path: ["score", "tools", "daily"] },
+  { id: "techie", label: "I've spotted something odd", sub: "Check it, then go deep", icon: Brain, color: "from-purple-400 to-violet-500", path: ["now", "tools", "guides"] },
+  { id: "family", label: "I'm a parent", sub: "Keep the kids safe too", icon: Users, color: "from-amber-400 to-orange-500", href: "https://cyberabofra.com", external: true },
 ];
 
 const NAV = [
@@ -72,6 +77,80 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
   );
 }
 
+// One-card-at-a-time swipe carousel for mobile (md:+ callers should render
+// their own grid instead — this component IS the mobile view, not a decorator
+// on top of a grid). Shows dot indicators + arrow buttons so the swipe gesture
+// is discoverable, not just guessable.
+function MobileCarousel<T>({ items, renderItem, keyFn, accent = "bg-primary" }: {
+  items: T[];
+  renderItem: (item: T, i: number) => React.ReactNode;
+  keyFn: (item: T, i: number) => string;
+  accent?: string;
+}) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  const onScroll = () => {
+    const el = trackRef.current;
+    if (!el) return;
+    const cardWidth = el.scrollWidth / items.length;
+    setActive(Math.round(el.scrollLeft / cardWidth));
+  };
+
+  const goTo = (i: number) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const cardWidth = el.scrollWidth / items.length;
+    el.scrollTo({ left: i * cardWidth, behavior: "smooth" });
+  };
+
+  return (
+    <div className="md:hidden">
+      <div
+        ref={trackRef}
+        onScroll={onScroll}
+        className="flex overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4"
+      >
+        {items.map((item, i) => (
+          <div key={keyFn(item, i)} className="shrink-0 w-full snap-center px-0.5">
+            {renderItem(item, i)}
+          </div>
+        ))}
+      </div>
+      {items.length > 1 && (
+        <div className="flex items-center justify-center gap-4 mt-4">
+          <button
+            aria-label="Previous"
+            onClick={() => goTo(Math.max(0, active - 1))}
+            disabled={active === 0}
+            className="p-2 rounded-full border border-border bg-card text-foreground disabled:opacity-30 disabled:cursor-not-allowed active:scale-90 transition-transform"
+          >
+            <ChevronRight className="w-4 h-4 rotate-180" />
+          </button>
+          <div className="flex items-center gap-1.5">
+            {items.map((item, i) => (
+              <button
+                key={keyFn(item, i)}
+                aria-label={`Go to card ${i + 1}`}
+                onClick={() => goTo(i)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${i === active ? `w-5 ${accent}` : "w-1.5 bg-border"}`}
+              />
+            ))}
+          </div>
+          <button
+            aria-label="Next"
+            onClick={() => goTo(Math.min(items.length - 1, active + 1))}
+            disabled={active === items.length - 1}
+            className="p-2 rounded-full border border-border bg-card text-foreground disabled:opacity-30 disabled:cursor-not-allowed active:scale-90 transition-transform"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface SecurityLoaderData {
   alerts: ScamAlert[];
   threat: ThreatLevel | null;
@@ -94,6 +173,9 @@ export default function Security() {
   const [showNav, setShowNav] = useState(false);
   const [threatIdx, setThreatIdx] = useState(0);
   const [selectedAlert, setSelectedAlert] = useState<ScamAlert | null>(null);
+  // Guided tour: a lane sets a queue of section ids; the floating bar walks
+  // the visitor through them one at a time instead of exiting the page.
+  const [tour, setTour] = useState<{ laneLabel: string; stops: string[]; step: number } | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.15]);
@@ -134,6 +216,21 @@ export default function Security() {
   }, [activeThreats.length]);
 
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  const startTour = (lane: typeof LANES[number]) => {
+    if (!("path" in lane) || !lane.path?.length) return;
+    setTour({ laneLabel: lane.label, stops: lane.path, step: 0 });
+    jump(lane.path[0]);
+  };
+  const advanceTour = () => {
+    setTour(t => {
+      if (!t) return t;
+      const next = t.step + 1;
+      if (next >= t.stops.length) return null;
+      jump(t.stops[next]);
+      return { ...t, step: next };
+    });
+  };
   const threatColor = threat?.level?.toLowerCase().includes("high") || threat?.level?.toLowerCase().includes("critical")
     ? "text-red-400" : threat?.level?.toLowerCase().includes("low") ? "text-emerald-400" : "text-amber-400";
 
@@ -153,6 +250,33 @@ export default function Security() {
           </div>
         </div>
       </div>
+
+      {/* Guided-tour bar — appears once a "Choose your path" lane is picked,
+          walks the visitor through this page's own sections instead of
+          sending them away, then quietly disappears at the last stop. */}
+      <AnimatePresence>
+        {tour && (
+          <motion.div initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }} transition={{ type: "spring", damping: 24, stiffness: 260 }}
+            className="fixed bottom-4 inset-x-0 z-40 px-4">
+            <div className="mx-auto max-w-md flex items-center gap-3 rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-white/10 p-3 pl-4 shadow-2xl">
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] text-white/50 truncate">Your path · {tour.laneLabel}</p>
+                <div className="flex items-center gap-1 mt-1">
+                  {tour.stops.map((s, i) => (
+                    <span key={s} className={`h-1 rounded-full transition-all ${i === tour.step ? "w-6 bg-emerald-400" : i < tour.step ? "w-1.5 bg-emerald-400/50" : "w-1.5 bg-white/15"}`} />
+                  ))}
+                </div>
+              </div>
+              {tour.step < tour.stops.length - 1 ? (
+                <button onClick={advanceTour} className="shrink-0 inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-emerald-400 text-slate-900 text-xs font-bold hover:bg-emerald-300 transition-colors">Next stop <ChevronRight className="w-3.5 h-3.5" /></button>
+              ) : (
+                <button onClick={() => setTour(null)} className="shrink-0 px-3.5 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold hover:bg-white/15 transition-colors">Done</button>
+              )}
+              <button onClick={() => setTour(null)} aria-label="End tour" className="shrink-0 p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"><X className="w-4 h-4" /></button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ───────── HERO — calm, premium, trust-forward ───────── */}
       <section ref={heroRef} className="relative overflow-hidden bg-[#070b14] flex items-center">
@@ -282,8 +406,8 @@ export default function Security() {
         <div className="container">
           <Reveal className="text-center mb-12">
             <span className="text-xs font-semibold tracking-[0.25em] uppercase text-primary/70">Choose your path</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 tracking-tight">Where do you want to start?</h2>
-            <p className="text-muted-foreground mt-3 max-w-md mx-auto">Pick your lane — every level is welcome here.</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 tracking-tight">Which sounds like you?</h2>
+            <p className="text-muted-foreground mt-3 max-w-md mx-auto">We'll guide you through this page in the order that actually matters for you.</p>
           </Reveal>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {LANES.map((lane, i) => {
@@ -295,14 +419,14 @@ export default function Security() {
                   <div className={`relative w-12 h-12 rounded-2xl bg-gradient-to-br ${lane.color} flex items-center justify-center shadow-lg mb-4 transition-transform group-hover:scale-110 group-hover:rotate-6`}><lane.icon className="w-6 h-6 text-white transition-transform group-hover:scale-110" /></div>
                   <h3 className="relative font-bold text-foreground text-lg">{lane.label}</h3>
                   <p className="relative text-sm text-muted-foreground mt-1">{lane.sub}</p>
-                  <span className="relative inline-flex items-center gap-1 text-sm font-medium text-primary mt-4">{lane.external ? "Visit CyberAbɔfra" : "Start"} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+                  <span className="relative inline-flex items-center gap-1 text-sm font-medium text-primary mt-4">{lane.external ? "Visit CyberAbɔfra" : "Start my path"} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
                 </div>
               );
               return (
                 <Reveal key={lane.id} delay={i * 0.08} className="h-full">
                   {lane.external
                     ? <a href={lane.href} target="_blank" rel="noopener noreferrer" className="block h-full">{Inner}</a>
-                    : <Link to={lane.href} className="block h-full">{Inner}</Link>}
+                    : <button onClick={() => startTour(lane)} className="block h-full w-full text-left">{Inner}</button>}
                 </Reveal>
               );
             })}
@@ -322,18 +446,33 @@ export default function Security() {
             <Link to="/scam-alerts" className="inline-flex items-center gap-1.5 text-primary font-medium hover:gap-2.5 transition-all">See all alerts <ArrowRight className="w-4 h-4" /></Link>
           </Reveal>
           {alerts.length > 0 ? (
-            <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-auto md:overflow-visible snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4 md:mx-0 md:px-0">
-              {alerts.map((a, i) => (
-                <Reveal key={a.id} delay={(i % 3) * 0.08} className="shrink-0 w-[85vw] sm:w-[60vw] md:w-auto snap-start">
-                  <button onClick={() => setSelectedAlert(a)} className="group h-full w-full text-left rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-5 hover:border-red-500/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <>
+              <MobileCarousel
+                items={alerts}
+                keyFn={(a) => a.id}
+                accent="bg-red-500"
+                renderItem={(a) => (
+                  <button onClick={() => setSelectedAlert(a)} className="group h-full w-full text-left rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-5 active:scale-[0.98] transition-transform duration-150">
                     <div className="flex items-center gap-2 mb-3"><span className="relative flex h-2 w-2"><span className={`absolute inline-flex h-full w-full rounded-full ${SEVERITY[a.severity] || "bg-amber-500"} opacity-60 animate-ping`} /><span className={`relative inline-flex h-2 w-2 rounded-full ${SEVERITY[a.severity] || "bg-amber-500"}`} /></span><span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{a.scam_type}</span></div>
                     <h3 className="font-bold text-foreground leading-snug">{a.emoji ? `${a.emoji} ` : ""}{a.title}</h3>
                     <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{a.description}</p>
-                    <span className="inline-flex items-center gap-1 text-xs font-medium text-red-500 mt-3 group-hover:gap-1.5 transition-all">Read full alert <ArrowRight className="w-3.5 h-3.5" /></span>
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-red-500 mt-3">Read full alert <ArrowRight className="w-3.5 h-3.5" /></span>
                   </button>
-                </Reveal>
-              ))}
-            </div>
+                )}
+              />
+              <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {alerts.map((a, i) => (
+                  <Reveal key={a.id} delay={(i % 3) * 0.08}>
+                    <button onClick={() => setSelectedAlert(a)} className="group h-full w-full text-left rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-5 hover:border-red-500/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                      <div className="flex items-center gap-2 mb-3"><span className="relative flex h-2 w-2"><span className={`absolute inline-flex h-full w-full rounded-full ${SEVERITY[a.severity] || "bg-amber-500"} opacity-60 animate-ping`} /><span className={`relative inline-flex h-2 w-2 rounded-full ${SEVERITY[a.severity] || "bg-amber-500"}`} /></span><span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{a.scam_type}</span></div>
+                      <h3 className="font-bold text-foreground leading-snug">{a.emoji ? `${a.emoji} ` : ""}{a.title}</h3>
+                      <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{a.description}</p>
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-red-500 mt-3 group-hover:gap-1.5 transition-all">Read full alert <ArrowRight className="w-3.5 h-3.5" /></span>
+                    </button>
+                  </Reveal>
+                ))}
+              </div>
+            </>
           ) : (
             <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">No active alerts right now — check back, or <Link to="/report-scam" className="text-primary">report one you've seen</Link>.</div>
           )}
@@ -429,9 +568,27 @@ export default function Security() {
             <div><h2 className="text-3xl md:text-4xl font-bold text-foreground">Safety guides</h2><p className="text-muted-foreground mt-2">Plain-English, made for real, everyday life.</p></div>
             <Link to="/blog?category=Security" className="inline-flex items-center gap-1.5 text-primary font-medium hover:gap-2.5 transition-all">All {articleCount || ""} guides <ArrowRight className="w-4 h-4" /></Link>
           </Reveal>
-          <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-5 overflow-x-auto md:overflow-visible snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4 md:mx-0 md:px-0">
+          <MobileCarousel
+            items={articles}
+            keyFn={(a) => a.id}
+            accent="bg-primary"
+            renderItem={(a) => (
+              <Link to={`/blog/${a.slug}`} className="group block h-full rounded-2xl border border-border bg-card overflow-hidden active:scale-[0.98] transition-transform duration-150">
+                {a.cover_image && <div className="aspect-[16/9] overflow-hidden bg-muted"><img src={a.cover_image} alt={a.title} className="w-full h-full object-cover" loading="lazy" /></div>}
+                <div className="p-5">
+                  <h3 className="font-bold text-foreground leading-snug line-clamp-2">{a.title}</h3>
+                  {a.excerpt && <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{a.excerpt}</p>}
+                  <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
+                    <Clock className="w-3.5 h-3.5" /> Updated {new Date(a.created_at).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
+                    <span className="text-border">·</span> {a.author || "Edmund A."}
+                  </div>
+                </div>
+              </Link>
+            )}
+          />
+          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {articles.map(a => (
-              <Link key={a.id} to={`/blog/${a.slug}`} className="group shrink-0 w-[85vw] sm:w-[60vw] md:w-auto snap-start rounded-2xl border border-border bg-card overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all">
+              <Link key={a.id} to={`/blog/${a.slug}`} className="group rounded-2xl border border-border bg-card overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all">
                 {a.cover_image && <div className="aspect-[16/9] overflow-hidden bg-muted"><img src={a.cover_image} alt={a.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" /></div>}
                 <div className="p-5">
                   <h3 className="font-bold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">{a.title}</h3>
