@@ -151,6 +151,336 @@ const allQuestions: QuizMessage[] = [
       "The Ghana Passport Office does not collect payments via MoMo to personal numbers. Official fees are paid through designated bank channels. The personal mobile money number is a clear sign of a scam.",
     verdictEmoji: "\u{1F6A8}",
   },
+  {
+    id: 11,
+    type: "SMS",
+    from: "AirtelTigo",
+    text: "You have received GHS 50 in your AirtelTigo Money wallet from AKOSUA D. New Balance: GHS 173.20. Dial *110# for help. Thank you for choosing AirtelTigo Money.",
+    time: "9:41 AM",
+    isScam: false,
+    explanation:
+      "This is a standard mobile money credit alert. It names the sender, states the exact new balance, and provides the official help shortcode. It asks for no action or information from you.",
+    verdictEmoji: "✅",
+  },
+  {
+    id: 12,
+    type: "WhatsApp",
+    from: "+233 55 XXX XXXX",
+    text: "Good day. I am Mrs. Patricia from the Bank of Ghana Unclaimed Funds Dept. Records show you are owed an inheritance of $850,000 USD from a deceased account holder with your surname. Contact me directly with your full name, ID, and a processing fee of GHS 300 to release the funds.",
+    time: "4:12 PM",
+    isScam: true,
+    explanation:
+      "The Bank of Ghana does not manage 'unclaimed inheritance' payouts or contact people over WhatsApp. Any message asking for an upfront 'processing fee' before releasing a large sum is the classic advance-fee (419) scam.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 13,
+    type: "Email",
+    from: "no-reply@jumia.com.gh",
+    text: "Your Jumia order #GH-88213-A (Samsung Earbuds) has been shipped and is expected to arrive within 2-3 business days. Track your order in the Jumia App under 'My Orders'. Thank you for shopping with Jumia.",
+    time: "11:20 AM",
+    isScam: false,
+    explanation:
+      "This is a routine shipping confirmation from an official Jumia domain. It references a specific order number and item, and directs you to check status inside the official app rather than an external link.",
+    verdictEmoji: "✅",
+  },
+  {
+    id: 14,
+    type: "SMS",
+    from: "DHL-EXPRESS",
+    text: "DHL: Your parcel is on hold at customs due to unpaid clearance fee of GHS 45. Pay now via link to avoid return: dhl-gh-clearance.info/pay Failure to pay within 24hrs will result in disposal.",
+    time: "12:03 PM",
+    isScam: true,
+    explanation:
+      "DHL does not collect customs clearance fees through random short links with unofficial domains. The fake urgency ('24hrs or disposal') combined with a non-DHL domain (dhl-gh-clearance.info) is a textbook parcel/delivery phishing scam.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 15,
+    type: "WhatsApp",
+    from: "Ama ❤️",
+    text: "Hey love, it's so good talking to you these past weeks. I finally got my visa approved to visit you in Ghana! I just need help with a GHS 1,200 flight booking fee, I'll pay you back the moment I land. You're the only one I can ask.",
+    time: "8:55 PM",
+    isScam: true,
+    explanation:
+      "This is a classic romance scam pattern: an online-only relationship, a sudden travel plan, and an urgent request for money for something that 'requires' your help before they can meet you in person. Never send money to someone you haven't met face-to-face.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 16,
+    type: "SMS",
+    from: "ECG-GH",
+    text: "Dear Customer, your prepaid meter (Acct: 041XXXXX) balance is low: GHS 8.50 remaining. Top up via ECG Power App, *880#, or any GT Bank/Momo agent to avoid disconnection.",
+    time: "6:00 AM",
+    isScam: false,
+    explanation:
+      "This is a standard low-balance reminder from ECG's automated system. It gives official top-up channels (the ECG app, USSD code, and known bank/agent networks), not a personal number or suspicious link.",
+    verdictEmoji: "✅",
+  },
+  {
+    id: 17,
+    type: "Email",
+    from: "support@binance-ghana-bonus.net",
+    text: "Congratulations! You've been selected in our Binance Ghana Community Airdrop. Claim your free 0.5 BTC bonus now by connecting your wallet and verifying with a small gas fee of GHS 120. Offer expires in 6 hours.",
+    time: "2:47 AM",
+    isScam: true,
+    explanation:
+      "Binance does not run 'community airdrops' requiring you to pay a gas fee to claim free Bitcoin, and this email doesn't come from Binance's real domain. Any crypto giveaway that asks you to pay first to receive a bigger reward is a scam.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 18,
+    type: "SMS",
+    from: "NLA-GH",
+    text: "National Lottery Authority Notice: NLA licenses are renewed annually for registered lotto operators. For verification of your operator license, visit any NLA regional office with your documents. No online renewal available.",
+    time: "10:15 AM",
+    isScam: false,
+    explanation:
+      "This reads like a genuine administrative notice from the National Lottery Authority directing people to a physical office for verification, with no request for payment, PINs, or personal banking details.",
+    verdictEmoji: "✅",
+  },
+  {
+    id: 19,
+    type: "WhatsApp",
+    from: "Ghana Police Cyber Unit",
+    text: "ALERT: This number has been reported for cybercrime activity under investigation ref GPS/CID/2026/0091. To avoid arrest, you must clear your name by paying a GHS 500 verification bond via MoMo within 2 hours.",
+    time: "3:30 PM",
+    isScam: true,
+    explanation:
+      "The Ghana Police Service does not investigate or notify suspects over WhatsApp, and never asks for a 'bond' payment via mobile money to 'avoid arrest'. This impersonation scam relies purely on fear and urgency.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 20,
+    type: "SMS",
+    from: "MTN-GH",
+    text: "Your MTN data bundle (2GB, 30 days) purchase of GHS 15.00 was successful. Balance: GHS 3.20. Dial *138# to buy more bundles. Enjoy!",
+    time: "1:05 PM",
+    isScam: false,
+    explanation:
+      "This is a routine, automated purchase confirmation with a specific bundle size, amount, remaining balance, and an official USSD shortcode. There is nothing asking you to click, reply, or share information.",
+    verdictEmoji: "✅",
+  },
+  {
+    id: 21,
+    type: "Email",
+    from: "hr@vodafone-ghana-recruitment.com",
+    text: "Your CV has been shortlisted for a Customer Service role at Vodafone Ghana (Remote, GHS 6,500/month). To confirm your interview slot, complete the attached form with your Ghana Card number, bank account, and a GHS 250 'training kit' fee.",
+    time: "5:40 PM",
+    isScam: true,
+    explanation:
+      "Legitimate employers never charge candidates a fee for a 'training kit' before hiring, and this comes from a lookalike domain, not vodafone.com.gh. Combined with a request for your Ghana Card and bank details upfront, this is a job scam.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 22,
+    type: "SMS",
+    from: "GhanaCard-NIA",
+    text: "Reminder: Your Ghana Card renewal appointment is scheduled for 22/04/2026 at the East Legon NIA office. Bring your old card and proof of address. Visit nia.gov.gh for full requirements.",
+    time: "7:15 AM",
+    isScam: false,
+    explanation:
+      "This is a plausible appointment reminder that directs you to the real NIA domain and a physical office for verification, without asking for payment, PINs, or personal data over SMS.",
+    verdictEmoji: "✅",
+  },
+  {
+    id: 23,
+    type: "WhatsApp",
+    from: "Unknown",
+    text: "\u{1F3B0} MEGA BETTING TIP: Our insider at SportyBet has leaked tonight's fixed match odds. Guaranteed win! Pay GHS 100 to unlock the code and multiply your stake 10x before kickoff. Slots limited!",
+    time: "6:50 PM",
+    isScam: true,
+    explanation:
+      "There is no such thing as a legitimate 'insider leak' or guaranteed fixed betting odds. This is a common betting scam that gets you to pay for a worthless 'code' by promising an impossible guaranteed win.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 24,
+    type: "Email",
+    from: "noreply@waec.gov.gh",
+    text: "Dear Candidate, your WASSCE 2026 results checker PIN and Serial Number have been sent to your registered phone number. Use them at ghana.waecdirect.org to check your results. Do not share your PIN with anyone.",
+    time: "9:00 AM",
+    isScam: false,
+    explanation:
+      "This is a standard WAEC notification directing candidates to the real, well-known results-checking domain, and it explicitly warns you not to share your PIN — the opposite behavior of a scam.",
+    verdictEmoji: "✅",
+  },
+  {
+    id: 25,
+    type: "SMS",
+    from: "WAEC-RESULTS",
+    text: "WAEC: Your ward's result shows an irregularity that can be cleared before publication. Send GHS 200 to Agent Kofi on 024-XXX-XXXX today to avoid cancellation of the entire result.",
+    time: "8:20 AM",
+    isScam: true,
+    explanation:
+      "WAEC does not clear 'irregularities' via SMS or accept payments to a personal agent's mobile money number. This preys on parents' anxiety around exam results and is a well-known WASSCE season scam.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 26,
+    type: "WhatsApp",
+    from: "School Bursar's Office",
+    text: "Good afternoon parents, kindly note the new school fees payment account has changed due to a bank migration. Please send this term's fees to the new MoMo number 054-XXX-XXXX (Mr. Boateng) instead of the usual bank account.",
+    time: "3:00 PM",
+    isScam: true,
+    explanation:
+      "A sudden 'account has changed, pay to this MoMo number instead' message is a very common scam targeting parents, especially via hacked or spoofed school WhatsApp groups. Always verify fee payment changes by calling the school directly on a known number.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 27,
+    type: "Email",
+    from: "statements@stanbicbank.com.gh",
+    text: "Dear Customer, your Stanbic Bank monthly e-statement for March 2026 is now available. Log in to Stanbic Online Banking or the mobile app to view and download it. This is an automated message; please do not reply.",
+    time: "6:30 AM",
+    isScam: false,
+    explanation:
+      "This is a routine e-statement notice from a legitimate bank domain, directing you to log in through the official app or website rather than clicking an embedded link, and not requesting any information.",
+    verdictEmoji: "✅",
+  },
+  {
+    id: 28,
+    type: "SMS",
+    from: "+233 20 XXX XXXX",
+    text: "CONGRATULATIONS! Your number has WON GHS 15,000 in the MTN 25th Anniversary Draw. To process your winnings, reply with your full name, Ghana Card number, and MoMo PIN for verification.",
+    time: "11:45 AM",
+    isScam: true,
+    explanation:
+      "You cannot win a promotion you never entered, and no legitimate company verifies a prize by asking for your MoMo PIN. This is a lottery/prize scam designed purely to harvest your mobile money PIN.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 29,
+    type: "WhatsApp",
+    from: "Kwame (Landlord)",
+    text: "Morning boss, as we discussed, the 2-bedroom is still available. Rent is GHS 3,500/year plus 1 year advance. Please come view it in person before any payment - I'll be at the property Saturday 10am, here's the location pin.",
+    time: "9:10 AM",
+    isScam: false,
+    explanation:
+      "This message explicitly invites you to view the property in person before paying anything, which is the opposite of how a rental scam operates. Legitimate landlords don't pressure you to pay sight-unseen.",
+    verdictEmoji: "✅",
+  },
+  {
+    id: 30,
+    type: "WhatsApp",
+    from: "Property Agent",
+    text: "Hi, the self-contained apartment in Adenta is still available at GHS 250/month, very rare price! Many people are interested, so please pay a GHS 400 booking deposit via MoMo now to secure it before viewing, since I'm not around this week.",
+    time: "2:15 PM",
+    isScam: true,
+    explanation:
+      "An unrealistically low rent, pressure to pay before viewing, and an excuse for why the 'agent' can't show you the property in person are all classic signs of a rental/apartment booking scam.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 31,
+    type: "SMS",
+    from: "GRA-VAT",
+    text: "Ghana Revenue Authority: Your VAT Flex Cube registration is confirmed. TIN: P0XXXXXXX9. For enquiries on filing deadlines, visit any GRA Taxpayer Service Centre or call 0800-900-110 (toll-free).",
+    time: "8:45 AM",
+    isScam: false,
+    explanation:
+      "This is a plausible administrative confirmation that references a masked TIN and directs enquiries to official GRA offices and a toll-free number, with no request for payment or personal information.",
+    verdictEmoji: "✅",
+  },
+  {
+    id: 32,
+    type: "Email",
+    from: "verify@paypal-secure-alert.com",
+    text: "Your PayPal account has been temporarily limited due to unusual login activity. Click here to verify your identity within 24 hours or your account and linked funds will be permanently suspended: paypal-secure-alert.com/verify",
+    time: "4:05 AM",
+    isScam: true,
+    explanation:
+      "This is not PayPal's real domain (paypal.com), and the urgent 'verify within 24 hours or lose your funds' framing is a hallmark of phishing designed to steal your login credentials on a fake site.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 33,
+    type: "SMS",
+    from: "Fido-GH",
+    text: "Your Fido loan application for GHS 500 has been approved. Funds will be disbursed to your registered MoMo wallet within 5 minutes. Repayment date: 30 days from today. Manage your loan on the Fido App.",
+    time: "10:30 AM",
+    isScam: false,
+    explanation:
+      "This reads like a standard loan disbursement notice from a known digital lender, directing you to manage the loan inside its own app rather than asking for any upfront payment or PIN.",
+    verdictEmoji: "✅",
+  },
+  {
+    id: 34,
+    type: "WhatsApp",
+    from: "Loan Officer",
+    text: "Your loan of GHS 3,000 has been approved instantly, no collateral, no credit check! To release funds to your MoMo, first pay a refundable 'insurance activation fee' of GHS 180. Fully refunded after first repayment.",
+    time: "1:50 PM",
+    isScam: true,
+    explanation:
+      "Legitimate lenders deduct fees from the loan itself; they never ask you to pay money upfront before you receive a loan. 'Pay first to unlock your approved loan' is a well-known loan scam pattern.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 35,
+    type: "Email",
+    from: "updates@zoom.us",
+    text: "Reminder: Your scheduled Zoom meeting 'Q1 Budget Review' starts in 15 minutes. Join using the link in your calendar invite or the Zoom app. Meeting ID: 812 4456 7723.",
+    time: "9:45 AM",
+    isScam: false,
+    explanation:
+      "This is a routine calendar reminder from Zoom's real domain with a specific meeting ID, and it points you to your own calendar invite or the app rather than an unfamiliar external link.",
+    verdictEmoji: "✅",
+  },
+  {
+    id: 36,
+    type: "SMS",
+    from: "COCOBOD",
+    text: "Notice to Cocoa Farmers: Producer price review meetings will hold at District Assembly halls this month. Contact your local Cocoa District Officer for the schedule. No online registration required.",
+    time: "7:50 AM",
+    isScam: false,
+    explanation:
+      "This is a believable administrative notice directing farmers to a known local office rather than asking for any online action, payment, or personal financial details.",
+    verdictEmoji: "✅",
+  },
+  {
+    id: 37,
+    type: "WhatsApp",
+    from: "+234 81 XXX XXXX",
+    text: "Oga good day, I dey sell iPhone 15 Pro Max brand new for just GHS 2,800 (UK used originally 9,000). I dey Nigeria but get agent for Accra. Send half payment via MoMo make we arrange delivery today.",
+    time: "5:25 PM",
+    isScam: true,
+    explanation:
+      "An unrealistically low price for a brand-new flagship phone, a seller based outside Ghana with a vague 'agent', and pressure to pay half upfront before any delivery are all classic online marketplace scam signs.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 38,
+    type: "SMS",
+    from: "GhPost",
+    text: "Ghana Post: Your parcel from Jumia is available for pickup at Osu Post Office. Bring a valid ID and this reference: GP2026-77341. Office hours: Mon-Fri 8am-5pm.",
+    time: "12:40 PM",
+    isScam: false,
+    explanation:
+      "This is a plausible parcel pickup notice with a specific reference number, a named physical branch, and standard office hours - it asks for nothing beyond bringing valid ID in person.",
+    verdictEmoji: "✅",
+  },
+  {
+    id: 39,
+    type: "Email",
+    from: "accounts@microsoft365-billing-support.com",
+    text: "Your Microsoft 365 subscription payment of $69.99 has failed. To avoid service interruption, update your payment details immediately by clicking the secure link below and entering your card information.",
+    time: "3:15 AM",
+    isScam: true,
+    explanation:
+      "This does not come from Microsoft's real domain, and legitimate billing issues are handled inside your Microsoft account settings, not via a link in an unsolicited email asking you to re-enter your card details.",
+    verdictEmoji: "\u{1F6A8}",
+  },
+  {
+    id: 40,
+    type: "WhatsApp",
+    from: "Church Admin",
+    text: "Good morning church family, this is a reminder that this Sunday's service starts at 8:30am. Bible study materials for this week's lesson are attached as a PDF. God bless you all.",
+    time: "6:00 AM",
+    isScam: false,
+    explanation:
+      "This is an ordinary community announcement with no request for money, personal information, or urgent action - a normal, low-risk message with none of the red flags seen in scam texts.",
+    verdictEmoji: "✅",
+  },
 ];
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -160,6 +490,10 @@ function shuffleArray<T>(array: T[]): T[] {
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
+}
+
+function sampleQuestions<T>(array: T[], count: number): T[] {
+  return shuffleArray(array).slice(0, count);
 }
 
 function getGrade(score: number): {
@@ -235,7 +569,7 @@ export default function PhishingQuiz() {
   const progress = questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
 
   const startQuiz = useCallback(() => {
-    setQuestions(shuffleArray(allQuestions));
+    setQuestions(sampleQuestions(allQuestions, 10));
     setCurrentIndex(0);
     setScore(0);
     setAnswered(false);
