@@ -356,11 +356,13 @@ export default function Security() {
       {/* Sticky in-page nav */}
       <div className={`fixed top-16 inset-x-0 z-30 transition-all duration-300 ${showNav ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"}`}>
         <div className="container">
-          <div className="mx-auto max-w-2xl mt-3 flex items-center gap-1 rounded-full bg-slate-900/90 backdrop-blur-xl border border-white/10 p-1.5 shadow-2xl overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="mx-auto max-w-2xl mt-3 flex items-center gap-1 rounded-full bg-slate-900/90 backdrop-blur-xl border border-white/10 p-1.5 shadow-2xl">
             <span className="shrink-0 pl-2 pr-1 text-emerald-400"><Shield className="w-4 h-4" /></span>
-            {NAV.map(n => (
-              <button key={n.id} onClick={() => jump(n.id)} className="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap">{n.label}</button>
-            ))}
+            <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {NAV.map(n => (
+                <button key={n.id} onClick={() => jump(n.id)} className="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap">{n.label}</button>
+              ))}
+            </div>
             <Link to="/report-scam" className="shrink-0 ml-auto px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-500/90 text-white hover:bg-red-500 transition-colors whitespace-nowrap">Report</Link>
           </div>
         </div>
