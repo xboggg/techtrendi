@@ -35,7 +35,7 @@ const SCAM_PATTERNS = [
   // Free-giveaway / "free data" / freebie bait (very common on WhatsApp & Telegram)
   { pattern: /free\s*\d+\s*(gb|mb|data|internet)|free (data|internet|mb|gb|airtime|recharge|voucher)/i, label: "Free data / airtime giveaway bait", risk: "high" as const, description: "“Free data/airtime/recharge for everyone” offers are a classic phishing trap. Networks and governments do NOT give away free data through forwarded WhatsApp/Telegram links. The link harvests your details or installs malware." },
   { pattern: /gift.*to.*everyone|to everyone|everyone.*get.*free|free.*gift.*everyone|recharge voucher/i, label: "“Free gift to EVERYONE” claim", risk: "high" as const, description: "Real promotions target specific customers with terms — not “free gifts to EVERYONE.” This wording is a hallmark of forwarded giveaway scams." },
-  { pattern: /i (just )?got mine|got mine.*get yours|claim yours|get yours (below|now|here)|i already (got|claimed)/i, label: "“I just got mine, get yours” bait", risk: "high" as const, description: "Fake social proof (“I just got mine — get yours below”) is engineered to make you act fast without thinking. Legitimate offers don't rely on this." },
+  { pattern: /i (just )?got mine|got mine.*get yours|claim yours|get yours (below|now|here)|i already (got|claimed)|i (thought it was fake|actually got|actually received).*try it|but i (actually )?got (the|my|it)/i, label: "“I actually got mine, try it” bait", risk: "high" as const, description: "Fake social proof (“I thought it was fake but I actually got it — try it”) is engineered to make a scam link look tested and trustworthy. Legitimate offers don't rely on a forwarded stranger's testimonial." },
   { pattern: /tap here|click here|claim (now|here|your)|register (now|here)|sign ?up (now|here)|get it (now|here)/i, label: "Urgent “tap/click here” call-to-action", risk: "high" as const, description: "Scam messages push a single urgent button — “TAP HERE,” “CLAIM NOW” — pointing to an outside link. Don't tap unfamiliar links." },
   { pattern: /world ?cup|afcon|world\s*cup\s*2026|opening ceremony|victory celebration|qualif(y|ication)|to celebrate/i, label: "Event-celebration giveaway hook", risk: "medium" as const, description: "Scammers attach freebie offers to big events (World Cup, AFCON, elections) to feel timely and trustworthy. The event is real; the “free gift” is not." },
   { pattern: /presidency.*partner|government.*partner.*network|partners with all.*network|all network operators/i, label: "Fake “government/operator partnership”", risk: "high" as const, description: "Claims that “the Presidency” or “all network operators” are jointly giving away data/cash are fabricated authority used to lower your guard." },
@@ -52,12 +52,17 @@ const TRUSTED_DOMAINS = [
 ];
 
 // Pull URLs out of arbitrary (OCR'd) text.
+// TLD list found 2026-07-27 to be MISSING '.buzz' — a real scam link
+// (tixbv.buzz, the "Club Beer Food Subsidy" giveaway) was silently dropped
+// here before it ever reached the trusted-domain check, so the checker
+// reported "No Obvious Red Flags" on a message containing an active scam
+// link. Added the cheap/disposable TLDs scam sites actually favor.
 function extractUrls(text: string): string[] {
   const re = /\b((?:https?:\/\/)?(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s]*)?)/gi;
   const found = (text.match(re) || [])
     .map((u) => u.replace(/[.,)]+$/, ""))
     // ignore bare words that aren't really domains (need a known-ish TLD)
-    .filter((u) => /\.(com|org|net|gh|info|xyz|online|site|club|top|live|app|me|co|io|html?)\b/i.test(u));
+    .filter((u) => /\.(com|org|net|gh|info|xyz|online|site|club|top|live|app|me|co|io|buzz|click|fun|rest|win|bid|work|link|pages\.dev|vercel\.app|netlify\.app|icu|cyou|shop|store|website|space|host|cc|tk|ml|ga|cf|gq|html?)\b/i.test(u));
   return Array.from(new Set(found));
 }
 
