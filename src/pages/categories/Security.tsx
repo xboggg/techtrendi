@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import {
   Shield, ShieldAlert, ShieldCheck, KeyRound, Lock, EyeOff, Globe, AlertTriangle,
   Smartphone, CreditCard, Phone, ArrowRight, Sparkles,
-  Flame, Clock, ExternalLink, Siren, ChevronRight, X,
+  Flame, Clock, ExternalLink, Siren, ChevronRight, X, Search,
 } from "lucide-react";
 
 // ── data shapes ──────────────────────────────────────────────────────────────
@@ -349,6 +349,21 @@ export default function Security() {
   const threatColor = threat?.level?.toLowerCase().includes("high") || threat?.level?.toLowerCase().includes("critical")
     ? "text-red-400" : threat?.level?.toLowerCase().includes("low") ? "text-emerald-400" : "text-amber-400";
 
+  // Real freshness signal — the actual most-recent timestamp across alerts
+  // and guides, never an invented "updated weekly" claim.
+  const lastUpdated = [alerts[0]?.created_at, articles[0]?.created_at]
+    .filter(Boolean)
+    .sort((a, b) => new Date(b!).getTime() - new Date(a!).getTime())[0];
+
+  // Search across content already loaded on this page (alerts + security
+  // guides) — no separate fetch, just a client-side filter.
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchResults = searchQuery.trim().length >= 2 ? {
+    alerts: alerts.filter(a => `${a.title} ${a.description}`.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 4),
+    articles: articles.filter(a => `${a.title} ${a.excerpt || ""}`.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 4),
+  } : null;
+  const hasSearchResults = !!searchResults && (searchResults.alerts.length > 0 || searchResults.articles.length > 0);
+
   return (
     <Layout>
       <SEOHead title="Cyber Safety Hub — Stay Safe Online in Ghana" description="Plain-language online safety for Ghana — scams, MoMo fraud, passwords and privacy. Sourced from Ghana's CSA and SEC." canonical="/security" keywords={["cybersecurity", "online safety", "scam protection", "MoMo fraud", "phishing", "Ghana", "cyber awareness"]} />
@@ -401,32 +416,53 @@ export default function Security() {
               <ChevronRight className="w-3.5 h-3.5 text-white/40 group-hover:translate-x-0.5 transition-transform" />
             </motion.button>
 
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white leading-[1.05] mb-5">
-              <motion.span className="inline-block" initial="hidden" animate="show"
-                variants={{ show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } } }}>
-                {"Stay safe online —".split(" ").map((w, i) => (
-                  <motion.span key={i} className="inline-block mr-[0.25em]"
-                    variants={{ hidden: { opacity: 0, y: 22, filter: "blur(6px)" }, show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } } }}>{w}</motion.span>
-                ))}
-                <br />
-                {"the".split(" ").map((w, i) => (
-                  <motion.span key={`b${i}`} className="inline-block mr-[0.25em]"
-                    variants={{ hidden: { opacity: 0, y: 22, filter: "blur(6px)" }, show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } } }}>{w}</motion.span>
-                ))}
-                {"simple way".split(" ").map((w, i) => (
-                  <motion.span key={`g${i}`} className="inline-block mr-[0.25em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-cyan-300 to-blue-300"
-                    variants={{ hidden: { opacity: 0, y: 22, filter: "blur(6px)" }, show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } }}>{w}</motion.span>
-                ))}
-              </motion.span>
-            </h1>
+            <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+              className="text-3xl md:text-5xl font-black tracking-tight text-white leading-[1.1] mb-4">
+              Ghana's record of online scams — <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-cyan-300 to-blue-300">kept current, kept honest</span>
+            </motion.h1>
 
-            <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
-              className="text-lg text-white/65 max-w-xl mb-9 leading-relaxed">
-              Scams, MoMo fraud, dodgy links — explained in plain language
-              you can act on. <span className="text-white/90 font-medium">No jargon, no fear.</span>
+            <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+              className="text-lg text-white/65 max-w-xl mb-7 leading-relaxed">
+              Verified alerts, plain-language guides, and free tools — sourced from Ghana's Cyber Security Authority and SEC, reviewed before publication.
             </motion.p>
 
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-wrap gap-3">
+            {/* Search — the single most authority-signaling element: a
+                reference should be searchable, not just scrollable. */}
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="relative max-w-xl mb-7">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/40" />
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search a scam, a number, or a topic — e.g. 'MTN cashback' or 'rental scam'"
+                  className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/[0.07] border border-white/15 text-white placeholder:text-white/35 text-sm backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:bg-white/10 transition-colors"
+                />
+              </div>
+              {searchQuery.trim().length >= 2 && (
+                <div className="absolute top-full mt-2 w-full rounded-2xl bg-slate-900/95 border border-white/10 backdrop-blur-xl shadow-2xl overflow-hidden z-20 max-h-80 overflow-y-auto">
+                  {hasSearchResults ? (
+                    <>
+                      {searchResults!.alerts.map(a => (
+                        <button key={a.id} onClick={() => { setSelectedAlert(a); setSearchQuery(""); }} className="w-full text-left px-4 py-3 hover:bg-white/5 border-b border-white/5 flex items-start gap-3">
+                          <span className="shrink-0 mt-0.5 text-[10px] font-bold uppercase tracking-wide text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">Alert</span>
+                          <span className="text-sm text-white/85 leading-snug">{a.emoji ? `${a.emoji} ` : ""}{a.title}</span>
+                        </button>
+                      ))}
+                      {searchResults!.articles.map(a => (
+                        <Link key={a.id} to={`/blog/${a.slug}`} onClick={() => setSearchQuery("")} className="w-full text-left px-4 py-3 hover:bg-white/5 border-b border-white/5 flex items-start gap-3 block">
+                          <span className="shrink-0 mt-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">Guide</span>
+                          <span className="text-sm text-white/85 leading-snug">{a.title}</span>
+                        </Link>
+                      ))}
+                    </>
+                  ) : (
+                    <p className="px-4 py-4 text-sm text-white/45">No matches yet — try the full <Link to="/tools/ghana-scam-checker" onClick={() => setSearchQuery("")} className="text-emerald-300 hover:underline">Scam Checker</Link> to analyze a specific message.</p>
+                  )}
+                </div>
+              )}
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }} className="flex flex-wrap gap-3">
               <button onClick={() => jump("help")} className="cta-sheen group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:scale-[1.03] transition-all">
                 <Siren className="w-5 h-5" /> Been scammed? Do this now
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -436,7 +472,8 @@ export default function Security() {
               </button>
             </motion.div>
 
-            {/* stats — skeleton while loading, never "..." */}
+            {/* stats — every number here is real and derived from live data,
+                never invented for effect (e.g. no fake "trusted by X people"). */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}
               className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-12 pt-7 border-t border-white/10">
               <div className="flex items-baseline gap-1.5">
@@ -450,8 +487,8 @@ export default function Security() {
                 <span className="text-sm text-white/45">free tools</span>
               </div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-base font-semibold text-emerald-400">Fresh</span>
-                <span className="text-sm text-white/45">updated weekly</span>
+                <span className="text-base font-semibold text-emerald-400">Updated</span>
+                <span className="text-sm text-white/45">{lastUpdated ? timeAgo(lastUpdated) : "regularly"}</span>
               </div>
             </motion.div>
           </div>
