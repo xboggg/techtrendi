@@ -13,6 +13,56 @@ interface PrivacyCheckResult {
   details?: string;
 }
 
+// A same-origin document.cookie write/read (the old test) always succeeds
+// regardless of third-party cookie blocking — that policy only kicks in for
+// genuinely cross-site requests, so it can't be tested from a single page.
+// Instead, detect known browsers that block third-party cookies by default.
+function checkThirdPartyCookies(): PrivacyCheckResult {
+  const ua = navigator.userAgent;
+  const isSafari = /^((?!chrome|android|crios|fxios|edg).)*safari/i.test(ua);
+  const isBrave = (navigator as any).brave !== undefined;
+  const isFirefox = /firefox/i.test(ua) && !/seamonkey/i.test(ua);
+
+  if (isBrave) {
+    return {
+      category: 'Tracking',
+      name: 'Third-Party Cookies',
+      status: 'good',
+      description: 'Brave blocks third-party cookies by default',
+      recommendation: 'No action needed — Brave\'s Shields already block cross-site cookie tracking.',
+      details: 'Detected via the Brave browser API (navigator.brave).',
+    };
+  }
+  if (isSafari) {
+    return {
+      category: 'Tracking',
+      name: 'Third-Party Cookies',
+      status: 'good',
+      description: 'Safari blocks third-party cookies by default (Intelligent Tracking Prevention)',
+      recommendation: 'No action needed — ITP already blocks cross-site cookie tracking in Safari.',
+      details: `Detected from browser identification. User-Agent: ${ua}`,
+    };
+  }
+  if (isFirefox) {
+    return {
+      category: 'Tracking',
+      name: 'Third-Party Cookies',
+      status: 'good',
+      description: 'Firefox blocks known third-party trackers by default (Enhanced Tracking Protection)',
+      recommendation: 'Keep Enhanced Tracking Protection set to "Standard" or "Strict" in Settings > Privacy & Security.',
+      details: `Detected from browser identification. User-Agent: ${ua}`,
+    };
+  }
+  return {
+    category: 'Tracking',
+    name: 'Third-Party Cookies',
+    status: 'info',
+    description: "This browser (likely Chrome/Edge) allows third-party cookies by default, and it can't be reliably tested from a single page",
+    recommendation: 'Consider blocking third-party cookies manually in Settings > Privacy, or switch to a browser that blocks them by default (Brave, Firefox, Safari).',
+    details: `Detected from browser identification. User-Agent: ${ua}`,
+  };
+}
+
 export function PrivacyChecker({ className }: { className?: string }) {
   const [isChecking, setIsChecking] = useState(false);
   const [results, setResults] = useState<PrivacyCheckResult[]>([]);
@@ -93,23 +143,7 @@ export function PrivacyChecker({ className }: { className?: string }) {
     // 4. Third-party Cookie Test
     setCurrentCheck('Checking third-party cookies...');
     await delay(200);
-    let thirdPartyCookies = false;
-    try {
-      document.cookie = '__tp_test=1; SameSite=None; Secure';
-      thirdPartyCookies = document.cookie.includes('__tp_test');
-      document.cookie = '__tp_test=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    } catch {}
-    addCheck(checks, {
-      category: 'Tracking',
-      name: 'Third-Party Cookies',
-      status: thirdPartyCookies ? 'warning' : 'good',
-      description: thirdPartyCookies
-        ? 'Third-party cookies appear to be allowed — these enable cross-site tracking'
-        : 'Third-party cookies appear to be blocked or restricted',
-      recommendation: thirdPartyCookies
-        ? 'Block third-party cookies in your browser settings to reduce cross-site tracking. Most modern browsers now offer this option.'
-        : 'Great! Third-party cookies are restricted, reducing cross-site tracking.',
-    }, updateResults);
+    addCheck(checks, checkThirdPartyCookies(), updateResults);
 
     // 5. WebRTC Leak Detection
     setCurrentCheck('Checking WebRTC leaks...');
