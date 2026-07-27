@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLoaderData } from "react-router-dom";
+import { Link, useLoaderData, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { PageHero } from "@/components/layout/PageHero";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -83,8 +83,10 @@ function getArticleImage(article: Article): string {
 }
 
 export default function Blog() {
+  const [searchParams] = useSearchParams();
+  const initialCategory = categories.find(c => c.name === searchParams.get("category"))?.name || "All";
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<"latest" | "oldest" | "longest">("latest");
 

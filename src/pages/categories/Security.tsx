@@ -322,9 +322,9 @@ export default function Security() {
             <Link to="/scam-alerts" className="inline-flex items-center gap-1.5 text-primary font-medium hover:gap-2.5 transition-all">See all alerts <ArrowRight className="w-4 h-4" /></Link>
           </Reveal>
           {alerts.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-auto md:overflow-visible snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4 md:mx-0 md:px-0">
               {alerts.map((a, i) => (
-                <Reveal key={a.id} delay={(i % 3) * 0.08}>
+                <Reveal key={a.id} delay={(i % 3) * 0.08} className="shrink-0 w-[85vw] sm:w-[60vw] md:w-auto snap-start">
                   <button onClick={() => setSelectedAlert(a)} className="group h-full w-full text-left rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-5 hover:border-red-500/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                     <div className="flex items-center gap-2 mb-3"><span className="relative flex h-2 w-2"><span className={`absolute inline-flex h-full w-full rounded-full ${SEVERITY[a.severity] || "bg-amber-500"} opacity-60 animate-ping`} /><span className={`relative inline-flex h-2 w-2 rounded-full ${SEVERITY[a.severity] || "bg-amber-500"}`} /></span><span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{a.scam_type}</span></div>
                     <h3 className="font-bold text-foreground leading-snug">{a.emoji ? `${a.emoji} ` : ""}{a.title}</h3>
@@ -429,9 +429,9 @@ export default function Security() {
             <div><h2 className="text-3xl md:text-4xl font-bold text-foreground">Safety guides</h2><p className="text-muted-foreground mt-2">Plain-English, made for real, everyday life.</p></div>
             <Link to="/blog?category=Security" className="inline-flex items-center gap-1.5 text-primary font-medium hover:gap-2.5 transition-all">All {articleCount || ""} guides <ArrowRight className="w-4 h-4" /></Link>
           </Reveal>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-5 overflow-x-auto md:overflow-visible snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4 md:mx-0 md:px-0">
             {articles.map(a => (
-              <Link key={a.id} to={`/blog/${a.slug}`} className="group rounded-2xl border border-border bg-card overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all">
+              <Link key={a.id} to={`/blog/${a.slug}`} className="group shrink-0 w-[85vw] sm:w-[60vw] md:w-auto snap-start rounded-2xl border border-border bg-card overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all">
                 {a.cover_image && <div className="aspect-[16/9] overflow-hidden bg-muted"><img src={a.cover_image} alt={a.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" /></div>}
                 <div className="p-5">
                   <h3 className="font-bold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">{a.title}</h3>
