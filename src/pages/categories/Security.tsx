@@ -34,8 +34,7 @@ const TOOLS = [
 
 const NAV = [
   { id: "help", label: "Quick Help" },
-  { id: "stories", label: "Stories" },
-  { id: "now", label: "Scams Now" },
+  { id: "now", label: "What's Happening" },
   { id: "score", label: "Your Score" },
   { id: "tools", label: "Tools" },
   { id: "daily", label: "Daily Check" },
@@ -225,9 +224,11 @@ interface TeaserStory {
 
 const TEASER_ROTATIONS = [-2.5, 2, -1.5];
 
-// A few real approved stories to pull people into /scam-stories — client-side
-// fetch only (no SSR loader) since this is supplementary, not primary,
-// content for this page; the full board handles crawlability on its own page.
+// Real approved stories, folded into the AWARENESS section (below the
+// official alerts) as a sub-block — same beat, second voice — rather than
+// a separate section competing with it. Client-side fetch only (no SSR
+// loader) since this is supplementary; the full board handles crawlability
+// on its own page. Renders nothing until real stories exist.
 function StoryTeaser() {
   const [stories, setStories] = useState<TeaserStory[]>([]);
 
@@ -243,35 +244,32 @@ function StoryTeaser() {
   if (stories.length === 0) return null;
 
   return (
-    <section id="stories" className="py-16 md:py-20 bg-gradient-to-b from-amber-50/40 to-background dark:from-amber-950/10 scroll-mt-24">
-      <div className="container">
-        <Reveal className="text-center mb-10">
-          <span className="text-xs font-semibold tracking-[0.25em] uppercase text-rose-500/80">From the community</span>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 tracking-tight">Real scams. Real people.</h2>
-          <p className="text-muted-foreground mt-3 max-w-md mx-auto">Stories shared by people who've been targeted — so you can spot it before it happens to you.</p>
-        </Reveal>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-5 gap-y-8 max-w-3xl mx-auto mb-10">
-          {stories.map((s, i) => (
-            <Reveal key={s.id} delay={i * 0.08}>
-              <div style={{ transform: `rotate(${TEASER_ROTATIONS[i % TEASER_ROTATIONS.length]}deg)` }}>
-                <div className="w-3 h-3 rounded-full bg-rose-500 mx-auto -mb-1.5 relative top-1.5 shadow-md" />
-                <div className="bg-white dark:bg-neutral-900 p-3 pb-4 rounded-sm shadow-[0_8px_20px_rgba(0,0,0,0.14)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)]">
-                  <p className="text-[13px] leading-snug text-neutral-800 dark:text-neutral-200 line-clamp-4" style={{ fontFamily: "Georgia, serif" }}>{s.story_text}</p>
-                  <div className="text-[11px] text-neutral-500 mt-2.5 pt-2 border-t border-dashed border-neutral-200 dark:border-neutral-700">
-                    <div className="font-medium text-neutral-700 dark:text-neutral-300">— {s.name_or_alias}</div>
-                    <div>{s.region}{s.country !== "Ghana" ? `, ${s.country}` : ""}</div>
-                  </div>
+    <div className="mt-16 pt-12 border-t border-border">
+      <Reveal className="text-center mb-10">
+        <span className="text-xs font-semibold tracking-[0.25em] uppercase text-rose-500/80">From people it's happened to</span>
+        <h3 className="text-2xl md:text-3xl font-bold text-foreground mt-3 tracking-tight">Real stories, from real Ghanaians</h3>
+      </Reveal>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-x-5 gap-y-8 max-w-3xl mx-auto mb-10">
+        {stories.map((s, i) => (
+          <Reveal key={s.id} delay={i * 0.08}>
+            <div style={{ transform: `rotate(${TEASER_ROTATIONS[i % TEASER_ROTATIONS.length]}deg)` }}>
+              <div className="w-3 h-3 rounded-full bg-rose-500 mx-auto -mb-1.5 relative top-1.5 shadow-md" />
+              <div className="bg-white dark:bg-neutral-900 p-3 pb-4 rounded-sm shadow-[0_8px_20px_rgba(0,0,0,0.14)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)]">
+                <p className="text-[13px] leading-snug text-neutral-800 dark:text-neutral-200 line-clamp-4" style={{ fontFamily: "Georgia, serif" }}>{s.story_text}</p>
+                <div className="text-[11px] text-neutral-500 mt-2.5 pt-2 border-t border-dashed border-neutral-200 dark:border-neutral-700">
+                  <div className="font-medium text-neutral-700 dark:text-neutral-300">— {s.name_or_alias}</div>
+                  <div>{s.region}{s.country !== "Ghana" ? `, ${s.country}` : ""}</div>
                 </div>
               </div>
-            </Reveal>
-          ))}
-        </div>
-        <Reveal delay={0.2} className="flex flex-wrap items-center justify-center gap-3">
-          <Link to="/scam-stories" className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-rose-500 text-white font-semibold shadow-lg shadow-rose-500/25 hover:bg-rose-600 transition-colors">Share your story <ArrowRight className="w-4 h-4" /></Link>
-          <Link to="/scam-stories" className="inline-flex items-center gap-1.5 px-6 py-3 rounded-2xl bg-foreground/5 hover:bg-foreground/10 text-foreground font-medium transition-colors">See all stories</Link>
-        </Reveal>
+            </div>
+          </Reveal>
+        ))}
       </div>
-    </section>
+      <Reveal delay={0.2} className="flex flex-wrap items-center justify-center gap-3">
+        <Link to="/scam-stories" className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-rose-500 text-white font-semibold shadow-lg shadow-rose-500/25 hover:bg-rose-600 transition-colors">Share your story <ArrowRight className="w-4 h-4" /></Link>
+        <Link to="/scam-stories" className="inline-flex items-center gap-1.5 px-6 py-3 rounded-2xl bg-foreground/5 hover:bg-foreground/10 text-foreground font-medium transition-colors">See all stories</Link>
+      </Reveal>
+    </div>
   );
 }
 
@@ -553,16 +551,17 @@ export default function Security() {
         </div>
       </section>
 
-      <StoryTeaser />
-
-      {/* ───────── SCAMS NOW ───────── */}
+      {/* ───────── AWARENESS — official alerts + real stories merged into
+          ONE beat: "this is real, current, and happening to people like you."
+          Two sources (CSA + community) reinforcing the same proof point,
+          instead of competing as separate sections. ───────── */}
       <section id="now" className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30 scroll-mt-24">
         <div className="container">
           <Reveal className="flex items-end justify-between gap-4 mb-8 flex-wrap">
             <div>
               <div className="flex items-center gap-2 mb-2"><span className="relative flex h-2.5 w-2.5"><span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-60 animate-ping" /><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" /></span><span className="text-xs font-bold tracking-[0.2em] uppercase text-red-500">Circulating now</span></div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">Scams going round in Ghana</h2>
-              <p className="text-muted-foreground mt-2 flex items-center gap-1.5"><Clock className="w-4 h-4" /> Updated {timeAgo(alerts[0]?.created_at)} · from CSA alerts</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">What's happening in Ghana right now</h2>
+              <p className="text-muted-foreground mt-2 flex items-center gap-1.5"><Clock className="w-4 h-4" /> Updated {timeAgo(alerts[0]?.created_at)} · verified by CSA, reported by the community</p>
             </div>
             <Link to="/scam-alerts" className="inline-flex items-center gap-1.5 text-primary font-medium hover:gap-2.5 transition-all">See all alerts <ArrowRight className="w-4 h-4" /></Link>
           </Reveal>
@@ -597,6 +596,8 @@ export default function Security() {
           ) : (
             <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">No active alerts right now — check back, or <Link to="/report-scam" className="text-primary">report one you've seen</Link>.</div>
           )}
+
+          <StoryTeaser />
         </div>
       </section>
 
