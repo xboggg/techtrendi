@@ -287,10 +287,14 @@ export default function Index() {
 
   const fetchFeaturedGuides = async () => {
     try {
+      // Newest published articles, not gated on a manual is_featured flag —
+      // scheduled/automated posts set is_published but never is_featured, so
+      // they were invisible here until someone opened the admin and flagged
+      // them by hand. Same live "newest first" pattern as the news sections.
       const { data, error } = await supabase
         .from("articles")
         .select("id, title, slug, excerpt, category, cover_image, read_time_minutes")
-        .match({ is_published: true, is_featured: true })
+        .eq("is_published", true)
         .order("created_at", { ascending: false })
         .limit(8);
 
@@ -847,12 +851,12 @@ export default function Index() {
             <div>
               <div className="flex items-center gap-2.5 mb-3">
                 <span className="h-px w-8 bg-gradient-to-r from-primary to-purple-400" />
-                <span className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">Curated by our team</span>
+                <span className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">Fresh guides</span>
               </div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-2">
-                Editor's <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">Picks</span>
+                Latest <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">Guides</span>
               </h2>
-              <p className="text-muted-foreground">Hand-picked guides on local tech, online safety, and the tools worth your time.</p>
+              <p className="text-muted-foreground">The newest guides on local tech, online safety, and the tools worth your time.</p>
             </div>
             <Button variant="outline" asChild className="self-start sm:self-auto hidden md:inline-flex rounded-xl">
               <Link to="/blog" className="flex items-center gap-2">
