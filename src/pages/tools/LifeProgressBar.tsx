@@ -102,11 +102,24 @@ const THEME_ORDER: LifeCardTheme[] = ["signature", "midnight", "paper", "sunset"
 // scrolls, so the page beneath the reveal sequence feels alive too instead
 // of appearing all at once as a static block.
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  // Safety net: whileInView relies on IntersectionObserver, which can miss
+  // an element (fast scroll, a section near the very bottom of a short
+  // page, etc.) and leave it stuck at opacity:0 forever — invisible
+  // content behind a visible border, which is worse than no animation at
+  // all. Force full visibility after a short timeout regardless, so a
+  // missed observer callback can never permanently hide real content.
+  const [forceShow, setForceShow] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(() => setForceShow(true), 1200 + delay * 1000);
+    return () => clearTimeout(id);
+  }, [delay]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
+      animate={forceShow ? { opacity: 1, y: 0 } : undefined}
+      viewport={{ once: true, margin: "0px 0px 200px 0px" }}
       transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
