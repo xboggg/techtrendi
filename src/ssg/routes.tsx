@@ -250,6 +250,7 @@ export const routes: RouteRecord[] = [
           { path: "tools/wifi-qr-generator", lazy: d(() => import("../pages/tools/WifiQrGenerator")) },
           { path: "tools/this-day-in-history", lazy: d(() => import("../pages/tools/ThisDayInHistory")) },
           { path: "tools/life-progress-bar", lazy: d(() => import("../pages/tools/LifeProgressBar")) },
+          { path: "tools/life-calculators", lazy: d(() => import("../pages/tools/LifeCalculatorsHub")) },
           { path: "tools/cybersecurity-playbook", lazy: d(() => import("../pages/tools/CybersecurityPlaybook")) },
           { path: "tools/momo-fee-calculator", lazy: d(() => import("../pages/tools/MoMoFeeCalculator")) },
           // ghana-electricity-calculator removed 2026-06-21: stale/inaccurate tariff

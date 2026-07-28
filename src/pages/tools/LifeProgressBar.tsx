@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -95,7 +96,23 @@ function CountUp({ value, duration = 1400, className }: { value: number; duratio
   return <span className={className}>{new Intl.NumberFormat().format(display)}</span>;
 }
 
-const THEME_ORDER: LifeCardTheme[] = ["signature", "midnight", "paper"];
+const THEME_ORDER: LifeCardTheme[] = ["signature", "midnight", "paper", "sunset", "forest", "ocean"];
+
+// Scroll-reveal wrapper — fades + rises into view once as the visitor
+// scrolls, so the page beneath the reveal sequence feels alive too instead
+// of appearing all at once as a static block.
+function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 // The emotional "OMG" moment: plays once after a birth date is entered,
 // staging the same numbers the page already computes into a slow reveal
@@ -199,7 +216,7 @@ function LifeRevealSequence({ stats }: { stats: LifeCardStats }) {
                 )}
               </div>
 
-              <div className="flex items-center justify-center gap-2 mt-5">
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
                 {THEME_ORDER.map((key) => (
                   <button
                     key={key}
@@ -470,22 +487,25 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
         </div>
 
         {/* Header */}
-        <div className="text-center mb-12">
-          <Badge className="mb-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0">
-            <Sparkles className="w-3 h-3 mr-1" />
-            Free Tool
-          </Badge>
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center mb-12">
+          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1, type: "spring", stiffness: 200 }}>
+            <Badge className="mb-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0">
+              <Sparkles className="w-3 h-3 mr-1" />
+              Free Tool
+            </Badge>
+          </motion.div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent">
               Life Progress Bar
             </span>
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-muted-foreground text-lg max-w-2xl mx-auto">
             See your life in perspective. Make every moment count.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         {/* Input */}
+        <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
         <Card className="mb-8 border-2 border-purple-200 dark:border-purple-900 shadow-xl shadow-purple-500/10">
           <CardHeader className="text-center pb-2">
             <CardTitle className="flex items-center justify-center gap-2">
@@ -520,6 +540,7 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
             </div>
           </CardContent>
         </Card>
+        </motion.div>
 
         {calculations ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -540,6 +561,7 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
             />
 
             {/* Main Life Progress */}
+            <Reveal>
             <Card className="overflow-hidden border-0 shadow-2xl">
               <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 p-8 md:p-12 text-white text-center">
                 <p className="text-sm uppercase tracking-widest opacity-80 mb-2">Your Life Progress</p>
@@ -579,9 +601,13 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
                 </div>
               </CardContent>
             </Card>
+            </Reveal>
 
-            {/* Stats Grid — Colorful StatCards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {/* Stats Grid — Colorful StatCards. "Total Seconds" lives only in
+                the Live Counter card right below (same number, animated
+                there) so it isn't shown twice in a row. */}
+            <Reveal delay={0.05}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <StatCard
                 icon={Calendar}
                 label="Total Days"
@@ -600,16 +626,11 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
                 value={formatNumber(calculations.ageMinutes)}
                 gradient="bg-gradient-to-br from-orange-500 to-yellow-500"
               />
-              <StatCard
-                icon={Zap}
-                label="Total Seconds"
-                value={formatNumber(calculations.ageSeconds)}
-                gradient="bg-gradient-to-br from-green-500 to-emerald-500"
-                animate
-              />
             </div>
+            </Reveal>
 
             {/* Live Counter */}
+            <Reveal delay={0.1}>
             <Card className="bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-900 text-white overflow-hidden border-0 shadow-2xl">
               <CardContent className="pt-6 pb-6 text-center relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-red-500/10 animate-pulse" />
@@ -629,8 +650,10 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
                 </div>
               </CardContent>
             </Card>
+            </Reveal>
 
             {/* Time Progress */}
+            <Reveal delay={0.15}>
             <div className="grid md:grid-cols-2 gap-6">
               <Card className="border-2 border-purple-200 dark:border-purple-900 shadow-xl shadow-purple-500/10">
                 <CardHeader>
@@ -712,8 +735,10 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
                 </CardContent>
               </Card>
             </div>
+            </Reveal>
 
             {/* Next Birthday & Zodiac */}
+            <Reveal delay={0.2}>
             <div className="grid md:grid-cols-2 gap-6">
               {/* Next Birthday */}
               <Card className="overflow-hidden border-0 shadow-xl">
@@ -751,8 +776,10 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
                 </CardContent>
               </Card>
             </div>
+            </Reveal>
 
             {/* Fun Facts */}
+            <Reveal delay={0.25}>
             <Card className="border-2 border-dashed border-pink-200 dark:border-pink-900">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
@@ -762,6 +789,9 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
                 <CardDescription>Based on average human statistics</CardDescription>
               </CardHeader>
               <CardContent>
+                {/* One highlight row (Heartbeats + Breaths — the two most
+                    visceral facts) plus a supporting tile grid, with no
+                    stat repeated between the two. */}
                 <div className="grid md:grid-cols-2 gap-4 mb-4">
                   <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-950/30 dark:to-pink-950/30 rounded-xl">
                     <div className="p-3 bg-red-500 rounded-full text-white">
@@ -786,13 +816,7 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="relative overflow-hidden p-4 bg-gradient-to-br from-red-500/10 to-pink-500/10 rounded-xl text-center">
-                    <Heart className="absolute top-1 right-1 w-12 h-12 opacity-10 text-red-500" />
-                    <Heart className="w-6 h-6 mx-auto mb-2 text-red-500" />
-                    <p className="text-lg font-bold">{formatNumber(calculations.heartbeats)}</p>
-                    <p className="text-xs text-muted-foreground">Heartbeats</p>
-                  </div>
+                <div className="grid grid-cols-3 gap-4">
                   <div className="relative overflow-hidden p-4 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-xl text-center">
                     <Bed className="absolute top-1 right-1 w-12 h-12 opacity-10 text-blue-500" />
                     <Bed className="w-6 h-6 mx-auto mb-2 text-blue-500" />
@@ -814,8 +838,10 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
                 </div>
               </CardContent>
             </Card>
+            </Reveal>
 
             {/* Life Statistics Summary */}
+            <Reveal delay={0.3}>
             <Card className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -827,13 +853,15 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <LiveCounter value={calculations.ageWeeks} label="Weeks Lived" />
                   <LiveCounter value={calculations.ageMonths} label="Months Lived" />
-                  <LiveCounter value={calculations.remainingSaturdays} label="Saturdays Left" />
-                  <LiveCounter value={calculations.mealsEaten} label="Meals Eaten" />
+                  <LiveCounter value={calculations.remainingWeeks} label="Weeks Remaining" />
+                  <LiveCounter value={calculations.remainingMonths} label="Months Remaining" />
                 </div>
               </CardContent>
             </Card>
+            </Reveal>
 
             {/* Share Button */}
+            <Reveal delay={0.1}>
             <div className="flex justify-center">
               <Button
                 onClick={shareStats}
@@ -844,8 +872,10 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
                 Share Your Life Stats
               </Button>
             </div>
+            </Reveal>
 
             {/* Motivational Quote */}
+            <Reveal delay={0.15}>
             <Card className="border-purple-200 dark:border-purple-900 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
               <CardContent className="pt-6 text-center">
                 <Sparkles className="w-6 h-6 mx-auto mb-3 text-purple-500" />
@@ -855,6 +885,23 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
                 <p className="text-sm text-muted-foreground mt-2">- Buddha</p>
               </CardContent>
             </Card>
+            </Reveal>
+
+            {/* More life & time calculators */}
+            <Reveal delay={0.2}>
+            <Link
+              to="/tools/life-calculators"
+              className="group flex items-center justify-between gap-4 p-5 rounded-2xl border-2 border-dashed border-purple-200 dark:border-purple-900 hover:border-solid hover:border-purple-400 dark:hover:border-purple-600 transition-colors"
+            >
+              <div>
+                <p className="font-semibold text-foreground">More life & time calculators</p>
+                <p className="text-sm text-muted-foreground">Birthday Countdown, Life in Weeks, Retirement Countdown, and more — coming soon</p>
+              </div>
+              <span className="shrink-0 text-primary font-medium text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
+                Explore <TrendingUp className="w-4 h-4" />
+              </span>
+            </Link>
+            </Reveal>
           </div>
         ) : (
           <Card className="border-2 border-dashed border-purple-200 dark:border-purple-900">

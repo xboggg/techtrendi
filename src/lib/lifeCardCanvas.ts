@@ -2,7 +2,7 @@
 // Client-side only (no server round-trip) — the standard approach for
 // "Spotify Wrapped"-style share cards.
 
-export type LifeCardTheme = "signature" | "midnight" | "paper";
+export type LifeCardTheme = "signature" | "midnight" | "paper" | "sunset" | "forest" | "ocean";
 
 export interface LifeCardStats {
   daysLived: number;
@@ -44,6 +44,30 @@ const THEMES: Record<LifeCardTheme, {
     inkSoft: "rgba(34,26,15,0.65)",
     accent: "#B5482A",
     cardBg: "rgba(34,26,15,0.05)",
+  },
+  sunset: {
+    label: "Sunset",
+    bgGradient: ["#F97316", "#EF4444", "#7C2D12"],
+    ink: "#FFFFFF",
+    inkSoft: "rgba(255,255,255,0.75)",
+    accent: "#FEF08A",
+    cardBg: "rgba(255,255,255,0.1)",
+  },
+  forest: {
+    label: "Forest",
+    bgGradient: ["#064E3B", "#065F46", "#14532D"],
+    ink: "#F0FDF4",
+    inkSoft: "rgba(240,253,244,0.7)",
+    accent: "#FCD34D",
+    cardBg: "rgba(252,211,77,0.08)",
+  },
+  ocean: {
+    label: "Ocean",
+    bgGradient: ["#0C4A6E", "#0369A1", "#155E75"],
+    ink: "#F0F9FF",
+    inkSoft: "rgba(240,249,255,0.72)",
+    accent: "#67E8F9",
+    cardBg: "rgba(103,232,249,0.1)",
   },
 };
 
@@ -91,12 +115,13 @@ export async function renderLifeCard(stats: LifeCardStats, theme: LifeCardTheme)
   const pad = 72;
   let y = 120;
 
-  // Eyebrow
+  // Eyebrow — given real breathing room below it so it reads as a distinct
+  // label, not crowded against the giant number underneath.
   ctx.fillStyle = t.accent;
   ctx.font = "700 30px -apple-system, Segoe UI, Arial, sans-serif";
   ctx.textBaseline = "alphabetic";
   ctx.fillText("MY LIFE, IN NUMBERS", pad, y);
-  y += 90;
+  y += 130;
 
   // Big headline number: days lived
   ctx.fillStyle = t.ink;

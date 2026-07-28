@@ -240,6 +240,7 @@ const PasswordStrength = lazy(() => import("./pages/tools/PasswordStrength"));
 const WifiQrGenerator = lazy(() => import("./pages/tools/WifiQrGenerator"));
 const ThisDayInHistory = lazy(() => import("./pages/tools/ThisDayInHistory"));
 const LifeProgressBar = lazy(() => import("./pages/tools/LifeProgressBar"));
+const LifeCalculatorsHub = lazy(() => import("./pages/tools/LifeCalculatorsHub"));
 const CybersecurityPlaybook = lazy(() => import("./pages/tools/CybersecurityPlaybook"));
 const MoMoFeeCalculator = lazy(() => import("./pages/tools/MoMoFeeCalculator"));
 const GhanaElectricityCalculator = lazy(() => import("./pages/tools/GhanaElectricityCalculator"));
@@ -452,6 +453,7 @@ const App = () => (
                       <Route path="/tools/wifi-qr-generator" element={<WifiQrGenerator />} />
                       <Route path="/tools/this-day-in-history" element={<ThisDayInHistory />} />
                       <Route path="/tools/life-progress-bar" element={<LifeProgressBar />} />
+                      <Route path="/tools/life-calculators" element={<LifeCalculatorsHub />} />
                       <Route path="/tools/cybersecurity-playbook" element={<CybersecurityPlaybook />} />
                       <Route path="/tools/momo-fee-calculator" element={<MoMoFeeCalculator />} />
                       <Route path="/tools/ghana-electricity-calculator" element={<GhanaElectricityCalculator />} />
