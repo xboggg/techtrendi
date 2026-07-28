@@ -10,6 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { LIFE_EXPECTANCY_BY_COUNTRY } from "@/data/lifeExpectancyByCountry";
+import {
   Clock, Calendar, Heart, Target, Share2, Sun, Wind, Star,
   Coffee, Utensils, Bed, Briefcase, Sparkles, Timer, TrendingUp,
   Gift, Users, Zap, Cake, Download, ArrowRight,
@@ -21,11 +29,13 @@ import { renderLifeCard, LIFE_CARD_THEMES, type LifeCardTheme, type LifeCardStat
 interface LifeStats {
   birthDate: string;
   lifeExpectancy: number;
+  country: string;
 }
 
 const defaultStats: LifeStats = {
   birthDate: "",
   lifeExpectancy: 80,
+  country: "",
 };
 
 const zodiacSigns = [
@@ -270,7 +280,7 @@ export default function LifeProgressBar() {
   useEffect(() => {
     const saved = localStorage.getItem("techtrendi_life_progress");
     if (saved) {
-      setStats(JSON.parse(saved));
+      setStats((prev) => ({ ...prev, ...JSON.parse(saved) }));
     }
   }, []);
 
@@ -549,6 +559,36 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
                   step={1}
                   className="mt-3"
                 />
+                <div className="mt-3">
+                  <Label htmlFor="country-select" className="text-xs text-muted-foreground font-normal">
+                    Not sure? Pick your country for an average estimate
+                  </Label>
+                  <Select
+                    value={stats.country}
+                    onValueChange={(code) => {
+                      const match = LIFE_EXPECTANCY_BY_COUNTRY.find((c) => c.code === code);
+                      setStats((prev) => ({
+                        ...prev,
+                        country: code,
+                        lifeExpectancy: match ? match.years : prev.lifeExpectancy,
+                      }));
+                    }}
+                  >
+                    <SelectTrigger id="country-select" className="mt-1.5">
+                      <SelectValue placeholder="Select a country..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LIFE_EXPECTANCY_BY_COUNTRY.map((c) => (
+                        <SelectItem key={c.code} value={c.code}>
+                          {c.name} ({c.years} years)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    National average, for fun — not medical advice. Fine-tune with the slider above.
+                  </p>
+                </div>
               </div>
             </div>
           </CardContent>
