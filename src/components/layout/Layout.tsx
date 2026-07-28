@@ -1,10 +1,13 @@
 import { ReactNode, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { ClientOnly } from "vite-react-ssg";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { getToolByHref } from "@/data/tools";
 import { ChevronLeft } from "lucide-react";
 import { ToolContentSection } from "@/components/tools/ToolContentSection";
+import { ToolComments } from "@/components/tools/ToolComments";
+import { useIsToolPage } from "@/components/tools/ToolPageContext";
 import { ToolJsonLd } from "@/components/seo/ToolJsonLd";
 
 interface LayoutProps {
@@ -19,6 +22,13 @@ export function Layout({ children }: LayoutProps) {
     if (!location.pathname.startsWith("/tools/")) return null;
     return getToolByHref(location.pathname) || null;
   }, [location.pathname]);
+
+  // Set by ToolPageProvider — true only on routes nested under
+  // ToolPageLayout in routes.tsx/App.tsx, the existing whitelist of real
+  // individual tool pages. A URL-shape check alone can't tell a tool page
+  // (/tools/life-progress-bar) apart from a category listing page
+  // (/tools/business) since both share the exact same /tools/:x shape.
+  const isIndividualToolPage = useIsToolPage();
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-clip">
@@ -45,6 +55,10 @@ export function Layout({ children }: LayoutProps) {
         {tool && <ToolJsonLd tool={tool} />}
         {children}
         {tool && <ToolContentSection toolId={tool.id} />}
+        {/* Comments belong inside the page, above the footer — not bolted
+            on after it. Client-only (not prerendered) to keep tool pages'
+            static HTML clean and avoid an SSR fetch, same as before. */}
+        {isIndividualToolPage && <ClientOnly>{() => <ToolComments />}</ClientOnly>}
       </main>
       <Footer />
     </div>
