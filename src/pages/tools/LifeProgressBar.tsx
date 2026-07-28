@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
@@ -10,10 +11,11 @@ import { Slider } from "@/components/ui/slider";
 import {
   Clock, Calendar, Heart, Target, Share2, Sun, Wind, Star,
   Coffee, Utensils, Bed, Briefcase, Sparkles, Timer, TrendingUp,
-  Gift, Users, Zap, Cake
+  Gift, Users, Zap, Cake, Download, ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { renderLifeCard, LIFE_CARD_THEMES, type LifeCardTheme, type LifeCardStats } from "@/lib/lifeCardCanvas";
 
 interface LifeStats {
   birthDate: string;
@@ -70,6 +72,166 @@ const getGeneration = (birthYear: number): { name: string; description: string }
   if (birthYear >= 1928) return { name: "Silent Generation", description: "The traditionalists" };
   return { name: "Greatest Generation", description: "The war generation" };
 };
+
+// Animates a number counting up from 0 to `value` over `duration` ms.
+// Runs once per mount (keyed remount from the parent restarts it).
+function CountUp({ value, duration = 1400, className }: { value: number; duration?: number; className?: string }) {
+  const [display, setDisplay] = useState(0);
+  const startRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    let raf: number;
+    const step = (ts: number) => {
+      if (startRef.current === null) startRef.current = ts;
+      const progress = Math.min(1, (ts - startRef.current) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out-cubic
+      setDisplay(Math.floor(eased * value));
+      if (progress < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+
+  return <span className={className}>{new Intl.NumberFormat().format(display)}</span>;
+}
+
+const THEME_ORDER: LifeCardTheme[] = ["signature", "midnight", "paper"];
+
+// The emotional "OMG" moment: plays once after a birth date is entered,
+// staging the same numbers the page already computes into a slow reveal
+// (day count -> pause -> days remaining -> pause -> Saturdays left) before
+// landing on a downloadable/shareable image card. The detailed stat grid
+// below this is untouched — this is a dramatic entrance in front of it,
+// not a replacement.
+function LifeRevealSequence({ stats }: { stats: LifeCardStats }) {
+  const [beat, setBeat] = useState(0); // 0=days lived, 1=days remaining, 2=saturdays, 3=card
+  const [theme, setTheme] = useState<LifeCardTheme>("signature");
+  const [cardUrl, setCardUrl] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const t = LIFE_CARD_THEMES[theme];
+
+  // The parent recomputes `stats` every second (the page has a live-ticking
+  // clock), but the reveal should tell one consistent story, not restart or
+  // regenerate the card each second. Freeze the numbers on first mount.
+  const frozenStats = useRef(stats);
+
+  useEffect(() => {
+    if (beat >= 3) return;
+    const id = setTimeout(() => setBeat((b) => b + 1), beat === 0 ? 2600 : 2200);
+    return () => clearTimeout(id);
+  }, [beat]);
+
+  useEffect(() => {
+    if (beat < 3) return;
+    let cancelled = false;
+    setGenerating(true);
+    renderLifeCard(frozenStats.current, theme).then((blob) => {
+      if (cancelled) return;
+      setCardUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(blob); });
+      setGenerating(false);
+    });
+    return () => { cancelled = true; };
+  }, [beat, theme]);
+
+  // Release the last object URL when the whole reveal unmounts (e.g. the
+  // visitor changes the birth date and this component's `key` remounts it).
+  useEffect(() => () => { if (cardUrl) URL.revokeObjectURL(cardUrl); }, [cardUrl]);
+
+  const handleDownload = () => {
+    if (!cardUrl) return;
+    const a = document.createElement("a");
+    a.href = cardUrl;
+    a.download = "my-life-card.png";
+    a.click();
+  };
+
+  const handleShare = async () => {
+    if (!cardUrl) return;
+    try {
+      const res = await fetch(cardUrl);
+      const blob = await res.blob();
+      const file = new File([blob], "my-life-card.png", { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: "My Life Card", text: "Made mine at TechTrendi — make yours:" });
+        return;
+      }
+    } catch { /* fall through to download */ }
+    handleDownload();
+  };
+
+  return (
+    <div className="relative rounded-3xl overflow-hidden mb-10 shadow-2xl">
+      <AnimatePresence mode="wait">
+        {beat === 0 && (
+          <motion.div key="beat0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
+            className="bg-gradient-to-br from-purple-700 via-pink-600 to-red-600 py-24 md:py-32 text-center px-6">
+            <motion.p initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }} className="text-white/70 text-lg mb-3">You've already lived</motion.p>
+            <CountUp value={frozenStats.current.daysLived} className="block text-6xl md:text-8xl font-black text-white tabular-nums" />
+            <motion.p initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8 }} className="text-white/70 text-lg mt-3">days</motion.p>
+          </motion.div>
+        )}
+        {beat === 1 && (
+          <motion.div key="beat1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
+            className="bg-gradient-to-br from-indigo-700 via-purple-600 to-pink-600 py-24 md:py-32 text-center px-6">
+            <motion.p initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }} className="text-white/70 text-lg mb-3">You may have around</motion.p>
+            <CountUp value={frozenStats.current.daysRemaining} className="block text-6xl md:text-8xl font-black text-white tabular-nums" />
+            <motion.p initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8 }} className="text-white/70 text-lg mt-3">days remaining</motion.p>
+          </motion.div>
+        )}
+        {beat === 2 && (
+          <motion.div key="beat2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
+            className="bg-gradient-to-br from-amber-600 via-orange-600 to-red-600 py-24 md:py-32 text-center px-6">
+            <motion.p initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }} className="text-white/70 text-lg mb-3">That means only</motion.p>
+            <CountUp value={frozenStats.current.saturdaysRemaining} className="block text-6xl md:text-8xl font-black text-white tabular-nums" />
+            <motion.p initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8 }} className="text-white/70 text-lg mt-3">Saturdays left. Make every one count.</motion.p>
+          </motion.div>
+        )}
+        {beat === 3 && (
+          <motion.div key="beat3" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}
+            className="p-6 md:p-10" style={{ background: `linear-gradient(135deg, ${t.bgGradient[0]}, ${t.bgGradient[1]}, ${t.bgGradient[2]})` }}>
+            <div className="max-w-md mx-auto">
+              <p className="text-center font-semibold mb-4" style={{ color: t.ink }}>Your Life Card is ready</p>
+              <div className="rounded-2xl overflow-hidden shadow-2xl aspect-[4/5] bg-black/10 flex items-center justify-center">
+                {generating || !cardUrl ? (
+                  <div className="w-10 h-10 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <img src={cardUrl} alt="Your Life Card" className="w-full h-full object-contain" />
+                )}
+              </div>
+
+              <div className="flex items-center justify-center gap-2 mt-5">
+                {THEME_ORDER.map((key) => (
+                  <button
+                    key={key}
+                    onClick={() => setTheme(key)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-xs font-semibold border transition-all",
+                      theme === key ? "bg-white text-black border-white scale-105" : "bg-white/10 text-white border-white/25 hover:bg-white/20"
+                    )}
+                  >
+                    {LIFE_CARD_THEMES[key].label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-3 justify-center mt-6">
+                <Button onClick={handleDownload} disabled={!cardUrl} className="gap-2 bg-white text-black hover:bg-white/90">
+                  <Download className="w-4 h-4" /> Download
+                </Button>
+                <Button onClick={handleShare} disabled={!cardUrl} variant="outline" className="gap-2 border-white/40 bg-white/10 text-white hover:bg-white/20">
+                  <Share2 className="w-4 h-4" /> Share
+                </Button>
+              </div>
+              <p className="text-center text-xs mt-4" style={{ color: t.inkSoft }}>
+                See the full breakdown below <ArrowRight className="inline w-3 h-3" />
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export default function LifeProgressBar() {
   const [stats, setStats] = useState<LifeStats>(defaultStats);
@@ -361,6 +523,22 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
 
         {calculations ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* The emotional reveal — plays once per birth-date entry (key
+                forces a remount/restart if the date changes), lands on a
+                downloadable/shareable Life Card. Detailed stats below are
+                the same content that already existed, untouched. */}
+            <LifeRevealSequence
+              key={stats.birthDate}
+              stats={{
+                daysLived: calculations.ageDays,
+                daysRemaining: calculations.remainingDays,
+                saturdaysRemaining: calculations.remainingSaturdays,
+                lifeProgress: calculations.lifeProgress,
+                zodiacSign: `${calculations.zodiacEmoji} ${calculations.zodiacSign}`.trim(),
+                generation: calculations.generation,
+              }}
+            />
+
             {/* Main Life Progress */}
             <Card className="overflow-hidden border-0 shadow-2xl">
               <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 p-8 md:p-12 text-white text-center">
