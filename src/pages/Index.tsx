@@ -218,17 +218,57 @@ function IntlNewsScroller({ news, formatTimeAgo }: { news: NewsItem[]; formatTim
 
 // Auto-sliding "Editor's Pick" card — sits in the top-left slot of the
 // Latest Guides section. Cycles through the admin-flagged is_featured
-// articles on a timer, pauses while hovered/touched so it doesn't change
-// mid-read, and exposes clickable dots for manual jumping.
+// articles on a timer, pauses while the mouse is over it (desktop) or
+// briefly after a finger swipe (mobile — auto-resumes after a few seconds
+// rather than staying paused forever, which was the original bug: touch
+// devices have no "mouse leave" to un-pause on).
+const SWIPE_RESUME_DELAY = 6000; // ms of quiet after a touch swipe before auto-slide resumes
+
 function EditorsPickCarousel({ picks }: { picks: FeaturedGuide[] }) {
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [touchPausedUntil, setTouchPausedUntil] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const wasSwipe = useRef(false);
+  const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const goTo = useCallback((i: number) => setIndex(((i % picks.length) + picks.length) % picks.length), [picks.length]);
 
   useEffect(() => {
-    if (picks.length < 2 || paused) return;
+    if (picks.length < 2 || hovered || Date.now() < touchPausedUntil) return;
     const id = setInterval(() => setIndex((i) => (i + 1) % picks.length), 5500);
     return () => clearInterval(id);
-  }, [picks.length, paused]);
+  }, [picks.length, hovered, touchPausedUntil]);
+
+  // Re-check the touch pause window on a slower tick so auto-slide actually
+  // resumes SWIPE_RESUME_DELAY after the last swipe, instead of staying
+  // paused until the next unrelated re-render.
+  useEffect(() => {
+    if (touchPausedUntil === 0) return;
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    resumeTimerRef.current = setTimeout(() => setTouchPausedUntil(0), Math.max(0, touchPausedUntil - Date.now()));
+    return () => { if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current); };
+  }, [touchPausedUntil]);
+
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    const isSwipe = Math.abs(deltaX) > 40;
+    wasSwipe.current = isSwipe;
+    if (isSwipe) {
+      // Swipe left = next, swipe right = previous.
+      goTo(index + (deltaX < 0 ? 1 : -1));
+    }
+    setTouchPausedUntil(Date.now() + SWIPE_RESUME_DELAY);
+  };
+  // The browser fires a click right after touchend — if that touch was a
+  // swipe (not a tap), suppress the Link navigation so swiping doesn't also
+  // open the currently-shown article.
+  const handleClick = (e: React.MouseEvent) => {
+    if (wasSwipe.current) { e.preventDefault(); wasSwipe.current = false; }
+  };
 
   const guide = picks[index];
   if (!guide) return null;
@@ -236,10 +276,12 @@ function EditorsPickCarousel({ picks }: { picks: FeaturedGuide[] }) {
   return (
     <Link
       to={`/blog/${guide.slug}`}
-      className="group relative rounded-2xl overflow-hidden bg-muted aspect-[16/10] block"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onTouchStart={() => setPaused(true)}
+      className="group relative rounded-2xl overflow-hidden bg-muted aspect-[16/10] block touch-pan-y select-none"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onClick={handleClick}
     >
       {picks.map((p, i) => (
         <img
@@ -402,7 +444,7 @@ export default function Index() {
         .select("id, title, slug, excerpt, category, cover_image, read_time_minutes")
         .match({ is_published: true, is_featured: true })
         .order("created_at", { ascending: false })
-        .limit(6);
+        .limit(8);
 
       if (!error && data && data.length > 0) {
         setEditorsPicks(data);
