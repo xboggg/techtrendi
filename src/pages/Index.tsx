@@ -216,6 +216,87 @@ function IntlNewsScroller({ news, formatTimeAgo }: { news: NewsItem[]; formatTim
   );
 }
 
+// Auto-sliding "Editor's Pick" card — sits in the top-left slot of the
+// Latest Guides section. Cycles through the admin-flagged is_featured
+// articles on a timer, pauses while hovered/touched so it doesn't change
+// mid-read, and exposes clickable dots for manual jumping.
+function EditorsPickCarousel({ picks }: { picks: FeaturedGuide[] }) {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (picks.length < 2 || paused) return;
+    const id = setInterval(() => setIndex((i) => (i + 1) % picks.length), 5500);
+    return () => clearInterval(id);
+  }, [picks.length, paused]);
+
+  const guide = picks[index];
+  if (!guide) return null;
+
+  return (
+    <Link
+      to={`/blog/${guide.slug}`}
+      className="group relative rounded-2xl overflow-hidden bg-muted aspect-[16/10] block"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onTouchStart={() => setPaused(true)}
+    >
+      {picks.map((p, i) => (
+        <img
+          key={p.id}
+          src={p.cover_image || ""}
+          alt={p.title}
+          className={cn(
+            "absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-out",
+            i === index ? "opacity-100" : "opacity-0"
+          )}
+        />
+      ))}
+      {!guide.cover_image && (
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+          <BookOpen className="w-16 h-16 text-muted-foreground/30" />
+        </div>
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+      <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/95 text-amber-950 text-xs font-bold shadow-sm">
+        <Star className="w-3.5 h-3.5 fill-current" /> Editor's Pick
+      </span>
+
+      <div className="absolute bottom-0 left-0 right-0 p-6">
+        <div className="flex items-center gap-2 mb-3">
+          <Badge className="bg-primary hover:bg-primary text-primary-foreground border-0 rounded-full px-3 py-1 text-xs">
+            {categoryLabels[guide.category] || guide.category}
+          </Badge>
+          <span className="flex items-center gap-1 text-white/70 text-xs">
+            <Clock className="w-3 h-3" />
+            {guide.read_time_minutes || 5} Minutes
+          </span>
+        </div>
+        <h2 className="text-lg md:text-xl font-bold text-white group-hover:text-primary/90 transition-colors line-clamp-2">
+          {guide.title}
+        </h2>
+
+        {picks.length > 1 && (
+          <div className="flex items-center gap-1.5 mt-4" onClick={(e) => e.preventDefault()}>
+            {picks.map((p, i) => (
+              <button
+                key={p.id}
+                aria-label={`Show ${p.title}`}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIndex(i); }}
+                className={cn(
+                  "h-1.5 rounded-full transition-all duration-300",
+                  i === index ? "w-5 bg-amber-400" : "w-1.5 bg-white/40 hover:bg-white/60"
+                )}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </Link>
+  );
+}
+
 export default function Index() {
   const { subscription } = useAuth();
   // SessionStorage cache for instant repeat visits, API fetch for fresh data
@@ -227,6 +308,11 @@ export default function Index() {
     staticFeaturedGuides as FeaturedGuide[]
   );
   const [loadingGuides, setLoadingGuides] = useState(false);
+  // Separate from featuredGuides (which is now "newest published," see
+  // fetchFeaturedGuides) — this is specifically the admin-flagged
+  // is_featured=true articles, used only for the auto-sliding Editor's Pick
+  // card so a hand-picked article always has a guaranteed spot.
+  const [editorsPicks, setEditorsPicks] = useState<FeaturedGuide[]>([]);
   const [latestNews, setLatestNews] = useState<NewsItem[]>([]);
   const [loadingNews, setLoadingNews] = useState(true);
   const [internationalNews, setInternationalNews] = useState<NewsItem[]>([]);
@@ -239,6 +325,7 @@ export default function Index() {
   useEffect(() => {
     // Removed fetchTrendingArticles — was fetched but never rendered (dead code)
     fetchFeaturedGuides();
+    fetchEditorsPicks();
     fetchLatestNews();
     fetchInternationalNews();
     fetchTicker();
@@ -308,7 +395,22 @@ export default function Index() {
     }
   };
 
+  const fetchEditorsPicks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("articles")
+        .select("id, title, slug, excerpt, category, cover_image, read_time_minutes")
+        .match({ is_published: true, is_featured: true })
+        .order("created_at", { ascending: false })
+        .limit(6);
 
+      if (!error && data && data.length > 0) {
+        setEditorsPicks(data);
+      }
+    } catch (error) {
+      // Silent fail — the top-left slot just won't render the carousel
+    }
+  };
 
   const fetchLatestNews = async () => {
     try {
@@ -884,10 +986,10 @@ export default function Index() {
             </div>
           ) : featuredGuides.length > 0 ? (
             <div className="space-y-6">
-              {/* Top Row: 2 Big Cards Side by Side */}
+              {/* Top Row: Editor's Pick carousel + 1 big "newest" card */}
               <div className="grid md:grid-cols-2 gap-6">
-                {featuredGuides
-                  .slice(0, 2).map((guide) => (
+                {editorsPicks.length > 0 && <EditorsPickCarousel picks={editorsPicks} />}
+                {featuredGuides.slice(0, editorsPicks.length > 0 ? 1 : 2).map((guide) => (
                   <Link
                     key={guide.id}
                     to={`/blog/${guide.slug}`}
@@ -923,10 +1025,14 @@ export default function Index() {
                 ))}
               </div>
 
-              {/* Bottom Row: 6 Small Cards in 3x2 Grid */}
+              {/* Bottom Row: 6 Small Cards in 3x2 Grid — starts right after
+                  whichever guides were used as the second big card above
+                  (index 0 if the Editor's Pick carousel took the first big
+                  slot, otherwise index 2, since both big cards came from
+                  featuredGuides in that case). */}
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {featuredGuides
-                  .slice(2, 8).map((guide) => (
+                  .slice(editorsPicks.length > 0 ? 1 : 2, editorsPicks.length > 0 ? 7 : 8).map((guide) => (
                   <Link
                     key={guide.id}
                     to={`/blog/${guide.slug}`}
