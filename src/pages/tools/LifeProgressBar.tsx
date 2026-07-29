@@ -158,14 +158,20 @@ function LifeRevealSequence({ stats }: { stats: LifeCardStats }) {
   // changes the underlying numbers, so the card never goes stale.
   const frozenStats = useRef(stats);
   const [statsVersion, setStatsVersion] = useState(0);
-  const prevLifeProgress = useRef(stats.lifeProgress);
+  // Rounded to 1 decimal so the once-a-second clock tick (which nudges
+  // lifeProgress by a tiny fraction every render) never counts as a
+  // "real" change — only an actual life-expectancy edit does. Without
+  // this, the re-sync effect below fired every second forever, endlessly
+  // re-triggering the Life Card render and never letting it settle.
+  const roundedProgress = Math.round(stats.lifeProgress * 10) / 10;
+  const prevRoundedProgress = useRef(roundedProgress);
 
   useEffect(() => {
-    if (stats.lifeProgress === prevLifeProgress.current) return;
-    prevLifeProgress.current = stats.lifeProgress;
+    if (roundedProgress === prevRoundedProgress.current) return;
+    prevRoundedProgress.current = roundedProgress;
     frozenStats.current = stats;
     setStatsVersion((v) => v + 1);
-  }, [stats]);
+  }, [roundedProgress, stats]);
 
   useEffect(() => {
     if (beat >= 3) return;
