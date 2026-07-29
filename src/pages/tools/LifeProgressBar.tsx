@@ -152,8 +152,19 @@ function LifeRevealSequence({ stats }: { stats: LifeCardStats }) {
 
   // The parent recomputes `stats` every second (the page has a live-ticking
   // clock), but the reveal should tell one consistent story, not restart or
-  // regenerate the card each second. Freeze the numbers on first mount.
+  // regenerate the card each second. Freeze the numbers on first mount —
+  // then re-sync (without replaying the animation) whenever life expectancy
+  // changes the underlying numbers, so the card never goes stale.
   const frozenStats = useRef(stats);
+  const [statsVersion, setStatsVersion] = useState(0);
+  const prevLifeProgress = useRef(stats.lifeProgress);
+
+  useEffect(() => {
+    if (stats.lifeProgress === prevLifeProgress.current) return;
+    prevLifeProgress.current = stats.lifeProgress;
+    frozenStats.current = stats;
+    setStatsVersion((v) => v + 1);
+  }, [stats]);
 
   useEffect(() => {
     if (beat >= 3) return;
@@ -171,7 +182,7 @@ function LifeRevealSequence({ stats }: { stats: LifeCardStats }) {
       setGenerating(false);
     });
     return () => { cancelled = true; };
-  }, [beat, theme]);
+  }, [beat, theme, statsVersion]);
 
   // Release the last object URL when the whole reveal unmounts (e.g. the
   // visitor changes the birth date and this component's `key` remounts it).
@@ -259,7 +270,7 @@ function LifeRevealSequence({ stats }: { stats: LifeCardStats }) {
                   <Download className="w-4 h-4" /> Download
                 </Button>
                 <Button onClick={handleShare} disabled={!cardUrl} variant="outline" className="gap-2 border-white/40 bg-white/10 text-white hover:bg-white/20">
-                  <Share2 className="w-4 h-4" /> Share
+                  <Share2 className="w-4 h-4" /> Share Image
                 </Button>
               </div>
               <p className="text-center text-xs mt-4" style={{ color: t.inkSoft }}>
@@ -599,8 +610,11 @@ Check yours: techtrendi.com/tools/life-progress-bar`;
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* The emotional reveal — plays once per birth-date entry (key
                 forces a remount/restart if the date changes), lands on a
-                downloadable/shareable Life Card. Detailed stats below are
-                the same content that already existed, untouched. */}
+                downloadable/shareable Life Card. Adjusting life expectancy
+                afterward updates the frozen numbers/card in place without
+                replaying the ~7s animation (see frozenStats sync effect
+                inside LifeRevealSequence). Detailed stats below are the
+                same content that already existed, untouched. */}
             <LifeRevealSequence
               key={stats.birthDate}
               stats={{
