@@ -187,6 +187,32 @@ switch ($section) {
         $image_field = 'image';
         break;
     case 'tools':
+        // Life Progress Bar shared-stats link: personalized title + OG image
+        // rendered server-side from the same base64url payload the client
+        // encodes (see src/lib/lifeShareLink.ts). Falls through to the
+        // generic tool OG tags below if there's no share param.
+        if ($slug === 'life-progress-bar' && !empty($_GET['share'])) {
+            $share = $_GET['share'];
+            $decoded = decode_life_share($share);
+            if ($decoded !== null) {
+                $pct = isset($decoded['p']) ? round(floatval($decoded['p']), 1) : null;
+                $days = isset($decoded['d']) ? intval($decoded['d']) : null;
+                $title = ($pct !== null)
+                    ? "I've lived {$pct}% of my life so far"
+                    : 'My Life Progress';
+                $desc = ($days !== null)
+                    ? number_format($days) . " days lived. See your own life in perspective — free tool by TechTrendi."
+                    : 'See your life in perspective with fascinating stats. Free tool by TechTrendi.';
+                $og_image = 'https://db2.techtrendi.com/api/og/life-card.png?share=' . urlencode($share);
+                $og_url = $SITE_URL . '/tools/life-progress-bar?share=' . urlencode($share);
+                serve_og(
+                    htmlspecialchars($title, ENT_QUOTES, 'UTF-8'),
+                    htmlspecialchars($desc, ENT_QUOTES, 'UTF-8'),
+                    $og_image, 'image/png', $og_url, '', '', '', 'website'
+                );
+                exit;
+            }
+        }
         // Tools are not in DB — generate title from slug
         $tool_title = ucwords(str_replace('-', ' ', $slug));
         $og_url = $SITE_URL . '/tools/' . $slug;
@@ -282,6 +308,19 @@ $og_image_type = $img_type_map[$img_ext] ?? 'image/jpeg';
 serve_og($og_title, $og_description, $og_image, $og_image_type, $og_url, $author, $category, $published_time, $type);
 
 // ---- Functions ----
+
+// Decodes the base64url JSON payload built by src/lib/lifeShareLink.ts on
+// the client. Same format the life-card-og Python service (port 5118)
+// decodes to render the personalized OG image.
+function decode_life_share($payload) {
+    $b64 = strtr($payload, '-_', '+/');
+    $padded = $b64 . str_repeat('=', (4 - strlen($b64) % 4) % 4);
+    $raw = base64_decode($padded, true);
+    if ($raw === false) return null;
+    $data = json_decode($raw, true);
+    if (!is_array($data)) return null;
+    return $data;
+}
 
 function serve_default() {
     global $SITE_URL, $DEFAULT_IMAGE, $SITE_NAME;
