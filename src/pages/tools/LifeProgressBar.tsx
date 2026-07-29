@@ -25,6 +25,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { renderLifeCard, LIFE_CARD_THEMES, type LifeCardTheme, type LifeCardStats } from "@/lib/lifeCardCanvas";
+import { buildLifeShareUrl } from "@/lib/lifeShareLink";
 
 interface LifeStats {
   birthDate: string;
@@ -408,6 +409,16 @@ export default function LifeProgressBar() {
   const shareStats = async () => {
     if (!calculations) return;
 
+    const shareUrl = buildLifeShareUrl({
+      lifeProgress: calculations.lifeProgress,
+      daysLived: calculations.ageDays,
+      daysRemaining: calculations.remainingDays,
+      saturdaysRemaining: calculations.remainingSaturdays,
+      zodiacSign: `${calculations.zodiacEmoji} ${calculations.zodiacSign}`.trim(),
+      generation: calculations.generation,
+      theme: "signature",
+    });
+
     const text = `Life Progress: ${calculations.lifeProgress.toFixed(1)}%
 Age: ${calculations.ageYears.toFixed(1)} years
 Days lived: ${formatNumber(calculations.ageDays)}
@@ -415,18 +426,17 @@ Remaining: ~${formatNumber(calculations.remainingDays)} days
 Zodiac: ${calculations.zodiacEmoji} ${calculations.zodiacSign}
 Generation: ${calculations.generation}
 
-Make every day count!
-Check yours: techtrendi.com/tools/life-progress-bar`;
+Make every day count!`;
 
     if (navigator.share) {
       try {
-        await navigator.share({ text });
+        await navigator.share({ text, url: shareUrl });
       } catch {
-        navigator.clipboard.writeText(text);
+        navigator.clipboard.writeText(`${text}\nCheck yours: ${shareUrl}`);
         toast.success("Copied to clipboard!");
       }
     } else {
-      navigator.clipboard.writeText(text);
+      navigator.clipboard.writeText(`${text}\nCheck yours: ${shareUrl}`);
       toast.success("Copied to clipboard!");
     }
   };
