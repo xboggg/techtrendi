@@ -20,12 +20,14 @@ import { LIFE_EXPECTANCY_BY_COUNTRY } from "@/data/lifeExpectancyByCountry";
 import {
   Clock, Calendar, Heart, Target, Share2, Sun, Wind, Star,
   Coffee, Utensils, Bed, Briefcase, Sparkles, Timer, TrendingUp,
-  Gift, Users, Zap, Cake, Download, ArrowRight,
+  Gift, Users, Zap, Cake, Download, ArrowRight, Flame,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { renderLifeCard, LIFE_CARD_THEMES, type LifeCardTheme, type LifeCardStats } from "@/lib/lifeCardCanvas";
 import { buildLifeShareUrl } from "@/lib/lifeShareLink";
+import { recordCheckIn, type StreakState } from "@/lib/lifeCheckInStreak";
+import { getDailyMoment } from "@/lib/lifeDailyMoment";
 
 interface LifeStats {
   birthDate: string;
@@ -294,12 +296,14 @@ function LifeRevealSequence({ stats }: { stats: LifeCardStats }) {
 export default function LifeProgressBar() {
   const [stats, setStats] = useState<LifeStats>(defaultStats);
   const [now, setNow] = useState(new Date());
+  const [streak, setStreak] = useState<StreakState | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("techtrendi_life_progress");
     if (saved) {
       setStats((prev) => ({ ...prev, ...JSON.parse(saved) }));
     }
+    setStreak(recordCheckIn());
   }, []);
 
   useEffect(() => {
@@ -407,6 +411,21 @@ export default function LifeProgressBar() {
       generationDescription: generation.description,
     };
   }, [stats.birthDate, stats.lifeExpectancy, now]);
+
+  const dailyMoment = useMemo(() => {
+    if (!calculations) return null;
+    return getDailyMoment({
+      ageYears: calculations.ageYears,
+      ageDays: calculations.ageDays,
+      remainingDays: calculations.remainingDays,
+      remainingWeeks: calculations.remainingWeeks,
+      lifeProgress: calculations.lifeProgress,
+      daysUntilBirthday: calculations.daysUntilBirthday,
+      nextBirthdayAge: calculations.nextBirthdayAge,
+    });
+    // Recompute once per calendar day change, not every second-tick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calculations?.ageDays]);
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat().format(Math.floor(num));
@@ -656,6 +675,33 @@ Make every day count!`;
                 generation: calculations.generation,
               }}
             />
+
+            {/* Daily check-in streak + today's rotating angle on the same
+                numbers — the "come back tomorrow" hook. Both are purely
+                derived from localStorage/date, so they cost nothing to
+                compute and never require the reveal animation to replay. */}
+            <Reveal delay={0.05}>
+            <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+              <CardContent className="p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center shadow-lg shadow-orange-500/30">
+                    <Flame className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold tabular-nums leading-none">{streak?.count ?? 1}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">day{(streak?.count ?? 1) === 1 ? "" : "s"} in a row</p>
+                  </div>
+                </div>
+                <div className="hidden sm:block w-px self-stretch bg-white/10" />
+                {dailyMoment && (
+                  <div className="min-w-0">
+                    <p className="font-semibold text-slate-100">{dailyMoment.label}</p>
+                    <p className="text-sm text-slate-400 mt-0.5">{dailyMoment.detail}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            </Reveal>
 
             {/* Main Life Progress */}
             <Reveal>
