@@ -26,7 +26,8 @@
 15. [Authentication & Authorization](#15-authentication--authorization)
 16. [Analytics & Tracking](#16-analytics--tracking)
 17. [Environment Variables & Secrets](#17-environment-variables--secrets)
-18. [Troubleshooting](#18-troubleshooting)
+18. [Free Tools System — Life Progress Bar](#18-free-tools-system--life-progress-bar)
+19. [Troubleshooting](#19-troubleshooting)
 
 ---
 
@@ -1097,7 +1098,43 @@ const res = await fetch("https://db.techtrendi.com/api/generate-article", {
 
 ---
 
-## 18. Troubleshooting
+## 18. Free Tools System — Life Progress Bar
+
+The Life Progress Bar (`/tools/life-progress-bar`) is TechTrendi's flagship growth-focused tool — a client-side calculator with no backend/CMS component, unlike the content systems above. It shows a visitor's life as a progress bar (days lived, days/Saturdays remaining) based on birth date + a life-expectancy setting.
+
+### Architecture
+- Entirely client-side (`src/pages/tools/LifeProgressBar.tsx`) — no Supabase table, no admin panel entry. All state lives in `localStorage` (`techtrendi_life_progress`).
+- Country-based life-expectancy defaults come from a static dataset: `src/data/lifeExpectancyByCountry.ts` (~150 countries, UN/World Bank figures).
+- The "Life Card" (downloadable/shareable image) is rendered client-side via Canvas: `src/lib/lifeCardCanvas.ts`, 6 themes (signature/midnight/paper/sunset/forest/ocean), 1080×1350 portrait.
+
+### Growth features (added Jul–Aug 2026)
+- **Age-aware featured stat** (`src/lib/lifeFeaturedStat.ts`): the "Your Life Progress" card shows a life-stage-appropriate reframe below the raw percentage — "mornings to come" for ≤25, "Saturdays/years ahead" for 26–64, "months of stories" for 65+. Rotates by day-of-year (deterministic, not per-minute) so it can't flicker mid-visit. Deliberately never leads with "% of life gone."
+- **Daily moment** (`src/lib/lifeDailyMoment.ts`): a small card with a different angle on the same stats each calendar day (e.g. "You've now lived through N weeks"). Purely date-derived, no visit-tracking.
+- **Opt-in estimated end date**: a quiet "Curious? See your estimated date" link, gated behind an explicit AlertDialog warning ("not a medical prediction"). Confirming reveals `birthDate + lifeExpectancy years` plus a motivational reframe ("N more summers — what will you do with them?").
+- **Live clock**: a small ticking real-time clock under the header subtitle — ambient, unrelated to the life-stat math.
+- **Haptic pulse**: `CountUp` (used in the animated reveal sequence) fires a ~15ms `navigator.vibrate()` pulse when each big number finishes counting up. Mobile only, silent no-op elsewhere. No sound — deliberately avoided, since audio autoplay reads as spammy far more easily than a barely-there vibration.
+- **No daily-streak/return-visit counter.** One was built and shipped, then deliberately removed — a "come back to watch yourself die" loop on a mortality-framed tool is corrosive, not motivating, and isn't what actually drives sharing. If this is reintroduced in the future, keep it framed around reflection, not compulsion.
+
+### Rich link previews (share flow)
+Sharing ("Share Your Life Stats") builds a URL with the visitor's stats base64url-encoded in the query string (`src/lib/lifeShareLink.ts`) — stateless, no DB row created. Two server-side pieces make the shared link render as a real preview card in WhatsApp/Twitter/Facebook/iMessage instead of a bare link:
+
+1. **`public/og-meta.php`** (version-controlled here specifically so it deploys with every push instead of drifting from a server-only copy — see `git log -- public/og-meta.php` for the history of it being moved into the repo). Its existing `tools` case special-cases `life-progress-bar` + `?share=`: decodes the payload, serves a personalized `og:title`/`og:description`/`og:image` instead of the generic tool fallback.
+2. **`life_card_og.py`** — a Python/Pillow image-rendering microservice on server 144 (`/opt/tech-news/life_card_og.py`), same style as the existing `card_api.py`. Decodes the same share payload, renders a 1200×630 landscape PNG matching the Life Card's visual language. Runs as systemd service `techtrendi-life-og.service` on port 5118, proxied at `https://db2.techtrendi.com/api/og/life-card.png`.
+
+nginx routing note: bot-facing requests to `/tools/*` are rewritten to `og-meta.php?path=$1&$args` (the `&$args` was added specifically to preserve the `?share=` query string through the rewrite — without it, `$_GET['share']` never reaches the PHP script).
+
+To verify the share flow after any change here:
+```bash
+# Simulate a WhatsApp crawler hitting a real share link
+curl -s -A "WhatsApp/2.23.20.0" "https://techtrendi.com/tools/life-progress-bar?share=<payload>" | grep "og:image\|og:title"
+```
+
+### Deploy gotcha specific to this tool
+`public/og-meta.php` and the age-bracket/daily-moment/OG changes all ship through the normal `npm run build` → GitHub Actions → rsync pipeline like any other page — no special deploy steps. The Python OG-image service (`life_card_og.py`, systemd unit, nginx proxy route) is server-side infrastructure and does **not** redeploy automatically; changes to it need manual `scp` + service restart on 144.
+
+---
+
+## 19. Troubleshooting
 
 ### "Oops! Something went wrong" on a page
 
