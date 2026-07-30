@@ -38,6 +38,7 @@ import {
   Mail,
   Target,
   AlertCircle,
+  Wrench,
 } from "lucide-react";
 
 interface PageView {
@@ -64,7 +65,7 @@ interface PageView {
 }
 
 type TimeRange = "today" | "7d" | "30d" | "90d" | "all";
-type Tab = "overview" | "conversions" | "content" | "audience" | "acquisition" | "performance" | "engagement" | "growth";
+type Tab = "overview" | "conversions" | "content" | "tools" | "audience" | "acquisition" | "performance" | "engagement" | "growth";
 
 interface ArticleRecord {
   id: string;
@@ -640,6 +641,55 @@ export default function AdminAnalytics() {
     return Object.values(counts).sort((a, b) => b.views - a.views).slice(0, 10);
   }, [pageViews]);
 
+  // Tools analytics: page views scoped to /tools/*, broken down per-tool
+  // plus country/device/browser specific to tool traffic (separate from the
+  // site-wide Audience tab, which mixes in articles/news/everything else).
+  const toolViews = useMemo(() => pageViews.filter((pv) => pv.page_path.startsWith("/tools/")), [pageViews]);
+
+  const toolsAnalytics = useMemo(() => {
+    const perTool: Record<string, { path: string; title: string; views: number; sessions: Set<string> }> = {};
+    toolViews.forEach((pv) => {
+      if (!perTool[pv.page_path]) {
+        perTool[pv.page_path] = { path: pv.page_path, title: pv.page_title || pv.page_path, views: 0, sessions: new Set() };
+      }
+      perTool[pv.page_path].views++;
+      if (pv.session_id) perTool[pv.page_path].sessions.add(pv.session_id);
+    });
+    const topTools = Object.values(perTool)
+      .map((t) => ({ path: t.path, title: t.title, views: t.views, uniqueVisitors: t.sessions.size }))
+      .sort((a, b) => b.views - a.views);
+
+    const totalViews = toolViews.length;
+    const uniqueToolVisitors = new Set(toolViews.map((pv) => pv.session_id).filter(Boolean)).size;
+
+    const countryCounts: Record<string, number> = {};
+    const deviceCounts: Record<string, number> = { desktop: 0, mobile: 0, tablet: 0 };
+    const browserCounts: Record<string, number> = {};
+    toolViews.forEach((pv) => {
+      if (pv.country) countryCounts[pv.country] = (countryCounts[pv.country] || 0) + 1;
+      const d = (pv.device_type || "desktop").toLowerCase();
+      deviceCounts[d] = (deviceCounts[d] || 0) + 1;
+      const b = pv.browser || "Unknown";
+      browserCounts[b] = (browserCounts[b] || 0) + 1;
+    });
+    const denom = Math.max(totalViews, 1);
+    const countries = Object.entries(countryCounts)
+      .map(([name, count]) => ({ name, count, pct: Math.round((count / denom) * 100) }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+    const devicePcts = {
+      desktop: { count: deviceCounts.desktop, pct: Math.round((deviceCounts.desktop / denom) * 100) },
+      mobile: { count: deviceCounts.mobile, pct: Math.round((deviceCounts.mobile / denom) * 100) },
+      tablet: { count: deviceCounts.tablet, pct: Math.round((deviceCounts.tablet / denom) * 100) },
+    };
+    const browsers = Object.entries(browserCounts)
+      .map(([name, count]) => ({ name, count, pct: Math.round((count / denom) * 100) }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    return { topTools, totalViews, uniqueToolVisitors, countries, devices: devicePcts, browsers };
+  }, [toolViews]);
+
   // UTM campaigns
   const utmCampaigns = useMemo(() => {
     const counts: Record<string, { source: string; medium: string; campaign: string; views: number }> = {};
@@ -1009,6 +1059,7 @@ export default function AdminAnalytics() {
             { id: "overview", label: "Overview", icon: BarChart3 },
             { id: "conversions", label: "Conversions", icon: UserPlus },
             { id: "content", label: "Content", icon: Newspaper },
+            { id: "tools", label: "Tools", icon: Wrench },
             { id: "performance", label: "Performance", icon: TrendingUp },
             { id: "engagement", label: "Engagement", icon: MessageSquare },
             { id: "growth", label: "Growth", icon: Activity },
@@ -1462,6 +1513,97 @@ export default function AdminAnalytics() {
                     </div>
                   )) : <p className="text-sm text-muted-foreground">No exit page data yet</p>}
                 </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Tools Tab — usage of /tools/* pages specifically (separate from
+            the site-wide Audience tab, which mixes in articles/news/etc). */}
+        {activeTab === "tools" && (
+          <>
+            {/* Summary cards */}
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div className="bg-card border border-border rounded-xl p-6">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                  <Eye className="w-4 h-4" />
+                  Total Tool Views
+                </div>
+                <p className="text-3xl font-bold text-foreground">{toolsAnalytics.totalViews.toLocaleString()}</p>
+              </div>
+              <div className="bg-card border border-border rounded-xl p-6">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                  <Users className="w-4 h-4" />
+                  Unique Tool Visitors
+                </div>
+                <p className="text-3xl font-bold text-foreground">{toolsAnalytics.uniqueToolVisitors.toLocaleString()}</p>
+              </div>
+            </div>
+
+            {/* Top tools by views */}
+            <div className="bg-card border border-border rounded-xl p-6">
+              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Wrench className="w-4 h-4" />
+                Top Tools by Views
+              </h3>
+              {toolsAnalytics.topTools.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Tool</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Path</th>
+                        <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Views</th>
+                        <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Unique Visitors</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {toolsAnalytics.topTools.map((t) => (
+                        <tr key={t.path} className="border-b border-border last:border-0 hover:bg-muted/50">
+                          <td className="py-3 px-4 text-sm font-medium text-foreground">{t.title}</td>
+                          <td className="py-3 px-4 text-sm text-muted-foreground">{t.path}</td>
+                          <td className="py-3 px-4 text-right text-sm font-medium">{t.views.toLocaleString()}</td>
+                          <td className="py-3 px-4 text-right text-sm text-muted-foreground">{t.uniqueVisitors.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">No tool views yet in this time range</p>
+              )}
+            </div>
+
+            {/* Device + Countries specific to tool traffic */}
+            <div className="grid lg:grid-cols-2 gap-6">
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="font-semibold text-foreground mb-4">Tool Visitors — Device</h3>
+                <div className="space-y-4">
+                  <DeviceBar icon={Monitor} label="Desktop" count={toolsAnalytics.devices.desktop.count} pct={toolsAnalytics.devices.desktop.pct} color="bg-blue-500" />
+                  <DeviceBar icon={Smartphone} label="Mobile" count={toolsAnalytics.devices.mobile.count} pct={toolsAnalytics.devices.mobile.pct} color="bg-green-500" />
+                  <DeviceBar icon={Tablet} label="Tablet" count={toolsAnalytics.devices.tablet.count} pct={toolsAnalytics.devices.tablet.pct} color="bg-yellow-500" />
+                </div>
+              </div>
+
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
+                  Tool Visitors — Top Countries
+                </h3>
+                <div className="space-y-3">
+                  {toolsAnalytics.countries.length > 0 ? toolsAnalytics.countries.map((c, i) => (
+                    <BarRow key={i} label={c.name} count={c.count} pct={c.pct} color="bg-blue-500" />
+                  )) : <p className="text-sm text-muted-foreground">No geo data yet for tool traffic.</p>}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-6">
+              <h3 className="font-semibold text-foreground mb-4">Tool Visitors — Browsers</h3>
+              <div className="space-y-3">
+                {toolsAnalytics.browsers.length > 0 ? toolsAnalytics.browsers.map((b, i) => (
+                  <BarRow key={i} label={b.name} count={b.count} pct={b.pct} color="bg-purple-500" />
+                )) : <p className="text-sm text-muted-foreground">No browser data yet for tool traffic.</p>}
               </div>
             </div>
           </>

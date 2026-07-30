@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ClientOnly } from "vite-react-ssg";
 import { Header } from "./Header";
@@ -9,6 +9,7 @@ import { ToolContentSection } from "@/components/tools/ToolContentSection";
 import { ToolComments } from "@/components/tools/ToolComments";
 import { useIsToolPage } from "@/components/tools/ToolPageContext";
 import { ToolJsonLd } from "@/components/seo/ToolJsonLd";
+import { trackEvents } from "@/lib/gtag";
 
 interface LayoutProps {
   children: ReactNode;
@@ -29,6 +30,17 @@ export function Layout({ children }: LayoutProps) {
   // (/tools/life-progress-bar) apart from a category listing page
   // (/tools/business) since both share the exact same /tools/:x shape.
   const isIndividualToolPage = useIsToolPage();
+
+  // GA4 tool_use event — fires once per tool page visit. Complements the
+  // page_view GA4 already sends automatically; without this, GA4 has no
+  // explicit signal that a page visited under /tools/ was actually a tool
+  // (vs. a category listing page), since both share the same URL shape.
+  useEffect(() => {
+    if (isIndividualToolPage) {
+      trackEvents.toolUse(tool?.title ?? location.pathname);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isIndividualToolPage, location.pathname]);
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-clip">
