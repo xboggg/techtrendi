@@ -580,7 +580,21 @@ Make every day count!`;
                 <Label>Life Expectancy: {stats.lifeExpectancy} years</Label>
                 <Slider
                   value={[stats.lifeExpectancy]}
-                  onValueChange={([v]) => setStats((prev) => ({ ...prev, lifeExpectancy: v }))}
+                  onValueChange={([v]) =>
+                    setStats((prev) => {
+                      // Dragging away from the selected country's own figure
+                      // means this is now a custom number, not that
+                      // country's average — clear the dropdown so the two
+                      // never show conflicting life expectancies at once.
+                      const selectedCountry = LIFE_EXPECTANCY_BY_COUNTRY.find((c) => c.code === prev.country);
+                      const stillMatches = selectedCountry && selectedCountry.years === v;
+                      return {
+                        ...prev,
+                        lifeExpectancy: v,
+                        country: stillMatches ? prev.country : "",
+                      };
+                    })
+                  }
                   min={50}
                   max={120}
                   step={1}
