@@ -31,14 +31,14 @@ import { LIFE_EXPECTANCY_BY_COUNTRY } from "@/data/lifeExpectancyByCountry";
 import {
   Clock, Calendar, Heart, Target, Share2, Sun, Wind, Star,
   Coffee, Utensils, Bed, Briefcase, Sparkles, Timer, TrendingUp,
-  Gift, Users, Zap, Cake, Download, ArrowRight, Flame, Eye,
+  Gift, Users, Zap, Cake, Download, ArrowRight, Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { renderLifeCard, LIFE_CARD_THEMES, type LifeCardTheme, type LifeCardStats } from "@/lib/lifeCardCanvas";
 import { buildLifeShareUrl } from "@/lib/lifeShareLink";
-import { recordCheckIn, type StreakState } from "@/lib/lifeCheckInStreak";
 import { getDailyMoment } from "@/lib/lifeDailyMoment";
+import { getFeaturedStat } from "@/lib/lifeFeaturedStat";
 
 interface LifeStats {
   birthDate: string;
@@ -127,6 +127,24 @@ function CountUp({ value, duration = 1400, className }: { value: number; duratio
   }, [value, duration]);
 
   return <span className={className}>{new Intl.NumberFormat().format(display)}</span>;
+}
+
+// A quiet, ticking real-time clock — not tied to any of the life-stat math,
+// just the current wall-clock time updating every second. Sits idle right
+// under the page's subtitle: a small, ambient reminder that time is moving
+// right now, before the visitor has even entered a birth date.
+function LiveClock() {
+  const [time, setTime] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const formatted = time.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  return (
+    <p className="font-mono text-sm text-muted-foreground/70 tracking-wider tabular-nums mt-2">
+      {formatted}
+    </p>
+  );
 }
 
 const THEME_ORDER: LifeCardTheme[] = ["signature", "midnight", "paper", "sunset", "forest", "ocean"];
@@ -370,14 +388,12 @@ function EstimatedDateReveal({ estimatedEndDate, remainingYears }: { estimatedEn
 export default function LifeProgressBar() {
   const [stats, setStats] = useState<LifeStats>(defaultStats);
   const [now, setNow] = useState(new Date());
-  const [streak, setStreak] = useState<StreakState | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("techtrendi_life_progress");
     if (saved) {
       setStats((prev) => ({ ...prev, ...JSON.parse(saved) }));
     }
-    setStreak(recordCheckIn());
   }, []);
 
   useEffect(() => {
@@ -500,6 +516,22 @@ export default function LifeProgressBar() {
       lifeProgress: calculations.lifeProgress,
       daysUntilBirthday: calculations.daysUntilBirthday,
       nextBirthdayAge: calculations.nextBirthdayAge,
+    });
+    // Recompute once per calendar day change, not every second-tick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calculations?.ageDays]);
+
+  const featuredStat = useMemo(() => {
+    if (!calculations) return null;
+    return getFeaturedStat({
+      age: calculations.ageYears,
+      saturdaysLeft: calculations.remainingSaturdays,
+      weeksAhead: calculations.remainingWeeks,
+      morningsAhead: calculations.remainingDays,
+      summersLeft: calculations.remainingYears,
+      yearsLeft: calculations.remainingYears,
+      daysLived: calculations.ageDays,
+      monthsLived: calculations.ageMonths,
     });
     // Recompute once per calendar day change, not every second-tick.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -649,6 +681,7 @@ Make every day count!`;
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-muted-foreground text-lg max-w-2xl mx-auto">
             See your life in perspective. Make every moment count.
           </motion.p>
+          <LiveClock />
         </motion.div>
 
         {/* Input */}
@@ -760,32 +793,21 @@ Make every day count!`;
               }}
             />
 
-            {/* Daily check-in streak + today's rotating angle on the same
-                numbers — the "come back tomorrow" hook. Both are purely
-                derived from localStorage/date, so they cost nothing to
-                compute and never require the reveal animation to replay. */}
-            <Reveal delay={0.05}>
-            <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-slate-900 to-slate-800 text-white">
-              <CardContent className="p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-                <div className="flex items-center gap-3 shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center shadow-lg shadow-orange-500/30">
-                    <Flame className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold tabular-nums leading-none">{streak?.count ?? 1}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">day{(streak?.count ?? 1) === 1 ? "" : "s"} in a row</p>
-                  </div>
-                </div>
-                <div className="hidden sm:block w-px self-stretch bg-white/10" />
-                {dailyMoment && (
-                  <div className="min-w-0">
-                    <p className="font-semibold text-slate-100">{dailyMoment.label}</p>
-                    <p className="text-sm text-slate-400 mt-0.5">{dailyMoment.detail}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            </Reveal>
+            {/* Today's rotating angle on the same numbers — a different,
+                motivational framing each calendar day (not a streak/return
+                mechanic — just a fresh perspective if they happen to be
+                back). Purely derived from the date, no localStorage tracking
+                of visits. */}
+            {dailyMoment && (
+              <Reveal delay={0.05}>
+              <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+                <CardContent className="p-6 text-center">
+                  <p className="font-semibold text-slate-100">{dailyMoment.label}</p>
+                  <p className="text-sm text-slate-400 mt-0.5">{dailyMoment.detail}</p>
+                </CardContent>
+              </Card>
+              </Reveal>
+            )}
 
             {/* Main Life Progress */}
             <Reveal>
@@ -798,6 +820,16 @@ Make every day count!`;
                 <p className="text-sm opacity-80 mt-2">
                   of your life has been lived
                 </p>
+                {/* Age-aware reframe — the number that's actually worth
+                    sharing (remaining/lived count, never framed as "% gone")
+                    rotates by day so it stays fresh across visits/reshares. */}
+                {featuredStat && (
+                  <div className="mt-6 pt-6 border-t border-white/20">
+                    <p className="text-4xl md:text-5xl font-bold tabular-nums">{featuredStat.big}</p>
+                    <p className="text-base opacity-90 mt-1">{featuredStat.label}</p>
+                    <p className="text-sm opacity-70 mt-1 italic">{featuredStat.sub}</p>
+                  </div>
+                )}
               </div>
               <CardContent className="p-6 md:p-8 bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950">
                 {/* Main progress bar */}
