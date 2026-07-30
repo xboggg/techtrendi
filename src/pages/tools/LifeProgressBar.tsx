@@ -16,11 +16,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { LIFE_EXPECTANCY_BY_COUNTRY } from "@/data/lifeExpectancyByCountry";
 import {
   Clock, Calendar, Heart, Target, Share2, Sun, Wind, Star,
   Coffee, Utensils, Bed, Briefcase, Sparkles, Timer, TrendingUp,
-  Gift, Users, Zap, Cake, Download, ArrowRight, Flame,
+  Gift, Users, Zap, Cake, Download, ArrowRight, Flame, Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -88,7 +99,12 @@ const getGeneration = (birthYear: number): { name: string; description: string }
 };
 
 // Animates a number counting up from 0 to `value` over `duration` ms.
-// Runs once per mount (keyed remount from the parent restarts it).
+// Runs once per mount (keyed remount from the parent restarts it). Fires a
+// single, subtle haptic pulse the instant the count finishes landing on its
+// final value — a physical "felt" punctuation on mobile, silently a no-op
+// everywhere else (desktop, iOS Safari, reduced-motion). No sound: audio
+// autoplay on a page nobody asked for reads as spammy far more easily than
+// a barely-there vibration does.
 function CountUp({ value, duration = 1400, className }: { value: number; duration?: number; className?: string }) {
   const [display, setDisplay] = useState(0);
   const startRef = useRef<number | null>(null);
@@ -100,7 +116,11 @@ function CountUp({ value, duration = 1400, className }: { value: number; duratio
       const progress = Math.min(1, (ts - startRef.current) / duration);
       const eased = 1 - Math.pow(1 - progress, 3); // ease-out-cubic
       setDisplay(Math.floor(eased * value));
-      if (progress < 1) raf = requestAnimationFrame(step);
+      if (progress < 1) {
+        raf = requestAnimationFrame(step);
+      } else if (typeof navigator !== "undefined" && navigator.vibrate) {
+        navigator.vibrate(15);
+      }
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
@@ -293,6 +313,60 @@ function LifeRevealSequence({ stats }: { stats: LifeCardStats }) {
   );
 }
 
+// Opt-in only — nothing on this page shows this date unless the visitor
+// deliberately clicks through an explicit warning. Purely birthDate +
+// lifeExpectancy years (see calculations.estimatedEndDate), never framed as
+// a real prediction — the warning and the result copy both say so. Lands
+// on a motivational reframe (summers left, not a countdown clock) rather
+// than dwelling on the date itself.
+function EstimatedDateReveal({ estimatedEndDate, remainingYears }: { estimatedEndDate: Date; remainingYears: number }) {
+  const [revealed, setRevealed] = useState(false);
+  const summersLeft = Math.max(0, Math.floor(remainingYears));
+  const formattedDate = estimatedEndDate.toLocaleDateString(undefined, { year: "numeric", month: "long" });
+
+  if (revealed) {
+    return (
+      <div className="mt-4 p-4 rounded-xl bg-muted/50 border border-border text-center">
+        <p className="text-sm text-muted-foreground">Based on your settings, that's roughly</p>
+        <p className="text-2xl font-bold mt-1 bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+          {formattedDate}
+        </p>
+        <p className="text-sm text-foreground mt-3">
+          That's about <span className="font-semibold">{summersLeft} more summers</span> — what will you do with them?
+        </p>
+        <p className="text-xs text-muted-foreground mt-3">
+          A rough estimate from your own settings, not a medical prediction.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <button className="mt-4 w-full text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors flex items-center justify-center gap-1.5">
+          <Eye className="w-3.5 h-3.5" />
+          Curious? See your estimated date
+        </button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>This is just a rough estimate</AlertDialogTitle>
+          <AlertDialogDescription>
+            Based only on your birth date and the life expectancy you set above —
+            not a medical prediction, and not based on your actual health or
+            circumstances. It's here for reflection, not certainty.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Never mind</AlertDialogCancel>
+          <AlertDialogAction onClick={() => setRevealed(true)}>Show me anyway</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 export default function LifeProgressBar() {
   const [stats, setStats] = useState<LifeStats>(defaultStats);
   const [now, setNow] = useState(new Date());
@@ -409,6 +483,10 @@ export default function LifeProgressBar() {
       zodiacEmoji: zodiac.emoji,
       generation: generation.name,
       generationDescription: generation.description,
+      // Purely birthDate + lifeExpectancy years, nothing more — an opt-in,
+      // clearly-labeled estimate, not an actuarial prediction. See the
+      // "curious?" reveal below, gated behind an explicit warning.
+      estimatedEndDate: new Date(birth.getFullYear() + stats.lifeExpectancy, birth.getMonth(), birth.getDate()),
     };
   }, [stats.birthDate, stats.lifeExpectancy, now]);
 
@@ -651,6 +729,12 @@ Make every day count!`;
                 </div>
               </div>
             </div>
+            {calculations && (
+              <EstimatedDateReveal
+                estimatedEndDate={calculations.estimatedEndDate}
+                remainingYears={calculations.remainingYears}
+              />
+            )}
           </CardContent>
         </Card>
         </motion.div>
