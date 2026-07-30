@@ -129,22 +129,78 @@ function CountUp({ value, duration = 1400, className }: { value: number; duratio
   return <span className={className}>{new Intl.NumberFormat().format(display)}</span>;
 }
 
-// A quiet, ticking real-time clock — not tied to any of the life-stat math,
-// just the current wall-clock time updating every second. Sits idle right
-// under the page's subtitle: a small, ambient reminder that time is moving
-// right now, before the visitor has even entered a birth date.
+// A quiet, ticking real-time analogue clock — not tied to any of the
+// life-stat math, just the current wall-clock time. Sits idle right under
+// the page's subtitle: a small, ambient reminder that time is moving right
+// now, before the visitor has even entered a birth date. The seconds hand
+// sweeps continuously (requestAnimationFrame, not a once-a-second jump) so
+// it visibly, physically moves rather than just re-rendering a number.
 function LiveClock() {
-  const [time, setTime] = useState(() => new Date());
+  const [angles, setAngles] = useState(() => getClockAngles());
+  const rafRef = useRef<number>();
+
   useEffect(() => {
-    const id = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(id);
+    const step = () => {
+      setAngles(getClockAngles());
+      rafRef.current = requestAnimationFrame(step);
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
-  const formatted = time.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+  const ticks = Array.from({ length: 12 }, (_, i) => i * 30);
+
   return (
-    <p className="font-mono text-sm text-muted-foreground/70 tracking-wider tabular-nums mt-2">
-      {formatted}
-    </p>
+    <div className="flex justify-center mt-3">
+      <svg viewBox="0 0 100 100" className="w-16 h-16 md:w-20 md:h-20" aria-label="Live clock">
+        <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground/25" />
+        {ticks.map((deg) => (
+          <line
+            key={deg}
+            x1="50" y1="6" x2="50" y2="11"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            className="text-muted-foreground/40"
+            transform={`rotate(${deg} 50 50)`}
+          />
+        ))}
+        <line
+          x1="50" y1="50" x2="50" y2="28"
+          stroke="currentColor" strokeWidth="3.5" strokeLinecap="round"
+          className="text-foreground/70"
+          transform={`rotate(${angles.hour} 50 50)`}
+        />
+        <line
+          x1="50" y1="50" x2="50" y2="16"
+          stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+          className="text-foreground/70"
+          transform={`rotate(${angles.minute} 50 50)`}
+        />
+        <line
+          x1="50" y1="54" x2="50" y2="12"
+          stroke="#EC4899" strokeWidth="1.25" strokeLinecap="round"
+          transform={`rotate(${angles.second} 50 50)`}
+        />
+        <circle cx="50" cy="50" r="2.5" fill="#EC4899" />
+      </svg>
+    </div>
   );
+}
+
+function getClockAngles() {
+  const now = new Date();
+  const ms = now.getMilliseconds();
+  const seconds = now.getSeconds() + ms / 1000;
+  const minutes = now.getMinutes() + seconds / 60;
+  const hours = (now.getHours() % 12) + minutes / 60;
+  return {
+    second: seconds * 6,
+    minute: minutes * 6,
+    hour: hours * 30,
+  };
 }
 
 const THEME_ORDER: LifeCardTheme[] = ["signature", "midnight", "paper", "sunset", "forest", "ocean"];
