@@ -97,8 +97,9 @@ export default function News() {
   // Build-time data (vite-react-ssg loader) seeds the list into static HTML so
   // crawlers see real article cards without running JS (2026-07-26 fix — this
   // page was previously 100% client-fetched, same issue as Blog.tsx). Note:
-  // the loader only covers "Africa Tech" category articles by design (see
-  // news-data.ts) — international news still arrives via the client fetch below.
+  // the loader only covers "Africa Tech" + "Big Tech" (The Rundown) category
+  // articles by design (see news-data.ts) — other international/commodity
+  // news still arrives via the client fetch below.
   const loaderNews = (useLoaderData() as NewsItem[] | null) ?? undefined;
   const [news, setNews] = useState<NewsItem[]>(loaderNews ?? []);
   const [loading, setLoading] = useState(news.length === 0);

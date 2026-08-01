@@ -2,8 +2,11 @@
  * Build-time data for dynamic article routes (vite-react-ssg).
  *
  * Strategy (per the content audit):
- *  - NEWS: pre-render only the "Africa Tech" articles (the differentiated,
- *    indexable content). International/commodity news is client-rendered.
+ *  - NEWS: pre-render "Africa Tech" articles (the differentiated, indexable
+ *    content) plus "Big Tech" (The Rundown's daily world-tech digest --
+ *    genuinely international content, but original editorial synthesis
+ *    written for TechTrendi's audience, so it earns the same SEO treatment).
+ *    Everything else (other international/commodity news) is client-rendered.
  *  - BLOG: pre-render all published guides.
  *
  * Performance: each table is fetched ONCE (cached) and shared by getStaticPaths
@@ -21,7 +24,7 @@ const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 const BUILD_UA =
   "Mozilla/5.0 (compatible; TechTrendiSSG/1.0; +https://techtrendi.com) AppleWebKit/537.36";
 
-const MAX_ROWS = 2000; // safety ceiling (Africa Tech ~333, blog ~265)
+const MAX_ROWS = 2000; // safety ceiling (Africa Tech + Big Tech ~435, blog ~265)
 
 type Row = { slug?: string } & Record<string, unknown>;
 
@@ -54,7 +57,7 @@ async function getNewsMap(): Promise<Map<string, Row>> {
   if (!newsCache) {
     newsCache = toMap(
       await sbFetch(
-        `news?select=*&is_published=eq.true&category=eq.Africa%20Tech&order=created_at.desc&limit=${MAX_ROWS}`
+        `news?select=*&is_published=eq.true&category=in.(Africa%20Tech,Big%20Tech)&order=created_at.desc&limit=${MAX_ROWS}`
       )
     );
   }
