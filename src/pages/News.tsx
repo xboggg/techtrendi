@@ -163,9 +163,13 @@ export default function News() {
 
     // Before mount, always render a stable absolute date (same on server and
     // client) — avoids a hydration mismatch, then upgrades to "Xh ago" once
-    // it's safe to compute client-side (see `mounted` above).
+    // it's safe to compute client-side (see `mounted` above). A fixed
+    // timeZone is required here too: without it, toLocaleDateString uses the
+    // runtime's local timezone, which differs between the SSG build machine
+    // and a visitor's browser, so a date near midnight UTC could still
+    // render as a different calendar day and mismatch anyway.
     if (!mounted) {
-      return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+      return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
     }
 
     const diffMs = now.getTime() - date.getTime();

@@ -197,10 +197,17 @@ export default function NewsArticle() {
   }, [slug]);
 
   const formatDate = (dateString: string) => {
+    // A fixed timeZone is required: without it, toLocaleDateString uses the
+    // *runtime's* local timezone, which differs between the SSG build
+    // machine and a visitor's browser. A date near midnight UTC can then
+    // render as a different calendar day server- vs client-side, causing a
+    // hydration mismatch (React errors #418/#423/#425) on every load for
+    // any visitor outside the build server's timezone.
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone: "UTC",
     });
   };
 
