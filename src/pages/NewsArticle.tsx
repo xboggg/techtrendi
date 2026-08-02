@@ -143,6 +143,13 @@ export default function NewsArticle() {
   const [relatedNews, setRelatedNews] = useState<NewsItem[]>([]);
   const [trendingNews, setTrendingNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(!loaderArticle);
+  // "Xh ago"-style labels depend on the current time, which differs between
+  // SSG build time and client hydration time — rendering them immediately
+  // causes a hydration mismatch (React errors #418/#423/#425) on every
+  // article page load. Render the stable absolute date until after mount,
+  // then upgrade to the relative label once it's safe (client-only).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (!slug) return;
@@ -198,6 +205,11 @@ export default function NewsArticle() {
   };
 
   const formatRelativeDate = (dateString: string) => {
+    // Before mount, always render the same stable absolute date the server
+    // rendered (see the `mounted` comment above) — avoids a hydration
+    // mismatch, then upgrades to "Xh ago" on the client a moment later.
+    if (!mounted) return formatDate(dateString);
+
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();

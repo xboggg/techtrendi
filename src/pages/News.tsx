@@ -94,6 +94,12 @@ export default function News() {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<"latest" | "oldest">("latest");
+  // "Xh ago"-style labels below depend on the current time, which differs
+  // between SSG build time and client hydration time — rendering them
+  // immediately causes a hydration mismatch (React errors #418/#423/#425)
+  // on every load. Render the stable absolute date until after mount.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   // Build-time data (vite-react-ssg loader) seeds the list into static HTML so
   // crawlers see real article cards without running JS (2026-07-26 fix — this
   // page was previously 100% client-fetched, same issue as Blog.tsx). Note:
@@ -154,6 +160,14 @@ export default function News() {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
+
+    // Before mount, always render a stable absolute date (same on server and
+    // client) — avoids a hydration mismatch, then upgrades to "Xh ago" once
+    // it's safe to compute client-side (see `mounted` above).
+    if (!mounted) {
+      return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    }
+
     const diffMs = now.getTime() - date.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));

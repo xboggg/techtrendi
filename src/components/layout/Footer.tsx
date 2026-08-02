@@ -159,6 +159,13 @@ function FloatingParticles() {
   );
 }
 
+// Computed once at module load rather than on every render. This can still
+// theoretically mismatch between SSG build and hydration if a page view
+// happens to straddle an actual year boundary (e.g. site built at 23:59:58
+// Dec 31, visitor hydrates at 00:00:01 Jan 1) -- an extremely narrow window,
+// left as-is rather than adding a mount-guard for something this rare.
+const CURRENT_YEAR = new Date().getFullYear();
+
 export function Footer() {
   return (
     <footer className="relative overflow-hidden">
@@ -311,7 +318,7 @@ export function Footer() {
                 <span className="text-border">|</span>
                 <Link to="/cookies" className="hover:text-primary transition-colors">Cookie Policy</Link>
                 <span className="text-border">|</span>
-                <span>&copy; {new Date().getFullYear()} TechTrendi. All rights reserved.</span>
+                <span>&copy; {CURRENT_YEAR} TechTrendi. All rights reserved.</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span>Designed by</span>
@@ -329,8 +336,15 @@ export function Footer() {
         </div>
       </div>
 
-      {/* CSS for custom animations */}
-      <style>{`
+      {/* CSS for custom animations. Uses dangerouslySetInnerHTML instead of a
+          JSX text child: React HTML-escapes text children (the quotes in
+          `content: ""` below become `&quot;&quot;`) when server-rendering,
+          but browsers parse <style> content as raw CSS and never un-escape
+          it -- so the client's un-escaped re-render never matched the static
+          HTML, causing a hydration mismatch (React errors #418/#423/#425) on
+          EVERY page site-wide, since Footer renders on every page via Layout.
+          This is a static, hardcoded CSS literal, not user input. */}
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes gradient-x {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
@@ -476,7 +490,7 @@ export function Footer() {
           width: 6px;
           opacity: 1;
         }
-      `}</style>
+      ` }} />
     </footer>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import {
   Twitter,
@@ -29,6 +29,16 @@ export function ShareButtons({
   showLabels = false,
 }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
+  // Whether navigator.share exists depends on the visitor's browser/OS and is
+  // unknowable at SSG build time, so branching on it during the very first
+  // render makes the client add/remove the native-share <button> the static
+  // HTML never had -- a guaranteed hydration mismatch (React errors
+  // #418/#423/#425) on every article/blog page load. Always render without
+  // it until after mount, then reveal it client-side only if supported.
+  const [canNativeShare, setCanNativeShare] = useState(false);
+  useEffect(() => {
+    setCanNativeShare(typeof navigator !== 'undefined' && !!navigator.share);
+  }, []);
 
   const shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
   const encodedUrl = encodeURIComponent(shareUrl);
@@ -114,7 +124,7 @@ export function ShareButtons({
       )}
     >
       {/* Native Share (mobile) */}
-      {typeof navigator !== 'undefined' && navigator.share && (
+      {canNativeShare && (
         <button
           onClick={handleNativeShare}
           className={cn(buttonClass, 'hover:bg-primary hover:text-white')}

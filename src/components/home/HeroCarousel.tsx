@@ -98,6 +98,14 @@ export function HeroCarousel() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [direction, setDirection] = useState<'left' | 'right'>('right');
+  // The floating particles below use Math.random() for position/timing —
+  // calling that during render means the SSG build bakes in one set of
+  // values and client hydration computes a different set, causing a
+  // hydration mismatch (React errors #418/#423/#425) on every homepage
+  // load. Render zero particles until after mount, then add them
+  // client-side only — purely decorative, so this has no visual cost.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   const goToSlide = useCallback((index: number, dir?: 'left' | 'right') => {
     if (isTransitioning) return;
@@ -134,9 +142,9 @@ export function HeroCarousel() {
       {/* Animated Background Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-black/90 via-black/70 to-transparent z-[1] animate-gradient-shift" />
 
-      {/* Floating Particles */}
+      {/* Floating Particles — client-only, see `mounted` comment above */}
       <div className="absolute inset-0 z-[2] overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        {mounted && [...Array(20)].map((_, i) => (
           <div
             key={i}
             className="absolute w-1 h-1 bg-white/30 rounded-full animate-float-particle"

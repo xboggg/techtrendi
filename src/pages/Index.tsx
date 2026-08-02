@@ -886,8 +886,16 @@ export default function Index() {
           </div>
         </div>
 
-        {/* Comic styles (scoped to .comic-tools) */}
-        <style>{`
+        {/* Comic styles (scoped to .comic-tools). Uses dangerouslySetInnerHTML
+            instead of a JSX text child: React HTML-escapes text children
+            (e.g. the quotes in `content: ""` become `&quot;&quot;`) when
+            server-rendering, but browsers parse <style> content as raw CSS
+            and never un-escape it -- so the client's un-escaped re-render
+            never matched the static HTML, causing a hydration mismatch
+            (React errors #418/#423/#425) on every homepage load, site-wide.
+            dangerouslySetInnerHTML sets the same raw string on both sides;
+            this content is a static, hardcoded CSS literal, not user input. */}
+        <style dangerouslySetInnerHTML={{ __html: `
           .comic-tools .comic-panel {
             position: relative;
             display: flex;
@@ -981,7 +989,7 @@ export default function Index() {
             .comic-tools .comic-icon,
             .comic-tools .comic-allbtn { transition: none; }
           }
-        `}</style>
+        ` }} />
       </section>
 
       {/* 6b. Creepy Tech — standalone curiosity section (moved out of Online Safety) */}
