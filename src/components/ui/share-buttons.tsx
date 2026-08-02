@@ -74,14 +74,18 @@ export function ShareButtons({
       color: 'hover:bg-[#25D366] hover:text-white',
       bgColor: 'bg-[#25D366]',
     },
-    {
-      name: 'Email',
-      icon: Mail,
-      href: `mailto:?subject=${encodedTitle}&body=${encodedDescription}%0A%0A${encodedUrl}`,
-      color: 'hover:bg-gray-600 hover:text-white',
-      bgColor: 'bg-gray-600',
-    },
   ];
+
+  // Email is handled as a button (not an <a href="mailto:...">) because
+  // Cloudflare's Email Address Obfuscation feature rewrites mailto: hrefs in
+  // the static HTML into a /cdn-cgi/l/email-protection#... link at the edge.
+  // React's hydration then finds a different href than the one it rendered
+  // and throws a hydration mismatch (React errors #418/#423/#425) on every
+  // article/blog page load. A button with no href in the markup gives
+  // Cloudflare nothing to rewrite, so there's nothing to mismatch.
+  const openEmailShare = () => {
+    window.location.href = `mailto:?subject=${encodedTitle}&body=${encodedDescription}%0A%0A${encodedUrl}`;
+  };
 
   const copyToClipboard = async () => {
     try {
@@ -149,6 +153,16 @@ export function ShareButtons({
           {showLabels && <span className="text-sm">{link.name}</span>}
         </a>
       ))}
+
+      {/* Email Share (button, not <a href="mailto:">; see openEmailShare) */}
+      <button
+        onClick={openEmailShare}
+        className={cn(buttonClass, 'hover:bg-gray-600 hover:text-white')}
+        aria-label="Share on Email"
+      >
+        <Mail className="w-5 h-5" />
+        {showLabels && <span className="text-sm">Email</span>}
+      </button>
 
       {/* Copy Link Button */}
       <button
