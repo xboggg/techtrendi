@@ -1,0 +1,316 @@
+<p>In April 2011, a 17-year-old boy in China called Wang Shangkun met a stranger from an internet chat room in a rented apartment in Chenzhou, Hunan province. A surgeon cut out his right kidney. He was handed 22,000 yuan, about 3,500 dollars. He spent it on an iPhone 4 and an iPad 2.</p>
+
+<p>He went home and did not tell his mother. She noticed he was weak. She asked. He told her. She called the police.</p>
+
+<p>By then his remaining kidney was already failing.</p>
+
+<p>You have probably seen a version of this story. Maybe last week. Maybe with a different country attached, or a different phone. It comes back every single time Apple launches something, like a song the internet cannot stop humming. And Apple has just launched three things at once.</p>
+
+<p>So let us do something useful with it. Let us separate what actually happened from what people made up, and then ask the harder question underneath all of it: <strong>why does a phone have this much power over us?</strong></p>
+
+<h2 id="what-actually-happened">What Actually Happened to Wang Shangkun</h2>
+
+<p>This part is real. Not a meme, not a rumour. It went through a courtroom.</p>
+
+<p>On 30 November 2012, a court in Chenzhou convicted <strong>nine people</strong> over the operation. Seven went to prison. Two escaped punishment because their roles were small.</p>
+
+<table class="w-full my-6 text-base border border-border rounded-lg overflow-hidden">
+  <thead>
+    <tr class="bg-muted">
+      <th class="text-left p-3 font-semibold text-foreground border-b border-border">Who</th>
+      <th class="text-left p-3 font-semibold text-foreground border-b border-border">Role</th>
+      <th class="text-left p-3 font-semibold text-foreground border-b border-border">Sentence</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="p-3 border-b border-border">He Wei</td>
+      <td class="p-3 border-b border-border">Organised the whole thing. Had gambling debts.</td>
+      <td class="p-3 border-b border-border">5 years</td>
+    </tr>
+    <tr>
+      <td class="p-3 border-b border-border">Yin Shen</td>
+      <td class="p-3 border-b border-border">Found Wang in an internet chat room</td>
+      <td class="p-3 border-b border-border">4 years</td>
+    </tr>
+    <tr>
+      <td class="p-3 border-b border-border">Song Zhongyu</td>
+      <td class="p-3 border-b border-border">The surgeon who removed the kidney</td>
+      <td class="p-3 border-b border-border">3 years, suspended</td>
+    </tr>
+    <tr>
+      <td class="p-3">Five others</td>
+      <td class="p-3">Nurses, anaesthetist, surgical assistant</td>
+      <td class="p-3">1 to 3 years, mostly suspended</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Now look at the money, because the money is the part that should make you angry.</p>
+
+<table class="w-full my-6 text-base border border-border rounded-lg overflow-hidden">
+  <thead>
+    <tr class="bg-muted">
+      <th class="text-left p-3 font-semibold text-foreground border-b border-border">Where the money went</th>
+      <th class="text-left p-3 font-semibold text-foreground border-b border-border">Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="p-3 border-b border-border">What the patient paid for the kidney</td>
+      <td class="p-3 border-b border-border">About 220,000 yuan</td>
+    </tr>
+    <tr>
+      <td class="p-3 border-b border-border">What the gang kept</td>
+      <td class="p-3 border-b border-border">About 198,000 yuan</td>
+    </tr>
+    <tr>
+      <td class="p-3 border-b border-border"><strong>What Wang got</strong></td>
+      <td class="p-3 border-b border-border"><strong>22,000 yuan</strong></td>
+    </tr>
+    <tr>
+      <td class="p-3">Damages later paid to him</td>
+      <td class="p-3">1.47 million yuan</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>He gave up an organ and received <strong>one tenth</strong> of what it sold for. The people who cut him open kept the rest.</p>
+
+<p>The health part is worse. Infection set in. His remaining kidney lost most of its function. He is in his thirties now, classified with a level-three disability, on regular dialysis, mostly unable to work. The damages sound like a lot until you remember he will need medical care for the rest of his life.</p>
+
+<p>He bought a phone that stopped receiving software updates years ago. He is still paying for it.</p>
+
+<h2 id="the-fake-versions">Now Here Is the Part Nobody Checks</h2>
+
+<p>That one true story has been copied, re-dressed and re-released more times than any iPhone.</p>
+
+<p>Search right now and you will find a video going around of a "Kenyan man" who supposedly sold his kidney for an iPhone 17 Pro Max. It is on TikTok. It is on Facebook. It is on X, with thousands of shares and a lot of crying emojis.</p>
+
+<p>It is on no news website. None. Not one reporter, anywhere, has stood that story up.</p>
+
+<p>There are others. A man who sold a kidney for an iPhone 16 for his girlfriend. A Nigerian version people repeat confidently without ever linking to anything. And in 2022, a photo went viral showing three people lying down with bloodstained bandages on their stomachs, said to be kidney sellers funding iPhone 14s. The fact-checking outfit Misbar traced it and rated it <strong>satirical</strong>. The picture came from a Vietnamese beauty clinic. Those were cosmetic surgery patients.</p>
+
+<p>Here is how far that one went. On 11 September 2022, the <strong>Thai Red Cross</strong> had to hold a press response to a meme. Dr Sophon Mekthon, who runs its Organ Donation Centre, said:</p>
+
+<blockquote>"There is no organ trading. That is prohibited. It is inappropriate to suggest selling organs, especially to get money to buy an iPhone. It is morally wrong and unethical."</blockquote>
+
+<p>Read that again. A national medical body was worried enough about young people copying a joke photograph that it made an official statement.</p>
+
+<p>So here is the honest scoreboard. <strong>One</strong> verified case, from 2011, in China, prosecuted in court. Then fifteen years of that case being repainted in new colours for every launch, every country, every model number.</p>
+
+<p>And that is exactly what makes it interesting. A lie only spreads if people are ready to believe it. The kidney story keeps working because everybody already knows the feeling it is describing. We recognise it. We have felt the pull.</p>
+
+<p>Which brings us to the real subject.</p>
+
+<h2 id="why-a-phone">Why a Phone and Not Anything Else</h2>
+
+<p>Ask yourself something. When was the last time someone judged you by your fridge?</p>
+
+<p>Nobody sees your fridge. Nobody sees your mattress, your ceiling fan, your kitchen. You could own the best of all of them and no one would know. But your phone comes out of your pocket forty, fifty, eighty times a day. In traffic. In church. At the bank. On a date. In a meeting. It sits face-up on the table between you and whoever you are trying to impress.</p>
+
+<p><strong>It is the most-seen thing you own.</strong> That is the whole trick.</p>
+
+<p>An economist named Thorstein Veblen wrote about this in 1899, long before phones existed. He called it <em>conspicuous consumption</em>: buying costly things not because you need them but because other people can see that you could afford them. His examples were silver spoons and walking sticks. The idea has not aged a day.</p>
+
+<p>But there is a second layer, and Apple understands it better than anyone.</p>
+
+<h3>A status symbol only works if people can read it</h3>
+
+<p>A signal that nobody recognises is a waste of money. If you spend a fortune on something and everyone assumes it was cheap, you have bought nothing but the object.</p>
+
+<p>So look at what Apple actually does with design.</p>
+
+<p>The camera bump has a shape you can identify across a room. The screen cut-out is distinctive on purpose. In many countries the message bubble turns a different colour when a non-iPhone joins the chat, and everyone in the group knows exactly what that colour means. Every year the newest model gets a colour that did not exist before, so the people who bought it can be spotted immediately. This year one of them is Burgundy.</p>
+
+<p>Compare a top Samsung and a mid-range Samsung from six feet away. Most people cannot tell. Compare an iPhone Pro with an older iPhone from the same distance and plenty of people can.</p>
+
+<p>Apple did not just make an expensive phone. Apple made an expensive phone that <strong>announces itself</strong>. That is the part you are paying for.</p>
+
+<h3>You are not competing with the country, you are competing with about nine people</h3>
+
+<p>Here is something that surprises people. This pressure is usually not about society. It is about a very small group.</p>
+
+<p>Your WhatsApp group. Your workmates. Your church row. Your old classmates. Maybe nine or fifteen people whose opinion actually lands on you.</p>
+
+<p>Which explains something that looks illogical from outside: the pressure is often strongest where money is tightest. If everyone around you has little, the person who arrives with a Pro Max has moved. Visibly. In a place where opportunities are scarce, a visible sign that you are moving is worth a great deal.</p>
+
+<h3>And sometimes it genuinely pays</h3>
+
+<p>This is the part that gets left out of the lectures, and in Ghana it is real.</p>
+
+<p>If you are a trader, a designer, a photographer, an agent, someone hustling on Instagram or WhatsApp, the phone you place on the table is part of how strangers decide whether you are worth taking seriously. Rightly or wrongly, an iPhone reads as "this person is doing well." Doing well means competent. Competent means the deal is safer.</p>
+
+<p>So for some people, that phone is not vanity. It is a business card that costs as much as a car. They are making a cold calculation about how the world treats them, and honestly, they are not wrong about how the world treats them.</p>
+
+<p>That is what makes this hard. It is not simply foolishness. There is a real reward at the end of it. The question is only ever whether the price you paid was worth the reward you got.</p>
+
+<h2 id="the-2026-prices">What Apple Just Put on the Table</h2>
+
+<p>On 9 September 2026, Apple held its "Surprise and Shine" event and announced three phones.</p>
+
+<table class="w-full my-6 text-base border border-border rounded-lg overflow-hidden">
+  <thead>
+    <tr class="bg-muted">
+      <th class="text-left p-3 font-semibold text-foreground border-b border-border">Phone</th>
+      <th class="text-left p-3 font-semibold text-foreground border-b border-border">US starting price</th>
+      <th class="text-left p-3 font-semibold text-foreground border-b border-border">On sale</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="p-3 border-b border-border">iPhone 18 Pro</td>
+      <td class="p-3 border-b border-border">$1,199</td>
+      <td class="p-3 border-b border-border">18 September</td>
+    </tr>
+    <tr>
+      <td class="p-3 border-b border-border"><strong>iPhone 18 Pro Max</strong></td>
+      <td class="p-3 border-b border-border"><strong>$1,299</strong></td>
+      <td class="p-3 border-b border-border">18 September</td>
+    </tr>
+    <tr>
+      <td class="p-3">iPhone Duo (folding)</td>
+      <td class="p-3">$1,999, up to $3,199</td>
+      <td class="p-3">23 October</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Both Pro models cost <strong>100 dollars more</strong> than last year''s versions. And the Duo is Apple''s first folding phone, which matters for our subject more than the specification sheet suggests. A folding phone cannot be mistaken for anything else. You open it in public and every single person nearby knows what it is and roughly what it cost. It is the loudest status object Apple has ever built.</p>
+
+<h2 id="ghana-prices">What That Looks Like in Ghana</h2>
+
+<p>Those are American prices. Ghana is a different conversation, because by the time a phone reaches a shop in Accra it has carried import duty, VAT at 15 percent, the NHIL and GETFund levies, shipping and the shop''s own margin.</p>
+
+<p>Here is what last year''s flagship, the iPhone 17 Pro Max, was actually listed at by Telefonika in Accra in September 2026:</p>
+
+<table class="w-full my-6 text-base border border-border rounded-lg overflow-hidden">
+  <thead>
+    <tr class="bg-muted">
+      <th class="text-left p-3 font-semibold text-foreground border-b border-border">iPhone 17 Pro Max</th>
+      <th class="text-left p-3 font-semibold text-foreground border-b border-border">Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="p-3 border-b border-border">256GB</td>
+      <td class="p-3 border-b border-border">GH¢20,990</td>
+    </tr>
+    <tr>
+      <td class="p-3 border-b border-border">512GB</td>
+      <td class="p-3 border-b border-border">GH¢23,990</td>
+    </tr>
+    <tr>
+      <td class="p-3 border-b border-border">1TB</td>
+      <td class="p-3 border-b border-border">GH¢27,900</td>
+    </tr>
+    <tr>
+      <td class="p-3">2TB</td>
+      <td class="p-3">GH¢33,900</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Now put that against what people earn. Ghana''s national daily minimum wage rose to <strong>GH¢21.77</strong> on 1 January 2026, set by the National Tripartite Committee. That is roughly GH¢590 a month. Median pay in the formal sector sits around GH¢3,800 a month, and plenty of people are nowhere near either figure.</p>
+
+<p>So how long do you work for the phone?</p>
+
+<div class="my-6 space-y-4">
+  <div>
+    <div class="flex justify-between text-sm mb-1"><span class="text-foreground font-medium">Minimum wage earner, 256GB model</span><span class="text-muted-foreground">about 36 months</span></div>
+    <div class="w-full bg-muted rounded-full h-4"><div class="bg-primary h-4 rounded-full" style="width:62%"></div></div>
+  </div>
+  <div>
+    <div class="flex justify-between text-sm mb-1"><span class="text-foreground font-medium">Minimum wage earner, 2TB model</span><span class="text-muted-foreground">about 58 months</span></div>
+    <div class="w-full bg-muted rounded-full h-4"><div class="bg-primary h-4 rounded-full" style="width:100%"></div></div>
+  </div>
+  <div>
+    <div class="flex justify-between text-sm mb-1"><span class="text-foreground font-medium">Median earner, 256GB model</span><span class="text-muted-foreground">about 5.5 months</span></div>
+    <div class="w-full bg-muted rounded-full h-4"><div class="bg-primary h-4 rounded-full" style="width:10%"></div></div>
+  </div>
+  <div>
+    <div class="flex justify-between text-sm mb-1"><span class="text-foreground font-medium">Median earner, 2TB model</span><span class="text-muted-foreground">about 9 months</span></div>
+    <div class="w-full bg-muted rounded-full h-4"><div class="bg-primary h-4 rounded-full" style="width:16%"></div></div>
+  </div>
+</div>
+
+<p class="text-sm text-muted-foreground">Based on every cedi of income going to the phone and nothing else. No food, no rent, no transport.</p>
+
+<p>Nearly three years of minimum-wage work for the cheapest version. Almost five for the biggest one. And that is <em>last year''s</em> phone. The 18 Pro Max costs more in dollars than the 17 did, so expect the Ghana price to land higher still.</p>
+
+<p>This is not only a Ghana problem, by the way. The GSMA, which represents mobile operators worldwide, found that a smartphone costs about <strong>26 percent of monthly income per person</strong> in sub-Saharan Africa, against 16 percent in other low and middle income regions. For the poorest fifth of people, a basic entry-level phone eats <strong>95 percent of a month''s income</strong>. That is the cheap phone. Not the Pro Max.</p>
+
+<h2 id="how-people-actually-do-it">So How Do People Actually Afford Them?</h2>
+
+<p>Here is where the viral story falls apart completely, and where the truth is more interesting.</p>
+
+<p>Nobody in Accra is selling organs for an iPhone. What people are doing is slower, quieter and much more common.</p>
+
+<p><strong>They buy UK-used.</strong> This is the big one. A phone comes in second-hand from Britain, gets checked, and sells for a fraction of new. The gap is enormous. An iPhone 14 Pro Max brand new runs somewhere around GH¢16,500 to GH¢19,000. The UK-used version goes for roughly GH¢10,500 to GH¢12,000. Telefonika even sells a certified pre-owned 14 Pro Max at <strong>GH¢8,990</strong>, marked "Grade A+".</p>
+
+<p>Sit with that phrase for a second. <em>Grade A+ Certified.</em> The shop is promising you something specific: nobody will be able to tell. You get the shape, the camera bump, the colour, the blue bubble, all of it, and the signal works exactly the same across a room.</p>
+
+<p>That tells you what is really being bought. Not the technology. <strong>The appearance of the technology.</strong> If people were buying the hardware, a two-year-old phone would be a compromise. Because they are buying what the phone says about them, a two-year-old phone in good condition does almost the same job for half the money.</p>
+
+<p><strong>They save through susu.</strong> Small contributions over months, the way Ghanaians have always bought things that are too big to buy at once.</p>
+
+<p><strong>They ask family abroad.</strong> An aunt in London, a brother in New Jersey, a cousin in Toronto. Sometimes money comes back, sometimes the phone itself arrives in a suitcase at Kotoka. This is probably the single most common route to a new flagship in Ghana.</p>
+
+<p><strong>They sell something.</strong> And this is where you hear the phrase everybody in Ghana knows. Someone shows up with a phone that does not match their situation, and the joke lands immediately: <em>"You used land money to buy iPhone."</em></p>
+
+<p>That joke is funny because it is a real accusation, and everyone understands it instantly. You converted something that would have grown, something that was going to be a house one day, into something that loses value the moment you open the box and will be old news by next September.</p>
+
+<p>Which is the same accusation the kidney story makes. Ghana just says it with better timing.</p>
+
+<h2 id="the-hardest-part">The Part That Is Hardest to Talk About</h2>
+
+<p>We should be honest about something.</p>
+
+<p>There are people who cannot reliably eat three times a day who own an iPhone. You know this. You have seen it. It is easy to laugh at, and easier to lecture about.</p>
+
+<p>But think about what that phone is doing for that person.</p>
+
+<p>When almost nothing in your life is under your control, when the job has not come, when the money is not moving, that phone might be the only thing you own that says you are not finished. It is a piece of the life you are aiming at, and it is the only piece currently for sale at a price you can reach. It changes how a stranger speaks to you. It changes what people assume when you walk in.</p>
+
+<p>It is not stupidity. It is a bet, and the bet is on how the world will treat you.</p>
+
+<p>The trouble is the bet only pays once. Whatever respect that phone buys, it buys today. Then next September another one arrives, and the phone you sacrificed for becomes the phone somebody laughs at. The thing you bought respect with becomes the thing that dates you.</p>
+
+<p>That is the treadmill. Wang Shangkun''s iPhone 4 was the newest phone in the world in 2011. Nobody alive would be impressed by it now. He is still on dialysis.</p>
+
+<h2 id="what-to-do">What to Actually Do With This</h2>
+
+<p>Not a lecture. Just four honest questions worth asking before the next launch pulls at you.</p>
+
+<p><strong>Ask who you are buying it for.</strong> Name them. If you can picture the specific faces you are imagining reacting to the phone, you have learned something about what you are really purchasing.</p>
+
+<p><strong>Ask what it costs in time, not cedis.</strong> Cedis are abstract. "Four months of my life" is not. Work out your own number using the figures above. It changes the feeling completely.</p>
+
+<p><strong>Take the UK-used route seriously.</strong> If what you want is the phone, a certified pre-owned model gets you almost everything for close to half. The signal is identical. That is not a downgrade, that is the same purchase with the tax removed.</p>
+
+<p><strong>Give the money a job first.</strong> Rent, school fees, stock for the business, the emergency you have not had yet. If the phone still makes sense after all of those, buy it and enjoy it without guilt. Nobody here is saying you may not own nice things.</p>
+
+<p>The phone is not the problem. Phones are genuinely useful and there is nothing shameful about wanting a good one.</p>
+
+<p>The problem is when a phone is carrying a job it cannot do. It cannot prove you are successful. It cannot make people respect you for longer than a year. It cannot stand in for the life you are actually building.</p>
+
+<p>Wang Shangkun found that out at seventeen, on an operating table in a rented apartment, for a phone that is now a museum piece.</p>
+
+<p>The rest of us get to learn it cheaper.</p>
+
+<h2 id="common-questions">Common Questions</h2>
+
+<h3>Did someone really sell a kidney to buy an iPhone?</h3>
+<p>Yes. Wang Shangkun, then 17, sold his right kidney in Chenzhou, China, in April 2011 for 22,000 yuan and bought an iPhone 4 and an iPad 2. Nine people were convicted over it in November 2012 and he now lives with kidney failure. That case is documented and went through court.</p>
+
+<h3>Did a man in Nigeria or Kenya sell his kidney for an iPhone?</h3>
+<p>There is no verified case. Videos claiming a Kenyan man sold a kidney for an iPhone 17 Pro Max circulate on TikTok, Facebook and X, but no news organisation has confirmed any of them. A widely shared 2022 photo of supposed iPhone 14 kidney sellers was fact-checked as satirical and traced to a Vietnamese beauty clinic. Treat these stories as recycled versions of the real 2011 Chinese case.</p>
+
+<h3>How much does the iPhone 18 Pro Max cost?</h3>
+<p>It starts at $1,299 in the United States, which is $100 more than the iPhone 17 Pro Max. Ghana prices will be considerably higher once import duty, 15 percent VAT, the NHIL and GETFund levies, shipping and retail margin are added. For comparison, the iPhone 17 Pro Max was listed in Accra from GH¢20,990 for 256GB up to GH¢33,900 for 2TB.</p>
+
+<h3>Is a UK-used iPhone worth buying in Ghana?</h3>
+<p>For most people, yes. A UK-used iPhone 14 Pro Max sells for roughly GH¢10,500 to GH¢12,000 against GH¢16,500 to GH¢19,000 new, and certified pre-owned units go lower still. Check battery health, confirm the phone is not iCloud locked, and buy from a seller who will let you test it properly.</p>
+
+<h3>Why are iPhones so expensive in Ghana?</h3>
+<p>Import duty, VAT at 15 percent, the NHIL and GETFund levies, shipping costs and retailer margin all stack on top of the American price before the phone reaches a shelf in Accra. That is why a phone selling for $1,299 in the United States lands far higher in cedis.</p>
