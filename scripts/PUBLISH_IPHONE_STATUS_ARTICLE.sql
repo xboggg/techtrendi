@@ -13,7 +13,13 @@
 -- apostrophes as '' (doubled). Easiest path: use the Supabase Studio table editor
 -- for the content field and this SQL for everything else.
 
-INSERT INTO public.articles (
+-- ⚠ SCHEMA IS techtrendi, NOT public. Verified 2026-09-11 against the live DB:
+--   src/integrations/supabase/client.ts sets schema: 'techtrendi'
+--   PGRST_DB_SCHEMAS=techtrendi,cyberabofra,public,...
+--   information_schema shows the table at techtrendi.articles (327 rows)
+-- Writing to public.articles would create a phantom table the site never reads.
+
+INSERT INTO techtrendi.articles (
   slug,
   title,
   excerpt,
@@ -47,11 +53,11 @@ ON CONFLICT (slug) DO UPDATE SET
   updated_at        = NOW();
 
 -- Verify:
--- SELECT slug, title, category, is_published, length(content) FROM public.articles
+-- SELECT slug, title, category, is_published, length(content) FROM techtrendi.articles
 --   WHERE slug = 'iphone-status-symbol-psychology';
 --
 -- Then set the cover image once the feature image is uploaded:
--- UPDATE public.articles
+-- UPDATE techtrendi.articles
 --   SET cover_image = '/images/articles/iphone-status-symbol-psychology.webp'
 --   WHERE slug = 'iphone-status-symbol-psychology';
 --
