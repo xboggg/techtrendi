@@ -20,13 +20,38 @@ export const initGA = () => {
   }
   (window as any).gtag = gtag;
 
-  // Default consent mode - deny all until user consents
+  // Consent Mode v2, scoped by region.
+  //
+  // The previous blanket 'denied' default applied to every visitor worldwide,
+  // so AdSense was refused consent on essentially every pageview and served
+  // zero ads from launch (pageviews counted, impressions stayed at 0) — the
+  // banner only grants on click, and most readers never click it.
+  //
+  // GDPR/ePrivacy require prior consent in the EEA + UK, so those regions keep
+  // the strict default. Everywhere else (the overwhelming majority of this
+  // site's readers) defaults to granted, and the banner's Decline still
+  // revokes via updateConsent(). Region codes are ISO 3166-2, as Google's
+  // region parameter expects.
+  const EEA_UK = [
+    'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR',
+    'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK',
+    'SI', 'ES', 'SE', 'IS', 'LI', 'NO', 'GB', 'CH',
+  ];
+
   gtag('consent', 'default', {
+    region: EEA_UK,
     analytics_storage: 'denied',
     ad_storage: 'denied',
     ad_user_data: 'denied',
     ad_personalization: 'denied',
     wait_for_update: 500,
+  });
+
+  gtag('consent', 'default', {
+    analytics_storage: 'granted',
+    ad_storage: 'granted',
+    ad_user_data: 'granted',
+    ad_personalization: 'granted',
   });
 
   // Initialize GA4

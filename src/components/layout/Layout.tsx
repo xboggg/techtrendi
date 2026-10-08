@@ -42,8 +42,12 @@ export function Layout({ children }: LayoutProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isIndividualToolPage, location.pathname]);
 
+  // overflow-x-clip used to sit on the wrapper below; it can stop AdSense
+  // Auto Ads placing units inside. Horizontal overflow is already contained
+  // on html/body in index.css, so sideways scroll is still prevented without
+  // clipping the ad-insertable tree.
   return (
-    <div className="min-h-screen flex flex-col overflow-x-clip">
+    <div className="min-h-screen flex flex-col">
       {/* Skip to main content — accessibility + AdSense compliance */}
       <a
         href="#main-content"

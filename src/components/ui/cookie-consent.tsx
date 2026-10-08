@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { X, Cookie, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { updateConsent } from '@/lib/gtag';
 
 interface CookiePreferences {
   essential: boolean;
@@ -41,20 +42,15 @@ export function CookieConsent() {
   }, []);
 
   const applyPreferences = (prefs: CookiePreferences) => {
-    if (typeof window !== 'undefined') {
-      (window as any).cookieConsent = prefs;
-      window.dispatchEvent(new CustomEvent('cookieConsentUpdate', { detail: prefs }));
-      if (prefs.analytics && (window as any).gtag) {
-        (window as any).gtag('consent', 'update', { analytics_storage: 'granted' });
-      }
-      if (prefs.advertising && (window as any).gtag) {
-        (window as any).gtag('consent', 'update', {
-          ad_storage: 'granted',
-          ad_user_data: 'granted',
-          ad_personalization: 'granted',
-        });
-      }
-    }
+    if (typeof window === 'undefined') return;
+
+    (window as any).cookieConsent = prefs;
+    window.dispatchEvent(new CustomEvent('cookieConsentUpdate', { detail: prefs }));
+
+    // Always send both signals, granted AND denied. The old version only ever
+    // sent 'granted' and never revoked, so Decline silently did nothing —
+    // which matters now that non-EEA visitors default to granted.
+    updateConsent(prefs.analytics, prefs.advertising);
   };
 
   const savePreferences = (prefs: CookiePreferences) => {
