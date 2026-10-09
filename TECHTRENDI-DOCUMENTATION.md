@@ -1463,6 +1463,11 @@ Original: "Think Before You Click" cybersecurity ebook by Edmund Adjekum (on the
 
 ### 20.15 AdSense Compliance Fixes
 
+> **Note:** this section covers *content/E-E-A-T compliance* for the AdSense
+> application. For how ads are technically wired (Auto Ads, Consent Mode, why
+> `src/components/ads/*` is dead code) and what to check when revenue is zero,
+> see [`DOCS/ADSENSE.md`](DOCS/ADSENSE.md).
+
 Before reapplying for AdSense (rejected previously):
 - ✅ Per-article AI disclosure badge
 - ✅ Author attribution to named person (Edmund A.) — required for E-E-A-T
