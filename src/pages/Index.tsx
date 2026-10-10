@@ -695,16 +695,25 @@ export default function Index() {
               <GhanaFlag className="w-4 h-3 rounded-[2px] shrink-0" /> News · Tools · Online Safety
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.1] mb-5 drop-shadow-lg">
-              {/* block + nowrap keeps "built for Ghana" whole on its own line.
-                  It was breaking after "built", splitting the amber phrase
-                  across two lines and pushing the text into the photo. */}
-              <span className="block">Tech made simple,</span>
-              <span className="block text-amber-400 whitespace-nowrap">built for Ghana</span>
+              {/* Was "Tech made simple, built for Ghana", which promised
+                  beginner explainers. The site is actually 574 news posts,
+                  341 articles and 147 tools — a daily news and utility site,
+                  so the headline now says that.
+                  block + nowrap keeps the amber phrase whole on its own line;
+                  it used to break mid-phrase and crowd the photo. */}
+              <span className="block">Ghana's tech news,</span>
+              {/* nowrap only on the amber phrase: at text-4xl it needs ~334px
+                  of the ~380px available on a 412px screen, so it holds. Line
+                  one is left to wrap on its own — it is close enough to the
+                  limit that forcing it could overflow a narrower phone. */}
+              <span className="block text-amber-400 whitespace-nowrap">every single day</span>
             </h1>
             <p className="text-lg text-white/80 max-w-xl mb-8">
-              {/* Non-breaking space before the dash so it never ends a line alone. */}
-              News that matters. Tools that work. Safety that sticks. All free&nbsp;—
-              and made for how we actually live, right here at home.
+              {/* Deliberately does NOT list the tools — the quick-tag chips
+                  right below already name Scam check, Tax calculator and ECG
+                  bill. This line sells the news; the chips sell the tools. */}
+              The stories that matter here, reported for readers in Ghana — not
+              foreign coverage retrofitted for us. Free, always.
             </p>
             {/* Buttons: a touch smaller on mobile so the lower hero isn't cloggy;
                 full size from sm: up. */}
