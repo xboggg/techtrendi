@@ -127,6 +127,45 @@ Work down this list — it is ordered by how cheap each check is.
 
 ---
 
+---
+
+## Related: the OG cache (social link previews)
+
+Not AdSense, but the same `og-meta.php` endpoint and a trap worth knowing.
+
+`og-meta.php` serves social crawlers from a **file cache with a 24-hour TTL,
+checked before Supabase**. Changing an article's cover image used to update the
+database while Telegram/WhatsApp/Facebook kept showing the old picture for up to
+a day. This was misdiagnosed twice as a Telegram caching problem and once,
+externally, as a client-rendered-metadata problem. It is neither.
+
+**Fixed 2026-10-10** (commit `85f8ae2`): the admin now calls
+`POST /api/purge-og-cache` on save, which deletes that one cache entry.
+og-meta.php rebuilds it from Supabase on the next crawler hit.
+
+- Endpoint lives in `/opt/tech-news/image_upload_api.py` (Flask, port 5117)
+- nginx route is in the **`db2.techtrendi.com`** server block — note that all
+  `/api/*` routes live there, *not* under techtrendi.com
+- Client helper: `src/lib/purgeOgCache.ts`, called from both
+  `AdminArticles.tsx` and `AdminNews.tsx`. Non-fatal by design.
+
+Manual purge, if ever needed:
+
+```bash
+rm -f /var/www/techtrendi/og-cache/<section>_<slug>.json
+# then re-request the page with a crawler UA to repopulate
+curl -s https://techtrendi.com/news/<slug> -A "TelegramBot (like TwitterBot)" \
+  | grep -o 'og:image" content="[^"]*"'
+```
+
+**Debugging note:** testing these URLs with plain `curl` gives a misleading
+**403** — nginx blocks unrecognised non-browser user agents. Always pass a real
+crawler or browser UA, or you will conclude the page is broken when it is not.
+This is exactly what made an external analysis report "the crawler receives
+homepage content"; opengraph.xyz hit the same 403 and fell back to homepage data.
+
+---
+
 ## Rules
 
 - **Never** change the AdSense script or publisher ID without explicit direction.
