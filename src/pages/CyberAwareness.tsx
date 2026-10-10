@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { plainTextExcerpt } from "@/lib/plainTextExcerpt";
+import { postBodyToText } from "@/lib/renderPostBody";
 import { motion, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -286,7 +287,10 @@ export default function CyberAwareness() {
                           "text-zinc-400 text-sm leading-relaxed whitespace-pre-line flex-1 transition-all duration-300",
                           !isExpanded && "line-clamp-[8]"
                         )}>
-                          {post.content}
+                          {/* 80 of these posts store HTML; rendering content
+                              directly made React escape it, so readers saw
+                              literal <p> and <strong> tags on the card. */}
+                          {postBodyToText(post.content)}
                         </div>
 
                         {post.content && post.content.length > 300 && (
