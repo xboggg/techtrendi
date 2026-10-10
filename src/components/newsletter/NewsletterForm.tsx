@@ -118,7 +118,10 @@ export function NewsletterForm({ variant = "default", className }: NewsletterFor
         <div className="flex-1">
           <h3 className="text-lg font-bold text-foreground mb-1">Get Weekly Tech Tips</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Join 10,000+ readers getting expert tech insights delivered to their inbox.
+            {/* Was "Join 10,000+ readers" against 17 actual subscribers. A false
+                claim is not worth the social proof, least of all on a site that
+                writes about scam detection and carries AdSense. */}
+            Practical tech tips for Ghana, straight to your inbox. Free, every week.
           </p>
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
             <input
