@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { purgeOgCache } from "@/lib/purgeOgCache";
 import { AdminLayout } from "./AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -174,6 +175,10 @@ export default function AdminArticles() {
         })
         .eq("id", id);
       if (error) throw error;
+      // Social crawlers read og-meta.php, which caches for 24h before hitting
+      // Supabase. Without this, a changed cover image keeps showing the old
+      // picture in Telegram/WhatsApp previews. Non-fatal by design.
+      await purgeOgCache("blog", data.slug);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-articles"] });
