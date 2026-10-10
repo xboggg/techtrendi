@@ -36,10 +36,48 @@ If you ever want manual placements, those IDs must come from AdSense first.
 
 ---
 
-## The 2026-10-08 outage: zero impressions since launch
+## Low fill rate, and the 2026-10-08 consent investigation
 
-**Symptom:** AdSense showed pageviews climbing and **impressions stuck at 0** from the
-day the site went live. Earnings $0.00. Nothing in the dashboard looked wrong.
+> **Read this first — the original framing here was wrong.**
+>
+> This section was written believing impressions had been **zero since launch**. The
+> AdSense by-day report (pulled 2026-10-10) shows that was never true:
+>
+> | | |
+> |---|---|
+> | First impressions | **1 August 2026** |
+> | Best day | 3 August 2026 — 28 impressions |
+> | Total since launch | **67 impressions on 2,056 pageviews (~3%)**, $0.04 |
+> | Pattern | 1–7 impressions on scattered days, zero on most days |
+>
+> So nothing was ever "broken". **The real problem is a ~3% fill rate**, and today's
+> "0 impressions" readings were simply normal days for a site this size.
+>
+> **Root cause of the low fill (found 2026-10-10):** most Auto Ads formats were
+> switched **off** for techtrendi.com. **Banner ads** (in-article — the main earner on
+> a blog) and **Anchor ads** (sticky mobile bar) were both disabled. Only Side rail
+> (desktop-only) and Multiplex (end of article) were on. Most readers are on phones in
+> Ghana, so the only ad they could ever see sat at the very bottom of the page. That is
+> the 3%.
+>
+> **Fix:** Ads → By site → techtrendi.com → pencil → enable **Banner** and **Anchor**,
+> then Apply to site. No code involved. Allow 1–3 days for Google to re-scan.
+> Vignette (full-screen interstitial) and Ad intents (beta) were deliberately left off.
+>
+> **Lesson for next time:** pull the **by-day report, broken down by site**, *before*
+> diagnosing anything. A single day's dashboard snapshot cannot distinguish "broken"
+> from "low volume", and assuming the former cost a full day of investigation.
+
+### The consent bug (real, but not the cause of low revenue)
+
+Everything below describes a genuine bug that was found and fixed on 2026-10-08. It
+was worth fixing — a blanket worldwide consent denial is wrong and would have become
+more costly as traffic grew — but the by-day report later cleared it of causing the
+low fill: ads were serving from 1 August *with the old code in place*, and impressions
+landed on 8 October, the very day it changed. **Do not revert it.**
+
+**Symptom as originally reported:** pageviews climbing, impressions apparently stuck
+at 0. (This turned out to be a misreading of normal low-volume days.)
 
 **Everything that was already correct** (so don't re-check these first):
 
@@ -80,52 +118,69 @@ never act on.
    units inside it. Safe to remove: `html`/`body` already carry `overflow-x: clip` in
    `src/index.css`, so there is no sideways-scroll regression.
 
-### Status as of 2026-10-09
+### Resolution (2026-10-10)
 
-**Not yet confirmed working.** The day after deploy still showed 20 pageviews / 0
-impressions. Two things suggest the pipeline is functional rather than dead:
+The consent change is **confirmed working in a real browser**: EEA defaults to denied,
+elsewhere to granted, and the update fires correctly. It was cleared of causing the low
+fill rate — see the by-day evidence at the top of this document.
 
-- **+$0.01 earned over 28 days, attributed to the United States** — so an ad *has*
-  rendered at least once. The mechanism works; volume is the problem.
-- **Mediapartners-Google requests jumped 75 → 427** after the deploy, and it began
-  fetching `/assets/*.js` bundles rather than only HTML. That is Google *rendering*
-  pages to find placements — behaviour it had no reason to perform while consent was
-  being refused.
+A browser-console check also showed `adsbygoogle.js` loading and running, then making
+**no further ad requests**. That initially looked account-side, but the by-day report
+plus the Auto Ads format settings explained it: with Banner and Anchor disabled, there
+was simply nowhere on a mobile page for Google to place an ad.
 
-Google commonly takes 24–48h to resume serving on a site it has been refusing, and
-reporting lags several hours behind serving. Give it until at least 2026-10-10 before
-concluding the consent fix was insufficient.
+Two claims made during this investigation that turned out to be **wrong**, recorded so
+they are not repeated:
+
+- *"Manual ad units will fix zero impressions."* No — if the loader is not requesting
+  ads, manual `<ins>` slots render empty for the same reason. Manual units are a
+  **fill-rate** improvement, not a fix for nothing serving.
+- *"`overflow-x-clip` may be blocking Auto Ads."* Ads were placing fine with it in
+  place. Removing it was harmless but it was never the problem.
 
 ---
 
-## If impressions are still zero
+## If fill rate is poor (the realistic scenario)
 
-Work down this list — it is ordered by how cheap each check is.
+Ordered by what actually proved useful, hardest-won first.
 
-1. **Verify consent in the live bundle.** This is the single most useful check:
+1. **Pull the by-day report, broken down by site.** Reports → set the date range to
+   months, not days. This is the check that ended the investigation, and skipping it
+   cost a full day. It tells you whether you are looking at *broken* or merely *low
+   volume* — those have completely different fixes, and a one-day snapshot cannot tell
+   them apart.
+
+2. **Check which Auto Ads formats are enabled.** Ads → By site → techtrendi.com →
+   pencil icon. This was the actual cause: Banner and Anchor were off, leaving mobile
+   readers with no placement but the end-of-article Multiplex grid. Note that newer
+   AdSense has **no ad-load slider** — formats are the lever.
+
+3. **Check the rendered page in a real browser**, not curl. DevTools → Console for
+   `adsbygoogle` errors; Network → filter `googlesyndication` to see whether ad
+   requests fire at all. curl cannot see any of this, because Auto Ads injects after
+   hydration. Caveat: test from a non-EEA IP, or a missing certified CMP will suppress
+   requests and look like an account problem.
+
+4. **Verify consent survived the last deploy:**
    ```bash
    B=$(curl -s https://techtrendi.com/ | grep -oE 'assets/app-[A-Za-z0-9_-]+\.js' | head -1)
    curl -s "https://techtrendi.com/$B" | grep -o 'ad_storage:"granted"'
    ```
-   One match expected. No match means a deploy reverted the fix.
+   One match expected. No match means a deploy reverted the region-scoped fix.
 
-2. **Check the rendered page in a real browser**, not curl. Open DevTools → Console and
-   look for `adsbygoogle` errors; Network → filter `googlesyndication` and confirm ad
-   requests fire. curl cannot see this — Auto Ads injects after hydration.
+5. **Check Policy center, Sites status and Page exclusions.** All were clean
+   throughout this investigation, which is why they are near the bottom of the list.
 
-3. **Confirm Auto Ads is still ON** — Ads → By site → techtrendi.com, and check
-   **Page exclusions** is still 0.
+6. **Wire real ad units.** Create units in AdSense, take the numeric slot IDs, fix
+   `AdSlot.tsx` to use them, mount `AdProvider` in `App.tsx`, and place
+   `<InArticleAd/>` in `BlogArticle.tsx` / `NewsArticle.tsx`. Worth doing for
+   deterministic placement rather than leaving it to Auto Ads' judgement — but note
+   this only helps once ads are serving at all. It is a fill-rate improvement, not a
+   repair.
 
-4. **Check Policy center and Sites status.** A site can be approved while ad serving is
-   separately restricted.
-
-5. **Last resort: wire real ad units.** Create units in AdSense, take the numeric slot
-   IDs, fix `AdSlot.tsx` to use them, mount `AdProvider` in `App.tsx`, and place
-   `<InArticleAd/>` in `BlogArticle.tsx` / `NewsArticle.tsx`. This is a real code change
-   and gives manual control over placement — generally higher revenue than Auto Ads, but
-   more to maintain.
-
----
+7. **Grow traffic.** At ~30 pageviews/day, even perfect placement earns very little.
+   67 impressions over 2,056 pageviews produced $0.04. Traffic dominates every other
+   lever here over any meaningful timeframe.
 
 ---
 
