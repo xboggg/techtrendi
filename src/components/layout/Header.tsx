@@ -102,8 +102,10 @@ export function Header() {
               </span>
               <span className={`flex items-center gap-1 text-[9px] md:text-[10px] font-medium tracking-wide uppercase ${isOverHero ? "text-white/70" : "text-muted-foreground"}`}>
                 Ghana's Tech Hub
-                <span className="md:hidden text-xs leading-none">🇬🇭</span>
-                <GhanaFlag className="hidden md:inline-block w-3.5 h-2.5 rounded-sm border border-current/20" />
+                {/* One SVG for both breakpoints. Mobile used a 🇬🇭 emoji,
+                    which Windows cannot render — it showed as the letters
+                    "GH" next to the logo. */}
+                <GhanaFlag className="inline-block w-3 h-2 md:w-3.5 md:h-2.5 rounded-sm border border-current/20" />
               </span>
             </div>
           </Link>

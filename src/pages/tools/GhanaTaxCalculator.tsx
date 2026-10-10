@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
+import { GhanaFlag } from "@/components/ui/ghana-flag";
   PieChart,
   Pie,
   Cell,
@@ -149,7 +150,10 @@ export default function GhanaTaxCalculator() {
           {/* Header */}
           <div className="text-center mb-8 md:mb-12">
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
-              🇬🇭 Ghana Salary Tax Calculator
+              {/* Was a flag emoji, which Windows renders as the
+                  letters "GH". The SVG renders everywhere. */}
+              <GhanaFlag className="inline-block w-7 h-5 rounded align-[-0.1em] mr-1" />{" "}
+              Ghana Salary Tax Calculator
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Calculate your net take-home pay using official GRA PAYE tax bands

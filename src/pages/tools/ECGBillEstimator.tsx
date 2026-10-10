@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Zap, Info } from "lucide-react";
+import { GhanaFlag } from "@/components/ui/ghana-flag";
 
 // ---------------------------------------------------------------------------
 // TARIFF — official PURC "2026 Second Quarter Tariff Review Decision",
@@ -102,7 +103,10 @@ export default function ECGBillEstimator() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
-              🇬🇭 ECG Bill Estimator
+              {/* Was a flag emoji, which Windows renders as the
+                  letters "GH". The SVG renders everywhere. */}
+              <GhanaFlag className="inline-block w-7 h-5 rounded align-[-0.1em] mr-1" />{" "}
+              ECG Bill Estimator
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Estimate your monthly electricity cost using Ghana's official PURC

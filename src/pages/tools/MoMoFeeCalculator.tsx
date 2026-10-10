@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Smartphone, ArrowDownToLine, Info } from "lucide-react";
+import { GhanaFlag } from "@/components/ui/ghana-flag";
 
 // ---------------------------------------------------------------------------
 // FEE RULES — verified June 2026. E-Levy ABOLISHED (2 April 2025) → no levy.
@@ -116,7 +117,10 @@ export default function MoMoFeeCalculator() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
-              🇬🇭 MoMo Fee Calculator
+              {/* Was a flag emoji, which Windows renders as the
+                  letters "GH". The SVG renders everywhere. */}
+              <GhanaFlag className="inline-block w-7 h-5 rounded align-[-0.1em] mr-1" />{" "}
+              MoMo Fee Calculator
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               See exactly what MTN MoMo and AT Money charge to send money or cash
