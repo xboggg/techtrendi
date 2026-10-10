@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { BOT_UA_SQL_PATTERN } from "@/lib/isBotTraffic";
 import { AdminLayout } from "./AdminLayout";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -268,6 +269,10 @@ export default function AdminAnalytics() {
       let query = supabase
         .from("page_views")
         .select("*")
+        // Exclude crawler rows already in the table (the tracker no longer
+        // writes them). 60% of rows were bots; Mediapartners-Google alone
+        // made US traffic look ~2.6x larger than it is.
+        .not("user_agent", "imatch", BOT_UA_SQL_PATTERN)
         .order("created_at", { ascending: false });
       if (dateFilter) query = query.gte("created_at", dateFilter);
       const { data, error } = await query.limit(10000);
@@ -288,6 +293,7 @@ export default function AdminAnalytics() {
       const { data, error } = await supabase
         .from("page_views")
         .select("id")
+        .not("user_agent", "imatch", BOT_UA_SQL_PATTERN)
         .gte("created_at", start)
         .lt("created_at", end);
       if (error) return [];
@@ -303,6 +309,7 @@ export default function AdminAnalytics() {
       const { data, error } = await supabase
         .from("page_views")
         .select("session_id")
+        .not("user_agent", "imatch", BOT_UA_SQL_PATTERN)
         .gte("created_at", fiveMinAgo);
       if (error) return 0;
       return new Set(data.map((d: { session_id: string }) => d.session_id).filter(Boolean)).size;
@@ -427,6 +434,7 @@ export default function AdminAnalytics() {
       let query = supabase
         .from("page_views")
         .select("created_at")
+        .not("user_agent", "imatch", BOT_UA_SQL_PATTERN)
         .order("created_at", { ascending: true });
       if (dateFilter) query = query.gte("created_at", dateFilter);
       const { data, error } = await query.limit(10000);

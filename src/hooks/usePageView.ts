@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { isBotTraffic } from "@/lib/isBotTraffic";
 
 function getDeviceType(): string {
   const w = window.innerWidth;
@@ -132,6 +133,10 @@ export function usePageView() {
   useEffect(() => {
     if (location.pathname === lastPath.current) return;
     if (location.pathname.startsWith("/admin")) return;
+    // Crawlers that execute JS were being recorded as visitors. Mediapartners-
+    // Google alone accounted for 257 of 445 "US" pageviews, making the
+    // dashboard overstate US traffic by roughly 2.6x.
+    if (isBotTraffic()) return;
 
     // Update time on previous page before recording new one
     if (lastPath.current) {
