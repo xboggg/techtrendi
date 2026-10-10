@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { plainTextExcerpt } from "@/lib/plainTextExcerpt";
 import { motion, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -125,8 +126,10 @@ export default function CyberAwareness() {
   const handleShare = async (post: CyberPost) => {
     // Deep-link straight to this post so clicking the shared link opens it.
     const url = `https://techtrendi.com/cyber-awareness#post-${post.number}`;
-    const teaser = (post.content || "").replace(/\s+/g, " ").trim().slice(0, 160);
-    const text = `${post.emoji} ${post.title}\n\n${teaser}…\n\n👉 Read more:`;
+    // Was a raw slice of content, so posts opening with a Markdown heading
+    // pushed a literal "#" into the shared WhatsApp/X text.
+    const teaser = plainTextExcerpt(post.content, 160);
+    const text = `${post.emoji} ${post.title}\n\n${teaser}\n\n👉 Read more:`;
     if (navigator.share) {
       try {
         await navigator.share({ title: post.title, text, url });

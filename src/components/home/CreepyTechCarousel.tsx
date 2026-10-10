@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { plainTextExcerpt } from "@/lib/plainTextExcerpt";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -69,8 +70,10 @@ function CardItem({ post, colorMap, onClick }: { post: Post; colorMap: Record<st
         <h4 className="text-white font-bold text-base mt-2 mb-2 line-clamp-2">
           {post.emoji} {post.title}
         </h4>
+        {/* Strip Markdown before clipping: posts that open with a heading were
+            showing a literal "#" at the start of the card preview. */}
         <p className="text-zinc-400 text-sm leading-relaxed line-clamp-4">
-          {post.content}
+          {plainTextExcerpt(post.content, 220)}
         </p>
       </div>
     </div>
