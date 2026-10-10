@@ -141,6 +141,42 @@ export default function AdminWhatsAppQueue() {
     }
   };
 
+  /**
+   * Open WhatsApp with the post text already filled in, and mark it sent.
+   *
+   * Copy-then-switch-apps-then-paste is three steps; this is one tap on a
+   * phone. WhatsApp has no API for posting to Channels, so the final "send"
+   * is still manual — but this removes everything around it.
+   *
+   * Opens the window synchronously, before any await, or mobile Safari and
+   * Chrome treat it as a popup and block it.
+   */
+  const shareAndMark = async (row: QueueRow, target: "channel" | "group") => {
+    const text = target === "channel" ? row.channel_post : row.group_post;
+    const win = window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+
+    if (!win) {
+      toast({
+        title: "Pop-up blocked",
+        description: "Allow pop-ups for this site, or use Copy instead.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await markSent.mutateAsync({ id: row.id, target });
+      toast({ title: `Opened WhatsApp`, description: `Marked ${target} post as sent` });
+    } catch {
+      // The share still happened; only the bookkeeping failed.
+      toast({
+        title: "Opened WhatsApp, but could not mark it sent",
+        description: "Use the Sent toggle to fix the record.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const beginEdit = (row: QueueRow) => {
     setEditingId(row.id);
     setEditChannel(row.channel_post);
@@ -284,21 +320,32 @@ export default function AdminWhatsAppQueue() {
                   {/* Action buttons */}
                   {!editing && (
                     <div className="flex flex-wrap gap-2">
+                      {/* Share opens WhatsApp with the text pre-filled — one
+                          tap on a phone. Copy is kept for desktop, where
+                          pasting into WhatsApp Web is often easier. */}
                       <Button
                         size="sm"
-                        onClick={() => copyAndMark(row, "channel")}
-                        className={channelDone ? "bg-muted text-muted-foreground hover:bg-muted/80" : "bg-green-600 hover:bg-green-700 text-white"}
+                        onClick={() => shareAndMark(row, "channel")}
+                        className={channelDone ? "bg-muted text-muted-foreground hover:bg-muted/80" : "bg-[#25D366] hover:bg-[#1ebe5a] text-white"}
                       >
-                        <Copy className="w-3.5 h-3.5 mr-1" />
-                        {channelDone ? "Copy Channel again" : "Copy for Channel"}
+                        <MessageCircle className="w-3.5 h-3.5 mr-1" />
+                        {channelDone ? "Share Channel again" : "Share to Channel"}
                       </Button>
                       <Button
                         size="sm"
-                        onClick={() => copyAndMark(row, "group")}
-                        className={groupDone ? "bg-muted text-muted-foreground hover:bg-muted/80" : "bg-green-600 hover:bg-green-700 text-white"}
+                        onClick={() => shareAndMark(row, "group")}
+                        className={groupDone ? "bg-muted text-muted-foreground hover:bg-muted/80" : "bg-[#25D366] hover:bg-[#1ebe5a] text-white"}
                       >
+                        <MessageCircle className="w-3.5 h-3.5 mr-1" />
+                        {groupDone ? "Share Group again" : "Share to Group"}
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => copyAndMark(row, "channel")}>
                         <Copy className="w-3.5 h-3.5 mr-1" />
-                        {groupDone ? "Copy Group again" : "Copy for Group"}
+                        Copy Channel
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => copyAndMark(row, "group")}>
+                        <Copy className="w-3.5 h-3.5 mr-1" />
+                        Copy Group
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => beginEdit(row)}>
                         <Edit2 className="w-3.5 h-3.5 mr-1" />

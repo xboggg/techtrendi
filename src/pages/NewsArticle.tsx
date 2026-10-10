@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ReadingProgress } from "@/components/ui/reading-progress";
 import { ShareButtons } from "@/components/ui/share-buttons";
+import { WhatsAppChannelCTA } from "@/components/article/WhatsAppChannelCTA";
 import { BookmarkButton } from "@/components/ui/bookmark-system";
 import { useReadingHistory } from "@/components/ui/reading-history";
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
@@ -396,6 +397,11 @@ export default function NewsArticle() {
                 </div>
               </div>
             )}
+
+            {/* Reader just finished the article — the one moment they might
+                actually want more of this. The channel link was previously
+                only in the footer. */}
+            <WhatsAppChannelCTA className="mb-8" />
 
             <CommentsBox slug={news.slug} type="news" />
 

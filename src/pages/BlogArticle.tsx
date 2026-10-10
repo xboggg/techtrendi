@@ -15,6 +15,7 @@ import { sanitizeInput } from "@/lib/security";
 import DOMPurify from "isomorphic-dompurify"; // SSG-safe: works in Node build + browser
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
 import { CommentsBox } from "@/components/article/CommentsBox";
+import { WhatsAppChannelCTA } from "@/components/article/WhatsAppChannelCTA";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
@@ -620,6 +621,11 @@ export default function BlogArticle() {
               </div>
             </div>
           )}
+
+          {/* Reader just finished the article — the one moment they might
+              actually want more of this. The channel link was previously only
+              in the footer. */}
+          <WhatsAppChannelCTA className="mb-8" />
 
           <CommentsBox slug={article.slug} type="blog" />
 

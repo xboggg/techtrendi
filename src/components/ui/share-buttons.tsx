@@ -45,7 +45,17 @@ export function ShareButtons({
   const encodedTitle = encodeURIComponent(title);
   const encodedDescription = encodeURIComponent(description);
 
+  // WhatsApp first, deliberately. Most readers here are in Ghana, where
+  // WhatsApp is where links actually get passed around — it was sitting in
+  // fourth place behind LinkedIn, which almost nobody here shares to.
   const shareLinks = [
+    {
+      name: 'WhatsApp',
+      icon: MessageCircle,
+      href: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
+      color: 'hover:bg-[#25D366] hover:text-white',
+      bgColor: 'bg-[#25D366]',
+    },
     {
       name: 'Twitter',
       icon: Twitter,
@@ -66,13 +76,6 @@ export function ShareButtons({
       href: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}&summary=${encodedDescription}`,
       color: 'hover:bg-[#0A66C2] hover:text-white',
       bgColor: 'bg-[#0A66C2]',
-    },
-    {
-      name: 'WhatsApp',
-      icon: MessageCircle,
-      href: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
-      color: 'hover:bg-[#25D366] hover:text-white',
-      bgColor: 'bg-[#25D366]',
     },
   ];
 
