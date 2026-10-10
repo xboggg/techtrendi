@@ -690,14 +690,20 @@ export default function Index() {
         <div className="container relative z-10 py-16 md:py-20">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-sm font-medium text-white mb-5 backdrop-blur-sm">
-              <span aria-hidden="true">🇬🇭</span> News · Tools · Online Safety
+              {/* Was a 🇬🇭 emoji, which Windows cannot render — it showed as
+                  the letters "GH". The SVG renders everywhere. */}
+              <GhanaFlag className="w-4 h-3 rounded-[2px] shrink-0" /> News · Tools · Online Safety
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.1] mb-5 drop-shadow-lg">
-              Tech made simple,{" "}
-              <span className="text-amber-400">built for Ghana</span>
+              {/* block + nowrap keeps "built for Ghana" whole on its own line.
+                  It was breaking after "built", splitting the amber phrase
+                  across two lines and pushing the text into the photo. */}
+              <span className="block">Tech made simple,</span>
+              <span className="block text-amber-400 whitespace-nowrap">built for Ghana</span>
             </h1>
             <p className="text-lg text-white/80 max-w-xl mb-8">
-              News that matters. Tools that work. Safety that sticks. All free —
+              {/* Non-breaking space before the dash so it never ends a line alone. */}
+              News that matters. Tools that work. Safety that sticks. All free&nbsp;—
               and made for how we actually live, right here at home.
             </p>
             {/* Buttons: a touch smaller on mobile so the lower hero isn't cloggy;
