@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight, Sparkles, Shield, Zap, BookOpen, Star, TrendingUp, Clock, Eye, FileText,
-  ChevronLeft, ChevronRight, Gamepad2, Send, Globe, Calculator,
+  ChevronLeft, ChevronRight, Gamepad2, Send, Globe, Calculator, Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GhanaFlag } from "@/components/ui/ghana-flag";
@@ -43,6 +43,31 @@ interface FeaturedGuide {
   category: string;
   cover_image: string | null;
   read_time_minutes: number | null;
+  // News cards showed "x days ago" while guides showed only reading time, so
+  // readers had no way to tell whether a guide was current.
+  updated_at?: string | null;
+  created_at?: string | null;
+}
+
+/**
+ * Short absolute date for guide cards, e.g. "12 Oct 2026".
+ *
+ * Deliberately absolute rather than the relative "x days ago" used on news
+ * cards: news is about recency, a guide is about whether the advice still
+ * holds. "Updated 12 Oct 2026" answers that; "40 days ago" does not.
+ *
+ * Module scope because EditorsPickCarousel is a separate top-level component
+ * and cannot reach the formatTimeAgo defined inside Index().
+ */
+function formatGuideDate(dateString: string | null | undefined): string | null {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 interface NewsItem {
@@ -314,6 +339,14 @@ function EditorsPickCarousel({ picks }: { picks: FeaturedGuide[] }) {
             <Clock className="w-3 h-3" />
             {guide.read_time_minutes || 5} Minutes
           </span>
+          {/* Guides previously showed only reading time, so a reader could not
+              tell whether the advice was current. */}
+          {formatGuideDate(guide.updated_at || guide.created_at) && (
+            <span className="flex items-center gap-1 text-white/70 text-xs">
+              <Calendar className="w-3 h-3" />
+              {formatGuideDate(guide.updated_at || guide.created_at)}
+            </span>
+          )}
         </div>
         <h2 className="text-lg md:text-xl font-bold text-white group-hover:text-primary/90 transition-colors line-clamp-2">
           {guide.title}
@@ -427,7 +460,7 @@ export default function Index() {
       // them by hand. Same live "newest first" pattern as the news sections.
       const { data, error } = await supabase
         .from("articles")
-        .select("id, title, slug, excerpt, category, cover_image, read_time_minutes")
+        .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, updated_at, created_at")
         .eq("is_published", true)
         .order("created_at", { ascending: false })
         .limit(8);
@@ -446,7 +479,7 @@ export default function Index() {
     try {
       const { data, error } = await supabase
         .from("articles")
-        .select("id, title, slug, excerpt, category, cover_image, read_time_minutes")
+        .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, updated_at, created_at")
         .match({ is_published: true, is_featured: true })
         .order("created_at", { ascending: false })
         .limit(8);
@@ -1098,6 +1131,12 @@ export default function Index() {
                           <Clock className="w-3 h-3" />
                           {guide.read_time_minutes || 5} Minutes
                         </span>
+                        {formatGuideDate(guide.updated_at || guide.created_at) && (
+                          <span className="flex items-center gap-1 text-white/70 text-xs">
+                            <Calendar className="w-3 h-3" />
+                            {formatGuideDate(guide.updated_at || guide.created_at)}
+                          </span>
+                        )}
                       </div>
                       <h2 className="text-lg md:text-xl font-bold text-white group-hover:text-primary/90 transition-colors line-clamp-2">
                         {guide.title}
@@ -1145,6 +1184,12 @@ export default function Index() {
                           <Clock className="w-3 h-3" />
                           {guide.read_time_minutes || 5} min
                         </span>
+                        {formatGuideDate(guide.updated_at || guide.created_at) && (
+                          <span className="flex items-center gap-1 text-muted-foreground text-xs">
+                            <Calendar className="w-3 h-3" />
+                            {formatGuideDate(guide.updated_at || guide.created_at)}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </Link>
