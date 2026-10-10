@@ -357,6 +357,11 @@ export default function Index() {
   const [editorsPicks, setEditorsPicks] = useState<FeaturedGuide[]>([]);
   const [latestNews, setLatestNews] = useState<NewsItem[]>([]);
   const [loadingNews, setLoadingNews] = useState(true);
+  // Distinguish "the fetch failed" from "there genuinely is no news". Both
+  // used to show "No news yet. Check back soon!", which is actively
+  // misleading when 477 articles are published — it sent two separate
+  // investigations hunting for a database outage that never happened.
+  const [newsError, setNewsError] = useState(false);
   const [internationalNews, setInternationalNews] = useState<NewsItem[]>([]);
   const [loadingIntlNews, setLoadingIntlNews] = useState(true);
   const [tickerItems, setTickerItems] = useState<TickerItem[]>([]);
@@ -466,12 +471,17 @@ export default function Index() {
         .order("created_at", { ascending: false })
         .limit(5);
 
-      if (!error && data && data.length > 0) {
-        setLatestNews(data);
-      } else {
+      if (error) {
+        // Reached the API but it refused — rate limit, auth, network blip.
+        setNewsError(true);
         setLatestNews([]);
+      } else {
+        setNewsError(false);
+        setLatestNews(data ?? []);
       }
     } catch {
+      // Never reached the API at all: offline, DNS, VPN interception, CORS.
+      setNewsError(true);
       setLatestNews([]);
     } finally {
       setLoadingNews(false);
@@ -797,7 +807,29 @@ export default function Index() {
           ) : (
             <div className="text-center py-12 text-muted-foreground">
               <TrendingUp className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p>No news yet. Check back soon!</p>
+              {newsError ? (
+                <>
+                  <p className="font-medium text-foreground">
+                    Couldn't load the latest news
+                  </p>
+                  <p className="text-sm mt-1">
+                    Check your connection and try again.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoadingNews(true);
+                      setNewsError(false);
+                      fetchLatestNews();
+                    }}
+                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                  >
+                    Try again
+                  </button>
+                </>
+              ) : (
+                <p>No news yet. Check back soon!</p>
+              )}
             </div>
           )}
         </div>
