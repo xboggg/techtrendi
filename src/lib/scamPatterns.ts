@@ -27,7 +27,20 @@ export const SCAM_PATTERNS = [
   { pattern: /job offer|work from home.*earn|earn.*per day|earn.*cedis.*daily/i, label: "Too-good-to-be-true job", risk: "high" as const, description: "Legitimate employers advertise jobs through proper channels, not unsolicited messages." },
   { pattern: /urgent|immediately|expire.*today|last chance|act now|within.*hours/i, label: "Artificial urgency", risk: "medium" as const, description: "Creating panic to prevent you from thinking clearly is a core scam technique." },
   { pattern: /wrong.*number|hello dear|hello friend|dear customer/i, label: "Generic opener / wrong number approach", risk: "medium" as const, description: "'Wrong number' followed by friendship is a known pig-butchering scam entry point." },
-  { pattern: /momo.*reverse|refund.*momo|mistaken.*transfer|sent.*wrong/i, label: "MoMo reversal request", risk: "high" as const, description: "If someone 'accidentally' sends you money and asks you to return it, the original transfer is likely fraudulent." },
+  // The "send it back" reversal trick. The old pattern required the literal
+  // word "momo", or the exact sequences "mistaken transfer" / "sent wrong",
+  // so the phrasings people actually receive scored CLEAR — no warning at all:
+  //   "I mistakenly sent GHS 500 to your number, please send it back"
+  //   "I sent 300 cedis to this number by error"
+  // Real messages say "sent" (not "send"), and put words between the verb and
+  // the mistake. This covers accidental-transfer wording generally, in the
+  // several ways Ghanaians actually phrase it.
+  { pattern: /momo.*revers|revers.*momo|refund.*momo|mistaken.*transfer|(sent|transferr?ed|paid).{0,30}wrong.*number|wrong.*number.{0,30}(sent|transferr?ed|paid)/i, label: "MoMo reversal request", risk: "high" as const, description: "If someone 'accidentally' sends you money and asks you to return it, the original transfer is likely fraudulent. The money was often stolen from someone else's account, and returning it makes you part of the chain." },
+  { pattern: /(sent|transferr?ed|paid|credited).{0,40}(by (mistake|error|accident)|mistakenly|accidentally|in error|wrongly)|((by|in) (mistake|error)|mistakenly|accidentally).{0,40}(sent|transferr?ed|paid|credited)/i, label: "Accidental transfer claim", risk: "high" as const, description: "A stranger claiming they sent you money 'by mistake' and asking you to return it is the MoMo reversal trick. The incoming transfer is usually fraudulent or reversed later, leaving you out of pocket for whatever you send back. Never return money to the sender — tell your mobile money provider instead." },
+  // Deliberately excludes "I'll pay you back" / "I will pay you back" — that is
+  // someone promising to repay *you*, the opposite of the scam, and flagging a
+  // friend settling a debt would train people to ignore this tool.
+  { pattern: /(?<!i['’]?(ll| will) )(?<!i )(send|give|return|reverse|transfer)\s+(it|me|the|my)?\s*(money|cash|amount|funds|cedis|ghs|ghc)?\s*back\b|kindly (return|reverse|send.{0,15}back)|return (it|the money|my money)\b/i, label: "Request to send money back", risk: "high" as const, description: "Being asked to send money 'back' to someone you do not know is a hallmark of the reversal scam. Legitimate mis-sent mobile money is recovered through the network's own reversal process, not by you transferring it yourself." },
   { pattern: /otp|one.time.*password|code.*sent|verify.*code/i, label: "OTP/code request", risk: "high" as const, description: "No legitimate service will ask you for an OTP sent to your phone. If they ask, hang up or ignore." },
   { pattern: /your package|parcel.*held|dhl|fedex|gha.*post.*delivery/i, label: "Fake delivery fee", risk: "high" as const, description: "Courier companies do not send payment links via SMS for delivery fees." },
 
