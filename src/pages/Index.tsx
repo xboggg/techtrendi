@@ -696,24 +696,27 @@ export default function Index() {
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.1] mb-5 drop-shadow-lg">
               {/* Was "Tech made simple, built for Ghana", which promised
-                  beginner explainers. The site is actually 574 news posts,
-                  341 articles and 147 tools — a daily news and utility site,
-                  so the headline now says that.
-                  block + nowrap keeps the amber phrase whole on its own line;
-                  it used to break mid-phrase and crowd the photo. */}
-              <span className="block">Ghana's tech news,</span>
-              {/* nowrap only on the amber phrase: at text-4xl it needs ~334px
-                  of the ~380px available on a 412px screen, so it holds. Line
-                  one is left to wrap on its own — it is close enough to the
-                  limit that forcing it could overflow a narrower phone. */}
-              <span className="block text-amber-400 whitespace-nowrap">every single day</span>
+                  beginner explainers. The site is a daily news and utility
+                  site: 574 news posts, 341 articles, 147 tools. Coverage is
+                  pan-African with Ghana as the base (Ghana 181, Nigeria 93,
+                  Kenya 47, South Africa 30) plus 97 Rundown world-tech
+                  briefings — so "Ghana's tech news" undersold it.
+
+                  Line one wraps naturally. At text-4xl it needs ~397px against
+                  ~328px available on a 360px phone, so forcing it onto one
+                  line would overflow; wrapping gives "Tech news for / Ghana /
+                  and Africa" on mobile and two lines on desktop. */}
+              <span className="block">Tech news for Ghana</span>
+              {/* nowrap only here: ~209px of ~328px at 360px, so it holds. */}
+              <span className="block text-amber-400 whitespace-nowrap">and Africa</span>
             </h1>
             <p className="text-lg text-white/80 max-w-xl mb-8">
-              {/* Deliberately does NOT list the tools — the quick-tag chips
-                  right below already name Scam check, Tax calculator and ECG
-                  bill. This line sells the news; the chips sell the tools. */}
-              The stories that matter here, reported for readers in Ghana — not
-              foreign coverage retrofitted for us. Free, always.
+              {/* Does not name the tools — the quick-tag chips directly below
+                  already say Scam check, Tax calculator and ECG bill, so
+                  listing them here repeats the same thing in one eyeful. */}
+              Daily reporting from across the continent, a morning briefing on
+              what's moving in world tech, and free tools that actually solve
+              local problems.
             </p>
             {/* Buttons: a touch smaller on mobile so the lower hero isn't cloggy;
                 full size from sm: up. */}
