@@ -13,7 +13,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
-import { GhanaFlag } from "@/components/ui/ghana-flag";
   PieChart,
   Pie,
   Cell,
@@ -21,6 +20,7 @@ import { GhanaFlag } from "@/components/ui/ghana-flag";
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { GhanaFlag } from "@/components/ui/ghana-flag";
 
 // --------------- GRA PAYE 2025/2026 Annual Tax Bands ---------------
 const TAX_BANDS = [
