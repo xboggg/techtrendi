@@ -31,8 +31,22 @@ export default defineConfig(({ mode }) => ({
     includedRoutes(paths: string[]) {
       // Exclude auth-gated/personalized/internal pages (no SEO value) and
       // dynamic :param routes (those that need data use getStaticPaths instead).
+      //
+      // Match the FIRST PATH SEGMENT, not a substring. The previous
+      // p.includes(s) silently dropped 5 published articles whose slugs merely
+      // contained one of these words:
+      //   "auth"      inside authentication  -> both 2FA guides, and the
+      //                                         NIMC digital-identity-authority story
+      //   "dashboard" inside the slug        -> both Paystack dashboard stories
+      // They were never written to dist/, so Google could not index them at all.
+      // Every route being excluded here is a top-level segment (auth, profile,
+      // dashboard, admin and its children), so segment matching is exact and safe.
       const skip = ["admin", "arcade", "auth", "profile", "dashboard", "design-demo", "tools-preview", "rundown-preview"];
-      return paths.filter((p) => !p.includes(":") && !skip.some((s) => p.includes(s)));
+      return paths.filter((p) => {
+        if (p.includes(":")) return false;
+        const firstSegment = p.replace(/^\//, "").split("/")[0];
+        return !skip.includes(firstSegment);
+      });
     },
   },
 }));
