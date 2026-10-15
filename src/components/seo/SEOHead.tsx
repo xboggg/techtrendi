@@ -10,6 +10,10 @@ interface SEOHeadProps {
   canonical?: string;
   canonicalUrl?: string;
   image?: string;
+  /** What the share image SHOWS, for screen readers and crawlers. Defaults to
+   *  the page title, which suits an article card carrying its own photo but
+   *  says nothing useful about the default site-wide card. */
+  imageAlt?: string;
   type?: 'website' | 'article' | 'product';
   noindex?: boolean;
   keywords?: string[];
@@ -38,6 +42,7 @@ export function SEOHead({
   canonical,
   canonicalUrl,
   image,
+  imageAlt,
   type = 'website',
   noindex = false,
   keywords = [],
@@ -164,7 +169,7 @@ export function SEOHead({
       <meta property="og:image" content={imageUrl} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      <meta property="og:image:alt" content={title} />
+      <meta property="og:image:alt" content={imageAlt || title} />
       <meta property="og:site_name" content={SITE_NAME} />
 
       {/* Article specific meta */}

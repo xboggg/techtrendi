@@ -618,10 +618,11 @@ export default function Index() {
   return (
     <Layout>
       <SEOHead
-        title="TechTrendi – Ghana's Tech News, Tools & Digital Insights"
-        description="Ghana's leading tech destination. Daily tech news from Ghana and Africa, 130+ free tools (MoMo fee calculator, scam checker, electricity calculator), and practical online-safety guides built for Africa."
+        title="Ghana's Tech News, Tools & Digital Insights"
+        description="Daily tech news from Ghana and Africa, 130+ free tools including a Ghana tax calculator and scam checker, and practical guides on online safety and AI."
         canonical="/"
-        keywords={["Ghana tech news", "Africa technology", "Ghana technology blog", "MoMo calculator", "Ghana cybersecurity", "online safety Ghana", "Ghana digital tools"]}
+        imageAlt="The TechTrendi logo over a laptop and the Accra skyline at dusk"
+        keywords={["Ghana tech news", "Africa technology", "Ghana technology blog", "Ghana tax calculator", "Ghana cybersecurity", "online safety Ghana", "Ghana digital tools"]}
       />
       {/* WebSite + Organization Schema */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
