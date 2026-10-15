@@ -30,6 +30,7 @@ interface QueueRow {
     category: string;
     excerpt: string | null;
     created_at: string;
+    is_published: boolean;
   };
 }
 
@@ -50,7 +51,7 @@ export default function AdminWhatsAppQueue() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("whatsapp_queue")
-        .select("*, article:articles!whatsapp_queue_article_id_fkey(id, title, slug, category, excerpt, created_at)")
+        .select("*, article:articles!whatsapp_queue_article_id_fkey(id, title, slug, category, excerpt, created_at, is_published)")
         .order("created_at", { ascending: false })
         .limit(500);
       if (error) throw error;
@@ -120,6 +121,13 @@ export default function AdminWhatsAppQueue() {
   const filteredQueue = useMemo(() => {
     return queue.filter(q => {
       if (!q.article) return false;
+      // Hide rows whose article is no longer published. The queue trigger adds
+      // a row when an article goes live but nothing removes it if the article
+      // is later unpublished, and sharing a draft gives a broken preview (RLS
+      // hides unpublished rows from og-meta.php, so WhatsApp falls back to the
+      // site-wide title and image) and a link that 404s. The row is kept in the
+      // database, so republishing the article makes it reappear ready to send.
+      if (!q.article.is_published) return false;
       if (filter === "pending" && q.channel_sent_at && q.group_sent_at) return false;
       if (filter === "posted" && (!q.channel_sent_at || !q.group_sent_at)) return false;
       if (search) {
