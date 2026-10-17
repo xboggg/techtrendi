@@ -26,23 +26,64 @@ const BUILD_UA =
 
 const MAX_ROWS = 2000; // safety ceiling (Africa Tech + Big Tech ~435, blog ~265)
 
+// A build that cannot reach the database must FAIL, never succeed with no
+// articles. This used to return [] on any error, so a database blip during a
+// build produced a site with no blog or news pages and still exited 0. The
+// server install step mirrors dist with `rsync --delete`, so that empty build
+// would have deleted every article page from the live site, and the smoke
+// test only checks the homepage. Found 2026-10-17; it never actually fired
+// (every deploy since 30 Sep built 1,053-1,103 URLs), but nothing stopped it.
+//
+// Floors catch the quieter failure: a 200 with an empty list (e.g. a changed
+// RLS policy or a wrong key), which no error would reveal. They sit far below
+// today's counts (news 594, blog 343 on 17 Oct 2026) so normal deletions never
+// trip them.
+const FETCH_ATTEMPTS = 3;
+const MIN_NEWS = 200;
+const MIN_BLOG = 100;
+
 type Row = { slug?: string } & Record<string, unknown>;
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 async function sbFetch(query: string): Promise<Row[]> {
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${query}`, {
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        "User-Agent": BUILD_UA,
-      },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? (data as Row[]) : [];
-  } catch {
-    return [];
+  let lastError = "";
+  for (let attempt = 1; attempt <= FETCH_ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${query}`, {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          "User-Agent": BUILD_UA,
+        },
+      });
+      if (!res.ok) {
+        lastError = `HTTP ${res.status}`;
+      } else {
+        const data = await res.json();
+        if (Array.isArray(data)) return data as Row[];
+        lastError = "response was not a list";
+      }
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : String(e);
+    }
+    if (attempt < FETCH_ATTEMPTS) await sleep(attempt * 3000);
   }
+  const table = query.split("?")[0];
+  throw new Error(
+    `[ssg] could not fetch "${table}" from ${SUPABASE_URL} after ${FETCH_ATTEMPTS} attempts ` +
+      `(${lastError}). Failing the build so an incomplete site is never deployed.`
+  );
+}
+
+function requireAtLeast(map: Map<string, Row>, min: number, what: string): Map<string, Row> {
+  if (map.size < min) {
+    throw new Error(
+      `[ssg] only ${map.size} published ${what} came back (expected at least ${min}). ` +
+        `Failing the build so an incomplete site is never deployed.`
+    );
+  }
+  return map;
 }
 
 function toMap(rows: Row[]): Map<string, Row> {
@@ -55,10 +96,14 @@ let blogCache: Map<string, Row> | null = null;
 
 async function getNewsMap(): Promise<Map<string, Row>> {
   if (!newsCache) {
-    newsCache = toMap(
-      await sbFetch(
-        `news?select=*&is_published=eq.true&category=in.(Africa%20Tech,Big%20Tech)&order=created_at.desc&limit=${MAX_ROWS}`
-      )
+    newsCache = requireAtLeast(
+      toMap(
+        await sbFetch(
+          `news?select=*&is_published=eq.true&category=in.(Africa%20Tech,Big%20Tech)&order=created_at.desc&limit=${MAX_ROWS}`
+        )
+      ),
+      MIN_NEWS,
+      "news articles"
     );
   }
   return newsCache;
@@ -66,8 +111,10 @@ async function getNewsMap(): Promise<Map<string, Row>> {
 
 async function getBlogMap(): Promise<Map<string, Row>> {
   if (!blogCache) {
-    blogCache = toMap(
-      await sbFetch(`articles?select=*&is_published=eq.true&order=created_at.desc&limit=${MAX_ROWS}`)
+    blogCache = requireAtLeast(
+      toMap(await sbFetch(`articles?select=*&is_published=eq.true&order=created_at.desc&limit=${MAX_ROWS}`)),
+      MIN_BLOG,
+      "blog articles"
     );
   }
   return blogCache;

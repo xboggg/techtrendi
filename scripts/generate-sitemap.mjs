@@ -87,12 +87,30 @@ const body = urls
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
 
-writeFileSync(join(DIST, "sitemap.xml"), xml, "utf-8");
-
 const counts = urls.reduce((a, u) => {
   const p = u.loc.replace(SITE, "").replace(/^\//, "");
   const k = p === "" ? "home" : p.startsWith("blog/") ? "blog" : p.startsWith("news/") ? "news" : p.startsWith("tools/") ? "tools" : "static";
   a[k] = (a[k] || 0) + 1;
   return a;
 }, {});
+
+// Last line of defence before deploy. If the prerender produced far fewer
+// article pages than normal, this build is incomplete: deploying it would
+// delete the missing pages from the live site (the server mirrors dist with
+// rsync --delete). Exit non-zero so the Deploy workflow stops here. Floors are
+// well below today's counts (blog 343, news 594 on 17 Oct 2026) so ordinary
+// deletions never trip them. src/ssg/news-data.ts applies the same floors.
+const FLOORS = { blog: 100, news: 200 };
+const short = Object.entries(FLOORS).filter(([k, min]) => (counts[k] || 0) < min);
+if (short.length) {
+  console.error(
+    `[sitemap] REFUSING: only ${short.map(([k]) => `${counts[k] || 0} ${k}`).join(", ")} pages were built ` +
+      `(minimums ${short.map(([k, m]) => `${k} ${m}`).join(", ")}). The build is incomplete; not writing ` +
+      `sitemap.xml and failing so it is never deployed.`,
+    counts
+  );
+  process.exit(1);
+}
+
+writeFileSync(join(DIST, "sitemap.xml"), xml, "utf-8");
 console.log(`[sitemap] wrote dist/sitemap.xml with ${urls.length} URLs`, counts);
