@@ -59,7 +59,11 @@ undiscovered. A scoped location now returns a real 404:
 ```nginx
 location ~ ^/(blog|news)/([^/]+)/?$ {
     if ($is_bot = 1) { rewrite ^/(.*)$ /og-meta.php?path=$1&$args last; }
-    try_files $uri $uri.html =404;
+    try_files $uri $uri.html @article_fallback;
+}
+
+location @article_fallback {
+    rewrite ^/(.*)$ /article-exists.php?path=$1 last;
 }
 ```
 
@@ -71,8 +75,26 @@ must not catch:
 - client-only routes (`/admin`, `/auth`, `/arcade`, `/profile`) which need the
   SPA shell
 
-Safe because every published article is prerendered to `<slug>.html`, so a
-missing file reliably means a missing article.
+**Correction, 2026-10-17.** The first version used `try_files $uri $uri.html
+=404`, on the assumption that a missing file means a missing article. That
+is false between publishing and the next build. The daily build is scheduled
+for 11:30 UTC but GitHub delays scheduled runs by hours (actual runs landed
+15:24-20:21 UTC), while The Rundown publishes at 03:00 UTC. Each morning's
+posts were a hard 404 for direct visitors -- WhatsApp shares and Google
+included -- for up to 17 hours.
+
+`public/article-exists.php` now handles a missing file by asking the
+database, with the anon key so RLS hides drafts:
+
+| Situation | Response | `X-Article-Fallback` header |
+|---|---|---|
+| Published, page not built yet | 200, SPA shell | `published-awaiting-build` |
+| Draft, deleted or never existed | 404, SPA shell (app shows not-found) | `not-found` |
+| Malformed path | 404 | `bad-path` |
+| Database unreachable | 200 (fail open) | `db-unavailable` |
+
+Lives in `public/` so every build deploys it; the nginx change itself is on
+the server only (backup at `/root/nginx-techtrendi.com.bak-20261017-152915`).
 
 Verified after reload: fake article URLs → 404; `/`, `/news`, `/blog`, `/tools`,
 `/security`, real articles, `/tools/ghana-tax-calculator` → 200; `/admin`,
