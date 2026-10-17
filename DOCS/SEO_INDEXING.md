@@ -42,6 +42,13 @@ Time was lost chasing two red herrings first: Googlebot 444s on `/robots.txt`
 and nginx rate limiting. Both are real but marginal. Check the **GSC Pages
 report before** investigating anything at the server level.
 
+## Protecting the indexed pages (2026-10-17)
+
+A build that silently lost its articles would have deleted every article page
+and shrunk the sitemap to ~166 URLs, which would be catastrophic for indexing.
+The build now fails instead, and a self-test keeps that guard in place. See
+[DEPLOY_SAFETY.md](DEPLOY_SAFETY.md).
+
 ## Fixed 2026-10-11
 
 ### Soft 404s

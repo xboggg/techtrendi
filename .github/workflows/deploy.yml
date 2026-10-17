@@ -55,6 +55,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Must stay BEFORE Build. The server installs each build with
+      # rsync --delete, so a build missing articles would delete them from the
+      # live site. This fails the deploy if the guard that prevents that has
+      # been removed or weakened. See DOCS/DEPLOY_SAFETY.md before touching it.
+      - name: Deploy guard self-test
+        run: node scripts/test-deploy-guard.mjs
+
       - name: Build
         # All VITE_* env vars are inlined into the bundle at build time
         # via import.meta.env. They live as repo Action secrets so the

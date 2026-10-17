@@ -105,14 +105,24 @@ That triggers
 
 1. Checks out the code on a GitHub-hosted Ubuntu runner.
 2. Sets up Node.js 20 with npm cache.
-3. Runs `npm ci` and `npm run build`.
+3. Runs `npm ci`, then the **deploy guard self-test**
+   (`node scripts/test-deploy-guard.mjs`), then `npm run build`.
 4. Tarballs `dist/` into `techtrendi-dist.tar.gz`.
 5. SCPs it to `/tmp/techtrendi-new.tar.gz` on the server using the
    restricted deploy key (see [Deploy key](#deploy-key) below).
 6. Runs `/usr/local/bin/techtrendi-install` on the server, which
-   snapshots the old build to `/var/www/techtrendi.backup/`, extracts
-   the new build to `/var/www/techtrendi/`, chowns, validates nginx,
-   and reloads.
+   snapshots the old build to `/var/www/techtrendi.backup/`, then
+   **mirrors** the new build into `/var/www/techtrendi/` with
+   `rsync -a --delete` (anything not in the build is deleted, except
+   `/images`, `/uploads`, `/storage`, `/.well-known`), chowns, validates
+   nginx, and reloads.
+
+> ⚠️ **Because step 6 deletes whatever the build lacks, a build missing
+> its articles would delete them from the live site.** Two guards make the
+> build fail instead, and step 3's self-test fails the deploy if either
+> guard is removed. If a deploy fails with `[ssg] could not fetch`,
+> `[ssg] only N published`, `[sitemap] REFUSING` or a self-test failure,
+> **the live site is safe**: see [DEPLOY_SAFETY.md](DEPLOY_SAFETY.md).
 7. Smoke-tests `https://techtrendi.com/` with a real-browser
    `User-Agent` (the server's bot blocker 403s the default curl UA).
 

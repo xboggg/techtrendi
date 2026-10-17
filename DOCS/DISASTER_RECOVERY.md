@@ -15,6 +15,7 @@ and [ARCHITECTURE.md](ARCHITECTURE.md) for the data model.
 | GitHub account compromised | rebuildable from local clone | safe | safe | safe |
 | Cloudflare account compromised | safe | safe | at risk (DNS / SSL) | safe |
 | Google Drive lost | safe | at risk (no other backup) | safe | gone — backups only |
+| Database unreachable during a deploy | safe: the build fails on purpose and nothing deploys ([DEPLOY_SAFETY.md](DEPLOY_SAFETY.md)) | safe | safe | safe |
 
 Three places make a deliberate trust split:
 
