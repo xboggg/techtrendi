@@ -5,6 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <!-- Prerender: wait for the app to signal content is ready (see src/components/PrerenderReady.tsx). No-op for normal visitors. -->
     <script>window.prerenderReady = false;</script>
+    <!-- Theme before the first paint, the same rules as src/contexts/ThemeContext.tsx: the visitor's
+         stored choice (light / dark / system) wins; with none, the data bundle pages (preview and
+         launch addresses) start dark, every other page light. Without this, a prerendered data bundle
+         page shows light until the app loads, then turns dark. The data bundle pages' "A+" (bigger
+         text, src/components/data-bundles/shared.tsx largeTextCss) is applied here too, so the page
+         does not jump when the app loads. No AdSense change. -->
+    <style>html[data-db-text="large"] main#main-content { zoom: 1.125; }
+@media (max-width: 639px) { html[data-db-text="large"] [data-bf-chips] { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 639px) { html[data-db-text="large"] [data-testid="compare-all"] { flex-basis: 100%; } }</style>
+    <script>
+      (function () {
+        try {
+          var t = null, big = null;
+          var db = /^\/(?:tools-preview\/)?data-bundles\/ghana(?:\/(?:at|mtn|telecel))?\/?$/.test(window.location.pathname);
+          try { t = window.localStorage.getItem("techtrendi-theme"); big = window.localStorage.getItem("techtrendi-db-text"); } catch (e) {}
+          if (db && big === "large") document.documentElement.setAttribute("data-db-text", "large");
+          if (t !== "light" && t !== "dark" && t !== "system") t = db ? "dark" : null;
+          if (!t) return;
+          var dark = t === "dark" || (t === "system" && !!window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          var c = document.documentElement.classList;
+          c.remove("light", "dark");
+          c.add(dark ? "dark" : "light");
+        } catch (e) {}
+      })();
+    </script>
     <!-- title, description, keywords, author, canonical, robots, Open Graph &
          Twitter tags are injected PER PAGE by SEOHead via vite-react-ssg <Head>.
          Do NOT add static versions here — they block/duplicate the per-page ones. -->

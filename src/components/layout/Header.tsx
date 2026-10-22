@@ -90,10 +90,10 @@ export function Header() {
       <div className="container mx-auto">
         <nav className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-0.5 group" aria-label="TechTrendi — Ghana's Tech Hub">
+          <Link to="/" className="flex items-center gap-0.5 group">
             <img
               src="/logo-t.png"
-              alt="TechTrendi"
+              alt=""
               className="h-12 w-auto group-hover:scale-105 transition-transform duration-300"
             />
             <div className="flex flex-col leading-tight">
@@ -269,6 +269,7 @@ export function Header() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
               className={`xl:hidden p-2.5 rounded-xl transition-all duration-200 ${isOverHero ? "text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"}`}
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { X, Cookie, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { updateConsent } from '@/lib/gtag';
@@ -13,6 +13,9 @@ interface CookiePreferences {
 }
 
 const COOKIE_CONSENT_KEY = 'cookie-consent';
+/** The data bundle pages (preview and launch addresses) get a compact one-row bar on phones,
+ *  so the page's answer stays on the first screen (UI audit M3). */
+const COMPACT_PATH = /^\/(?:tools-preview\/)?data-bundles(?:\/|$)/;
 
 export function CookieConsent() {
   const [isVisible, setIsVisible] = useState(false);
@@ -24,6 +27,25 @@ export function CookieConsent() {
     functional: false,
     timestamp: '',
   });
+
+  const { pathname } = useLocation();
+  const compact = COMPACT_PATH.test(pathname);
+  const barRef = useRef<HTMLDivElement>(null);
+
+  // While the bar shows, the page scrolls focused fields and #anchors clear of it
+  // (scroll-padding-bottom = its height; UI audit M4). Put back when it goes.
+  useEffect(() => {
+    if (!isVisible || showSettings) return;
+    const el = barRef.current;
+    if (!el || typeof document === 'undefined') return;
+    const root = document.documentElement;
+    const prev = root.style.scrollPaddingBottom;
+    const set = () => { root.style.scrollPaddingBottom = `${el.offsetHeight}px`; };
+    set();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(set) : null;
+    ro?.observe(el);
+    return () => { ro?.disconnect(); root.style.scrollPaddingBottom = prev; };
+  }, [isVisible, showSettings, compact]);
 
   useEffect(() => {
     const stored = localStorage.getItem(COOKIE_CONSENT_KEY);
@@ -72,18 +94,46 @@ export function CookieConsent() {
 
   if (!isVisible) return null;
 
+  // Accept: white on a darker blue than the site's (the site blue gives 4.45:1 in light and 3.4:1 in
+  // dark mode); "Learn more" in blue-700 / blue-300. Both at least 4.5:1 in both themes.
+  const acceptCls = 'bg-blue-700 text-white hover:bg-blue-800';
+
+  // Data bundle pages: one row, at most 56 px tall on phones, 44 px buttons.
+  if (!showSettings && compact) {
+    return (
+      <div ref={barRef} data-testid="cookie-banner" data-compact="1" className="fixed bottom-0 left-0 right-0 z-[9999] animate-in slide-in-from-bottom duration-300">
+        <div className="bg-card/95 backdrop-blur-md border-t border-border shadow-lg px-4 py-[5px] sm:py-2">
+          <div className="container mx-auto flex flex-row items-center justify-between gap-2 sm:gap-3 px-0">
+            <p className="min-w-0 text-xs text-muted-foreground">
+              We use cookies.{' '}
+              <Link to="/cookies" className="inline-flex min-h-11 items-center font-semibold text-blue-700 underline underline-offset-2 dark:text-blue-300 sm:min-h-0">Learn more</Link>
+            </p>
+            <div className="flex shrink-0 items-center gap-1.5">
+              <Button onClick={acceptAll} size="sm" className={`h-11 px-3 text-xs sm:h-8 sm:px-4 ${acceptCls}`}>
+                Accept
+              </Button>
+              <Button onClick={acceptEssential} variant="ghost" size="sm" className="h-11 px-3 text-xs text-foreground sm:h-8">
+                Decline
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Compact bottom bar
   if (!showSettings) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-[9999] animate-in slide-in-from-bottom duration-300">
+      <div ref={barRef} data-testid="cookie-banner" className="fixed bottom-0 left-0 right-0 z-[9999] animate-in slide-in-from-bottom duration-300">
         <div className="bg-card/95 backdrop-blur-md border-t border-border shadow-lg px-4 py-3">
           <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-muted-foreground text-center sm:text-left">
               We use cookies to improve your experience.{' '}
-              <Link to="/cookies" className="text-primary hover:underline">Learn more</Link>
+              <Link to="/cookies" className="text-blue-700 hover:underline dark:text-blue-300">Learn more</Link>
             </p>
             <div className="flex items-center gap-2">
-              <Button onClick={acceptAll} size="sm" className="h-8 px-4 text-xs">
+              <Button onClick={acceptAll} size="sm" className={`h-8 px-4 text-xs ${acceptCls}`}>
                 Accept
               </Button>
               <Button onClick={acceptEssential} variant="ghost" size="sm" className="h-8 px-3 text-xs">

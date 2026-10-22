@@ -4,6 +4,8 @@ import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import Index from "../pages/Index";
 import Tools from "../pages/Tools";
 import NotFound from "../pages/NotFound";
+import { Navigate } from "react-router-dom";
+import { DATA_BUNDLES_ROUTE } from "@/data/dataBundlesRoute";
 import { newsLoader, newsStaticPaths, blogLoader, blogStaticPaths, blogListLoader, newsListLoader, productsListLoader, securityPageLoader } from "./news-data";
 
 // Adapt our default-export pages to vite-react-ssg's lazy ({ Component }).
@@ -54,6 +56,14 @@ export const routes: RouteRecord[] = [
       { path: "security", lazy: d(() => import("../pages/categories/Security")), loader: securityPageLoader },
       { path: "scam-alerts", lazy: d(() => import("../pages/ScamAlerts")) },
       { path: "tools-preview", lazy: d(() => import("../pages/ToolsPreview")) },
+      // Data bundle pages. Preview: noindex, not prerendered, not in the sitemap. Launch: prerendered
+      // (vite.config.ts includedRoutes adds DATA_BUNDLES_PRERENDER) and listed in the sitemap.
+      // Countries come from src/data/dataBundleCountries.ts, so adding one is data only.
+      // Path from src/data/dataBundlesRoute.ts: "tools-preview/data-bundles" (preview) or "data-bundles" (launch).
+      // The bare address (with or without the slash) opens Ghana; nginx answers it with a 301 first (launch M2).
+      { path: DATA_BUNDLES_ROUTE, element: <Navigate to={`/${DATA_BUNDLES_ROUTE}/ghana`} replace /> },
+      { path: `${DATA_BUNDLES_ROUTE}/:country`, lazy: d(() => import("../pages/data-bundles/DataBundlesDashboard")) },
+      { path: `${DATA_BUNDLES_ROUTE}/:country/:network`, lazy: d(() => import("../pages/data-bundles/DataBundlesNetwork")) },
       { path: "rundown-preview", lazy: d(() => import("../pages/RundownPreview")) },
       { path: "productivity", lazy: d(() => import("../pages/categories/Productivity")) },
       { path: "how-to", lazy: d(() => import("../pages/categories/HowTo")) },

@@ -13,8 +13,9 @@ import {
   Sparkles, Wand2, ArrowRightLeft, Youtube, Brain, MousePointer, Swords,
   LayoutGrid, GanttChart, Percent as PercentIcon,
   Flame as FlameIcon, MapPin, FileSearch, ShieldAlert, Layers, TrendingDown,
-  Search, Sprout, Bell, Utensils, ClipboardCheck, CalendarRange, HandCoins
+  Search, Sprout, Bell, Utensils, ClipboardCheck, CalendarRange, HandCoins, Signal
 } from "lucide-react";
+import { dataBundlesLink } from "./dataBundlesRoute";
 
 export type ToolTier = "free" | "free-account" | "premium";
 
@@ -32,7 +33,18 @@ export interface Tool {
   keywords: string[];
 }
 
+/** Ghana data bundles: listed only once launched (src/data/dataBundlesRoute.ts). Its page lives at
+ *  /data-bundles/ghana, not under /tools/, so the tool-page extras (back link, JSON-LD, comments)
+ *  never apply to it. */
+export const dataBundlesTools = (launched?: boolean): Tool[] => {
+  const l = dataBundlesLink(launched);
+  return l ? [{ id: "ghana-data-bundles", icon: Signal, title: l.title, description: l.description, href: l.href, tier: "free",
+    category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-yellow-400 to-red-600",
+    keywords: ["data", "bundles", "ghana", "mtn", "telecel", "at", "airteltigo", "internet", "cheapest"] }] : [];
+};
+
 export const allTools: Tool[] = [
+  ...dataBundlesTools(),
   // Business & Freelancer
   { id: "invoice-generator", icon: Receipt, title: "Invoice Generator & Tracker", description: "Create professional invoices and track payments with automated reminders", href: "/tools/invoice-generator", tier: "free", category: "Business & Freelancer", categoryId: "business", gradient: "from-blue-500 to-indigo-600", keywords: ["invoice", "billing", "payment", "business", "tracker", "reminder"] },
   { id: "contract-generator", icon: ScrollText, title: "Contract Generator", description: "Generate professional contracts, NDAs, service agreements", href: "/tools/contract-generator", tier: "free", category: "Business & Freelancer", categoryId: "business", isNew: true, gradient: "from-slate-500 to-zinc-600", keywords: ["contract", "nda", "legal", "agreement"] },

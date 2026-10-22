@@ -50,6 +50,32 @@ $parts = explode('/', $path);
 // Handle single-segment pages (no slug needed)
 $section = $parts[0];
 
+// Data bundle pages (20 Oct 2026): the social image the checker draws after every run
+// (storage/data-bundles/og-ghana.jpg, 1200x630, under 300 KB), with ?v=YYYYMMDDHH of the
+// latest check so WhatsApp and Facebook pick up a new image. Same titles as the pages.
+if (preg_match('#^(tools-preview/)?data-bundles/(ghana)(/(at|mtn|telecel))?$#', $path, $m)) {
+    $country = $m[2];
+    $net = isset($m[4]) ? $m[4] : '';
+    $names = ['at' => 'AT', 'mtn' => 'MTN', 'telecel' => 'Telecel'];
+    $v = '';
+    $latest = @json_decode((string) @file_get_contents(__DIR__ . '/storage/data-bundles/' . $country . '-latest.json'), true);
+    if (is_array($latest) && !empty($latest['checked_at'])) {
+        $ts = strtotime($latest['checked_at']);
+        if ($ts) $v = '?v=' . gmdate('YmdH', $ts);
+    }
+    // Same as the network page (DataBundlesNetwork.tsx networkSeo).
+    $title = $net ? $names[$net] . ' Data Bundles in Ghana: What to Buy Today' : 'Ghana Data Bundles Compared: AT, MTN, Telecel';
+    $desc = $net
+        ? 'What to buy on ' . $names[$net] . ' Ghana: the most data for your money, every ' . $names[$net] . ' bundle with its price, how long it lasts and how to buy it.'
+        : 'Compare Ghana mobile data bundles from AT, MTN and Telecel: the most data for your money, the cheapest plan for a month, and the best value of each type.';
+    serve_og(
+        htmlspecialchars($title, ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars($desc, ENT_QUOTES, 'UTF-8'),
+        $SITE_URL . '/storage/data-bundles/og-' . $country . '.jpg' . $v, 'image/jpeg', $SITE_URL . '/' . $path, '', '', '', 'website'
+    );
+    exit;
+}
+
 // Static pages with custom OG tags — unique title/description per page
 $static_pages = [
     'books/think-before-you-click' => [

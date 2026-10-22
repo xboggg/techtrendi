@@ -1,0 +1,3147 @@
+{
+ "units": {
+  "gb": "TechTrendi counts 1 GB as 1,024 MB for every network, following MTN's app (the myMTN app shows GB = MB / 1024). To show GB or a price per GB, divide mb by networks.<id>.mbPerGb (1024 for all three). Operators may count differently inside their own systems.",
+  "mb": "bundles[].mb is the data volume in megabytes. A volume the operator prints in MB (for example AT Fuse '1024 MB', Morning Rush '1000 MB', Telecel '1000MB', MTN '460.11MB') is stored exactly as printed. A volume printed in GB (by any network, MTN included) is stored as the GB figure x 1024, so mb / 1024 gives back exactly the GB figure the operator prints.",
+  "gaps": "mtnRates.gaps lists amounts for which MTN's tariff page publishes no rate (for example GH¢299.01 to GH¢299.99: MTN's bands are '200 to 299' then '300 to 349.99'). For those amounts say that MTN publishes no rate instead of calculating one.",
+  "label": "bundles[].label is the data amount exactly as the operator prints it (for example AT Fuse GH¢30 '1024 MB', Telecel '1000MB', AT Unlimited 'Unlimited data'). Where the operator prints the unit only in the column header, the header's unit is added (AT Night '4.5' under 'Volume (GB)' becomes '4.5 GB'). Show it as written; calculate with mb.",
+  "rates": "Every ghsPerMb and outOfBundlePerMb is GH¢ per MB as the operator publishes it.",
+  "window": "bundles[].window says when a bundle can be used, if the operator restricts it to certain hours or days (for example '12 AM–4 AM', 'Saturday and Sunday', 'Sundays 6 AM–6 PM'). Such bundles are not ranked with all-day data.",
+  "altUssd": "bundles[].altUssd is another USSD code the operator prints for the bundle (AT's Data Bundles page cards), with where it is printed.",
+  "borrowed": "atRates.dataKredit and mtnRates.xtrabyte are borrowed data (kind 'borrowed'): the operator advances data and recovers the price plus a fee later. They are facts, never bundles, and are never compared or ranked.",
+  "channels": "telecelRates.channels is how Telecel's data terms say their bundles can be bought (USSD codes and the Telecel Play app); families lists the families those terms cover.",
+  "minSpend": "mtnRates.pulse.minSpend is the lowest Pulse amount MTN's help centre gives (GH¢0.07, in an article last edited 17 Jul 2024 whose volumes are older than the tariff page); amounts below it are not worked out.",
+  "noVolume": "mb is null when the operator states no data amount: kind 'unlimited' (AT Unlimited Daily Data) and AT's Sunday Bundle (free Facebook and WhatsApp). These are never priced per GB.",
+  "otherSource": "bundles[].otherSource (and mtnRates.midnightOtherSource for MTN Midnight data, mtnRates.pulse.otherSource for MTN Pulse) is another source from the same operator that describes the bundle differently: AT Night (AT's FAQ), MTN Kokrokoo and Midnight (MTN's Kokrokoo terms), MTN Sunday Special and Jara (their terms and MTN's help centre), MTN Data Zone (MTN's help centre), MTN Pulse (an older MTN help-centre table). The figures used are the ones the bundle's own source gives (bundles[].source); summary is the sentence shown beside it. otherSource.contradicts says what the other source disputes: 'validity' (such data is never treated as never-expiring), 'price' or 'volume'. The checker re-reads AT's FAQ on every run; MTN's terms PDFs and help centre are not re-read (see verification).",
+  "unconfirmed": "bundles[].unconfirmed is true when the operator still lists a bundle but its newest source is more than a year old: AT Morning Rush and AT Premier Packs; MTN AFA and Association bundles; Telecel: none. asOf is that source's date. A rate band can be unconfirmed too (mtnRates.pulse.data: the GH¢5 to GH¢9.99 band, whose data rate equals the voice rate printed in the row above it). Unconfirmed bundles and bands are shown but never ranked or worked out.",
+  "citedSources": "mtnRates.citedSources lists every MTN page, help-centre article and terms PDF the text quotes, with its date: help centre = the article's last edit (Zendesk edited_at), mtn.com.gh pages = the page's last-modified time, PDFs = the document date; 'for' names the families it is quoted for.",
+  "retiredFamilies": "retiredFamilies (written by the checker only on a run accepted with --accept-structural-change) lists families the operator dropped, so a newer snapshot may leave them out.",
+  "resolvedDisputes": "resolvedDisputes (written by the checker only on a run accepted with --accept-structural-change) lists disputes ({network, item, was}) a human confirmed are over, so a newer snapshot may drop an otherSource.contradicts the site showed before.",
+  "conditionalReason": "bundles[].conditionalReason says why a conditional bundle is not for everyone: personalised (MTN Data Zone, offered only to some accounts), regional (MTN Jara, only in the regions MTN lists) or eligibility (only for a registered group: MTN AFA bundle for farmers registered with Prepeez Limited, MTN Association bundle for members of registered associations)."
+ },
+ "atRates": {
+  "note": "AT's tariff table lists Data Pay-As-You-Go at 18.0p per MB for every service class (One for Me, Default Bundle, Headline (Pay-As-You-Go)).",
+  "source": "https://www.at.com.gh/personal/topup-recharge",
+  "dataKredit": {
+   "kind": "borrowed",
+   "note": "Borrowed data, not a bundle you buy: AT advances the data and recovers the price plus its \"Service Fee (20%)\" when you next top up. Not compared with bundles.",
+   "rows": [
+    {
+     "mb": 25.0,
+     "fee": 0.1,
+     "label": "25 MB",
+     "price": 0.5,
+     "validity": "N/A",
+     "totalDebt": 0.6
+    },
+    {
+     "mb": 65.0,
+     "fee": 0.2,
+     "label": "65 MB",
+     "price": 1.0,
+     "validity": "N/A",
+     "totalDebt": 1.2
+    },
+    {
+     "mb": 150.0,
+     "fee": 0.4,
+     "label": "150 MB",
+     "price": 2.0,
+     "validity": "N/A",
+     "totalDebt": 2.4
+    },
+    {
+     "mb": 550.0,
+     "fee": 1.0,
+     "label": "550 MB",
+     "price": 5.0,
+     "validity": "N/A",
+     "totalDebt": 6.0
+    }
+   ],
+   "ussd": "*554#",
+   "alsoOn": {
+    "url": "https://www.at.com.gh/VAS/sos",
+    "note": "Same volumes, prices and total debt; this page prints no fee column.",
+    "pageUpdatedAt": "2026-05-05"
+   },
+   "source": "https://www.at.com.gh/business/VAS",
+   "feeLabel": "Service Fee (20%)",
+   "feePercent": 20.0,
+   "pageUpdatedAt": "2026-05-05"
+  },
+  "pageUpdatedAt": "2024-01-02",
+  "serviceClasses": [
+   "One for Me",
+   "Default Bundle",
+   "Headline (Pay-As-You-Go)"
+  ],
+  "outOfBundleLabel": "18.0p per MB",
+  "outOfBundlePerMb": 0.18
+ },
+ "bundles": [
+  {
+   "mb": 51,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "BigTime Data GH¢1",
+   "ussd": "*111*1#",
+   "label": "51 MB",
+   "price": 1,
+   "family": "BigTime Data",
+   "source": "https://www.at.com.gh/bigtime-data",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 111,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "BigTime Data GH¢2",
+   "ussd": "*111*1#",
+   "label": "111 MB",
+   "price": 2,
+   "family": "BigTime Data",
+   "source": "https://www.at.com.gh/bigtime-data",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 390,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "BigTime Data GH¢3",
+   "ussd": "*111*1#",
+   "label": "390 MB",
+   "price": 3,
+   "family": "BigTime Data",
+   "source": "https://www.at.com.gh/bigtime-data",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 557,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "BigTime Data GH¢5",
+   "ussd": "*111*1#",
+   "label": "557 MB",
+   "price": 5,
+   "family": "BigTime Data",
+   "source": "https://www.at.com.gh/bigtime-data",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 891,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "BigTime Data GH¢10",
+   "ussd": "*111*1#",
+   "label": "891 MB",
+   "price": 10,
+   "family": "BigTime Data",
+   "source": "https://www.at.com.gh/bigtime-data",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 1740.8,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "BigTime Data GH¢20",
+   "ussd": "*111*1#",
+   "label": "1.7 GB",
+   "price": 20,
+   "family": "BigTime Data",
+   "source": "https://www.at.com.gh/bigtime-data",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 4608,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "BigTime Data GH¢50",
+   "ussd": "*111*1#",
+   "label": "4.5 GB",
+   "price": 50,
+   "family": "BigTime Data",
+   "source": "https://www.at.com.gh/bigtime-data",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 10240,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "BigTime Data GH¢100",
+   "ussd": "*111*1#",
+   "label": "10 GB",
+   "price": 100,
+   "family": "BigTime Data",
+   "source": "https://www.at.com.gh/bigtime-data",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 34201.6,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "BigTime Data GH¢200",
+   "ussd": "*111*1#",
+   "label": "33.4 GB",
+   "price": 200,
+   "family": "BigTime Data",
+   "source": "https://www.at.com.gh/bigtime-data",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 102707.2,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "BigTime Data GH¢300",
+   "ussd": "*111*1#",
+   "label": "100.3 GB",
+   "price": 300,
+   "family": "BigTime Data",
+   "source": "https://www.at.com.gh/bigtime-data",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 119808,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "BigTime Data GH¢350",
+   "ussd": "*111*1#",
+   "label": "117 GB",
+   "price": 350,
+   "family": "BigTime Data",
+   "source": "https://www.at.com.gh/bigtime-data",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 259379.2,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "BigTime Data GH¢400",
+   "ussd": "*111*1#",
+   "label": "253.3 GB",
+   "price": 400,
+   "family": "BigTime Data",
+   "source": "https://www.at.com.gh/bigtime-data",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 446,
+   "days": 1,
+   "kind": "anytime",
+   "name": "Sika Kokoo GH¢3",
+   "ussd": "*111*4# then option 1",
+   "label": "446 MB",
+   "price": 3,
+   "family": "Sika Kokoo",
+   "source": "https://www.at.com.gh/bigtime-data/sika-kokoo",
+   "network": "at",
+   "validity": "1 day"
+  },
+  {
+   "mb": 780,
+   "days": 3,
+   "kind": "anytime",
+   "name": "Sika Kokoo GH¢5",
+   "ussd": "*111*4# then option 1",
+   "label": "780 MB",
+   "price": 5,
+   "family": "Sika Kokoo",
+   "source": "https://www.at.com.gh/bigtime-data/sika-kokoo",
+   "network": "at",
+   "validity": "3 days"
+  },
+  {
+   "mb": 1024,
+   "days": 2,
+   "kind": "anytime",
+   "name": "Sika Kokoo GH¢6",
+   "ussd": "*111*4# then option 1",
+   "label": "1 GB",
+   "price": 6,
+   "family": "Sika Kokoo",
+   "source": "https://www.at.com.gh/bigtime-data/sika-kokoo",
+   "network": "at",
+   "validity": "2 days"
+  },
+  {
+   "mb": 1126.4,
+   "days": 5,
+   "kind": "anytime",
+   "name": "Sika Kokoo GH¢10",
+   "ussd": "*111*4# then option 1",
+   "label": "1.1 GB",
+   "price": 10,
+   "family": "Sika Kokoo",
+   "source": "https://www.at.com.gh/bigtime-data/sika-kokoo",
+   "network": "at",
+   "validity": "5 days"
+  },
+  {
+   "mb": 1228.8,
+   "days": 2,
+   "kind": "anytime",
+   "name": "Sika Kokoo GH¢11",
+   "ussd": "*111*4# then option 1",
+   "label": "1.2 GB",
+   "price": 11,
+   "family": "Sika Kokoo",
+   "source": "https://www.at.com.gh/bigtime-data/sika-kokoo",
+   "network": "at",
+   "validity": "2 days"
+  },
+  {
+   "mb": 2048,
+   "days": 4,
+   "kind": "anytime",
+   "name": "Sika Kokoo GH¢15",
+   "ussd": "*111*4# then option 1",
+   "label": "2 GB",
+   "price": 15,
+   "family": "Sika Kokoo",
+   "source": "https://www.at.com.gh/bigtime-data/sika-kokoo",
+   "network": "at",
+   "validity": "4 days"
+  },
+  {
+   "mb": 2560,
+   "days": 5,
+   "kind": "anytime",
+   "name": "Sika Kokoo GH¢20",
+   "ussd": "*111*4# then option 1",
+   "label": "2.5 GB",
+   "price": 20,
+   "family": "Sika Kokoo",
+   "source": "https://www.at.com.gh/bigtime-data/sika-kokoo",
+   "network": "at",
+   "validity": "5 days"
+  },
+  {
+   "mb": 6246.4,
+   "days": 15,
+   "kind": "anytime",
+   "name": "Sika Kokoo GH¢50",
+   "ussd": "*111*4# then option 1",
+   "label": "6.1 GB",
+   "price": 50,
+   "family": "Sika Kokoo",
+   "source": "https://www.at.com.gh/bigtime-data/sika-kokoo",
+   "network": "at",
+   "validity": "15 days"
+  },
+  {
+   "mb": 4608,
+   "days": null,
+   "kind": "night",
+   "name": "Night Bundle GH¢3",
+   "ussd": "*111# then option 4 → Night Packs",
+   "label": "4.5 GB",
+   "price": 3,
+   "family": "Night Bundle",
+   "source": "https://www.at.com.gh/bigtime-data/night-bundle",
+   "window": "12 AM–4 AM",
+   "altUssd": {
+    "url": "https://www.at.com.gh/personal/data-packs",
+    "code": "*111*4#",
+    "says": "Night Time can be the right time to browse. Dial *111*4# to activate.",
+    "label": "AT Data Bundles page",
+    "updated": "2022-03-02"
+   },
+   "network": "at",
+   "validity": "12 AM–4 AM",
+   "otherSource": {
+    "buy": "*111#, select option 4, and option 3",
+    "url": "https://www.at.com.gh/faq?page=Night%20bundle",
+    "says": "For GHS 3, get 5 GB data and 100 minutes for AT calls from 12 am to 4 am",
+    "label": "AT FAQ, Night Bundle",
+    "summary": "AT's FAQ (updated 3 Mar 2026) describes this differently: 5 GB + 100 minutes for AT calls. The figures shown (4.5 GB for GH¢3, 12 AM–4 AM) are from AT's Night Bundle page (updated 6 Jul 2023).",
+    "updated": "2026-03-03"
+   }
+  },
+  {
+   "mb": 7680,
+   "days": null,
+   "kind": "night",
+   "name": "Night Bundle GH¢5",
+   "ussd": "*111# then option 4 → Night Packs",
+   "label": "7.5 GB",
+   "price": 5,
+   "family": "Night Bundle",
+   "source": "https://www.at.com.gh/bigtime-data/night-bundle",
+   "window": "12 AM–4 AM",
+   "altUssd": {
+    "url": "https://www.at.com.gh/personal/data-packs",
+    "code": "*111*4#",
+    "says": "Night Time can be the right time to browse. Dial *111*4# to activate.",
+    "label": "AT Data Bundles page",
+    "updated": "2022-03-02"
+   },
+   "network": "at",
+   "validity": "12 AM–4 AM",
+   "otherSource": {
+    "buy": "*111#, select option 4, and option 3",
+    "url": "https://www.at.com.gh/faq?page=Night%20bundle",
+    "says": "For GHS 5, get 8 GB data and Unlimited AT calls from 12 am to 4 am",
+    "label": "AT FAQ, Night Bundle",
+    "summary": "AT's FAQ (updated 3 Mar 2026) describes this differently: 8 GB + unlimited AT calls. The figures shown (7.5 GB for GH¢5, 12 AM–4 AM) are from AT's Night Bundle page (updated 6 Jul 2023).",
+    "updated": "2026-03-03"
+   }
+  },
+  {
+   "mb": 13107.2,
+   "days": 30,
+   "kind": "family",
+   "name": "Family Pack (XXL) GH¢99",
+   "ussd": "*111# then option 4",
+   "label": "12.8 GB",
+   "price": 99,
+   "family": "Family Pack (XXL)",
+   "source": "https://www.at.com.gh/bigtime-data/family-pack",
+   "altUssd": {
+    "url": "https://www.at.com.gh/personal/data-packs",
+    "code": "*111*4#",
+    "says": "Share with your loved ones. Get data for the whole family at a cooool rate. Dial *111*4#.",
+    "label": "AT Data Bundles page",
+    "updated": "2020-03-04"
+   },
+   "network": "at",
+   "validity": "30 days"
+  },
+  {
+   "mb": 39936,
+   "days": 30,
+   "kind": "family",
+   "name": "Family Pack (XXL) GH¢200",
+   "ussd": "*111# then option 4",
+   "label": "39 GB",
+   "price": 200,
+   "family": "Family Pack (XXL)",
+   "source": "https://www.at.com.gh/bigtime-data/family-pack",
+   "altUssd": {
+    "url": "https://www.at.com.gh/personal/data-packs",
+    "code": "*111*4#",
+    "says": "Share with your loved ones. Get data for the whole family at a cooool rate. Dial *111*4#.",
+    "label": "AT Data Bundles page",
+    "updated": "2020-03-04"
+   },
+   "network": "at",
+   "validity": "30 days"
+  },
+  {
+   "mb": 133529.6,
+   "days": 30,
+   "kind": "family",
+   "name": "Family Pack (XXL) GH¢350",
+   "ussd": "*111# then option 4",
+   "label": "130.4 GB",
+   "price": 350,
+   "family": "Family Pack (XXL)",
+   "source": "https://www.at.com.gh/bigtime-data/family-pack",
+   "altUssd": {
+    "url": "https://www.at.com.gh/personal/data-packs",
+    "code": "*111*4#",
+    "says": "Share with your loved ones. Get data for the whole family at a cooool rate. Dial *111*4#.",
+    "label": "AT Data Bundles page",
+    "updated": "2020-03-04"
+   },
+   "network": "at",
+   "validity": "30 days"
+  },
+  {
+   "mb": 40,
+   "days": null,
+   "kind": "combo",
+   "name": "Fuse Voice & Data GH¢2",
+   "ussd": "*111*2#",
+   "label": "40 MB",
+   "price": 2,
+   "extras": {
+    "allNetMins": 26
+   },
+   "family": "Fuse Voice & Data",
+   "source": "https://www.at.com.gh/voice/all-in-one",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 120,
+   "days": null,
+   "kind": "combo",
+   "name": "Fuse Voice & Data GH¢5",
+   "ussd": "*111*2#",
+   "label": "120 MB",
+   "price": 5,
+   "extras": {
+    "allNetMins": 66
+   },
+   "family": "Fuse Voice & Data",
+   "source": "https://www.at.com.gh/voice/all-in-one",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 260,
+   "days": null,
+   "kind": "combo",
+   "name": "Fuse Voice & Data GH¢10",
+   "ussd": "*111*2#",
+   "label": "260 MB",
+   "price": 10,
+   "extras": {
+    "allNetMins": 138
+   },
+   "family": "Fuse Voice & Data",
+   "source": "https://www.at.com.gh/voice/all-in-one",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 400,
+   "days": null,
+   "kind": "combo",
+   "name": "Fuse Voice & Data GH¢15",
+   "ussd": "*111*2#",
+   "label": "400 MB",
+   "price": 15,
+   "extras": {
+    "allNetMins": 210
+   },
+   "family": "Fuse Voice & Data",
+   "source": "https://www.at.com.gh/voice/all-in-one",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 500,
+   "days": null,
+   "kind": "combo",
+   "name": "Fuse Voice & Data GH¢20",
+   "ussd": "*111*2#",
+   "label": "500 MB",
+   "price": 20,
+   "extras": {
+    "allNetMins": 280
+   },
+   "family": "Fuse Voice & Data",
+   "source": "https://www.at.com.gh/voice/all-in-one",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 1024,
+   "days": null,
+   "kind": "combo",
+   "name": "Fuse Voice & Data GH¢30",
+   "ussd": "*111*2#",
+   "label": "1024 MB",
+   "price": 30,
+   "extras": {
+    "allNetMins": 450
+   },
+   "family": "Fuse Voice & Data",
+   "source": "https://www.at.com.gh/voice/all-in-one",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 2500,
+   "days": null,
+   "kind": "combo",
+   "name": "Fuse Voice & Data GH¢50",
+   "ussd": "*111*2#",
+   "label": "2500 MB",
+   "price": 50,
+   "extras": {
+    "allNetMins": 600
+   },
+   "family": "Fuse Voice & Data",
+   "source": "https://www.at.com.gh/voice/all-in-one",
+   "network": "at",
+   "validity": "No expiry"
+  },
+  {
+   "mb": null,
+   "days": 1,
+   "kind": "unlimited",
+   "name": "Unlimited Daily Data GH¢25",
+   "note": "AT's FAQ (updated 3 Mar 2026) lists GH¢25 for 'Unlimited data', validity '24hrs'. Airtime only ('No please, only via airtime.'); it cannot be gifted or shared. AT's FAQ publishes no fair-usage limit or speed cap for it. Balance: *504# or the AT Mobile App.",
+   "ussd": "*111*3*1#",
+   "label": "Unlimited data",
+   "price": 25,
+   "family": "Unlimited Daily Data",
+   "source": "https://www.at.com.gh/faq?page=Data%20pack",
+   "network": "at",
+   "validity": "24 hours"
+  },
+  {
+   "mb": null,
+   "days": 1,
+   "kind": "unlimited",
+   "name": "Unlimited Daily Data GH¢30",
+   "note": "AT's FAQ (updated 3 Mar 2026) lists GH¢30 for 'Unlimited data + Unlimited Allnet calls', validity '24hrs'. Airtime only ('No please, only via airtime.'); it cannot be gifted or shared. AT's FAQ publishes no fair-usage limit or speed cap for it. Balance: *504# or the AT Mobile App.",
+   "ussd": "*111*3*1#",
+   "label": "Unlimited data + Unlimited Allnet calls",
+   "price": 30,
+   "extras": {
+    "allNetMins": null
+   },
+   "family": "Unlimited Daily Data",
+   "source": "https://www.at.com.gh/faq?page=Data%20pack",
+   "network": "at",
+   "validity": "24 hours"
+  },
+  {
+   "mb": 1000,
+   "asOf": "2023-07-06",
+   "days": 1,
+   "kind": "morning",
+   "name": "Morning Rush GH¢1",
+   "note": "Unconfirmed. AT's FAQ (last updated 23 Jun 2023) lists it: 'can be used from 4 am to 7 am only and is valid for 24 hours'. AT's Build Your Own Plan page (www.at.com.gh/business/own-plan, last updated 6 Jul 2023) still has the header 'Have an early start with AT's Morning Rush data bundles. Dial *111#, select option 4 & choose Morning Rush to subscribe.' No AT source from 2025 or 2026 was found that confirms it is still on sale.",
+   "ussd": "*111*4#",
+   "label": "1000 MB",
+   "price": 1,
+   "family": "Morning Rush",
+   "source": "https://www.at.com.gh/faq?page=Data%20pack",
+   "window": "4 AM–7 AM",
+   "network": "at",
+   "validity": "24 hours",
+   "unconfirmed": true
+  },
+  {
+   "mb": 2500,
+   "asOf": "2023-07-06",
+   "days": 1,
+   "kind": "morning",
+   "name": "Morning Rush GH¢2",
+   "note": "Unconfirmed. AT's FAQ (last updated 23 Jun 2023) lists it: 'can be used from 4 am to 7 am only and is valid for 24 hours'. AT's Build Your Own Plan page (www.at.com.gh/business/own-plan, last updated 6 Jul 2023) still has the header 'Have an early start with AT's Morning Rush data bundles. Dial *111#, select option 4 & choose Morning Rush to subscribe.' No AT source from 2025 or 2026 was found that confirms it is still on sale.",
+   "ussd": "*111*4#",
+   "label": "2500 MB",
+   "price": 2,
+   "family": "Morning Rush",
+   "source": "https://www.at.com.gh/faq?page=Data%20pack",
+   "window": "4 AM–7 AM",
+   "network": "at",
+   "validity": "24 hours",
+   "unconfirmed": true
+  },
+  {
+   "mb": null,
+   "days": null,
+   "kind": "social",
+   "name": "Sunday Bundle GH¢2",
+   "note": "AT's FAQ (updated 3 Mar 2026): 'AT Sunday Bundle gives Unlimited AT calls and Free access to Facebook & WhatsApp from 6 am to 6 pm every Sunday GHS 2 only.' It can be bought on any day but works only 6 AM to 6 PM on Sundays; after 6 PM 'All resources will be wiped off.' AT's Sunday Special Offer page (updated 15 Dec 2025) gives *111*4*6# and says it is for prepaid and hybrid customers. AT states no data amount.",
+   "ussd": "*111*4*6#",
+   "label": "Unlimited AT calls and Free access to Facebook & WhatsApp",
+   "price": 2,
+   "extras": {
+    "onNetMins": null
+   },
+   "family": "Sunday Bundle",
+   "source": "https://www.at.com.gh/voice/sunday-special",
+   "window": "Sundays 6 AM–6 PM",
+   "network": "at",
+   "validity": "Sundays, 6 AM–6 PM"
+  },
+  {
+   "mb": 15360,
+   "asOf": "2024-02-06",
+   "days": 7,
+   "kind": "combo",
+   "name": "Premier Pack GH¢99",
+   "ussd": "*703# or *111*7*2#",
+   "label": "15GB",
+   "price": 99,
+   "extras": {
+    "allNetMins": 200
+   },
+   "family": "Premier Packs",
+   "source": "https://www.at.com.gh/faq?page=Customer%20care",
+   "network": "at",
+   "validity": "7 days",
+   "unconfirmed": true
+  },
+  {
+   "mb": 35840,
+   "asOf": "2024-02-06",
+   "days": 14,
+   "kind": "combo",
+   "name": "Premier Pack GH¢199",
+   "ussd": "*703# or *111*7*2#",
+   "label": "35GB",
+   "price": 199,
+   "extras": {
+    "allNetMins": 200
+   },
+   "family": "Premier Packs",
+   "source": "https://www.at.com.gh/faq?page=Customer%20care",
+   "network": "at",
+   "validity": "14 days",
+   "unconfirmed": true
+  },
+  {
+   "mb": 76800,
+   "asOf": "2024-02-06",
+   "days": 30,
+   "kind": "combo",
+   "name": "Premier Pack GH¢350",
+   "ussd": "*703# or *111*7*2#",
+   "label": "75GB",
+   "price": 350,
+   "extras": {
+    "allNetMins": 3600
+   },
+   "family": "Premier Packs",
+   "source": "https://www.at.com.gh/faq?page=Customer%20care",
+   "network": "at",
+   "validity": "30 days",
+   "unconfirmed": true
+  },
+  {
+   "mb": 102400,
+   "asOf": "2024-02-06",
+   "days": 30,
+   "kind": "combo",
+   "name": "Premier Pack GH¢351",
+   "ussd": "*703# or *111*7*2#",
+   "label": "100GB",
+   "price": 351,
+   "extras": {
+    "airtime": 150
+   },
+   "family": "Premier Packs",
+   "source": "https://www.at.com.gh/faq?page=Customer%20care",
+   "network": "at",
+   "validity": "30 days",
+   "unconfirmed": true
+  },
+  {
+   "mb": 184320,
+   "asOf": "2024-02-06",
+   "days": 30,
+   "kind": "combo",
+   "name": "Premier Pack GH¢499",
+   "ussd": "*703# or *111*7*2#",
+   "label": "180GB",
+   "price": 499,
+   "extras": {
+    "airtime": 200
+   },
+   "family": "Premier Packs",
+   "source": "https://www.at.com.gh/faq?page=Customer%20care",
+   "network": "at",
+   "validity": "30 days",
+   "unconfirmed": true
+  },
+  {
+   "mb": 446,
+   "days": 0.041666666666666664,
+   "kind": "hourly",
+   "name": "Streamer Hour",
+   "ussd": null,
+   "label": "446MB",
+   "price": 1,
+   "family": "Hourly",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "1 hour"
+  },
+  {
+   "mb": 1136.64,
+   "days": 0.041666666666666664,
+   "kind": "hourly",
+   "name": "Downloader Hour",
+   "ussd": null,
+   "label": "1.11GB",
+   "price": 2,
+   "family": "Hourly",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "1 hour"
+  },
+  {
+   "mb": 4116.48,
+   "days": null,
+   "kind": "night",
+   "name": "Night King 4.02GB",
+   "ussd": null,
+   "label": "4.02GB",
+   "price": 2,
+   "family": "Night King",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "window": "12 AM–5 AM",
+   "network": "telecel",
+   "validity": "12 AM–5 AM",
+   "operatorTitle": "Night King - 4.02GB",
+   "operatorValidity": "No Expiry (12am – 5am)"
+  },
+  {
+   "mb": 10270.72,
+   "days": null,
+   "kind": "night",
+   "name": "Night King 10.03GB",
+   "ussd": null,
+   "label": "10.03GB",
+   "price": 3,
+   "family": "Night King",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "window": "12 AM–5 AM",
+   "network": "telecel",
+   "validity": "12 AM–5 AM",
+   "operatorTitle": "Night King - 10.03GB",
+   "operatorValidity": "No Expiry (12am – 5am)"
+  },
+  {
+   "mb": 446,
+   "days": 1,
+   "kind": "anytime",
+   "name": "446MB Daily",
+   "ussd": null,
+   "label": "446MB",
+   "price": 3,
+   "family": "Daily",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "1 day",
+   "operatorTitle": "446MB@GHS3"
+  },
+  {
+   "mb": 780,
+   "days": 3,
+   "kind": "anytime",
+   "name": "780MB 3-Day",
+   "ussd": null,
+   "label": "780MB",
+   "price": 5,
+   "family": "Daily",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "3 days",
+   "operatorTitle": "780MB @ GHS 5"
+  },
+  {
+   "mb": 1136.64,
+   "days": 5,
+   "kind": "anytime",
+   "name": "1.11GB",
+   "note": "Telecel's bundles page lists it under Weekly as '1.11GB @ GHS 10', but its data terms list it under Daily Offers (GH¢10, 1.11 GB, 5 Days).",
+   "ussd": null,
+   "label": "1.11GB",
+   "price": 10,
+   "family": "Daily",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "5 days",
+   "operatorTitle": "1.11GB @ GHS 10"
+  },
+  {
+   "mb": 1000,
+   "days": 15,
+   "kind": "anytime",
+   "name": "2 Moorch Weekly",
+   "ussd": null,
+   "label": "1000MB",
+   "price": 10,
+   "family": "Weekly",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "15 days"
+  },
+  {
+   "mb": 2621.44,
+   "days": 5,
+   "kind": "anytime",
+   "name": "2.56GB Weekly",
+   "ussd": null,
+   "label": "2.56GB",
+   "price": 20,
+   "family": "Weekly",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "5 days",
+   "operatorTitle": "2.56GB @ GHS 20"
+  },
+  {
+   "mb": 5120,
+   "days": 15,
+   "kind": "anytime",
+   "name": "5GB Weekly",
+   "ussd": null,
+   "label": "5GB",
+   "price": 43.5,
+   "family": "Weekly",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "15 days",
+   "operatorTitle": "5GB @ GHS 43.5"
+  },
+  {
+   "mb": 2508.8,
+   "days": 30,
+   "kind": "anytime",
+   "name": "Chat Monthly",
+   "ussd": null,
+   "label": "2.45GB",
+   "price": 20,
+   "family": "Monthly",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "30 days"
+  },
+  {
+   "mb": 6277.12,
+   "days": 30,
+   "kind": "anytime",
+   "name": "Downloader Monthly",
+   "ussd": null,
+   "label": "6.13GB",
+   "price": 50,
+   "family": "Monthly",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "30 days"
+  },
+  {
+   "mb": 13117.44,
+   "days": 30,
+   "kind": "anytime",
+   "name": "12.81GB Monthly",
+   "ussd": null,
+   "label": "12.81GB",
+   "price": 100,
+   "family": "Monthly",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "30 days",
+   "operatorTitle": "12.81GB @ GHS 100"
+  },
+  {
+   "mb": 39936,
+   "days": 30,
+   "kind": "anytime",
+   "name": "39GB Monthly",
+   "ussd": null,
+   "label": "39GB",
+   "price": 200,
+   "family": "Monthly",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "30 days",
+   "operatorTitle": "39GB @ GHS 200"
+  },
+  {
+   "mb": 114104.32,
+   "days": 30,
+   "kind": "anytime",
+   "name": "111.43GB Monthly",
+   "ussd": null,
+   "label": "111.43GB",
+   "price": 300,
+   "family": "Monthly",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "30 days",
+   "operatorTitle": "111.43GB @ GHS 300"
+  },
+  {
+   "mb": 269701.12,
+   "days": 30,
+   "kind": "anytime",
+   "name": "263.38GB Monthly",
+   "ussd": null,
+   "label": "263.38GB",
+   "price": 400,
+   "family": "Monthly",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "30 days",
+   "operatorTitle": "263.38GB @ GHS 400"
+  },
+  {
+   "mb": 22,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "2Moorch 22MB",
+   "ussd": null,
+   "label": "22 MB",
+   "price": 0.5,
+   "family": "2Moorch No Expiry",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "2Moorch No Expiry - 22MB"
+  },
+  {
+   "mb": 50,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "2Moorch 50MB",
+   "ussd": null,
+   "label": "50 MB",
+   "price": 1,
+   "family": "2Moorch No Expiry",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "2Moorch No Expiry - 50MB"
+  },
+  {
+   "mb": 111,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "2Moorch 111MB",
+   "ussd": null,
+   "label": "111MB",
+   "price": 2,
+   "family": "2Moorch No Expiry",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "2Moorch No Expiry - 111MB"
+  },
+  {
+   "mb": 557,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "2Moorch 557MB",
+   "ussd": null,
+   "label": "557MB",
+   "price": 5,
+   "family": "2Moorch No Expiry",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "2Moorch No Expiry - 557MB"
+  },
+  {
+   "mb": 892,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "2Moorch 892MB",
+   "ussd": null,
+   "label": "892MB",
+   "price": 10,
+   "family": "2Moorch No Expiry",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "2Moorch No Expiry - 892 MB"
+  },
+  {
+   "mb": 1710.08,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "2Moorch 1.67GB",
+   "ussd": null,
+   "label": "1.67GB",
+   "price": 20,
+   "family": "2Moorch No Expiry",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "2Moorch No Expiry - 1.67 GB"
+  },
+  {
+   "mb": 4567.04,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "2Moorch 4.46GB",
+   "ussd": null,
+   "label": "4.46GB",
+   "price": 50,
+   "family": "2Moorch No Expiry",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "2Moorch No Expiry - 4.46GB"
+  },
+  {
+   "mb": 10240,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "2Moorch 10GB",
+   "ussd": null,
+   "label": "10GB",
+   "price": 100,
+   "family": "2Moorch No Expiry",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "2Moorch No Expiry - 10GB"
+  },
+  {
+   "mb": 34232.32,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "2Moorch 33.43GB",
+   "ussd": null,
+   "label": "33.43GB",
+   "price": 200,
+   "family": "2Moorch No Expiry",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "2Moorch No Expiry - 33.43GB"
+  },
+  {
+   "mb": 102696.96,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "2Moorch 100.29GB",
+   "ussd": null,
+   "label": "100.29GB",
+   "price": 300,
+   "family": "2Moorch No Expiry",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "2Moorch No Expiry - 100.29 GB"
+  },
+  {
+   "mb": 259328,
+   "days": null,
+   "kind": "noexpiry",
+   "name": "2Moorch 253.25GB",
+   "ussd": null,
+   "label": "253.25GB",
+   "price": 400,
+   "family": "2Moorch No Expiry",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "2Moorch No Expiry - 253.25GB"
+  },
+  {
+   "mb": 17,
+   "days": 1,
+   "kind": "combo",
+   "name": "Red 1 (24 hours)",
+   "ussd": null,
+   "label": "17MB",
+   "price": 1,
+   "extras": {
+    "sms": 5,
+    "onNetMins": 90,
+    "allNetMins": 10
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "1 day",
+   "operatorTitle": "Red 1 24 Hours"
+  },
+  {
+   "mb": 100,
+   "days": 3,
+   "kind": "combo",
+   "name": "Red 2",
+   "ussd": null,
+   "label": "100MB",
+   "price": 2,
+   "extras": {
+    "sms": 5,
+    "onNetMins": 350,
+    "allNetMins": 25
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "3 days"
+  },
+  {
+   "mb": 100,
+   "days": 1,
+   "kind": "combo",
+   "name": "Bossu Daily",
+   "ussd": null,
+   "label": "100MB",
+   "price": 2.15,
+   "extras": {
+    "sms": 5,
+    "allNetMins": 55
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "1 day",
+   "operatorTitle": "Bossu daily"
+  },
+  {
+   "mb": 245,
+   "days": 7,
+   "kind": "combo",
+   "name": "Red 5",
+   "ussd": null,
+   "label": "245MB",
+   "price": 5,
+   "extras": {
+    "sms": 10,
+    "allNetMins": 150
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "7 days"
+  },
+  {
+   "mb": 4567.04,
+   "days": null,
+   "kind": "combo",
+   "name": "Bossu Weekend",
+   "note": "Usable on Saturday and Sunday only (Telecel's card says 'Sat&Sun'; its description says 'on Weekends'). How long it lasts depends on the day you buy it, so no day count is given.",
+   "ussd": null,
+   "label": "4.46GB",
+   "price": 6,
+   "extras": {
+    "allNetMins": 100
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "window": "Saturday and Sunday",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "Saturday & Sunday"
+  },
+  {
+   "mb": 2048,
+   "days": 5,
+   "kind": "anytime",
+   "name": "Bossu Weekly Extra",
+   "note": "Data only, does not auto-renew. Telecel's bundle page shows it in the Voice & Data Combo tab, but its data terms list it under Daily Offers (GH¢15, 2 GB, 5 days).",
+   "ussd": null,
+   "label": "2GB",
+   "price": 15,
+   "family": "Daily",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "network": "telecel",
+   "validity": "5 days"
+  },
+  {
+   "mb": 836,
+   "days": 30,
+   "kind": "combo",
+   "name": "Red 20",
+   "ussd": null,
+   "label": "836MB",
+   "price": 20,
+   "extras": {
+    "sms": 50,
+    "onNetMins": 2000,
+    "allNetMins": 200
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "30 days"
+  },
+  {
+   "mb": 613,
+   "days": 30,
+   "kind": "combo",
+   "name": "Red 30",
+   "ussd": null,
+   "label": "613MB",
+   "price": 30,
+   "extras": {
+    "sms": 50,
+    "allNetMins": 600
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "30 days"
+  },
+  {
+   "mb": 1024,
+   "days": 30,
+   "kind": "combo",
+   "name": "Red 50",
+   "ussd": null,
+   "label": "1GB",
+   "price": 50,
+   "extras": {
+    "sms": 50,
+    "allNetMins": 900
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "30 days"
+  },
+  {
+   "mb": 2048,
+   "days": 30,
+   "kind": "combo",
+   "name": "Red 100",
+   "ussd": null,
+   "label": "2GB",
+   "price": 100,
+   "extras": {
+    "sms": 50,
+    "allNetMins": 2000
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "30 days"
+  },
+  {
+   "mb": 9,
+   "days": null,
+   "kind": "combo",
+   "name": "Red 0.5 No Expiry",
+   "ussd": null,
+   "label": "9MB",
+   "price": 0.5,
+   "extras": {
+    "sms": 5,
+    "allNetMins": 8
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 20,
+   "days": null,
+   "kind": "combo",
+   "name": "20MB + 4 mins",
+   "ussd": null,
+   "label": "20MB",
+   "price": 0.5,
+   "extras": {
+    "sms": 5,
+    "allNetMins": 4
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "20MB, 5 SMS& 4mins @ GHS 0.5"
+  },
+  {
+   "mb": 18,
+   "days": null,
+   "kind": "combo",
+   "name": "Red 1 No Expiry",
+   "ussd": null,
+   "label": "18MB",
+   "price": 1,
+   "extras": {
+    "sms": 5,
+    "allNetMins": 16
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 45,
+   "days": null,
+   "kind": "combo",
+   "name": "45MB + 8 mins",
+   "ussd": null,
+   "label": "45MB",
+   "price": 1,
+   "extras": {
+    "sms": 5,
+    "allNetMins": 8
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "45MB, 5 SMS & 8mins @ GHS 1"
+  },
+  {
+   "mb": 36,
+   "days": null,
+   "kind": "combo",
+   "name": "Red 2 No Expiry",
+   "ussd": null,
+   "label": "36MB",
+   "price": 2,
+   "extras": {
+    "sms": 5,
+    "allNetMins": 32
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 89,
+   "days": null,
+   "kind": "combo",
+   "name": "89MB + 16 mins",
+   "ussd": null,
+   "label": "89MB",
+   "price": 2,
+   "extras": {
+    "sms": 5,
+    "allNetMins": 16
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "89MB, 5 SMS & 16mins @ GHS 2"
+  },
+  {
+   "mb": 95,
+   "days": null,
+   "kind": "combo",
+   "name": "Red 5 No Expiry",
+   "ussd": null,
+   "label": "95MB",
+   "price": 5,
+   "extras": {
+    "sms": 10,
+    "allNetMins": 85
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 201,
+   "days": null,
+   "kind": "combo",
+   "name": "201MB + 40 mins",
+   "ussd": null,
+   "label": "201MB",
+   "price": 5,
+   "extras": {
+    "sms": 10,
+    "allNetMins": 40
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "201MB, 10 SMS & 40mins@ GHS 5"
+  },
+  {
+   "mb": 195,
+   "days": null,
+   "kind": "combo",
+   "name": "Red 10 No Expiry",
+   "ussd": null,
+   "label": "195MB",
+   "price": 10,
+   "extras": {
+    "sms": 50,
+    "allNetMins": 175
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "No expiry"
+  },
+  {
+   "mb": 423,
+   "days": null,
+   "kind": "combo",
+   "name": "423MB + 85 mins",
+   "ussd": null,
+   "label": "423MB",
+   "price": 10,
+   "extras": {
+    "sms": 50,
+    "allNetMins": 85
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "423MB, 50 SMS & 85mins @ GHS 10"
+  },
+  {
+   "mb": 401,
+   "days": null,
+   "kind": "combo",
+   "name": "401MB + 360 mins",
+   "ussd": null,
+   "label": "401MB",
+   "price": 20,
+   "extras": {
+    "sms": 50,
+    "allNetMins": 360
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "401MB, 50 SMS & 360mins @ GHS 20"
+  },
+  {
+   "mb": 891,
+   "days": null,
+   "kind": "combo",
+   "name": "891MB + 180 mins",
+   "ussd": null,
+   "label": "891MB",
+   "price": 20,
+   "extras": {
+    "sms": 50,
+    "allNetMins": 180
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "891MB, 50 SMS & 180mins @ GHS 20"
+  },
+  {
+   "mb": 602,
+   "days": null,
+   "kind": "combo",
+   "name": "602MB + 540 mins",
+   "ussd": null,
+   "label": "602MB",
+   "price": 30,
+   "extras": {
+    "sms": 50,
+    "allNetMins": 540
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "602MB, 50 SMS & 540mins @ GHS 30"
+  },
+  {
+   "mb": 1393,
+   "days": null,
+   "kind": "combo",
+   "name": "1393MB + 280 mins",
+   "ussd": null,
+   "label": "1393MB",
+   "price": 30,
+   "extras": {
+    "sms": 50,
+    "allNetMins": 280
+   },
+   "family": "Voice & Data Combo",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Buy it on Telecel's bundles page (telecel.com.gh/personal/mobile/offers/bundles), which says “Kindly login to your mobile account to subscribe”.",
+   "network": "telecel",
+   "validity": "No expiry",
+   "operatorTitle": "1393MB, 50 SMS & 280mins @ GHS 30"
+  },
+  {
+   "mb": 3072,
+   "days": null,
+   "kind": "combo",
+   "name": "Boss Pro",
+   "note": "+ 2GB social data, + 1,000 all-net bulk SMS",
+   "ussd": null,
+   "label": "3GB",
+   "price": 50,
+   "extras": {
+    "sms": 500,
+    "allNetMins": 1000
+   },
+   "family": "Boss Plan",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Dial *5959# or *700#, or use the Telecel Play app (Telecel's Boss Plan page, telecel.com.gh/business/sme/boss-plan: “You can subscribe to this package by dialing *5959# or *700# or subscribe on the Telecel Play App.”).",
+   "network": "telecel",
+   "validity": "No expiry",
+   "otherSource": {
+    "url": "https://telecel.com.gh/business/sme/boss-plan/",
+    "says": "One plan. One monthly fee. … 30 DAYS · GHS 50 · Boss · 3 GB · 2 GB for Social Media (IG, Whatsapp, FB, X) · 1,000 mins to all networks · 500 SMS · Get an end-to-end self service Bulk SMS campaign platform",
+    "label": "Telecel's Boss Plan page",
+    "summary": "Telecel's Boss Plan page (seen 20 Oct 2026) calls this pack “Boss” and lists it as 30 days, “One plan. One monthly fee.”, with 500 SMS and a bulk SMS platform. The figures shown are from Telecel's bundles page, which says no expiry and 1,000 bulk SMS. Check with Telecel before you buy.",
+    "updated": "2026-10-20",
+    "contradicts": "validity"
+   }
+  },
+  {
+   "mb": 5632,
+   "days": null,
+   "kind": "combo",
+   "name": "Boss Plus",
+   "note": "+ 5.5GB social data, + 1,000 all-net bulk SMS. SMS figure is Telecel's published SMS spec; Telecel's own description of this bundle reads: \"Enjoy non-expiry 2000 mins, 5,5GB, 5.5GB social & 500 SMS, plus 1000 all-net Bulk SMS @ GHS 100\". Confirm with Telecel before relying on the SMS count.",
+   "ussd": null,
+   "label": "5.5GB",
+   "price": 100,
+   "extras": {
+    "sms": 1000,
+    "allNetMins": 2000
+   },
+   "family": "Boss Plan",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "channel": "Dial *5959# or *700#, or use the Telecel Play app (Telecel's Boss Plan page, telecel.com.gh/business/sme/boss-plan: “You can subscribe to this package by dialing *5959# or *700# or subscribe on the Telecel Play App.”).",
+   "network": "telecel",
+   "validity": "No expiry",
+   "otherSource": {
+    "url": "https://telecel.com.gh/business/sme/boss-plan/",
+    "says": "One plan. One monthly fee. … 30 DAYS · GHS 100 · Big Boss · 5.5 GB · 5.5 GB for Social Media (IG, Whatsapp, FB, X) · 2,000 mins to all networks · 500 SMS · Get an end-to-end self service Bulk SMS campaign platform",
+    "label": "Telecel's Boss Plan page",
+    "summary": "Telecel's Boss Plan page (seen 20 Oct 2026) calls this pack “Big Boss” and lists it as 30 days, “One plan. One monthly fee.”, with 500 SMS and a bulk SMS platform. The figures shown are from Telecel's bundles page, which says no expiry and 1,000 bulk SMS. Check with Telecel before you buy.",
+    "updated": "2026-10-20",
+    "contradicts": "validity"
+   }
+  },
+  {
+   "mb": 460.11,
+   "days": null,
+   "kind": "morning",
+   "name": "Kokrokoo Bundle",
+   "note": "Volume as the myMTN app shows it (460.11MB); MTN's tariff page rounds it to 460MB.",
+   "ussd": "*138# then 3",
+   "label": "460.11MB",
+   "price": 1.22,
+   "family": "Kokrokoo",
+   "source": "myMTN app (screenshot 17 Oct 2026)",
+   "window": "5 AM–8 AM",
+   "network": "mtn",
+   "validity": "5 AM–8 AM daily",
+   "otherSource": {
+    "url": "https://mtn.com.gh/wp-content/uploads/2024/03/Kokrokoo-TnCs.pdf",
+    "says": "The validity of the bundle is from 5am to 8am - 3 hours validity similar to Midnight bundles. Any unused data is lost after 8am.",
+    "label": "MTN Kokrokoo terms and conditions (PDF)",
+    "summary": "MTN's Kokrokoo terms (PDF dated 22 Mar 2024) say '3 hours validity' and 'Any unused data is lost after 8am', while MTN's help centre says it does not expire (last edited 6 Jul 2026). Because MTN's own sources disagree, it is not counted as never-expiring here.",
+    "updated": "2024-03-22",
+    "contradicts": "validity"
+   }
+  },
+  {
+   "mb": 82.57,
+   "days": null,
+   "kind": "social",
+   "name": "Social GH¢1",
+   "note": "Amount and volume as the myMTN app's Social Bundles section shows them; the volume equals the price divided by MTN's published social rate.",
+   "ussd": null,
+   "label": "82.57MB",
+   "price": 1,
+   "family": "Social bundles",
+   "source": "myMTN app (screenshot 17 Oct 2026)",
+   "network": "mtn",
+   "validity": "Not stated by MTN"
+  },
+  {
+   "mb": 412.85,
+   "days": null,
+   "kind": "social",
+   "name": "Social GH¢5",
+   "note": "Amount and volume as the myMTN app's Social Bundles section shows them; the volume equals the price divided by MTN's published social rate.",
+   "ussd": null,
+   "label": "412.85MB",
+   "price": 5,
+   "family": "Social bundles",
+   "source": "myMTN app (screenshot 17 Oct 2026)",
+   "network": "mtn",
+   "validity": "Not stated by MTN"
+  },
+  {
+   "mb": 825.7,
+   "days": null,
+   "kind": "social",
+   "name": "Social GH¢10",
+   "note": "Amount and volume as the myMTN app's Social Bundles section shows them; the volume equals the price divided by MTN's published social rate.",
+   "ussd": null,
+   "label": "825.7MB",
+   "price": 10,
+   "family": "Social bundles",
+   "source": "myMTN app (screenshot 17 Oct 2026)",
+   "network": "mtn",
+   "validity": "Not stated by MTN"
+  },
+  {
+   "mb": 158.05,
+   "days": null,
+   "kind": "video",
+   "name": "Video GH¢1",
+   "note": "Amount and volume as the myMTN app's Video Bundles section shows them; the volume equals the price divided by MTN's published video rate.",
+   "ussd": null,
+   "label": "158.05MB",
+   "price": 1,
+   "family": "Video bundles",
+   "source": "myMTN app (screenshot 17 Oct 2026)",
+   "network": "mtn",
+   "validity": "Not stated by MTN"
+  },
+  {
+   "mb": 790.25,
+   "days": null,
+   "kind": "video",
+   "name": "Video GH¢5",
+   "note": "Amount and volume as the myMTN app's Video Bundles section shows them; the volume equals the price divided by MTN's published video rate.",
+   "ussd": null,
+   "label": "790.25MB",
+   "price": 5,
+   "family": "Video bundles",
+   "source": "myMTN app (screenshot 17 Oct 2026)",
+   "network": "mtn",
+   "validity": "Not stated by MTN"
+  },
+  {
+   "mb": 1580.5,
+   "days": null,
+   "kind": "video",
+   "name": "Video GH¢10",
+   "note": "Amount and volume as the myMTN app's Video Bundles section shows them; the volume equals the price divided by MTN's published video rate.",
+   "ussd": null,
+   "label": "1.54GB",
+   "price": 10,
+   "family": "Video bundles",
+   "source": "myMTN app (screenshot 17 Oct 2026)",
+   "network": "mtn",
+   "validity": "Not stated by MTN"
+  },
+  {
+   "mb": 327.25,
+   "days": 1,
+   "kind": "anytime",
+   "name": "Data Zone GH¢2.99",
+   "note": "Personalised offer. Only if you already have an active bundle of GH¢1–5 and have finished any earlier Data Zone bundle. MTN may discount it to as little as GH¢1.94 (up to 35% off).",
+   "ussd": "*135#, option 2",
+   "label": "327.25 MB",
+   "price": 2.99,
+   "family": "Data Zone",
+   "source": "https://mtn.com.gh/personal-home/tariffs/",
+   "network": "mtn",
+   "validity": "1 day",
+   "conditional": true,
+   "otherSource": {
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/6142151349010",
+    "says": "281MB for 1 Day – Just GHS 2.39 / 425MB for 1 Day – Just GHS 3.59 / 692MB for 1 Day – Just GHS 4.79",
+    "label": "MTN help centre, What are the packages for the datazone bundle?",
+    "summary": "MTN's help centre (last edited 2 Jun 2025) lists Data Zone bundles at other prices: 281MB for GHS 2.39, 425MB for GHS 3.59 and 692MB for GHS 4.79, all for 1 day. The tariff page's figures are used.",
+    "updated": "2025-06-02",
+    "contradicts": "price"
+   },
+   "conditionalReason": "personalised"
+  },
+  {
+   "mb": 495.4,
+   "days": 1,
+   "kind": "anytime",
+   "name": "Data Zone GH¢3.99",
+   "note": "Personalised offer. Only if you already have an active bundle of GH¢5.10–7 and have finished any earlier Data Zone bundle. MTN may discount it to as little as GH¢2.99 (up to 25% off).",
+   "ussd": "*135#, option 2",
+   "label": "495.40 MB",
+   "price": 3.99,
+   "family": "Data Zone",
+   "source": "https://mtn.com.gh/personal-home/tariffs/",
+   "network": "mtn",
+   "validity": "1 day",
+   "conditional": true,
+   "otherSource": {
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/6142151349010",
+    "says": "281MB for 1 Day – Just GHS 2.39 / 425MB for 1 Day – Just GHS 3.59 / 692MB for 1 Day – Just GHS 4.79",
+    "label": "MTN help centre, What are the packages for the datazone bundle?",
+    "summary": "MTN's help centre (last edited 2 Jun 2025) lists Data Zone bundles at other prices: 281MB for GHS 2.39, 425MB for GHS 3.59 and 692MB for GHS 4.79, all for 1 day. The tariff page's figures are used.",
+    "updated": "2025-06-02",
+    "contradicts": "price"
+   },
+   "conditionalReason": "personalised"
+  },
+  {
+   "mb": 806.45,
+   "days": 1,
+   "kind": "anytime",
+   "name": "Data Zone GH¢5.99",
+   "note": "Personalised offer. Only if you already have an active bundle of GH¢5.10–50 and have finished any earlier Data Zone bundle. MTN may discount it to as little as GH¢3.89 (up to 35% off).",
+   "ussd": "*135#, option 2",
+   "label": "806.45 MB",
+   "price": 5.99,
+   "family": "Data Zone",
+   "source": "https://mtn.com.gh/personal-home/tariffs/",
+   "network": "mtn",
+   "validity": "1 day",
+   "conditional": true,
+   "otherSource": {
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/6142151349010",
+    "says": "281MB for 1 Day – Just GHS 2.39 / 425MB for 1 Day – Just GHS 3.59 / 692MB for 1 Day – Just GHS 4.79",
+    "label": "MTN help centre, What are the packages for the datazone bundle?",
+    "summary": "MTN's help centre (last edited 2 Jun 2025) lists Data Zone bundles at other prices: 281MB for GHS 2.39, 425MB for GHS 3.59 and 692MB for GHS 4.79, all for 1 day. The tariff page's figures are used.",
+    "updated": "2025-06-02",
+    "contradicts": "price"
+   },
+   "conditionalReason": "personalised"
+  },
+  {
+   "mb": 20,
+   "days": null,
+   "kind": "combo",
+   "name": "Sunday Special GH¢1.39",
+   "note": "MTN Offers (help centre, last edited 11 Nov 2025) lists Sunday Special as 'special voice or data deals available every Sunday only'. Older help-centre answers say it 'can be used between 00:01 and 23:59 on Sundays' and is 'valid for only 2 consecutive Sundays' (last edited 12 Sep 2023), and that 'The offer is renewable at midnight of the next Saturday to enable you to enjoy the offer the following Sunday' (last edited 7 Oct 2022). MTN's terms say 'Weekly auto subscription applies' until you unsubscribe.",
+   "ussd": "*550#",
+   "label": "20MB",
+   "price": 1.39,
+   "extras": {
+    "sms": 10,
+    "allNetMins": 37
+   },
+   "family": "Sunday Special",
+   "source": "https://mtn.com.gh/personal-home/tariffs/",
+   "window": "Sundays only",
+   "network": "mtn",
+   "validity": "Sundays: “valid on Sunday and the next Sunday” (MTN's Sunday Special terms, PDF dated 22 Mar 2024)",
+   "otherSource": {
+    "url": "https://mtn.com.gh/wp-content/uploads/2024/03/Sunday-Special-TnCs.pdf",
+    "says": "Cost of offer subscription is Ghc1.41 / Promo subscribers enjoy 20MB of Data, 37 minutes calls and 10 SMS to all Networks in Ghana valid on Sunday and the next Sunday.",
+    "label": "MTN Sunday Special terms and conditions (PDF)",
+    "summary": "MTN's own pages price this pack differently: GH¢1.41 in its Sunday Special terms (PDF dated 22 Mar 2024), and GH¢1.23 with 50MB in its help centre (last edited 12 Sep 2023). The tariff page's GH¢1.39 for 20MB is used.",
+    "updated": "2024-03-22",
+    "contradicts": "price"
+   }
+  },
+  {
+   "mb": 50,
+   "days": null,
+   "kind": "combo",
+   "name": "Sunday Special GH¢2.58",
+   "note": "MTN Offers (help centre, last edited 11 Nov 2025) lists Sunday Special as 'special voice or data deals available every Sunday only'. Older help-centre answers say it 'can be used between 00:01 and 23:59 on Sundays' and is 'valid for only 2 consecutive Sundays' (last edited 12 Sep 2023), and that 'The offer is renewable at midnight of the next Saturday to enable you to enjoy the offer the following Sunday' (last edited 7 Oct 2022). MTN's terms say 'Weekly auto subscription applies' until you unsubscribe.",
+   "ussd": "*550#",
+   "label": "50MB",
+   "price": 2.58,
+   "extras": {
+    "sms": 10,
+    "allNetMins": 70
+   },
+   "family": "Sunday Special",
+   "source": "https://mtn.com.gh/personal-home/tariffs/",
+   "window": "Sundays only",
+   "network": "mtn",
+   "validity": "Sundays: “valid on Sunday and the next Sunday” (MTN's Sunday Special terms, PDF dated 22 Mar 2024)",
+   "otherSource": {
+    "url": "https://mtn.com.gh/wp-content/uploads/2024/03/Sunday-Special-TnCs.pdf",
+    "says": "Cost of offer subscription is Ghc2.63 / Promo subscribers enjoy 50MB of Data, 70 minutes calls and 10 SMS to all Networks in Ghana valid on Sunday and the next Sunday.",
+    "label": "MTN Sunday Special terms and conditions (PDF)",
+    "summary": "MTN's Sunday Special terms (PDF dated 22 Mar 2024) price this pack at GH¢2.63 and MTN's help centre at GH¢2.29 (last edited 12 Sep 2023). The tariff page's GH¢2.58 is used.",
+    "updated": "2024-03-22",
+    "contradicts": "price"
+   }
+  },
+  {
+   "mb": 50,
+   "days": null,
+   "kind": "combo",
+   "name": "Jara GH¢1.39",
+   "note": "MTN's Jara terms (PDF dated 22 Mar 2024) say 'Offer is open to only prepaid customers in Volta, Oti, Upper East, Upper West, Bono, Bono East, Ahafo, Northern, North East and Savannah regions', and MTN's Jara page names the same regions. MTN's Jara page says 'Subscribe to the Jara offer any day and enjoy it from Monday to Saturday', and its terms say 'Daily auto subscription applies' until you unsubscribe (send STOP to 550).",
+   "ussd": "*550#",
+   "label": "50MB",
+   "price": 1.39,
+   "extras": {
+    "sms": 10,
+    "allNetMins": 37
+   },
+   "family": "Jara",
+   "source": "https://mtn.com.gh/personal-home/tariffs/",
+   "window": "Monday–Saturday",
+   "network": "mtn",
+   "validity": "“expires at 11:59pm the following day”; minutes and SMS “remain valid for 48 hours” (MTN's Jara terms, PDF dated 22 Mar 2024)",
+   "conditional": true,
+   "otherSource": {
+    "url": "https://mtn.com.gh/wp-content/uploads/2024/03/Jara-TnCs.pdf",
+    "says": "Cost of promo subscription is Ghc1.41 / Promo subscribers enjoy 50MB of data, 37 minutes calls and 10 SMS to all Networks in Ghana all days excluding Sundays.",
+    "label": "MTN Jara terms and conditions (PDF)",
+    "summary": "MTN's Jara terms (PDF dated 22 Mar 2024) price this pack at GH¢1.41 and MTN's help centre at GH¢1.20 (last edited 7 Oct 2022). The tariff page's GH¢1.39 is used.",
+    "updated": "2024-03-22",
+    "contradicts": "price"
+   },
+   "conditionalReason": "regional"
+  },
+  {
+   "mb": 50,
+   "days": null,
+   "kind": "combo",
+   "name": "Jara GH¢2.58",
+   "note": "MTN's Jara terms (PDF dated 22 Mar 2024) say 'Offer is open to only prepaid customers in Volta, Oti, Upper East, Upper West, Bono, Bono East, Ahafo, Northern, North East and Savannah regions', and MTN's Jara page names the same regions. MTN's Jara page says 'Subscribe to the Jara offer any day and enjoy it from Monday to Saturday', and its terms say 'Daily auto subscription applies' until you unsubscribe (send STOP to 550).",
+   "ussd": "*550#",
+   "label": "50MB",
+   "price": 2.58,
+   "extras": {
+    "sms": 10,
+    "allNetMins": 70
+   },
+   "family": "Jara",
+   "source": "https://mtn.com.gh/personal-home/tariffs/",
+   "window": "Monday–Saturday",
+   "network": "mtn",
+   "validity": "“expires at 11:59pm the following day”; minutes and SMS “remain valid for 48 hours” (MTN's Jara terms, PDF dated 22 Mar 2024)",
+   "conditional": true,
+   "otherSource": {
+    "url": "https://mtn.com.gh/wp-content/uploads/2024/03/Jara-TnCs.pdf",
+    "says": "Cost of offer subscription is Ghc2.63 / Promo subscribers enjoy 50 MB of data, 70 calls minutes and 10 SMS to all Networks in Ghana all days excluding Sundays.",
+    "label": "MTN Jara terms and conditions (PDF)",
+    "summary": "MTN's Jara terms (PDF dated 22 Mar 2024) price this pack at GH¢2.63 and MTN's help centre at GH¢2.24 (last edited 7 Oct 2022). The tariff page's GH¢2.58 is used.",
+    "updated": "2024-03-22",
+    "contradicts": "price"
+   },
+   "conditionalReason": "regional"
+  },
+  {
+   "mb": 150,
+   "asOf": "2023-02-03",
+   "days": 30,
+   "kind": "combo",
+   "name": "AFA + Data GH¢6",
+   "note": "Only for farmers registered with Prepeez Limited (MTN: 'Farmers in Ghana who are registered with the Prepeez Limited'). MTN's table for this pack also gives 140 on-net minutes, 20 off-net minutes, 1000 on-net SMS and 50 off-net SMS; the GH¢6 pack without data has 200 on-net minutes instead. MTN: 'It has a duration period of 30 days'. Dial *1848#, option 1 to register, option 2 to buy, and pay with MoMo. MTN's package table was last edited on 3 Feb 2023, before MTN's January 2026 tariff review, which says 'all MTN Products and services have been reviewed in price or the benefit received at purchase' (it names 'Afa bundles'), so these figures may be out of date.",
+   "ussd": "*1848#",
+   "label": "150 MB",
+   "price": 6,
+   "family": "AFA bundle",
+   "source": "https://help-center.mtn.com.gh/hc/en-us/articles/9925642647186",
+   "network": "mtn",
+   "validity": "30 days",
+   "conditional": true,
+   "unconfirmed": true,
+   "conditionalReason": "eligibility"
+  },
+  {
+   "mb": 500,
+   "asOf": "2023-11-24",
+   "days": 30,
+   "kind": "combo",
+   "name": "Association GH¢10",
+   "note": "Only for members of professional and gazetted associations registered with MTN by an administrator. MTN's table for this pack also gives 200 on-net minutes, 25 off-net minutes, 50 SMS and 'CUG 1000' (calls within the members' closed user group, valid while a bundle is active). MTN: 'Association bundle expires after 30 days'. MTN's package table was last edited on 24 Nov 2023, before MTN's January 2026 tariff review, which says 'all MTN Products and services have been reviewed in price or the benefit received at purchase', so these figures may be out of date.",
+   "ussd": "*5060#, then 2",
+   "label": "500MB",
+   "price": 10,
+   "family": "Association bundle",
+   "source": "https://help-center.mtn.com.gh/hc/en-us/articles/13972670672018",
+   "network": "mtn",
+   "validity": "30 days",
+   "conditional": true,
+   "unconfirmed": true,
+   "conditionalReason": "eligibility"
+  },
+  {
+   "mb": 1024,
+   "asOf": "2023-11-24",
+   "days": 30,
+   "kind": "combo",
+   "name": "Association GH¢20",
+   "note": "Only for members of professional and gazetted associations registered with MTN by an administrator. MTN's table for this pack also gives 400 on-net minutes, 100 off-net minutes, 100 SMS and 'CUG 1000' (calls within the members' closed user group, valid while a bundle is active). MTN: 'Association bundle expires after 30 days'. MTN's package table was last edited on 24 Nov 2023, before MTN's January 2026 tariff review, which says 'all MTN Products and services have been reviewed in price or the benefit received at purchase', so these figures may be out of date.",
+   "ussd": "*5060#, then 2",
+   "label": "1GB",
+   "price": 20,
+   "family": "Association bundle",
+   "source": "https://help-center.mtn.com.gh/hc/en-us/articles/13972670672018",
+   "network": "mtn",
+   "validity": "30 days",
+   "conditional": true,
+   "unconfirmed": true,
+   "conditionalReason": "eligibility"
+  },
+  {
+   "mb": 2048,
+   "asOf": "2023-11-24",
+   "days": 30,
+   "kind": "combo",
+   "name": "Association GH¢30",
+   "note": "Only for members of professional and gazetted associations registered with MTN by an administrator. MTN's table for this pack also gives 450 on-net minutes, 130 off-net minutes, 100 SMS and 'CUG 1000' (calls within the members' closed user group, valid while a bundle is active). MTN: 'Association bundle expires after 30 days'. MTN's package table was last edited on 24 Nov 2023, before MTN's January 2026 tariff review, which says 'all MTN Products and services have been reviewed in price or the benefit received at purchase', so these figures may be out of date.",
+   "ussd": "*5060#, then 2",
+   "label": "2GB",
+   "price": 30,
+   "family": "Association bundle",
+   "source": "https://help-center.mtn.com.gh/hc/en-us/articles/13972670672018",
+   "network": "mtn",
+   "validity": "30 days",
+   "conditional": true,
+   "unconfirmed": true,
+   "conditionalReason": "eligibility"
+  },
+  {
+   "mb": 3584,
+   "asOf": "2023-11-24",
+   "days": 30,
+   "kind": "combo",
+   "name": "Association GH¢50",
+   "note": "Only for members of professional and gazetted associations registered with MTN by an administrator. MTN's table for this pack also gives 600 on-net minutes, 200 off-net minutes, 100 SMS and 'CUG 1000' (calls within the members' closed user group, valid while a bundle is active). MTN: 'Association bundle expires after 30 days'. MTN's package table was last edited on 24 Nov 2023, before MTN's January 2026 tariff review, which says 'all MTN Products and services have been reviewed in price or the benefit received at purchase', so these figures may be out of date.",
+   "ussd": "*5060#, then 2",
+   "label": "3.5GB",
+   "price": 50,
+   "family": "Association bundle",
+   "source": "https://help-center.mtn.com.gh/hc/en-us/articles/13972670672018",
+   "network": "mtn",
+   "validity": "30 days",
+   "conditional": true,
+   "unconfirmed": true,
+   "conditionalReason": "eligibility"
+  },
+  {
+   "mb": 6656,
+   "asOf": "2023-11-24",
+   "days": 30,
+   "kind": "combo",
+   "name": "Association GH¢80",
+   "note": "Only for members of professional and gazetted associations registered with MTN by an administrator. MTN's table for this pack also gives 800 on-net minutes, 300 off-net minutes, 100 SMS and 'CUG 1000' (calls within the members' closed user group, valid while a bundle is active). MTN: 'Association bundle expires after 30 days'. MTN's package table was last edited on 24 Nov 2023, before MTN's January 2026 tariff review, which says 'all MTN Products and services have been reviewed in price or the benefit received at purchase', so these figures may be out of date.",
+   "ussd": "*5060#, then 2",
+   "label": "6.5GB",
+   "price": 80,
+   "family": "Association bundle",
+   "source": "https://help-center.mtn.com.gh/hc/en-us/articles/13972670672018",
+   "network": "mtn",
+   "validity": "30 days",
+   "conditional": true,
+   "unconfirmed": true,
+   "conditionalReason": "eligibility"
+  },
+  {
+   "mb": 8192,
+   "asOf": "2023-11-24",
+   "days": 30,
+   "kind": "combo",
+   "name": "Association GH¢100",
+   "note": "Only for members of professional and gazetted associations registered with MTN by an administrator. MTN's table for this pack also gives 1000 on-net minutes, 500 off-net minutes, 100 SMS and 'CUG 1000' (calls within the members' closed user group, valid while a bundle is active). MTN: 'Association bundle expires after 30 days'. MTN's package table was last edited on 24 Nov 2023, before MTN's January 2026 tariff review, which says 'all MTN Products and services have been reviewed in price or the benefit received at purchase', so these figures may be out of date.",
+   "ussd": "*5060#, then 2",
+   "label": "8GB",
+   "price": 100,
+   "family": "Association bundle",
+   "source": "https://help-center.mtn.com.gh/hc/en-us/articles/13972670672018",
+   "network": "mtn",
+   "validity": "30 days",
+   "conditional": true,
+   "unconfirmed": true,
+   "conditionalReason": "eligibility"
+  }
+ ],
+ "mtnRates": {
+  "app": {
+   "note": "What the myMTN app showed on 17 Oct 2026. Its GB figures are MB / 1024. Every volume below that comes from a tariff rate is re-checked against MTN's tariff page on every run.",
+   "source": "myMTN app (screenshot 17 Oct 2026)",
+   "sections": [
+    {
+     "fixed": [
+      {
+       "price": 0.5,
+       "shown": "20.73MB"
+      },
+      {
+       "price": 1,
+       "shown": "41.46MB"
+      },
+      {
+       "price": 3,
+       "shown": "406.89MB"
+      },
+      {
+       "price": 10,
+       "shown": "837.55MB"
+      },
+      {
+       "price": 350,
+       "shown": "108.21GB"
+      },
+      {
+       "price": 399,
+       "shown": "217.34GB"
+      }
+     ],
+     "flexi": {
+      "to": 399,
+      "from": 0.03,
+      "shownTo": "217.34GB",
+      "shownFrom": "1.23MB"
+     },
+     "label": "Low Cost Non Expiry Bundles",
+     "rates": "regular",
+     "title": "Data Bundles",
+     "unverified": "The app's minimum, GH¢0.03 for 1.23MB, works out to about GH¢0.0244 per MB, a rate MTN's tariff page does not list (its lowest band starts above GH¢0.30). Not used for any comparison."
+    },
+    {
+     "apps": "WhatsApp, Snapchat, FB, IG, Twitter, WeChat, TikTok",
+     "fixed": [
+      {
+       "price": 1,
+       "shown": "82.57MB"
+      },
+      {
+       "price": 5,
+       "shown": "412.85MB"
+      },
+      {
+       "price": 10,
+       "shown": "825.7MB"
+      }
+     ],
+     "flexi": {
+      "to": 399,
+      "from": 0.03,
+      "shownTo": "32.17GB",
+      "tariffTo": 1000
+     },
+     "rates": "social",
+     "title": "Social Bundles"
+    },
+    {
+     "apps": "IrokoTV, DSTV, YouTube",
+     "fixed": [
+      {
+       "price": 1,
+       "shown": "158.05MB"
+      },
+      {
+       "price": 5,
+       "shown": "790.25MB"
+      },
+      {
+       "price": 10,
+       "shown": "1.54GB"
+      }
+     ],
+     "flexi": {
+      "to": 1000,
+      "from": 0.03,
+      "shownTo": "154.35GB"
+     },
+     "rates": "video",
+     "title": "Video Bundles"
+    },
+    {
+     "fixed": [
+      {
+       "price": 3,
+       "shown": "8.48GB"
+      }
+     ],
+     "flexi": {
+      "to": 2.99,
+      "from": 0.03,
+      "shownTo": "6.01GB"
+     },
+     "hours": "can only be used between 12am – 5am",
+     "rates": "midnight",
+     "title": "Midnight"
+    },
+    {
+     "fixed": [
+      {
+       "price": 1.22,
+       "shown": "460.11MB"
+      }
+     ],
+     "hours": "used in the early hours of 5am – 8am",
+     "rates": null,
+     "title": "Kokrokoo"
+    }
+   ]
+  },
+  "gaps": {
+   "pulse": [],
+   "regular": [
+    {
+     "to": 99.99,
+     "from": 99.91,
+     "note": "MTN's tariff page publishes no rate for this range"
+    },
+    {
+     "to": 199.99,
+     "from": 199.91,
+     "note": "MTN's tariff page publishes no rate for this range"
+    },
+    {
+     "to": 299.99,
+     "from": 299.01,
+     "note": "MTN's tariff page publishes no rate for this range"
+    }
+   ],
+   "midnight": []
+  },
+  "pulse": {
+   "data": [
+    {
+     "to": 4.99,
+     "from": 0,
+     "ghsPerMb": 0.0196497,
+     "fromExclusive": true
+    },
+    {
+     "to": 9.99,
+     "from": 5,
+     "note": "MTN's tariff page gives 0.0447653 per MB for Pulse data GH¢5 to GH¢9.99, exactly the figure it gives per minute of Pulse voice above GH¢0 up to GH¢4.99 (0.0447653), and higher than the data rate either side. It looks like a slip on MTN's page, so no data figure is worked out for these amounts. The checker re-reads it on every run.",
+     "ghsPerMb": 0.0447653,
+     "unconfirmed": true
+    },
+    {
+     "to": 29.99,
+     "from": 10,
+     "ghsPerMb": 0.0166006
+    },
+    {
+     "exactly": 30,
+     "ghsPerMb": 0.0095726
+    }
+   ],
+   "note": "MTN aims Pulse at young customers. No MTN source says who may or may not buy it. These are MTN's data-only Pulse rates per MB; mixes of data and minutes are not priced here.",
+   "ussd": "*567# or the myMTN app (Shop, then Mash Up)",
+   "minSpend": {
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/5106366483730",
+    "note": "MTN's tariff page gives a Pulse data rate for any amount above GH¢0. MTN's help centre (last edited 17 Jul 2024) says Pulse offers run 'from GHS0.07-29.99', so amounts below GH¢0.07 are not worked out here.",
+    "says": "You can choose from our wide range of amazing offers from GHS0.07-29.99",
+    "label": "MTN help centre, What are the packages for the Pulse bundle?",
+    "amount": 0.07,
+    "updated": "2024-07-17"
+   },
+   "ussdNote": "Confirmed by a live test: dialling *567# on 18 Oct 2026 opened MTN Pulse, as MTN's help centre gives it (last edited 17 Jul 2024). Other codes on MTN's Pulse page are not shown here.",
+   "validity": "No expiry",
+   "otherSource": {
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/5106366483730",
+    "says": "GHS1.00 43.67MB 0 Mins … GHS5.00 246.43MB 0 Mins … GHS10.00 517.06MB 0 Mins … GHS30.00 2.63MB 0 Mins",
+    "label": "MTN help centre, What are the packages for the Pulse bundle?",
+    "summary": "MTN's help centre (last edited 17 Jul 2024, before MTN's January 2026 tariff review) gives older Pulse data volumes: GH¢1 for 43.67MB, GH¢5 for 246.43MB, GH¢10 for 517.06MB and '2.63MB' for GH¢30. They do not match the rates on MTN's tariff page, which are used here; from that article only its lowest amount, GH¢0.07, is used. Its GH¢5 figure (246.43MB, about GH¢0.0203 per MB) is close to the tariff page's data rates either side (GH¢0.0196 and GH¢0.0166 per MB), not to the GH¢0.0448 per MB it prints for GH¢5 to GH¢9.99, which supports treating that tariff rate as a slip.",
+    "updated": "2024-07-17",
+    "contradicts": "volume"
+   },
+   "validitySources": [
+    {
+     "url": "https://mtn.com.gh/wp-content/uploads/2024/03/Pulse-TnCs.pdf",
+     "says": "No expiry for all purchased mashups",
+     "label": "MTN Pulse terms and conditions (PDF)",
+     "updated": "2024-03-22"
+    },
+    {
+     "url": "https://help-center.mtn.com.gh/hc/en-us/articles/5106322755474",
+     "says": "Pulse bundles do not expire.",
+     "label": "MTN help centre, What is Mashup or Pulse bundle? (last edited)",
+     "updated": "2023-07-17"
+    }
+   ]
+  },
+  "video": 0.0063271,
+  "social": 0.012111,
+  "regular": [
+   {
+    "to": 1.99,
+    "from": 0.3,
+    "ghsPerMb": 0.0241221,
+    "fromExclusive": true
+   },
+   {
+    "to": 2.99,
+    "from": 2,
+    "ghsPerMb": 0.0201363
+   },
+   {
+    "exactly": 3,
+    "ghsPerMb": 0.007373
+   },
+   {
+    "to": 5,
+    "from": 3,
+    "ghsPerMb": 0.0095963,
+    "fromExclusive": true
+   },
+   {
+    "exactly": 10,
+    "ghsPerMb": 0.0119396
+   },
+   {
+    "to": 99.9,
+    "from": 5,
+    "ghsPerMb": 0.0140599,
+    "fromExclusive": true
+   },
+   {
+    "to": 199.9,
+    "from": 100,
+    "ghsPerMb": 0.0106515
+   },
+   {
+    "to": 299,
+    "from": 200,
+    "ghsPerMb": 0.0063262
+   },
+   {
+    "to": 398.99,
+    "from": 300,
+    "ghsPerMb": 0.0031586
+   },
+   {
+    "exactly": 399,
+    "ghsPerMb": 0.0017928
+   }
+  ],
+  "kokrokoo": {
+   "mb": 460,
+   "price": 1.22,
+   "window": "5 AM–8 AM",
+   "validitySource": "https://help-center.mtn.com.gh/hc/en-us/articles/6971299278866"
+  },
+  "midnight": [
+   {
+    "to": 2.99,
+    "from": 0.01,
+    "ghsPerMb": 0.0004856
+   },
+   {
+    "exactly": 3,
+    "ghsPerMb": 0.0003455
+   }
+  ],
+  "xtrabyte": {
+   "kind": "borrowed",
+   "note": "Borrowed data, not a bundle you buy: MTN's help centre says Xtrabyte lets you 'borrow airtime or data and pay later at 10% commission'. MTN's tariff page lists each advance with its service fee; you repay the price plus the fee. Not compared with bundles.",
+   "rows": [
+    {
+     "mb": 41,
+     "fee": 0.1,
+     "price": 1,
+     "totalDebt": 1.1
+    },
+    {
+     "mb": 99,
+     "fee": 0.2,
+     "price": 2,
+     "totalDebt": 2.2
+    },
+    {
+     "mb": 406,
+     "fee": 0.3,
+     "price": 3,
+     "totalDebt": 3.3
+    },
+    {
+     "mb": 521,
+     "fee": 0.5,
+     "price": 5,
+     "totalDebt": 5.5
+    },
+    {
+     "mb": 837,
+     "fee": 1,
+     "price": 10,
+     "totalDebt": 11
+    },
+    {
+     "mb": 1422,
+     "fee": 2,
+     "price": 20,
+     "totalDebt": 22
+    },
+    {
+     "mb": 2133,
+     "fee": 3,
+     "price": 30,
+     "totalDebt": 33
+    }
+   ],
+   "ussd": "*506#, option 4 'Request a data advance'",
+   "family": "Xtrabyte",
+   "source": "https://mtn.com.gh/personal-home/tariffs/",
+   "feeLabel": "Service fee",
+   "feePercent": 10,
+   "helpSources": [
+    "https://help-center.mtn.com.gh/hc/en-us/articles/4409500057362",
+    "https://help-center.mtn.com.gh/hc/en-us/articles/4402333468050"
+   ]
+  },
+  "autoRenew": {
+   "url": "https://help-center.mtn.com.gh/hc/en-us/articles/5055920171154",
+   "says": "It’s simple. Just send STOP to the short code 138 via SMS. And the good news is, there are no charges for this service!",
+   "label": "MTN help centre, How do I stop the data bundle auto renewal?",
+   "updated": "2026-07-06"
+  },
+  "socialNote": "One flat rate per MB, but only for social media or video apps. MTN's tariff page allows any amount from GH¢0.03 to GH¢1,000 for both; in the myMTN app the Social flexi option goes up to GH¢399 and Video up to GH¢1,000. MTN does not state a validity.",
+  "socialRange": [
+   0.03,
+   1000
+  ],
+  "balanceCheck": "myMTN app, then Data; or dial *138#, then 1, 99, 7, 3 and the balance arrives by SMS. This is MTN's help-centre path; menus can change.",
+  "citedSources": [
+   {
+    "for": [
+     "Pulse"
+    ],
+    "url": "https://mtn.com.gh/pulse/",
+    "date": "2026-02-27",
+    "label": "MTN Pulse page",
+    "dateLabel": "page last modified"
+   },
+   {
+    "for": [
+     "Jara"
+    ],
+    "url": "https://mtn.com.gh/mtn-jara/",
+    "date": "2026-10-08",
+    "label": "MTN Jara page",
+    "dateLabel": "page last modified"
+   },
+   {
+    "for": [
+     "Sunday Special"
+    ],
+    "url": "https://mtn.com.gh/sunday-special/",
+    "date": "2026-10-08",
+    "label": "MTN Sunday Special page",
+    "dateLabel": "page last modified"
+   },
+   {
+    "for": [
+     "Just4U"
+    ],
+    "url": "https://mtn.com.gh/just4u/",
+    "date": "2024-04-09",
+    "label": "MTN Just4U page",
+    "dateLabel": "page last modified"
+   },
+   {
+    "for": [
+     "Pulse"
+    ],
+    "url": "https://mtn.com.gh/wp-content/uploads/2024/03/Pulse-TnCs.pdf",
+    "date": "2024-03-22",
+    "label": "MTN Pulse terms and conditions (PDF)",
+    "dateLabel": "PDF dated"
+   },
+   {
+    "for": [
+     "Kokrokoo",
+     "Midnight"
+    ],
+    "url": "https://mtn.com.gh/wp-content/uploads/2024/03/Kokrokoo-TnCs.pdf",
+    "date": "2024-03-22",
+    "label": "MTN Kokrokoo terms and conditions (PDF)",
+    "dateLabel": "PDF dated"
+   },
+   {
+    "for": [
+     "Jara"
+    ],
+    "url": "https://mtn.com.gh/wp-content/uploads/2024/03/Jara-TnCs.pdf",
+    "date": "2024-03-22",
+    "label": "MTN Jara terms and conditions (PDF)",
+    "dateLabel": "PDF dated"
+   },
+   {
+    "for": [
+     "Sunday Special"
+    ],
+    "url": "https://mtn.com.gh/wp-content/uploads/2024/03/Sunday-Special-TnCs.pdf",
+    "date": "2024-03-22",
+    "label": "MTN Sunday Special terms and conditions (PDF)",
+    "dateLabel": "PDF dated"
+   },
+   {
+    "for": [
+     "Pulse",
+     "Jara",
+     "Sunday Special"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/30967430645906",
+    "date": "2025-11-11",
+    "label": "MTN help centre, MTN Offers",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Pulse"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/5106322755474",
+    "date": "2023-07-17",
+    "label": "MTN help centre, What is Mashup or Pulse bundle?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Pulse"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/5106364039314",
+    "date": "2024-07-17",
+    "label": "MTN help centre, How do I purchase a pulse bundle?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Pulse"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/5106366483730",
+    "date": "2024-07-17",
+    "label": "MTN help centre, What are the packages for the Pulse bundle? (older volumes; only its GH¢0.07 minimum is used)",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Jara"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4997924741650",
+    "date": "2022-10-07",
+    "label": "MTN help centre, What are the packages under Jara?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Sunday Special"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/7999206596114",
+    "date": "2023-09-12",
+    "label": "MTN help centre, What are packages available for Sunday Special?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Sunday Special"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4409522485266",
+    "date": "2023-09-12",
+    "label": "MTN help centre, What is the validity period of Sunday Special",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Sunday Special"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/7999259818514",
+    "date": "2022-10-07",
+    "label": "MTN help centre, Does Sunday Special expire?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Midnight"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4405299927058",
+    "date": "2021-10-22",
+    "label": "MTN help centre, What is the midnight bundle?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Midnight"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4405300046994",
+    "date": "2026-07-28",
+    "label": "MTN help centre, Does the midnight bundle expire?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Midnight"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/19498110415122",
+    "date": "2024-06-21",
+    "label": "MTN help centre, Is there a capping to the midnight bundle?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Kokrokoo"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/6971299278866",
+    "date": "2026-07-06",
+    "label": "MTN help centre, Does Kokrokoo bundle expire?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Kokrokoo"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/6971330156690",
+    "date": "2026-07-06",
+    "label": "MTN help centre, When can I use the Kokrokoo bundle?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Kokrokoo"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/6971296819474",
+    "date": "2022-08-30",
+    "label": "MTN help centre, Can I buy Kokrokoo bundle with a short code?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Data Zone"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/6142151349010",
+    "date": "2025-06-02",
+    "label": "MTN help centre, What are the packages for the datazone bundle?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Data Zone"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/6142149909266",
+    "date": "2022-06-18",
+    "label": "MTN help centre, How do I purchase a datazone bundle?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Social bundles"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4402317572498",
+    "date": "2024-08-12",
+    "label": "MTN help centre, Can I purchase Social Bundle only?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Regular data (any amount)"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4409556222610",
+    "date": "2022-04-08",
+    "label": "MTN help centre, How do I check my data bundle balance?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Xtrabyte"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4409500057362",
+    "date": "2021-11-08",
+    "label": "MTN help centre, What is Xtratime or Xtrabyte",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Xtrabyte"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4402333468050",
+    "date": "2025-11-11",
+    "label": "MTN help centre, XtraTime",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "AFA bundle",
+     "Association bundle",
+     "Pulse"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/32234628177298",
+    "date": "2026-01-01",
+    "label": "MTN help centre, TARIFF REVIEW- VAT JANUARY 2026",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "AFA bundle"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/9925642647186",
+    "date": "2023-02-03",
+    "label": "MTN help centre, What are the bundle packages for AFA Bundle?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "AFA bundle"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/9925621750802",
+    "date": "2023-02-03",
+    "label": "MTN help centre, Who qualifies to purchase the AFA Bundle?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "AFA bundle"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/9925758451986",
+    "date": "2023-05-08",
+    "label": "MTN help centre, How can I purchase an AFA Bundle?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "AFA bundle"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/9925643807122",
+    "date": "2023-02-03",
+    "label": "MTN help centre, Does the AFA bundle expire?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Association bundle"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/13972670672018",
+    "date": "2023-11-24",
+    "label": "MTN help centre, What packages are available for Association bundle members?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Association bundle"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/13972741263250",
+    "date": "2023-11-27",
+    "label": "MTN help centre, Does Association bundle expire and how do I qualify for CUG?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Association bundle"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/13972127109010",
+    "date": "2023-11-24",
+    "label": "MTN help centre, What is Association bundle?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Association bundle"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/13972351541778",
+    "date": "2023-11-24",
+    "label": "MTN help centre, What are the requirements for Association bundle service?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Association bundle"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/13972695671698",
+    "date": "2023-11-24",
+    "label": "MTN help centre, How can members purchase a bundle?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Adwumapa"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/27275508679314",
+    "date": "2025-06-09",
+    "label": "MTN help centre, What Are the Adwumapa Bundle Packages and Validity Periods?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Regular data (any amount)"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4402325134354",
+    "date": "2025-10-14",
+    "label": "MTN help centre, What is the highest amount of data I can buy? (out of date, not used)",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "All MTN data bundles"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/5055920171154",
+    "date": "2026-07-06",
+    "label": "MTN help centre, How do I stop the data bundle auto renewal?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "All MTN data bundles"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4409539682450",
+    "date": "2022-03-01",
+    "label": "MTN help centre, How do I purchase data bundle?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Adwumapa"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/27275427363858",
+    "date": "2025-06-12",
+    "label": "MTN help centre, Who can subscribe for Adwumapa bundle?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Adwumapa"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/27285471574418",
+    "date": "2025-06-12",
+    "label": "MTN help centre, What is Adwumapa bundle",
+    "dateLabel": "last edited"
+   }
+  ],
+  "validityNote": "The myMTN app lists regular (buy any amount) data under 'Low Cost Non Expiry Bundles': it stays until you use it.",
+  "balanceSource": "https://help-center.mtn.com.gh/hc/en-us/articles/4409556222610",
+  "midnightSource": "https://help-center.mtn.com.gh/hc/en-us/articles/4405299927058",
+  "midnightWindow": "12 AM–5 AM",
+  "validitySource": "myMTN app, Data Bundles: 'Low Cost Non Expiry Bundles' (screenshot, 17 Oct 2026)",
+  "outOfBundlePerMb": 0.1145,
+  "midnightOtherSource": {
+   "url": "https://mtn.com.gh/wp-content/uploads/2024/03/Kokrokoo-TnCs.pdf",
+   "says": "The bundle can be purchased anytime during the day. However, the bundle can only be used from day 5am -8am. Same principle as the Midnight Bundles. The validity of the bundle is from 5am to 8am - 3 hours validity similar to Midnight bundles. Any unused data is lost after 8am.",
+   "label": "MTN Kokrokoo terms and conditions (PDF)",
+   "summary": "MTN's help centre says the Midnight bundle 'falls under the non expiry bundle category hence it does not expire' (last edited 28 Jul 2026). MTN's Kokrokoo terms (PDF dated 22 Mar 2024) describe Kokrokoo's '3 hours validity similar to Midnight bundles' and say 'Any unused data is lost after 8am', treating Midnight the same way. Because MTN's own sources disagree, Midnight data is not counted as never-expiring here.",
+   "updated": "2024-03-22",
+   "contradicts": "validity"
+  },
+  "outdatedHelpArticle": {
+   "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4402325134354",
+   "note": "MTN's help article 'What is the highest amount of data I can buy?' (last edited 14 Oct 2025, before MTN's January 2026 tariff review) still says GH¢399 gives 214.53GB of non-expiry data. MTN's tariff page rate and the myMTN app now give 217.34 GB, so that article is out of date and is not used as a source."
+  },
+  "midnightNoCapsSource": "https://help-center.mtn.com.gh/hc/en-us/articles/19498110415122",
+  "midnightNoExpirySource": "https://help-center.mtn.com.gh/hc/en-us/articles/4405300046994"
+ },
+ "networks": {
+  "at": {
+   "ink": "#ffffff",
+   "name": "AT",
+   "color": "#0057B8",
+   "source": "https://www.at.com.gh/bigtime-data",
+   "mbPerGb": 1024
+  },
+  "mtn": {
+   "ink": "#1a1a1a",
+   "name": "MTN",
+   "color": "#FFCC00",
+   "source": "https://mtn.com.gh/personal-home/tariffs/",
+   "mbPerGb": 1024
+  },
+  "telecel": {
+   "ink": "#ffffff",
+   "name": "Telecel",
+   "color": "#E60000",
+   "source": "https://telecel.com.gh/personal/mobile/offers/bundles/",
+   "mbPerGb": 1024
+  }
+ },
+ "capturedAt": "2026-10-21T23:49:54Z",
+ "familyInfo": {
+  "at": {
+   "Sika Kokoo": "Up to 15 days. Buy another Sika Kokoo bundle within 24 hours of expiry and your leftover data rolls over. Dial *111*4#, option 1.",
+   "BigTime Data": "Never expires, and you can gift it to friends. Dial *111*1#.",
+   "Morning Rush": "Early-morning data for 4 AM to 7 AM, valid for 24 hours from activation (AT's FAQ). Dial *111*4# and select Morning Rush. AT's newest page for it was last updated on 6 Jul 2023, so it may no longer be on sale.",
+   "Night Bundle": "Internet plus AT-to-AT calls, 12 AM to 4 AM only. AT calls it unlimited but lists a data amount. Dial *111#, option 4, Night Packs; AT's Data Bundles page also gives *111*4#. AT's FAQ describes these bundles differently; its version is shown under each bundle.",
+   "Premier Packs": "Minutes or bonus airtime plus data, from AT's FAQ \"AT Premier Packs\". Minutes are for calls to AT and other networks; the GH¢351 and GH¢499 packs give bonus airtime that also covers calls to the USA and Canada. Buy on *703# or *111*7*2#, or in the AT app. AT's only source for them is that FAQ entry, last updated on 6 Feb 2024, so they are shown as unconfirmed and not ranked.",
+   "Sunday Bundle": "Unlimited AT-to-AT calls plus free Facebook and WhatsApp, 6 AM to 6 PM on Sundays only. Dial *111*4*6#. AT states no data amount, so it is not ranked.",
+   "Family Pack (XXL)": "30 days, shared with up to 3 family members. Buy another within 7 days of expiry and leftover data rolls over. Dial *111#, option 4; AT's Data Bundles page also gives *111*4#.",
+   "Fuse Voice & Data": "Minutes for calls to all networks plus data, and it does not expire. Dial *111*2#; AT also lists *110#, *567# and the AT App.",
+   "Unlimited Daily Data": "Unlimited data for 24 hours; the GH¢30 option adds unlimited calls to all networks. Dial *111*3*1#. Airtime only, and it cannot be gifted or shared. AT publishes no fair-usage limit, so it cannot be priced per GB and is not ranked."
+  },
+  "mtn": {
+   "Jara": "Small packs of minutes, SMS and a little data for Monday to Saturday, only for prepaid customers in the regions MTN's Jara terms list: Volta, Oti, Upper East, Upper West, Bono, Bono East, Ahafo, Northern, North East and Savannah. A daily subscription that renews automatically until you stop it (send STOP to 550). Subscribe on *550#.",
+   "Pulse": "MTN's youth plan. MTN aims Pulse at young customers: its Pulse page calls it 'a proposition designed to meet the communication needs of the youth in Ghana', and MTN Offers (help centre, last edited 11 Nov 2025) describes 'voice + data combo offers for young, active customers'. No MTN source says who may or may not buy it. It does not expire: MTN's Pulse terms say 'No expiry for all purchased mashups' and its help centre says 'Pulse bundles do not expire' (last edited 17 Jul 2023). To buy, dial *567# or use the myMTN app (Shop, then Mash Up): MTN's help centre gives both (last edited 17 Jul 2024), and dialling *567# opened MTN Pulse in a live test on 18 Oct 2026. Use the calculator for any amount.",
+   "Just4U": "Personalised 'App Exclusive Offers' in the myMTN app ('Exclusive bundles tailored to your needs'); MTN's Just4U page says the offers 'vary from subscriber to subscriber' and gives *141# or the myMTN app. They expire and differ from customer to customer, so they are not compared here. Example offers seen in one customer's app on 17 Oct 2026; yours may differ: GH¢2.50 for 500MB (1 day), GH¢4 for 800MB (3 days), GH¢7 for 1.17GB (7 days), GH¢9 for 1.46GB (15 days).",
+   "Adwumapa": "MTN's bundles for women in business on prepaid SIMs registered as female: data, social-media data, calls and doctor-on-call support, in weekly (7 days) and monthly (30 days) packs named Boafo, Adepa and Ahotor. MTN's help centre (last edited 9 Jun 2025) publishes no prices or data amounts for them, so none are listed or compared here. Dial *5060#.",
+   "Kokrokoo": "Morning-only data, usable 5 AM to 8 AM daily (MTN's help centre, last edited 6 Jul 2026). MTN's help centre says it does not expire (last edited 6 Jul 2026), but MTN's Kokrokoo terms say 'Any unused data is lost after 8am', so it is not counted as never-expiring here. Dial *138#, then 3.",
+   "Midnight": "Very cheap data for 12 AM to 5 AM every day. MTN's help centre says it does not expire (last edited 28 Jul 2026) and that there are 'no limits on internet activity or access to Apps' (last edited 21 Jun 2024), but MTN's Kokrokoo terms say Kokrokoo works on the 'Same principle as the Midnight Bundles' and that its unused data 'is lost after 8am'. Because MTN's own sources disagree, it is not counted as never-expiring here.",
+   "Xtrabyte": "Borrowed data, not a bundle you buy: MTN's help centre says Xtrabyte lets you 'borrow airtime or data and pay later at 10% commission'. Dial *506#, option 4 'Request a data advance'. MTN's tariff page lists each advance with its 10% service fee. It is not compared with bundles or ranked here.",
+   "Data Zone": "Personalised 1-day bundles, only offered if you already have an active bundle in the right price range. Not everyone can buy them. MTN's help centre says dial *135#, then option 2 for Data Zone Bundles (last edited 18 Jun 2022).",
+   "AFA bundle": "MTN's bundle for farmers, run with Prepeez Limited: GH¢6 for 30 days, with or without 150 MB of data, plus minutes and SMS. Only farmers registered with Prepeez Limited can buy it. MTN's help centre on how long it lasts: 'It has a duration period of 30 days' (last edited 3 Feb 2023). Dial *1848#.",
+   "Video bundles": "Data that works only on IrokoTV, DSTV and YouTube. These are the fixed amounts in the myMTN app's Video Bundles section. MTN does not state a validity. Any other amount: see the Video calculator (one flat rate per MB).",
+   "Social bundles": "Data that works only on WhatsApp, Snapchat, Facebook, Instagram, Twitter, WeChat and TikTok. These are the fixed amounts in the myMTN app's Social Bundles section. MTN does not state a validity. MTN's help centre (last edited 12 Aug 2024): 'Yes, you can purchase Social Bundle only via MyMTN App or *138#'. In the MyMTN app: 'Select Shop', 'Select Data', 'Select Social Bundle to purchase'. On USSD: 'Dial *138#', 'Proceed to buy bundle (No 4G bonus)', 'Select option 99 for More', 'Select option 4 for Social Bundle', 'Select option 1 to Buy for self', 'Follow service prompts to choose preferred bundle'. Menus can change. Any other amount: see the Social calculator (one flat rate per MB).",
+   "Sunday Special": "Small packs of minutes, SMS and a little data that work on Sundays only (MTN Offers, help centre, last edited 11 Nov 2025: 'special voice or data deals available every Sunday only'). MTN's terms say 'Promo is open to only prepaid customers' and name no region. A weekly subscription that renews automatically until you stop it (MTN's terms: 'Weekly auto subscription applies'). Subscribe on *550#. MTN's Sunday Special page (last modified 8 Oct 2026) says 'just 65 Pesewas … inclusive Calls, Data, and SMS' and names no pack, so 65 Pesewas is not used as a price here. The introduction to MTN's Sunday Special terms (PDF dated 22 Mar 2024) says 'For only 76 Pesewas': that is the terms' Option 1 ('Cost of offer subscription is Ghc0.76': 20 minutes and 10 SMS, no data), which MTN's tariff page lists as 'Sunday Special – 20mins, 10SMS ( all net)' at 0.750. With no data it is not listed here.",
+   "Association bundle": "Voice, SMS and data packs for members of professional and gazetted associations that MTN has registered. MTN's help centre (last edited 24 Nov 2023) calls it 'an exclusive service offer designed for members of professional and gazetted associations in Ghana' that lets them 'purchase combo bundles (including Voice, SMS, and Data) at discounted prices', with calls inside the group (Closed User Group, CUG) while a bundle is active. To register, an association's administrator needs 'a member list, administrator ID, association documents (certificates), and a request letter'. MTN: 'Association bundle expires after 30 days'. To buy: 'Dial *5060#', then 'Select Option 2 for Association Bundles'.",
+   "Regular data (any amount)": "Spend any amount. The rate per MB depends on how much you spend, and it does not always fall as you spend more: some amounts buy less data than a smaller amount, so check the calculator before you pay. GH¢3, GH¢10 and GH¢399 get special rates. It does not expire: the myMTN app lists it under 'Low Cost Non Expiry Bundles'."
+  },
+  "telecel": {
+   "Daily": "1 to 5 days.",
+   "Hourly": "A big burst of data that must be used within 1 hour.",
+   "Weekly": "5 to 15 days.",
+   "Monthly": "30 days.",
+   "Boss Plan": "All-in-one packs: data, extra social data, calls to all networks and SMS. Telecel's bundles page says no expiry and 1,000 bulk SMS; its Boss Plan page says 30 days, one monthly fee and 500 SMS. Check with Telecel before you buy.",
+   "Night King": "Does not expire, but only usable from 12 AM to 5 AM. Telecel's terms label it 'No Expiry (12am – 5am)'.",
+   "Special offer": "1-day deals. Telecel's terms say: \"*These offers are only available on *110# and Telecel Play App\".",
+   "2Moorch No Expiry": "Data that never expires until you use it.",
+   "Voice & Data Combo": "Calls, SMS and data together. On-net minutes are for Telecel numbers only; all-net minutes work on any Ghana network."
+  }
+ },
+ "networkFacts": {
+  "at": "BigTime and Sika Kokoo give the same data whether you pay from airtime or AT Money. With no bundle, AT charges 18.0p per MB (pay-as-you-go). AT Data Kredit (*554#) lends you data, from 25 MB for GH¢0.50 to 550 MB for GH¢5; AT adds a 20% service fee and takes the total from your next top-up. It is borrowed, not bought, so it is not compared here.",
+  "mtn": "With no bundle, MTN charges GH¢0.1145 per MB, about GH¢117.25 per GB (1 GB = 1,024 MB). Always buy a bundle first. MTN Xtrabyte (*506#, option 4) lends you data that you pay for later with a 10% commission; it is borrowed, not bought, so it is not compared here.",
+  "telecel": "Confirm on telecel.com.gh or in the Telecel app before buying. When your data runs out, browsing stops unless you allow pay-as-you-go at 11.5p per MB (switch it on or off on *700#)."
+ },
+ "telecelRates": {
+  "flexi": {
+   "note": "Type any amount from GH¢0.02 to GH¢999.99 and choose no-expiry or expiry data. Dial *700# or *110#, or use the Telecel Play app. Flexi bundles do not auto-renew.",
+   "bands": [
+    {
+     "to": 0.99,
+     "from": 0.02,
+     "expiry": {
+      "days": 1,
+      "ghsPerMb": 0.0179
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.0224
+     }
+    },
+    {
+     "to": 1.99,
+     "from": 1,
+     "expiry": {
+      "days": 1,
+      "ghsPerMb": 0.0179
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.0199
+     }
+    },
+    {
+     "to": 2.99,
+     "from": 2,
+     "expiry": {
+      "days": 1,
+      "ghsPerMb": 0.015
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.0179
+     }
+    },
+    {
+     "to": 4.99,
+     "from": 3,
+     "expiry": {
+      "days": 1,
+      "ghsPerMb": 0.0067
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.0077
+     }
+    },
+    {
+     "to": 9.99,
+     "from": 5,
+     "expiry": {
+      "days": 7,
+      "ghsPerMb": 0.0064
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.009
+     }
+    },
+    {
+     "to": 19.99,
+     "from": 10,
+     "expiry": {
+      "days": 7,
+      "ghsPerMb": 0.0088
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.0112
+     }
+    },
+    {
+     "to": 49.99,
+     "from": 20,
+     "expiry": {
+      "days": 30,
+      "ghsPerMb": 0.008
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.0117
+     }
+    },
+    {
+     "to": 99.99,
+     "from": 50,
+     "expiry": {
+      "days": 30,
+      "ghsPerMb": 0.008
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.011
+     }
+    },
+    {
+     "to": 199.99,
+     "from": 100,
+     "expiry": {
+      "days": 30,
+      "ghsPerMb": 0.0076
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.0097
+     }
+    },
+    {
+     "to": 299.99,
+     "from": 200,
+     "expiry": {
+      "days": 30,
+      "ghsPerMb": 0.005
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.0058
+     }
+    },
+    {
+     "to": 349.99,
+     "from": 300,
+     "expiry": {
+      "days": 30,
+      "ghsPerMb": 0.0026
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.0029
+     }
+    },
+    {
+     "to": 399.99,
+     "from": 350,
+     "expiry": {
+      "days": 30,
+      "ghsPerMb": 0.0025
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.0027
+     }
+    },
+    {
+     "to": 599.99,
+     "from": 400,
+     "expiry": {
+      "days": 30,
+      "ghsPerMb": 0.0015
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.0015
+     }
+    },
+    {
+     "to": 799.99,
+     "from": 600,
+     "expiry": {
+      "days": 30,
+      "ghsPerMb": 0.0015
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.0015
+     }
+    },
+    {
+     "to": 999.99,
+     "from": 800,
+     "expiry": {
+      "days": 30,
+      "ghsPerMb": 0.0015
+     },
+     "noExpiry": {
+      "ghsPerMb": 0.0015
+     }
+    }
+   ],
+   "range": [
+    0.02,
+    999.99
+   ],
+   "buyVia": [
+    "*700#",
+    "*110#",
+    "Telecel Play app"
+   ],
+   "autoRenews": false
+  },
+  "rules": {
+   "graceDays": {
+    "daily": 1,
+    "weekly": 3,
+    "monthly": 7
+   },
+   "expiryRollover": "All expiry bundles roll over when same bundle is purchased before expiry while different bundles co-exist and usage priority given to bundle with earliest expiry.",
+   "autoRenewChoice": "Customer can choose to auto-renew either no-expiry or expiry data bundles.",
+   "expiryAutoRenew": "Expiry bundles auto-renew at the end date of bundle expiry once customer has sufficient airtime balance. However, there is extended period after bundle expiry which allows customer to top up for bundle to auto-renew. Daily, Weekly and Monthly bundles have 1 day, 3 days and 7 days extended period respectively.",
+   "noExpiryAutoRenewAtPercent": 90
+  },
+  "scope": "Telecel's terms say these offers are for all consumer mobile prepaid subscribers.",
+  "source": "https://telecel.com.gh/support/telecel-business/data-bundle-offers-ts-cs",
+  "channels": {
+   "note": "Telecel's data terms: 'There are multiple channels through which you can subscribe to these bundles': USSD, My Telecel Play App and third-party channels.",
+   "text": "Dial *700# or *110#, or use the My Telecel Play App (Telecel's data terms).",
+   "codes": [
+    "*700#",
+    "*110#"
+   ],
+   "families": [
+    "2Moorch No Expiry",
+    "Daily",
+    "Hourly",
+    "Monthly",
+    "Night King",
+    "Weekly"
+   ]
+  },
+  "balanceCheck": {
+   "says": "Subscribers on this offer can check their balance using any of the short codes below. *124#: this shows primary balance together with bundle allocations. *126#: this only shows the balance on bundle allocations.",
+   "codes": [
+    "*124#",
+    "*126#"
+   ],
+   "shows": [
+    "shows primary balance together with bundle allocations",
+    "only shows the balance on bundle allocations"
+   ],
+   "source": "https://telecel.com.gh/support/telecel-business/data-bundle-offers-ts-cs"
+  },
+  "specialOffers": {
+   "note": "Telecel's terms print this under the Special Offer table (GH¢2.50, GH¢3.50 and GH¢4.50 bundles).",
+   "text": "*These offers are only available on *110# and Telecel Play App",
+   "codes": [
+    "*110#"
+   ]
+  },
+  "termsUpdatedAt": "2026-06-04",
+  "outOfBundleNote": "When all your data is used up, browsing is blocked unless you have allowed pay-as-you-go browsing, charged at 11.5p per MB. Switch it on or off on *700#.",
+  "outOfBundlePerMb": 0.115
+ },
+ "verification": "Checked automatically on 21 Oct 2026 at 23:49 UTC. The checker downloaded, over plain HTTPS and without a browser, the operators' own published sources: MTN's tariff page (mtn.com.gh); the feed behind Telecel's bundles page and the feed behind its data bundle terms page (telecel.com.gh); and AT's site feed (web.airteltigo.com.gh), which holds AT's BigTime, Sika Kokoo, Night, Family Pack, Fuse, top-up, Sunday Bundle, Morning Rush and Data Kredit pages and its FAQ entries for Night, Unlimited Daily Data, Morning Rush, Sunday and Premier Packs bundles, plus the feed behind the cards on AT's Data Bundles page (for the USSD codes printed there). AT's static copy of its site data (page.json) was also downloaded and its four data tables agreed. It compared every price, volume, validity, rate and code found there with this dataset, and AT's Night Bundle page with AT's FAQ answer for the same bundle. GB figures are worked out at 1,024 MB per GB for every network. Not re-checked by this run: what the myMTN app showed (screenshots, 17 Oct 2026: the non-expiry label for regular data, the Social and Video amounts, the Kokrokoo volume and the Just4U examples; the Social and Video volumes are recomputed from MTN's tariff rates), MTN's help centre (help-center.mtn.com.gh: Midnight, Kokrokoo and Pulse validity, Pulse buying codes, minimum and older volumes, Sunday Special and Jara restrictions, Data Zone help-centre prices, Xtrabyte borrowing, how to stop auto-renewal, and the AFA, Association and Adwumapa bundles), MTN's Pulse, Jara, Sunday Special and Just4U pages, and MTN's terms-and-conditions PDFs for Kokrokoo, Pulse, Jara and Sunday Special, and how Telecel says to buy its Voice & Data Combo and Boss Plan bundles (its bundles page's purchase form and its Boss Plan page). The dates the site gives for MTN's help-centre answers are their last-edit dates, recorded on 18 Oct 2026.",
+ "retiredBundles": [
+  {
+   "name": "1.45GB Special",
+   "network": "telecel"
+  },
+  {
+   "name": "501.4MB Special",
+   "network": "telecel"
+  },
+  {
+   "name": "891.4MB Special",
+   "network": "telecel"
+  }
+ ],
+ "walletPayments": {
+  "mtn": {
+   "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4409539682450",
+   "says": "Launch MyMTN app Select Buy/Send Select Data Select preferred data bundle Select MoMo/Airtime as payment option",
+   "text": "Yes, in the MyMTN app: Buy/Send, then Data, pick a bundle, then pay with MoMo.",
+   "label": "MTN help centre, How do I purchase data bundle?",
+   "updated": "2022-03-01"
+  },
+  "telecel": {
+   "url": "https://telecel.com.gh/support/telecel-cash/telecel-cash-services-ts-cs",
+   "says": "The purchase of Telecel Pre-paid Airtime or Data Bundle for yourself or a third party by sending a Transfer Instruction to Telecel Cash for the corresponding amount of E-Money to be sent to Telecel Ghana as the Designated Payee.",
+   "text": "Yes, Telecel Cash can pay for data bundles, for you or for someone else.",
+   "label": "Telecel Cash Services T's & C's",
+   "updated": "2026-06-05"
+  }
+ },
+ "retiredFamilies": [
+  {
+   "family": "Voice + data special",
+   "network": "mtn"
+  },
+  {
+   "family": "Special offer",
+   "network": "telecel"
+  }
+ ]
+}

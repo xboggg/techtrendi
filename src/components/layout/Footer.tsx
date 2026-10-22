@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useRef } from "react";
+import { dataBundlesLink } from "@/data/dataBundlesRoute";
 
 // Custom social icons as SVG components
 const FacebookIcon = ({ className }: { className?: string }) => (
@@ -52,6 +53,8 @@ const footerLinks = {
     { label: "TechTrendi News", href: "/news" },
     { label: "TechTrendi Blog", href: "/blog" },
     { label: "TechTrendi Tools", href: "/tools" },
+    // Ghana data bundles, only once launched (src/data/dataBundlesRoute.ts).
+    ...(() => { const db = dataBundlesLink(); return db ? [{ label: db.footerLabel, href: db.href }] : []; })(),
     { label: "TechTrendi DigiStore", href: "/store" },
     { label: "Reading List", href: "/reading-list" },
   ],
@@ -190,7 +193,7 @@ export function Footer() {
               <Link to="/" className="inline-flex items-center gap-2 mb-2.5 group">
                 <img
                   src="/logo-t.png"
-                  alt="TechTrendi"
+                  alt=""
                   className="h-9 w-auto transition-transform duration-300 group-hover:scale-110"
                 />
                 <span className="text-xl font-bold leading-none">
@@ -242,10 +245,10 @@ export function Footer() {
 
             {/* Explore */}
             <div>
-              <h4 className="footer-head">
+              <h2 className="footer-head">
                 <span className="footer-head-bar bg-gradient-to-r from-blue-500 to-purple-500" />
                 EXPLORE
-              </h4>
+              </h2>
               <ul className="space-y-2.5">
                 {footerLinks.explore.map((link) => (
                   <li key={link.label}>
@@ -260,10 +263,10 @@ export function Footer() {
 
             {/* Topics */}
             <div>
-              <h4 className="footer-head">
+              <h2 className="footer-head">
                 <span className="footer-head-bar bg-gradient-to-r from-purple-500 to-pink-500" />
                 TOPICS
-              </h4>
+              </h2>
               <ul className="space-y-2.5">
                 {footerLinks.topics.map((link) => (
                   <li key={link.label}>
@@ -278,10 +281,10 @@ export function Footer() {
 
             {/* Company */}
             <div>
-              <h4 className="footer-head">
+              <h2 className="footer-head">
                 <span className="footer-head-bar bg-gradient-to-r from-pink-500 to-orange-500" />
                 COMPANY
-              </h4>
+              </h2>
               <ul className="space-y-2.5">
                 {footerLinks.company.map((link) => (
                   <li key={link.label}>

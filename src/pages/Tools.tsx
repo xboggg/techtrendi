@@ -7,6 +7,7 @@ import {
   ArrowRight, Crown, Star,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { dataBundlesLink } from "@/data/dataBundlesRoute";
 
 interface ToolCategoryCard {
   id: string;
@@ -159,6 +160,21 @@ export default function Tools() {
       </PageHero>
 
       <div className="container pt-16 md:pt-20 pb-20">
+        {/* New: Ghana data bundles (only once launched). */}
+        {(() => {
+          const db = dataBundlesLink();
+          return db ? (
+            <Link to={db.href} data-testid="tools-data-bundles" className="mb-12 flex min-h-11 items-center justify-between gap-4 rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary">
+              <span>
+                <span className="block text-xs font-bold uppercase tracking-wide text-primary">New</span>
+                <span className="block text-lg font-bold text-foreground">{db.title}</span>
+                <span className="block text-sm text-muted-foreground">{db.description}</span>
+              </span>
+              <span aria-hidden className="text-2xl text-primary">→</span>
+            </Link>
+          ) : null;
+        })()}
+
         {/* Section Title */}
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">

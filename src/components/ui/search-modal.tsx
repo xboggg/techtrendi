@@ -339,6 +339,7 @@ export function SearchButton({ className, isOverHero = false }: { className?: st
       >
         <Search className={cn("w-4 h-4", isOverHero ? "text-white/70" : "text-gray-600 dark:text-white/70")} />
         <span className="hidden sm:inline">Search...</span>
+        <span className="sr-only sm:hidden">Search</span>
         <kbd className={cn(
           "hidden md:inline-flex px-1.5 py-0.5 text-xs rounded border font-medium",
           isOverHero

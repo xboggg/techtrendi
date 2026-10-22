@@ -15,8 +15,9 @@ const SITE = "https://techtrendi.com";
 const DIST = "dist";
 
 // Pages that exist as .html but should NOT be advertised to crawlers.
-const EXCLUDE_EXACT = new Set(["404", "200", "offline", "design-demo", "reading-list", "tools-preview", "rundown-preview"]);
-const EXCLUDE_PREFIX = ["admin", "auth", "profile", "dashboard", "arcade"];
+// "data-bundles": the bare address is a 301 to /data-bundles/ghana, never a page of its own.
+const EXCLUDE_EXACT = new Set(["404", "200", "offline", "design-demo", "reading-list", "tools-preview", "rundown-preview", "data-bundles"]);
+const EXCLUDE_PREFIX = ["admin", "auth", "profile", "dashboard", "arcade", "tools-preview"];
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
@@ -43,6 +44,8 @@ function meta(path) {
   if (path.startsWith("news/")) return { priority: "0.7", freq: "weekly" };
   if (path.startsWith("blog/")) return { priority: "0.7", freq: "monthly" };
   if (path.startsWith("tools/")) return { priority: "0.6", freq: "monthly" };
+  // Ghana data bundles: prices re-checked every 3 hours (launch L4).
+  if (path === "data-bundles" || path.startsWith("data-bundles/")) return { priority: "0.8", freq: "daily" };
   // section landing pages
   if (["blog", "news", "tools", "security", "store", "guides"].includes(path))
     return { priority: "0.8", freq: "weekly" };

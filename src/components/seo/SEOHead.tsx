@@ -17,6 +17,8 @@ interface SEOHeadProps {
   type?: 'website' | 'article' | 'product';
   noindex?: boolean;
   keywords?: string[];
+  /** Use `keywords` as given, without the site's default words (data bundle pages). */
+  keywordsOnly?: boolean;
   author?: string;
   publishedTime?: string;
   modifiedTime?: string;
@@ -29,6 +31,10 @@ interface SEOHeadProps {
   faqs?: { question: string; answer: string }[];
   /** Breadcrumb trail (label + path); emitted as BreadcrumbList. */
   breadcrumbs?: { name: string; path: string }[];
+  /** A ranked list that appears VISIBLY on the page; emitted as ItemList. */
+  itemList?: { name: string; items: string[] };
+  /** Emit a WebPage (name, description, url) for this page (data bundle network pages). */
+  webPage?: boolean;
 }
 
 const SITE_NAME = 'TechTrendi';
@@ -46,6 +52,7 @@ export function SEOHead({
   type = 'website',
   noindex = false,
   keywords = [],
+  keywordsOnly = false,
   author = 'TechTrendi Team',
   publishedTime,
   modifiedTime,
@@ -55,6 +62,8 @@ export function SEOHead({
   alternateLocales = [],
   faqs = [],
   breadcrumbs = [],
+  itemList,
+  webPage = false,
 }: SEOHeadProps) {
   // Some pages pass a title that already ends in "| TechTrendi"; strip it so we
   // never emit "... | TechTrendi | TechTrendi".
@@ -65,7 +74,7 @@ export function SEOHead({
     ? (canonicalPath.startsWith('http') ? canonicalPath : `${SITE_URL}${canonicalPath.startsWith('/') ? canonicalPath : `/${canonicalPath}`}`)
     : SITE_URL;
   const imageUrl = image ? (image.startsWith('http') ? image : `${SITE_URL}${image}`) : `${SITE_URL}${DEFAULT_IMAGE}`;
-  const allKeywords = [...new Set([...keywords, ...tags, 'tech', 'technology', 'guide', 'review'])].join(', ');
+  const allKeywords = keywordsOnly ? keywords.join(', ') : [...new Set([...keywords, ...tags, 'tech', 'technology', 'guide', 'review'])].join(', ');
 
   // Tool pages get SoftwareApplication structured data (free web utility).
   const { pathname } = useLocation();
@@ -124,6 +133,23 @@ export function SEOHead({
           acceptedAnswer: { '@type': 'Answer', text: f.answer },
         })),
       }
+    : null;
+
+  // ItemList — only when the page passes one that it shows (data bundle winners).
+  const itemListSchema = itemList && itemList.items.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: itemList.name,
+        numberOfItems: itemList.items.length,
+        itemListElement: itemList.items.map((name, i) => ({ '@type': 'ListItem', position: i + 1, name })),
+      }
+    : null;
+
+  // WebPage — only when asked (data bundle network pages), with this page's own title and URL.
+  const webPageSchema = webPage
+    ? { '@context': 'https://schema.org', '@type': 'WebPage', name: baseTitle, description, url: fullUrl, inLanguage: 'en',
+        isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: SITE_URL } }
     : null;
 
   // BreadcrumbList — matches the visible breadcrumb trail on article pages.
@@ -191,7 +217,7 @@ export function SEOHead({
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={imageUrl} />
-      <meta name="twitter:image:alt" content={title} />
+      <meta name="twitter:image:alt" content={imageAlt || title} />
       <meta name="twitter:site" content={TWITTER_HANDLE} />
       <meta name="twitter:creator" content={TWITTER_HANDLE} />
 
@@ -211,6 +237,10 @@ export function SEOHead({
       <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
       <link rel="dns-prefetch" href="https://www.google-analytics.com" />
 
+      {itemListSchema && (
+        <script type="application/ld+json">{JSON.stringify(itemListSchema)}</script>
+      )}
+
       {/* Tool pages: SoftwareApplication structured data */}
       {toolSchema && (
         <script type="application/ld+json">{JSON.stringify(toolSchema)}</script>
@@ -229,6 +259,11 @@ export function SEOHead({
       {/* Breadcrumb trail structured data */}
       {breadcrumbSchema && (
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
+      )}
+
+      {/* WebPage structured data (data bundle network pages) */}
+      {webPageSchema && (
+        <script type="application/ld+json">{JSON.stringify(webPageSchema)}</script>
       )}
     </Head>
   );
