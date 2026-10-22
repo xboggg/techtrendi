@@ -231,9 +231,14 @@ export function MonthlyPlanner({ model }: { model: BundleModel }) {
                     <ul className="mt-3 space-y-1.5 text-sm">
                       {p.items.map((it) => (
                         <li key={`${it.bundle.name}-${it.bundle.price}-${it.bundle.validity}`}>
-                          <div className="flex justify-between gap-2">
-                            <span><span className="font-bold">{it.count} ×</span> {model.nameNoPrice(it.bundle)} <span className="text-muted-foreground">({model.fmtData(it.bundle.mb, n)}, {model.validityText(it.bundle)})</span></span>
-                            <span className="shrink-0 tabular-nums text-muted-foreground">{model.money(it.bundle.price)}</span>
+                          {/* The name on one line, "12.80 GB · 30 days" under it, and the price in its own
+                              top-aligned column: the text never wraps around the price. */}
+                          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3" data-testid="plan-item">
+                            <div className="min-w-0">
+                              <p className="font-semibold"><span className="font-bold tabular-nums">{it.count} ×</span> {model.nameNoPrice(it.bundle)}</p>
+                              <p className="text-[15px] text-foreground/85 lg:text-base" data-testid="plan-item-detail">{model.fmtData(it.bundle.mb, n)} · {model.validityText(it.bundle)}</p>
+                            </div>
+                            <p className="whitespace-nowrap text-right font-bold tabular-nums" data-testid="plan-item-price">{model.money(it.bundle.price)}</p>
                           </div>
                           {/* How to buy each purchase, short (the full line is in details): on the cheapest card only; the others fold it below. */}
                           {isBest && model.buyShort(it.bundle) && <div className="mt-1"><BuyLine text={model.buyShort(it.bundle)!} testId="plan-buy" /></div>}

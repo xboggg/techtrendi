@@ -4,7 +4,7 @@
 // a night-only amount is never weighed against an all-day amount.
 import { useEffect, useId, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { clearQueryKeys, parseState, writeState } from "@/lib/dataBundlesUrl";
+import { DEFAULT_STATE, clearQueryKeys, parseState, writeState } from "@/lib/dataBundlesUrl";
 import { ShareLink, ShareWhatsApp } from "./meta";
 import { motion } from "framer-motion";
 import { Trophy, Moon, Infinity as InfinityIcon, Gauge as GaugeIcon, Minus, Plus } from "lucide-react";
@@ -35,8 +35,9 @@ const leaders = (model: BundleModel, picks: Pick[]): Set<string> => model.mostDa
 /** `only`: a network's own page. The same finder, for that network alone: no meter and no
  *  "Most data" badge (one network has nothing to compare against; the card is the answer),
  *  the share text names the network, and the "smallest buy" hint is that network's. */
-export function BudgetFinder({ model, only }: { model: BundleModel; only?: string }) {
-  const [budget, setBudget] = useState(20);
+export function BudgetFinder({ model, only, initialAmount = DEFAULT_STATE.amount }: { model: BundleModel; only?: string; /** The amount before the URL is read (server HTML, tests). Default GH¢5. */ initialAmount?: number }) {
+  // The starting amount (DEFAULT_STATE.amount, GH¢5) also in the server HTML, before the URL is read.
+  const [budget, setBudget] = useState(initialAmount);
   const [allowNight, setAllowNight] = useState(false);
   const [noExpiryOnly, setNoExpiryOnly] = useState(false);
   const [minDays, setMinDays] = useState(0);
@@ -182,7 +183,7 @@ export function BudgetFinder({ model, only }: { model: BundleModel; only?: strin
           {!noAmount && <h3 className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground [@media(max-height:820px)_and_(max-width:639px)]:mt-2.5 sm:mt-5" data-testid="bf-result-title">{only ? `Best for ${model.money(budget)} on ${model.networkInfo(only).name}` : <>Most data for {model.money(budget)}</>}</h3>}
           {noAmount || noneFit ? (
             <p className="mt-2 rounded-2xl border border-border bg-background/40 p-4 text-base font-semibold" role="status" data-testid="bf-hint">
-              {noAmount ? `Type an amount, like ${model.money(20)}.` : `Nothing for ${model.money(budget)}.${minimum ? ` The smallest buy is ${model.money(minimum)}.` : ""}`}
+              {noAmount ? `Type an amount, like ${model.money(DEFAULT_STATE.amount)}.` : `Nothing for ${model.money(budget)}.${minimum ? ` The smallest buy is ${model.money(minimum)}.` : ""}`}
             </p>
           ) : (
           <ul className={cn("mt-2 grid gap-3 [@media(max-height:820px)_and_(max-width:639px)]:mt-1.5", only ? "lg:max-w-2xl" : "md:grid-cols-3")} aria-live="polite">

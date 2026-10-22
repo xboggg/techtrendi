@@ -10,7 +10,8 @@
 // data_bundles/og_summary.mjs in the tech-news repo): `node og_summary.mjs < document.json`.
 import { createBundleModel, type BundleDataset } from "./dataBundles";
 
-/** The finder's starting amount (src/lib/dataBundlesUrl.ts DEFAULT_STATE.amount). */
+/** The social image's amount: GH¢20 (owner: unchanged for now). It is NOT the page's default
+ *  (the finder starts at DEFAULT_STATE.amount in src/lib/dataBundlesUrl.ts, GH¢5 since 22 Oct 2026). */
 export const OG_AMOUNT = 20;
 
 export interface OgSummary {

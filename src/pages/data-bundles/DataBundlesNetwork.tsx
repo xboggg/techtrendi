@@ -92,7 +92,11 @@ export default function DataBundlesNetwork() {
 
           <header className="relative">
             <div className="container mx-auto max-w-6xl px-4 pb-8 pt-3 pr-7 [@media(max-height:820px)_and_(max-width:639px)]:pt-1.5 md:pb-12 md:pt-8">
-              <LiveStatus data={data} />
+              {/* Status, and on phones the A / A+ toggle at the top right (owner, 22 Oct 2026). */}
+              <div className="flex items-start justify-between gap-2" data-testid="status-row">
+                <div className="min-w-0 flex-1 sm:pt-0"><LiveStatus data={data} /></div>
+                <TextSizeToggle className="-mt-2 shrink-0 sm:hidden" />
+              </div>
               <h1 ref={titleRef} tabIndex={-1} data-testid="page-title" className="focus:outline-none mt-2 text-[1.75rem] font-black leading-[1.15] tracking-tight [@media(max-height:820px)_and_(max-width:639px)]:mt-1 [@media(max-height:820px)_and_(max-width:639px)]:text-[1.5rem] sm:mt-3 sm:text-5xl">
                 <span className="rounded-xl px-2 sm:rounded-2xl sm:px-3" style={{ background: textSafeFill(info), color: info.ink }}>{info.name}</span>{" "}
                 data bundles
@@ -125,7 +129,7 @@ export default function DataBundlesNetwork() {
                   <CodesIn texts={[model.factText(network)]} />
                   {typeof data.country.checkEveryHours === "number" && data.country.checkEveryHours > 0 && <p>We check the prices every {data.country.checkEveryHours} hours.</p>}
                 </Details>
-                <TextSizeToggle className="shrink-0" />
+                <TextSizeToggle className="shrink-0 max-sm:hidden" />
               </div>
 
               <div className="mt-3 [@media(max-height:820px)_and_(max-width:639px)]:mt-2 sm:mt-4">

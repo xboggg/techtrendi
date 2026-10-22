@@ -126,7 +126,11 @@ export default function DataBundlesDashboard() {
             <div className="container mx-auto max-w-6xl px-4 pb-8 pt-3 pr-7 [@media(max-height:820px)_and_(max-width:639px)]:pt-1.5 md:pb-12 md:pt-8">
               {/* Phone first screen: one status line, the heading, the network chips, then "What
                   we compare" with A / A+ beside it, then the finder (its winner visible at 390x844). */}
-              <LiveStatus data={data} />
+              {/* Status, and on phones the A / A+ toggle at the top right (owner, 22 Oct 2026). */}
+              <div className="flex items-start justify-between gap-2" data-testid="status-row">
+                <div className="min-w-0 flex-1 sm:pt-0"><LiveStatus data={data} /></div>
+                <TextSizeToggle className="-mt-2 shrink-0 sm:hidden" />
+              </div>
               <h1 ref={titleRef} tabIndex={-1} data-testid="page-title" className="focus:outline-none mt-2 text-[1.75rem] font-black leading-[1.05] tracking-tight [@media(max-height:820px)_and_(max-width:639px)]:mt-1 [@media(max-height:820px)_and_(max-width:639px)]:text-[1.5rem] sm:mt-3 sm:text-5xl">
                 {data.country.name} data bundles,{" "}
                 <span className="bg-gradient-to-r from-amber-600 via-red-600 to-blue-700 bg-clip-text text-transparent dark:from-amber-300 dark:via-red-400 dark:to-sky-400">compared</span>
@@ -153,7 +157,7 @@ export default function DataBundlesDashboard() {
                       : <> Our checker re-checks all {s.fixedCount} on the networks' own pages.</>}
                   </p>
                 </Details>
-                <TextSizeToggle className="shrink-0" />
+                <TextSizeToggle className="shrink-0 max-sm:hidden" />
               </div>
 
               <div className="mt-3 [@media(max-height:820px)_and_(max-width:639px)]:mt-2 sm:mt-4">

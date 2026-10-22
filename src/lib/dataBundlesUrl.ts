@@ -1,5 +1,5 @@
 // The data bundle page's state in its URL, so a link shows the same answer:
-//   ?amount=20&gb=10&often=1        (finder amount, planner GB a month, planner "how often")
+//   ?amount=5&gb=10&often=1         (finder amount, planner GB a month, planner "how often")
 //   &noexp=1&night=1&lasts=7|30     (finder toggles, only when on)
 // Read once on load (client), validated and clamped; written with history.replaceState on
 // every change, so the back button is not filled with steps. Pure and dependency-free, so
@@ -14,8 +14,8 @@ export interface PageState {
   minDays: 0 | 7 | 30;
 }
 
-/** Defaults: GH¢20, 10 GB a month, "Once" (owner, 18-19 Oct 2026). */
-export const DEFAULT_STATE: PageState = { amount: 20, gb: 10, often: 1, noExpiryOnly: false, night: false, minDays: 0 };
+/** Defaults: GH¢5 (owner, 22 Oct 2026; it was GH¢20), 10 GB a month, "Once" (owner, 18-19 Oct 2026). */
+export const DEFAULT_STATE: PageState = { amount: 5, gb: 10, often: 1, noExpiryOnly: false, night: false, minDays: 0 };
 export const AMOUNT_MAX = 1000;
 export const OFTEN_MAX = 12;
 

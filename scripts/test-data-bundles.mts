@@ -1708,7 +1708,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   ["0.5 GB", "300 GB", "10 GB", "1 GB", "5 GB", "20 GB", "50 GB", "100 GB"].forEach((x) => allowed.add(x)); // the planner's own steps (STEPS), its default and its quick picks (GB_CHIPS)
   m.gaugeScale(m.networks.map((n) => m.bestForBudget(n, 20))).ticks.forEach(add); // the finder's dial labels at its default amount (model.gaugeScale)
   const sections: [string, string][] = [
-    ["finder", html(React.createElement(BudgetFinder, { model: m }))],
+    ["finder", html(React.createElement(BudgetFinder, { model: m, initialAmount: 20 }))],
     ["panels", html(React.createElement(NetworkPanels, { model: m, basePath: "/x" }))],
     ["rankings", html(React.createElement(Leaderboards, { model: m }))],
     ["planner", html(React.createElement(MonthlyPlanner, { model: m }))],
@@ -1844,7 +1844,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const lost = [...new Set(picks.filter((b) => m.howToBuy(b) && (codes(m.buyShort(b)!) !== codes(m.howToBuy(b)!) || apps(m.buyShort(b)!) !== apps(m.howToBuy(b)!) || !m.buyShort(b)!.trim())).map((b) => m.howToBuy(b)))];
   check(`buy: across ${picks.length} bundles, finder and planner picks, the short line keeps every *code# and every app of the full one`, lost.length === 0, lost.slice(0, 3).join(" | "));
   check("buy: no short line keeps app-screenshot provenance, '(… terms)' notes or 'then option'", picks.every((b) => !/as the app showed it|terms\)|then option|“|”/.test(m.buyShort(b) ?? "")));
-  const fin = html(React.createElement(BudgetFinder, { model: m }));
+  const fin = html(React.createElement(BudgetFinder, { model: m, initialAmount: 20 }));
   check("buy: the full line stays one tap away (finder details, single-buy answers)", m.networks.every((n) => { const p = m.finderPick(n, 20); const b = p.single!; return !!p.combo || m.buyShort(b) === m.howToBuy(b) || textOf(fin).includes(`How to buy, in full: ${m.howToBuy(b)}`); }));
 
   // 2. No jargon in what is on screen before tapping (headings, labels, badges, cards).
@@ -2102,7 +2102,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
 
   // Tap to dial: * kept, # encoded.
   check("dial: tel: links keep * and encode # ('*111*4#' -> 'tel:*111*4%23')", sh.telHref("*111*4#") === "tel:*111*4%23" && sh.telHref("*5060#") === "tel:*5060%23" && sh.dialCodes("Dial *700# or *110#, or use the Telecel Play app.").join() === "*700#,*110#" && sh.dialCodes("myMTN app: Midnight.").length === 0);
-  const fin = html(React.createElement(BudgetFinder, { model: m }));
+  const fin = html(React.createElement(BudgetFinder, { model: m, initialAmount: 20 }));
   const pan = html(React.createElement(NetworkPanels, { model: m, basePath: "/x" }));
   const pla = html(React.createElement(MonthlyPlanner, { model: m }));
   const hrefs = [...(fin + pan + pla).matchAll(/href="(tel:[^"]+)"/g)].map((x) => x[1]);
@@ -2244,7 +2244,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
       if (!st || !st.startsWith(`With ${m.money(a)}: ${m.dataShown(tp.b!)} on `) || !!tp.combo !== st.includes(` (if you buy ${tp.combo?.purchases} times) – `)) bad.push(`${a}: share text ${st}`);
     }
     check(`finder (round 8): no headline is smaller than its own mix or single; Most data, the meter and the share text use the same figure (${cards} cards, GH¢1-1,000, 4 option sets)`, bad.length === 0, bad.slice(0, 4).join(" | "));
-    const fin8 = html(React.createElement((await import("../src/components/data-bundles/BudgetFinder")).BudgetFinder, { model: m }));
+    const fin8 = html(React.createElement((await import("../src/components/data-bundles/BudgetFinder")).BudgetFinder, { model: m, initialAmount: 20 }));
     const p20 = m.finderPicks(20);
     const mixCard = p20.find((p) => p.combo)!;
     check("finder: a mix headline says '· if you buy 2 times' and the single shows as 'Or buy once: X'",
@@ -2334,10 +2334,10 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const eq = (a: object, b: object) => JSON.stringify(a) === JSON.stringify(b);
 
   // Reading: defaults, validation and clamping.
-  check("url: an empty or unrelated query gives the defaults (GH¢20, 10 GB, once)", eq(U.parseState(""), D) && eq(U.parseState("?utm_source=x"), D) && D.amount === 20 && D.gb === 10 && D.often === 1);
+  check("url: an empty or unrelated query gives the defaults (GH¢5, 10 GB, once)", eq(U.parseState(""), D) && eq(U.parseState("?utm_source=x"), D) && D.amount === 5 && D.gb === 10 && D.often === 1);
   const cases: [string, Partial<typeof D>][] = [
-    ["?amount=5000", { amount: 1000 }], ["?amount=-1", { amount: 20 }], ["?amount=0", { amount: 20 }], ["?amount=abc", { amount: 20 }],
-    ["?amount=7.456", { amount: 7.46 }], ["?amount=1e3", { amount: 20 }], ["?amount=0.001", { amount: 0.01 }], ["?amount=%20", { amount: 20 }],
+    ["?amount=5000", { amount: 1000 }], ["?amount=-1", { amount: 5 }], ["?amount=0", { amount: 5 }], ["?amount=abc", { amount: 5 }], ["?amount=20", { amount: 20 }],
+    ["?amount=7.456", { amount: 7.46 }], ["?amount=1e3", { amount: 5 }], ["?amount=0.001", { amount: 0.01 }], ["?amount=%20", { amount: 5 }],
     ["?gb=11", { gb: 10 }], ["?gb=11.5", { gb: 12 }], ["?gb=1000", { gb: 300 }], ["?gb=0.1", { gb: 0.5 }], ["?gb=x", { gb: 10 }],
     ["?often=0", { often: 1 }], ["?often=99", { often: 12 }], ["?often=3.6", { often: 4 }], ["?often=-3", { often: 1 }],
     ["?lasts=7", { minDays: 7 }], ["?lasts=30", { minDays: 30 }], ["?lasts=14", { minDays: 0 }],
@@ -2354,7 +2354,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     if (!eq(U.parseState(U.buildQuery(s)), s)) rtBad ||= U.buildQuery(s);
   }
   check(`url: ${rt} states survive build -> parse`, !rtBad, rtBad);
-  check("url: the default query is short and toggles are left out when off", U.buildQuery(D) === "?amount=20&gb=10&often=1");
+  check("url: the default query is short and toggles are left out when off", U.buildQuery(D) === "?amount=5&gb=10&often=1");
 
   // Writing: replaceState only (never pushState), keeps other params and the hash, skips no-op writes.
   const calls: string[] = [];
@@ -2366,7 +2366,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     };
   };
   fakeWin("https://techtrendi.com/data-bundles/ghana");
-  U.writeState({ amount: 20, gb: 10, often: 1 });
+  U.writeState({ amount: 5, gb: 10, often: 1 });
   check("url: a plain visit at the defaults adds nothing to the address", calls.length === 0, calls.join());
   U.writeState({ amount: 50 });
   check("url: a change is written with replaceState", calls.length === 1 && calls[0] === "/data-bundles/ghana?amount=50&gb=10&often=1", calls.join());
@@ -2388,7 +2388,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("share: nothing to share when no bundle fits", m.finderShareText(0.01) === null);
   const wa = waHref(st!, "https://techtrendi.com/data-bundles/ghana?amount=20&gb=10&often=1");
   check("share: the WhatsApp link carries the text and the full link, encoded", wa.startsWith("https://wa.me/?text=") && decodeURIComponent(wa.slice(20)) === `${st} https://techtrendi.com/data-bundles/ghana?amount=20&gb=10&often=1`);
-  const fh = dec(html(React.createElement(BudgetFinder, { model: m })));
+  const fh = dec(html(React.createElement(BudgetFinder, { model: m, initialAmount: 20 })));
   check("share: the finder has 'Share on WhatsApp' (wa.me) and 'Copy link' under the answer, with the model's text",
     fh.includes(`data-text="${st}"`) && /data-testid="bf-wa"[^>]*>|href="https:\/\/wa\.me\/\?text=/.test(fh) && /data-testid="share-link"/.test(fh) && /Copy link/.test(fh));
   check("speed test: one line 'Is your data slow?' linking to /tools/speed-test", (fh.match(/Is your data slow\?/g) ?? []).length === 1 && /href="\/tools\/speed-test"/.test(fh));
@@ -2400,7 +2400,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("text size: localStorage reads and writes are wrapped in try/catch; only the page content (main) grows, and only while the page is open",
     /try \{ setLarge\(window\.localStorage\.getItem\(TEXT_SIZE_KEY\)/.test(shSrc) && /try \{ window\.localStorage\.setItem\(TEXT_SIZE_KEY/.test(shSrc) && /return \(\) => \{ root\.removeAttribute\(LARGE_TEXT_ATTR\); \};/.test(shSrc) && sh.largeTextCss().startsWith('html[data-db-text="large"] main#main-content { zoom: 1.125; }') && /repeat\(4, minmax\(0, 1fr\)\)/.test(sh.largeTextCss()) && sh.chromeCss(0.6).includes(sh.largeTextCss()));
   const pages = ["DataBundlesDashboard.tsx", "DataBundlesNetwork.tsx"].map((f) => readFileSync(join(ROOT, "src/pages/data-bundles/" + f), "utf8"));
-  check("text size: on both data bundle pages", pages.every((p) => /<TextSizeToggle className="shrink-0" \/>/.test(p)));
+  check("text size: on both data bundle pages: at the top on phones (status row), beside 'What we compare' / 'What we list' from 640px", pages.every((p) => p.includes('<TextSizeToggle className="-mt-2 shrink-0 sm:hidden" />') && p.includes('<TextSizeToggle className="shrink-0 max-sm:hidden" />') && p.indexOf('sm:hidden" />') < p.indexOf("<BudgetFinder")));
 }
 
 // ------------------------------------------------------------------ step 5 (19 Oct 2026): FAQ, structured data, launch switch, offline copy, sliders
@@ -2508,7 +2508,37 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     !/data-testid="meter-label"/.test(bf) && bf.includes('const word = meter.zone === "Best" ? "Best buy ✓" : meter.zone;') && bf.includes('meter.zone === "Best" ? "text-[15px] sm:text-base" : "text-base sm:text-lg")} data-testid="meter-zone">{word}'));
   check("first screen (round 8): one status line (no wrap), no cadence line on top, tighter heading and finder spacing on phones",
     /whitespace-nowrap text-xs font-medium/.test(meta) && !/<CadenceLine/.test(dash) && /text-\[1\.75rem\]/.test(dash) && /className="mt-2 block text-base font-bold text-muted-foreground (\S+ )*sm:mt-3 sm:text-lg">I have/.test(bf) && /col-span-2 flex items-center gap-2 sm:block/.test(bf));
-  check("A / A+ (round 8): beside 'What we compare', not on the status line", /<Details summary="What we compare"[\s\S]*?<\/Details>\s*<TextSizeToggle className="shrink-0" \/>/.test(dash) && !/<LiveStatus data=\{data\} \/>\s*<TextSizeToggle/.test(dash));
+  check("A / A+: at the top on phones (status row, right), beside 'What we compare' from 640px",
+    /<div className="min-w-0 flex-1 sm:pt-0"><LiveStatus data=\{data\} \/><\/div>\s*<TextSizeToggle className="-mt-2 shrink-0 sm:hidden" \/>/.test(dash) &&
+    /<Details summary="What we compare"[\s\S]*?<\/Details>\s*<TextSizeToggle className="shrink-0 max-sm:hidden" \/>/.test(dash));
+  {
+    // The finder's default amount: GH¢5 (owner, 22 Oct 2026); the social image stays at GH¢20.
+    const React = await import("react");
+    (globalThis as any).React = React;
+    const { renderToStaticMarkup } = await import("react-dom/server");
+    const { StaticRouter } = await import("react-router-dom/server");
+    const html = (el: unknown) => renderToStaticMarkup(React.createElement(StaticRouter, { location: "/x" }, el as any) as any);
+    const textOf = (h: string) => h.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/\s+/g, " ");
+    const U5 = await import("../src/lib/dataBundlesUrl");
+    const og5 = await import("../src/lib/ogSummary");
+    const { BudgetFinder: BF5 } = await import("../src/components/data-bundles/BudgetFinder");
+    const h5 = textOf(html(React.createElement(BF5, { model: m })));
+    const n5 = textOf(html(React.createElement(BF5, { model: m, only: "mtn" })));
+    check("default (owner, 22 Oct 2026): the finder starts at GH¢5 on the comparison page and the network pages; every network's GH¢5 answer is shown",
+      U5.DEFAULT_STATE.amount === 5 && /Most data for GH¢5\b/.test(h5) && /Best for GH¢5 on MTN/.test(n5) &&
+      m.networks.every((n) => { const p = m.finderPick(n, 5); return !p.b || h5.includes(m.dataShown(p.b)); }), h5.slice(0, 200));
+    check("default: the social image keeps 'With GH¢20' (OG_AMOUNT) and nothing calls 20 the page default",
+      og5.OG_AMOUNT === 20 && og5.ogSummary(doc).amount === "GH¢20" && !/default[^\n]*GH¢20|GH¢20[^\n]*default/i.test((src("src/components/data-bundles/BudgetFinder.tsx") + "\n" + src("src/lib/dataBundlesUrl.ts")).split("\n").filter((l) => !/^\s*(\/\/|\*|\/\*\*)/.test(l)).join("\n")) &&
+      /Type an amount, like \$\{model\.money\(DEFAULT_STATE\.amount\)\}/.test(src("src/components/data-bundles/BudgetFinder.tsx")));
+    // Planner items: the description never wraps around the price.
+    const { MonthlyPlanner: MP } = await import("../src/components/data-bundles/MonthlyPlanner");
+    const ph5 = html(React.createElement(MP, { model: m }));
+    const items = (ph5.match(/data-testid="plan-item"/g) ?? []).length;
+    check(`planner: every plan item (${items}) has its description in one column ("12.80 GB · 30 days") and the price in its own column`,
+      items > 0 && items === (ph5.match(/data-testid="plan-item-price"/g) ?? []).length && items === (ph5.match(/data-testid="plan-item-detail"/g) ?? []).length &&
+      src("src/components/data-bundles/MonthlyPlanner.tsx").includes('<div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3" data-testid="plan-item">') &&
+      !/\(\s*[\d.,]+ (GB|MB), [^)]*\)\s*GH¢/.test(textOf(ph5)));
+  }
   check("folds: the planner folds how-to-buy on plans that are not the best; the network best-deal cards show Dial/Copy (or the app's steps) openly on every card of every network",
     /<BuyFold open=\{false\} testId="plan-buy-fold">/.test(src("src/components/data-bundles/MonthlyPlanner.tsx")) && /\{isBest && model\.buyShort\(it\.bundle\) &&/.test(src("src/components/data-bundles/MonthlyPlanner.tsx")) &&
     !/panel-buy-fold/.test(src("src/components/data-bundles/NetworkPanels.tsx")) && /\{buy && <BuyLine text=\{buy\} testId="panel-buy" \/>\}/.test(src("src/components/data-bundles/NetworkPanels.tsx")));
@@ -2641,7 +2671,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   for (const n of m.networks) {
     const name = m.networkInfo(n).name;
     // 1. The finder for this network only.
-    const fh = dec(html(React.createElement(BudgetFinder, { model: m, only: n })));
+    const fh = dec(html(React.createElement(BudgetFinder, { model: m, only: n, initialAmount: 20 })));
     const p = m.finderPick(n, 20);
     check(`network finder (${n}): one card, this network's own answer (single or mix), no meter, no 'Most data' badge`,
       (fh.match(/data-testid="bf-card"/g) ?? []).length === 1 && fh.includes(`data-net="${n}"`) && fh.includes(m.dataShown(p.b!)) && !/data-testid="gauge-wrap"/.test(fh) && !/Most data<\/span>/.test(fh) && /What should I buy\?/.test(fh) && fh.includes(`Best for GH¢20 on ${name}`));
@@ -3160,7 +3190,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     check(`price per GB (${name}): only inside More info, never on the card`, !/GH¢[\d.,]+\/GB|Price per GB/.test(txt(shown)) && /Price per GB: GH¢[\d.,]+/.test(txt(h)));
   }
   // Finder.
-  const fin = html(React.createElement(BudgetFinder, { model: m }));
+  const fin = html(React.createElement(BudgetFinder, { model: m, initialAmount: 20 }));
   const finT = txt(fin);
   check("finder: no '(GH¢0.01 change)' on the pay line; the change and the reason are under More info; Dial/Copy open on every card; 'if you buy N times'; 'Or buy once'",
     !/\(GH¢[\d.,]+ change\)/.test(finT) && !/data-testid="bf-buy-fold"/.test(fin) && /if you buy \d times/.test(finT) && !/in \d buys/.test(finT) &&
