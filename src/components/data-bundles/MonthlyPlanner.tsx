@@ -10,7 +10,7 @@ import { CalendarDays, BadgeCheck, Minus, Plus, ShoppingCart } from "lucide-reac
 import { Slider } from "./LabelledSlider";
 import { cn } from "@/lib/utils";
 import { MAX_PURCHASES, canWin, isAllDay, type BundleModel } from "@/lib/dataBundles";
-import { BuyFold, BuyLine, ComputedBadge, Details, NetPill, RollText, SectionHeading, SwipeDeck, glass, unitsLine, workedOutText } from "./shared";
+import { BuyFold, BuyLine, ComputedBadge, Details, NetPill, RollText, SectionHeading, SwipeDeck, glass, unitsLine, workedOutText, officialRatesText } from "./shared";
 
 // GB steps for the slider (finer at the low end, where most people are).
 export const STEPS = GB_STEPS;
@@ -218,13 +218,13 @@ export function MonthlyPlanner({ model }: { model: BundleModel }) {
                         <button
                           type="button"
                           onClick={() => setCap(savings[n]!.cap)}
-                          aria-label={`Buy more, save ${savings[n]!.text} (buy up to ${savings[n]!.cap} times)`}
+                          aria-label={`Buy in smaller bits, save ${savings[n]!.text} (buy up to ${savings[n]!.cap} times)`}
                           className="inline-flex min-h-11 items-center rounded-full border border-emerald-600/40 bg-emerald-500/10 px-3 text-sm font-bold text-emerald-800 transition hover:bg-emerald-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:border-emerald-400/40 dark:text-emerald-200"
                           data-testid="plan-save"
                           data-net={n}
                           data-cap={savings[n]!.cap}
                         >
-                          Buy more, save {savings[n]!.text}
+                          Buy in smaller bits, save {savings[n]!.text}
                         </button>
                       )}
                     </p>
@@ -257,7 +257,7 @@ export function MonthlyPlanner({ model }: { model: BundleModel }) {
                         </BuyFold>
                       </div>
                     )}
-                    {anyWorked && <div className="mt-2"><span className="inline-flex items-center rounded-full border border-sky-500/40 bg-sky-500/10 px-2.5 py-0.5 text-[15px] lg:text-base font-bold text-sky-900 dark:text-sky-100" data-testid="trust" data-level="worked">≈ Price we calculated</span></div>}
+                    {anyWorked && <div className="mt-2"><span className="inline-flex items-center rounded-full border border-emerald-600/40 bg-emerald-500/10 px-2.5 py-0.5 text-[15px] lg:text-base font-bold text-emerald-900 dark:text-emerald-100" data-testid="trust" data-level="worked">{officialRatesText(n)}</span></div>}
                     {(full.length > 0 || labels.length > 0) && (
                       <Details className="mt-1">
                         {labels.map((l) => <p key={l}>{l}.</p>)}

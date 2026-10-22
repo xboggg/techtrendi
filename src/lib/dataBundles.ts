@@ -628,9 +628,26 @@ export const GROUPS: Group[] = [
   { id: "combo", label: "Calls + data", hint: "Minutes, SMS and data together", test: (b) => b.kind === "combo" && isRankable(b) && !isTimeRestricted(b) },
 ];
 
+/** "Small buys": the winners board's first tab (owner, 22 Oct 2026). The all-day group's rows
+ *  (same eligibility: no borrowed, unconfirmed, pending, conditional-only or time-restricted rows)
+ *  that cost at most SMALL_MAX. A pay-any-amount band that starts at or below SMALL_MAX is shown
+ *  clipped to SMALL_MAX (same rate, so the same value and rank). Not one of GROUPS: the counts,
+ *  winners, structured data and social image are unchanged. */
+export const SMALL_MAX = 20;
+export const SMALL_GROUP = { id: "small", label: "Small buys (up to GH¢20)", hint: "GH¢20 or less, use any time, any app" } as const;
+/** The winners board's tabs, in order: Small buys, Any price (the all-day group), then the rest. */
+export const BOARD_TABS: { id: string; label: string; hint: string }[] = [
+  SMALL_GROUP,
+  ...GROUPS.map((g) => ({ id: g.id, label: g.id === "allday" ? "Any price" : g.label, hint: g.hint })),
+];
+
 /** Bundles that would belong to a group but are usable only on some days or
  *  hours: listed beside the group, never ranked in it (night has its own tab). */
 export function restrictedTest(groupId: string): ((b: Bundle) => boolean) | null {
+  if (groupId === SMALL_GROUP.id) {
+    const t = restrictedTest("allday");
+    return t ? (b) => t(b) && b.price <= SMALL_MAX + 1e-9 : null;
+  }
   const base: Record<string, (b: Bundle) => boolean> = {
     allday: (b) => b.kind === "anytime" || b.kind === "noexpiry" || b.kind === "family" || b.kind === "weekend" || b.kind === "restricted",
     noexpiry: (b) => (b.kind === "noexpiry" || b.kind === "anytime" || b.kind === "family") && neverExpires(b),
@@ -916,7 +933,12 @@ export function createBundleModel(doc: BundleDataset, opts: ModelOptions = {}) {
 
   /** The bundle's own price, leading its card or row: "GH¢400 bundle", or for a pay-any-amount
    *  row "Pay exactly GH¢399" / "Pay GH¢400 to GH¢999.99" (then "→ 263.38GB"). */
-  const priceLead = (b: Bundle): string => (b.computed ? payText(b) : `${priceText(b)} bundle`);
+  const priceLead = (b: Bundle): string => (b.band && !b.band.exact ? `From ${money(b.band.from)}` : b.computed ? payText(b) : `${priceText(b)} bundle`);
+  /** The data that leads a card: a pay-any-amount range shows what its lowest amount gives,
+   *  "260.42 GB (more if you pay more)"; everything else its data as shown. */
+  const leadData = (b: Bundle): string => (b.band && !b.band.exact ? `${data(b.mb * (b.band.from / b.band.to), b.network)} (more if you pay more)` : dataShown(b));
+  /** "GH¢400 bundle → 263.38GB", or for a range "From GH¢400: 260.42 GB (more if you pay more)". */
+  const leadText = (b: Bundle): string => (b.band && !b.band.exact ? `${priceLead(b)}: ${leadData(b)}` : `${priceLead(b)} → ${leadData(b)}`);
   /** A calm badge for a bundle another page of the network contradicts: "Expiry not clear –
    *  check with MTN", "Price not clear – check with Telecel", "Data amount not clear – …". */
   const disputeText = (b: Pick<Bundle, "network" | "otherSource">): string | null => {
@@ -1472,7 +1494,7 @@ export function createBundleModel(doc: BundleDataset, opts: ModelOptions = {}) {
    *  yardstick after it; never a price per GB, never "GH¢10 gets/buys"). */
   const dealLine = (label: string, b: Bundle, name: string, net: string) => {
     const v = valuePer(b);
-    return `${label}: ${name.startsWith(net) ? name : `${net} ${name}`} – ${priceLead(b)} → ${dataShown(b)}${v ? `, value ${v}` : ""}`;
+    return `${label}: ${name.startsWith(net) ? name : `${net} ${name}`} – ${leadText(b)}${v ? `, value ${v}` : ""}`;
   };
   function networkTopDeals(network: NetworkId): { group: string; bundle: Bundle; text: string }[] {
     const out: { group: string; bundle: Bundle; text: string }[] = [];
@@ -1706,8 +1728,25 @@ export function createBundleModel(doc: BundleDataset, opts: ModelOptions = {}) {
    *  joint best) are decided on this text (redesign 1, 18 Oct 2026; before it, on cpgShown).
    *  Rankable rows always have a volume, so the price-per-GB text is only a fallback. */
   const tieText = (b: Bundle) => valueText(b) ?? cpgShown(b);
+  /** The "Small buys" pool (SMALL_GROUP): the all-day rows at SMALL_MAX or less; a range that starts
+   *  at or below SMALL_MAX is clipped to it (price and data scaled at the same rate). */
+  function smallPool(): Bundle[] {
+    const allday = GROUPS[0].test;
+    const out: Bundle[] = [];
+    for (const b of all) {
+      if (!allday(b)) continue;
+      if (b.band && !b.band.exact) {
+        if (b.band.from > SMALL_MAX + 1e-9) continue;
+        if (b.band.to <= SMALL_MAX + 1e-9) { out.push(b); continue; }
+        const to = SMALL_MAX;
+        out.push({ ...b, price: to, mb: b.mb * (to / b.band.to), band: { ...b.band, to, top: false }, name: b.name.split(money(b.band.to)).join(money(to)) });
+      } else if (b.price <= SMALL_MAX + 1e-9) out.push(b);
+    }
+    return out;
+  }
   /** Bundles in one like-for-like group, cheapest per GB first. */
   function leaderboard(groupOrFilter: string | ((b: Bundle) => boolean), limit = Infinity): Bundle[] {
+    if (groupOrFilter === SMALL_GROUP.id) return smallPool().sort(sortByValue).slice(0, limit);
     const test = typeof groupOrFilter === "string" ? GROUPS.find((g) => g.id === groupOrFilter)?.test : groupOrFilter;
     if (!test) return [];
     return all.filter(test).sort(sortByValue).slice(0, limit);
@@ -2111,7 +2150,9 @@ export function createBundleModel(doc: BundleDataset, opts: ModelOptions = {}) {
    *  its GH¢10 value, its share of the best one, and whether it is (joint) best on the shown text. */
   function faceOff(groupId: string) {
     const test = GROUPS.find((g) => g.id === groupId)?.test;
-    const rows = networks.map((n) => ({ n, b: test ? cheapestIn(test, n) : null }));
+    // "Small buys": each network's best of the small pool (the board's own first rows).
+    const smallBest = (n: NetworkId) => smallPool().filter((b) => b.network === n && canWin(b)).sort(sortByValue)[0] ?? null;
+    const rows = networks.map((n) => ({ n, b: groupId === SMALL_GROUP.id ? smallBest(n) : test ? cheapestIn(test, n) : null }));
     const best = Math.max(1e-9, ...rows.map((r) => (r.b ? valueMb(r.b) ?? 0 : 0)));
     const lead = rows.filter((r) => r.b).reduce<Bundle | null>((a, r) => (!a || (valueMb(r.b!) ?? 0) > (valueMb(a) ?? 0) + 1e-9 ? r.b : a), null);
     return rows.map((r) => ({
@@ -2231,7 +2272,7 @@ export function createBundleModel(doc: BundleDataset, opts: ModelOptions = {}) {
   return {
     doc, currency, money, rate: (n: number) => fmtRate(n, currency), networks, rates, flexi, sources, validityText, factText, sourcesFor,
     networkInfo: (id: NetworkId) => doc.networks[id],
-    mbPerGb, sharedMbPerGb, gbOf, costPerGb: cpg, fmtData: data, perGbText, valueMb, valueText, valuePer, valueLine, priceLead, disputeText, valueStep: VALUE_STEP, dataText, priceText, spendScope, dealText, bundleCounts,
+    mbPerGb, sharedMbPerGb, gbOf, costPerGb: cpg, fmtData: data, perGbText, valueMb, valueText, valuePer, valueLine, priceLead, leadData, leadText, disputeText, smallPool, valueStep: VALUE_STEP, dataText, priceText, spendScope, dealText, bundleCounts,
     bundles, computed, computedRegular, computedMidnight, all,
     regularMb, midnightMb, pulseMb, flatMb, flexiQuote,
     regularBundle, midnightBundle, sourceBundle,

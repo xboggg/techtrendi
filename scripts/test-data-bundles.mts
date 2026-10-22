@@ -1553,7 +1553,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   // L14. Room for the site-wide assistant button on these pages only.
   // Redesign 1: the comparison page has no hero tiles any more (the console replaced them); the
   // headless check measures that nothing on the first screen sits under the button.
-  check("L14 (a8): both pages end with room for the assistant button (and the button itself is unchanged)", /pb-28 pt-10/.test(src8("src/pages/data-bundles/DataBundlesDashboard.tsx")) && /pb-28 pt-6 pr-7/.test(src8("src/pages/data-bundles/DataBundlesNetwork.tsx")) && !/pr-16|pb-28/.test(src8("src/components/ai/AIChatInterface.tsx")));
+  check("L14 (a8): both pages end with room for the assistant button (and the button itself is unchanged)", /pb-28 pt-6 pr-7/.test(src8("src/pages/data-bundles/DataBundlesDashboard.tsx")) && /pb-28 pt-6 pr-7/.test(src8("src/pages/data-bundles/DataBundlesNetwork.tsx")) && !/pr-16|pb-28/.test(src8("src/components/ai/AIChatInterface.tsx")));
 
   // Pulse: *567# (owner's live test, 18 Oct 2026) is the only code shown.
   const calcHtml = renderToStaticMarkup(React.createElement(MtnCalculators, { model: m }) as any);
@@ -1724,7 +1724,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     const t = textOf(sections[1][1]);
     const { picks } = panelPicks(m);
     const missing: string[] = [];
-    for (const p of picks) for (const r of p.rows) if (r.b) for (const want of [m.dataShown(r.b), m.priceLead(r.b), m.valueText(r.b)!, "Price per GB: " + m.perGbText(r.b).replace(/\/GB$/, ""), m.validityText(r.b)]) if (!t.includes(want)) missing.push(`${p.n}/${r.id}: ${want}`);
+    for (const p of picks) for (const r of p.rows) if (r.b) for (const want of [m.leadData(r.b).replace(" (more if you pay more)", ""), m.priceLead(r.b), m.valueText(r.b)!, "Price per GB: " + m.perGbText(r.b).replace(/\/GB$/, ""), m.validityText(r.b)]) if (!t.includes(want)) missing.push(`${p.n}/${r.id}: ${want}`);
     check(`panels: each network's best all-day, never-expires and night deal leads with its price and data ("GH¢400 bundle → …"), then validity and value per GH¢10; the price per GB only under More info (${PANEL_CATEGORIES.length} x ${m.networks.length})`, missing.length === 0, missing.slice(0, 5).join(" | "));
     check("panels: each is model.cheapestIn of the like-for-like group", picks.every((p) => p.rows.every((r) => r.b === m.cheapestIn(GROUPS.find((g) => g.id === r.id)!.test, p.n))));
     check("panels: the cheapest all-day and never-expires winners are in the panels", m.stats.cheapestAllDay.every((b) => picks.some((p) => p.rows[0].b === b)) && m.stats.cheapestNoExpiry.every((b) => picks.some((p) => p.rows[1].b === b)));
@@ -1734,9 +1734,10 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     check("finder: chips are GH¢1, 2, 3, 5, 10, 20, 50, 100, 200 and 400, five to a row on phones", CHIPS.join() === "1,2,3,5,10,20,50,100,200,400" && /grid grid-cols-5 gap-1\.5 (\S+ )*sm:grid-cols-10/.test(readFileSync(join(ROOT, "src/components/data-bundles/BudgetFinder.tsx"), "utf8")));
     const rk = sections[2][1];
     const vals = [...rk.matchAll(/data-testid="lb-value">([^<]+)</g)].map((x) => x[1]);
-    const top = m.leaderboardRows("allday").ranked.slice(0, TOP).map((r) => m.valueText(r.bundle));
+    // The board opens on "Small buys (up to GH¢20)" (owner, 22 Oct 2026).
+    const top = m.leaderboardRows("small").ranked.slice(0, TOP).map((r) => m.valueText(r.bundle));
     check(`rankings: the board shows the top ${TOP} by default, in order, as GH¢10 values`, TOP === 5 && JSON.stringify(vals) === JSON.stringify(top), vals.join(", "));
-    check("rankings: GH¢/GB only under More info ('Price per GB: …'), never on the rows", (rk.match(/data-testid="lb-cpg"/g) ?? []).length >= TOP && rk.includes("Price per GB: " + m.perGbText(m.leaderboardRows("allday").ranked[0].bundle).replace(/\/GB$/, "")) && !/\/GB\b/.test(rk));
+    check("rankings: GH¢/GB only under More info ('Price per GB: …'), never on the rows", (rk.match(/data-testid="lb-cpg"/g) ?? []).length >= TOP && rk.includes("Price per GB: " + m.perGbText(m.leaderboardRows("small").ranked[0].bundle).replace(/\/GB$/, "")) && !/\/GB\b/.test(rk));
   }
 
   // 4. Notes, disputes and terms are folded behind "details", never removed, and the item stays marked.
@@ -1862,7 +1863,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const dashSrc = readFileSync(join(ROOT, "src/pages/data-bundles/DataBundlesDashboard.tsx"), "utf8");
   check("plain words (round 8): no cadence line on top (the chips name the networks); 'every 3 hours' is under 'What we compare' with the counts, no jargon", !/<CadenceLine/.test(dashSrc) && /We check the prices every \{data\.country\.checkEveryHours\} hours\./.test(dashSrc) && /We rank \{s\.comparedCount\} of the \{s\.fixedCount\}/.test(dashSrc) && !/like for like/.test(dashSrc));
   check("plain words: badges say 'Some regions only', 'Some groups only', 'Some customers only', 'Not confirmed', 'New, still checking', '… not clear – check with MTN', 'Price we calculated'; never 'disagree' or 'Worked out'",
-    ["Some regions only", "Some groups only", "Some customers only", "Not confirmed", "New, still checking", "not clear – check with {who}", "≈ Price we calculated", "Price we calculated from ${"].every((s) => readFileSync(join(ROOT, "src/components/data-bundles/shared.tsx"), "utf8").includes(s)) &&
+    ["Some regions only", "Some groups only", "Some customers only", "Not confirmed", "New, still checking", "not clear – check with {who}", "✓ From ${NETWORK_SHORT[network] ?? \"the network\"}'s official rates", "Exact, from ${"].every((s) => readFileSync(join(ROOT, "src/components/data-bundles/shared.tsx"), "utf8").includes(s)) &&
     !/disagree|Worked out/.test(readFileSync(join(ROOT, "src/components/data-bundles/shared.tsx"), "utf8").split("\n").filter((l) => !/^\s*(\/\/|\*|\/\*\*)/.test(l)).join("\n")));
 
   // 3. The planner, in the owner's words.
@@ -2017,7 +2018,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   }
   check("save: for every network, 1-100 GB and every cap, the chip is the cheapest total over caps cap..12 vs this cap, at the SMALLEST cap reaching it; none when no saving shows", svBad === 0, String(svBad));
   const plRaw2 = html(React.createElement(MonthlyPlanner, { model: m }));
-  const chips = [...plRaw2.matchAll(/aria-label="Buy more, save (GH¢[\d.,]+) \(buy up to \d+ times\)"[^>]*data-testid="plan-save" data-net="([a-z]+)" data-cap="(\d+)"[^>]*>Buy more, save (GH¢[\d.,]+)</g)].map((x) => `${x[2]}:${x[1]}:${x[3]}:${x[4]}`).sort();
+  const chips = [...plRaw2.matchAll(/aria-label="Buy in smaller bits, save (GH¢[\d.,]+) \(buy up to \d+ times\)"[^>]*data-testid="plan-save" data-net="([a-z]+)" data-cap="(\d+)"[^>]*>Buy in smaller bits, save (GH¢[\d.,]+)</g)].map((x) => `${x[2]}:${x[1]}:${x[3]}:${x[4]}`).sort();
   const want10 = m.networks.map((n) => sv(n, 10)).map((x, i) => x && `${m.networks[i]}:${x.text}:${x.cap}:${x.text}`).filter(Boolean).sort();
   check("save: at 10 GB, Once, the cards show 'Save GH¢19.08' (MTN) and 'Save GH¢2.13' (Telecel), no chip for AT, each with its aria-label and target cap", JSON.stringify(chips) === JSON.stringify(want10) && chips.length === 2, chips.join(" | "));
   check("planner: GB quick picks 1, 5, 10, 20, 50, 100 GB", /1 GB 5 GB 10 GB 20 GB 50 GB 100 GB/.test(plh));
@@ -2115,7 +2116,10 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
 
   // Order and layout.
   const dash = srcS("src/pages/data-bundles/DataBundlesDashboard.tsx");
-  check("order: status strip, heading, then the finder; the face-off is lower (first in the content)", dash.indexOf("<LiveStatus") < dash.indexOf("<h1") && dash.indexOf("<h1") < dash.indexOf("<BudgetFinder") && dash.indexOf("<BudgetFinder") < dash.indexOf("<FaceOff"));
+  check("order: status strip, heading, source line, then the finder; then the winners board (with the face-off bars), planner, tips, FAQ, sources; no separate face-off or network panels",
+    dash.indexOf("<LiveStatus") < dash.indexOf("<h1") && dash.indexOf("<h1") < dash.indexOf("<SourceLine") && dash.indexOf("<SourceLine") < dash.indexOf("<BudgetFinder") &&
+    ["<BudgetFinder", "<Leaderboards", "<MonthlyPlanner", "<Advice", "<Faq", "<SourcesAndDisclaimer"].every((x, i, a) => dash.indexOf(x) > -1 && (i === 0 || dash.indexOf(a[i - 1]) < dash.indexOf(x))) &&
+    !/<FaceOff\b|<NetworkPanels\b/.test(dash) && !/\["(faceoff|networks)",/.test(dash));
   const cards = [...fin.matchAll(/data-testid="bf-card" data-net="([a-z]+)"/g)].map((x) => x[1]);
   check("order: the winner's card comes first (GH¢20: Telecel)", cards[0] === [...m.mostData(m.networks.map((n) => ({ n, b: m.bestForBudget(n, 20) })))][0] && cards.length === 3, cards.join());
   check("meter: shown beside the figure with its zone; the old tick scale is gone", (fin.match(/data-testid="meter-zone"/g) ?? []).length === 3 && !/Each dial goes from 0/.test(fin) && /data-zone="Best"/.test(fin));
@@ -2308,7 +2312,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("details: a clear 'More info' button (44px on phones), not a dotted link", /More info/.test(det) && /min-h-11/.test(det) && /rounded-full border/.test(det) && !/decoration-dotted/.test(det));
   const pl = readFileSync(join(ROOT, "src/components/data-bundles/MonthlyPlanner.tsx"), "utf8");
   check("planner: 'Buy more, save GH¢X' chip; 'Buy once' is plain text (no cart icon); the upsell line comes from the model",
-    /Buy more, save \{savings\[n\]!\.text\}/.test(pl) && !/<ShoppingCart className="h-3\.5 w-3\.5"/.test(pl) && /model\.planUpsell\(plans\)/.test(pl) && /data-testid="plan-upsell"/.test(pl));
+    /Buy in smaller bits, save \{savings\[n\]!\.text\}/.test(pl) && !/<ShoppingCart className="h-3\.5 w-3\.5"/.test(pl) && /model\.planUpsell\(plans\)/.test(pl) && /data-testid="plan-upsell"/.test(pl));
   const ph = html(React.createElement(NetworkPanels, { model: m, basePath: "/x" }));
   check("panels: from 768px each card spans five shared rows (subgrid), so a row's cells share one height across networks and the columns end level; a merged row says 'Same bundle as above'; row labels say 'Any time' / 'Never expires' / 'Night only' ('any price' only in the heading)",
     (ph.match(/md:row-span-5 md:grid md:grid-rows-subgrid md:gap-y-0/g) ?? []).length === 6 && /md:contents/.test(ph) && /Same bundle as above/.test(ph) &&
@@ -2467,7 +2471,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const tw = m.topWinners();
   check("itemlist: one entry per winners tab (more only for ties), each the board's rank-1 row",
     tw.length >= GROUPS.length && GROUPS.every((g) => tw.some((w) => w.group === g.label && m.leaderboardRows(g.id).ranked.some((r) => r.rank === 1 && r.bundle === w.bundle))));
-  check("itemlist: names never repeat the network ('Telecel Telecel'); each leads with price → data and ends with the value per GH¢10 (as the page words it; no price per GB)", tw.every((w) => !/(\b\w+) \1\b/.test(w.text) && w.text.includes(` – ${m.priceLead(w.bundle)} → ${m.dataShown(w.bundle)}`) && / per GH¢10$/.test(w.text) && !/per GB|\/GB|GH¢10 (gets|buys)/.test(w.text)), tw.map((w) => w.text).join(" | "));
+  check("itemlist: names never repeat the network ('Telecel Telecel'); each leads with price → data and ends with the value per GH¢10 (as the page words it; no price per GB)", tw.every((w) => !/(\b\w+) \1\b/.test(w.text) && w.text.includes(` – ${m.leadText(w.bundle)}`) && / per GH¢10$/.test(w.text) && !/per GB|\/GB|GH¢10 (gets|buys)/.test(w.text)), tw.map((w) => w.text).join(" | "));
   const seo = src("src/components/seo/SEOHead.tsx");
   check("itemlist: SEOHead takes an optional itemList (other pages unchanged) and the dashboard passes the winners", /itemList\?: \{ name: string; items: string\[\] \}/.test(seo) && /'@type': 'ItemList'/.test(seo) && /itemList=\{winnersList\}/.test(dash));
 
@@ -2494,7 +2498,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("a11y (axe): count-up figures give screen readers the final figure as hidden text, not aria-label on a span",
     !/<span ref=\{ref\} className=\{cn\("tabular-nums", className\)\}[^>]*aria-label=/.test(shS) && /<span className="sr-only">\{format\(value\)\}<\/span>/.test(shS) && /<span className="sr-only">\{text\}<\/span>/.test(shS));
   check("a11y (axe): every spoken name starts with the words on screen (text size, save chip)",
-    /aria-label="A normal text">A</.test(shS) && /aria-label="A\+ bigger text">A\+</.test(shS) && /aria-label=\{`Buy more, save \$\{savings\[n\]!\.text\}/.test(src("src/components/data-bundles/MonthlyPlanner.tsx")));
+    /aria-label="A normal text">A</.test(shS) && /aria-label="A\+ bigger text">A\+</.test(shS) && /aria-label=\{`Buy in smaller bits, save \$\{savings\[n\]!\.text\}/.test(src("src/components/data-bundles/MonthlyPlanner.tsx")));
   check("a11y: planner, MTN and Telecel calculators use the labelled slider", ["MonthlyPlanner.tsx", "MtnCalculators.tsx", "TelecelFlexiCalculator.tsx"].every((f) => /import \{ Slider \} from "\.\/LabelledSlider";/.test(src("src/components/data-bundles/" + f))));
 }
 
@@ -2504,8 +2508,8 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const bf = src("src/components/data-bundles/BudgetFinder.tsx");
   const dash = src("src/pages/data-bundles/DataBundlesDashboard.tsx");
   const meta = src("src/components/data-bundles/meta.tsx");
-  check("gauge: no small grey zone labels on the arc; the result word under it is large ('BEST BUY ✓' for the winner, 'Good'/'Fair'/'Poor' otherwise)",
-    !/data-testid="meter-label"/.test(bf) && bf.includes('const word = meter.zone === "Best" ? "Best buy ✓" : meter.zone;') && bf.includes('meter.zone === "Best" ? "text-[15px] sm:text-base" : "text-base sm:text-lg")} data-testid="meter-zone">{word}'));
+  check("gauge: no small grey zone labels on the arc; the result word under it is large ('MOST DATA ✓' for the winner: it measures data only; 'Good'/'Fair'/'Poor' otherwise)",
+    !/data-testid="meter-label"/.test(bf) && bf.includes('const word = meter.zone === "Best" ? "Most data ✓" : meter.zone;') && !/"Best buy ✓"/.test(bf) && bf.includes('meter.zone === "Best" ? "text-[15px] sm:text-base" : "text-base sm:text-lg")} data-testid="meter-zone">{word}'));
   check("first screen (round 8): one status line (no wrap), no cadence line on top, tighter heading and finder spacing on phones",
     /whitespace-nowrap text-xs font-medium/.test(meta) && !/<CadenceLine/.test(dash) && /text-\[1\.75rem\]/.test(dash) && /className="mt-2 block text-base font-bold text-muted-foreground (\S+ )*sm:mt-3 sm:text-lg">I have/.test(bf) && /col-span-2 flex items-center gap-2 sm:block/.test(bf));
   check("A / A+: at the top on phones (status row, right), beside 'What we compare' from 640px",
@@ -2685,7 +2689,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     const mine = panelPicks(m).picks.find((x) => x.n === n)!;
     const rows = mine.shownRows.filter((r) => r.b);
     check(`network best (${n}): any time / never expires / night, a duplicate shown once, every card keeps Dial/Copy`,
-      (bh.match(/data-testid="best-card"/g) ?? []).length === rows.length && rows.every((r) => bh.includes(m.dataShown(r.b!))) && !/data-testid="panel-buy-fold"/.test(bh.replace(/<details[^>]*data-testid="panel-buy-fold"/g, "")) && !/<details[^>]*data-testid="panel-buy-fold"/.test(bh));
+      (bh.match(/data-testid="best-card"/g) ?? []).length === rows.length && rows.every((r) => bh.includes(m.leadData(r.b!).replace(" (more if you pay more)", ""))) && !/data-testid="panel-buy-fold"/.test(bh.replace(/<details[^>]*data-testid="panel-buy-fold"/g, "")) && !/<details[^>]*data-testid="panel-buy-fold"/.test(bh));
 
     // 3. The bundle list: one list, grouped by family, all-day families first, never-ranked last.
     const lh = dec(html(React.createElement(BundleTable, { model: m, network: n, family: "all", onFamily: () => {} })));
@@ -3157,7 +3161,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   // 1. Words.
   const worked = m.all.find((b) => b.computed && sh.trustOf(b).level === "worked")!;
   check("words: '≈ Price we calculated' (never 'Worked out'); ✓ Confirmed and ! Check first unchanged",
-    txt(html(React.createElement(sh.TrustBadge, { b: worked }))).includes("≈ Price we calculated") && /"✓ Confirmed"/.test(src("src/components/data-bundles/shared.tsx")) && /! Check first/.test(src("src/components/data-bundles/shared.tsx")));
+    txt(html(React.createElement(sh.TrustBadge, { b: worked }))).includes(sh.officialRatesText(worked.network)) && sh.officialRatesText("telecel") === "✓ From Telecel's official rates" && /"✓ Confirmed"/.test(src("src/components/data-bundles/shared.tsx")) && /! Check first/.test(src("src/components/data-bundles/shared.tsx")));
   const kok = m.bundles.find((b) => b.name === "Kokrokoo Bundle")!;
   check("words: a disputed expiry reads 'Expiry not clear – check with MTN'; price and volume disputes the same way",
     m.disputeText(kok) === "Expiry not clear – check with MTN" && m.disputeText({ network: "telecel", otherSource: { contradicts: "price" } } as any) === "Price not clear – check with Telecel" &&
@@ -3165,7 +3169,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   // 2. Mixed amounts: price and data first, value under it.
   const top = m.leaderboardRows("allday").ranked[0].bundle;
   check("price lead: 'GH¢400 bundle' for a bundle, 'Pay exactly GH¢399' for a pay-any-amount row",
-    m.priceLead(top) === "GH¢400 bundle" && m.all.filter((b) => b.computed).every((b) => m.priceLead(b) === m.payText(b)));
+    m.priceLead(top) === "GH¢400 bundle" && m.all.filter((b) => b.computed).every((b) => m.priceLead(b) === (b.band && !b.band.exact ? `From ${m.money(b.band.from)}` : m.payText(b))));
   const secs: [string, string][] = [
     ["face-off", html(React.createElement(FaceOff, { model: m }))],
     ["network panels", html(React.createElement(NetworkPanels, { model: m, basePath: "/x" }))],
@@ -3176,11 +3180,15 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   for (const [name, h] of secs) {
     const t = txt(h);
     check(`any price (${name}): the heading says '(any price)'; no 'Every GH¢10', no 'GH¢10 gets/buys'; 'Value: … per GH¢10' only after a price → data lead`,
-      /\(any price\)/.test(t) && !/Every GH¢10|GH¢10 (gets|buys)/.test(t) && /Value: [\d.,]+ (GB|MB) per GH¢10/.test(t) && t.indexOf("→") > -1 && t.indexOf("→") < t.indexOf("Value:"), t.slice(0, 160));
+      /\(any price\)|Any price/.test(t) && !/Every GH¢10|GH¢10 (gets|buys)/.test(t) && /Value: [\d.,]+ (GB|MB) per GH¢10/.test(t) && t.indexOf("→") > -1 && t.indexOf("→") < t.indexOf("Value:"), t.slice(0, 160));
   }
   const lbT = txt(secs[3][1]);
-  check("winners board: the first row reads 'GH¢400 bundle → 263.38GB' then 'Value: 6.58 GB per GH¢10' (price and data first)",
-    /GH¢400 bundle → (gives )?263\.38GB 30 days Value: 6\.58 GB per GH¢10/.test(lbT.replace(/ gives /g, " ")), lbT.slice(lbT.indexOf("263.38GB Monthly"), lbT.indexOf("263.38GB Monthly") + 140));
+  {
+    const r0 = m.leaderboardRows("small").ranked[0].bundle;
+    const t0 = lbT.replace(/ gives /g, " ");
+    check(`winners board: the first row (Small buys) reads '${m.leadText(r0)}' then 'Value: ${m.valueText(r0)} per GH¢10' (price and data first)`,
+      t0.includes(m.leadText(r0)) && t0.indexOf(`Value: ${m.valueText(r0)} per GH¢10`) > t0.indexOf(m.leadText(r0)), t0.slice(0, 300));
+  }
   const fo = secs[0][1];
   check("face-off: every bar is labelled with its bundle's price ('GH¢400 bundle'), and has a spoken label with price and value",
     (fo.match(/data-testid="faceoff-bar-label"/g) ?? []).length === 3 && fo.includes(">GH¢400 bundle</p>") && /role="img" aria-label="GH¢400 bundle: value 6\.58 GB per GH¢10"/.test(fo));
@@ -3221,6 +3229,97 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const sw = src("public/sw-data-bundles.js");
   check("freshness: pages and the prices file are network first (a saved copy only when the network fails or is too slow, and then marked 'Saved prices'); prices are fetched no-cache",
     /networkFirst\(PAGES, request, 0/.test(sw) && /networkFirst\(PRICES, request, PRICES_TIMEOUT_MS/.test(sw) && /cache: "no-cache"/.test(src("src/hooks/useBundleData.ts")) && /headers\.set\('X-TT-Saved-Copy', '1'\)/.test(sw));
+}
+
+// ------------------------------------------------------------------ post-launch round (22 Oct 2026): small buys, official rates, one board
+{
+  const React = await import("react");
+  (globalThis as any).React = React;
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { StaticRouter } = await import("react-router-dom/server");
+  const html = (el: unknown) => renderToStaticMarkup(React.createElement(StaticRouter, { location: "/x" }, el as any) as any);
+  const textOf = (h: string) => h.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/\s+/g, " ");
+  const src = (p: string) => readFileSync(join(ROOT, p), "utf8");
+  const lib = await import("../src/lib/dataBundles");
+  const sh = await import("../src/components/data-bundles/shared");
+  const { SourceLine } = await import("../src/components/data-bundles/meta");
+  const { DATA_BUNDLE_COUNTRIES } = await import("../src/data/dataBundleCountries");
+
+  // 7. Small buys.
+  check("small buys: the board's tabs are Small buys (up to GH¢20), Any price, then the other groups",
+    lib.BOARD_TABS.map((t) => t.label).join("|") === ["Small buys (up to GH¢20)", "Any price", ...GROUPS.slice(1).map((g) => g.label)].join("|") && lib.BOARD_TABS[1].id === "allday" && lib.SMALL_MAX === 20);
+  const small = m.leaderboardRows("small");
+  const allday = m.leaderboardRows("allday");
+  const orig = (b: Bundle) => m.all.find((x) => x.network === b.network && x.rateLabel === b.rateLabel && x.band && b.band && x.band.from === b.band.from) ?? b;
+  check(`small buys: ${small.ranked.length} rows, every one GH¢20 or less, all-day eligible (same rule as 'Any price'), and rankable`,
+    small.ranked.length > 0 && small.ranked.every((r) => r.bundle.price <= 20 + 1e-9 && GROUPS[0].test(orig(r.bundle)) && canWin(orig(r.bundle)) && !isPending(r.bundle) && !isUnconfirmed(r.bundle) && !isConditional(r.bundle)));
+  const wantFixed = allday.ranked.filter((r) => !(r.bundle.band && !r.bundle.band.exact) && r.bundle.price <= 20 + 1e-9).map((r) => `${r.bundle.network}|${r.bundle.name}`).sort();
+  const gotFixed = small.ranked.filter((r) => !(r.bundle.band && !r.bundle.band.exact)).map((r) => `${r.bundle.network}|${r.bundle.name}`).sort();
+  check(`small buys: exactly the 'Any price' rows priced GH¢20 or less (${wantFixed.length}), nothing more`, JSON.stringify(gotFixed) === JSON.stringify(wantFixed));
+  const ranges = small.ranked.filter((r) => r.bundle.band && !r.bundle.band.exact);
+  const wantRanges = allday.ranked.filter((r) => r.bundle.band && !r.bundle.band.exact && r.bundle.band.from <= 20 + 1e-9);
+  check(`small buys: pay-any-amount bands that start at GH¢20 or less (${wantRanges.length}) are shown up to GH¢20, at the same rate, so the same value per GH¢10`,
+    ranges.length === wantRanges.length && ranges.every((r) => { const o = orig(r.bundle); return r.bundle.band!.to <= 20 + 1e-9 && r.bundle.price === Math.min(o.price, 20) && m.valueText(r.bundle) === m.valueText(o) && Math.abs(r.bundle.mb / r.bundle.price - o.mb / o.price) < 1e-9; }));
+  check("small buys: ranked by the same value rule (best first), ties only where the shown figure is the same (and same price with different data ranks apart)",
+    small.ranked.every((r, i, a) => i === 0 || (m.valueMb(a[i - 1].bundle) ?? 0) >= (m.valueMb(r.bundle) ?? 0) - 1e-9) &&
+    small.ranked.every((r, i, a) => i === 0 || (r.rank === a[i - 1].rank) === (m.valueText(r.bundle) === m.valueText(a[i - 1].bundle) && !(Math.abs(r.bundle.price - a[i - 1].bundle.price) < 1e-9 && Math.abs(r.bundle.mb - a[i - 1].bundle.mb) > 1e-9))) &&
+    small.ranked.every((r) => r.joint === small.ranked.filter((o) => o.rank === r.rank).length > 1));
+  const fo = m.faceOff("small");
+  check("small buys: the face-off summary shows each network's first Small buys row, and marks the best",
+    m.networks.every((n) => { const f = fo.find((x) => x.n === n)!; const first = small.ranked.find((r) => r.bundle.network === n); return (!first && !f.b) || (!!first && !!f.b && m.valueText(f.b) === m.valueText(first.bundle)); }) &&
+    fo.some((x) => x.best) && fo.filter((x) => x.best).every((x) => m.valueText(x.b!) === m.valueText(small.ranked[0].bundle)));
+  check("small buys: not one of GROUPS, so counts, winners, structured data and the social image are unchanged", !GROUPS.some((g) => g.id === "small") && m.topWinners().every((w) => !/Small buys/.test(w.text)));
+
+  // 3. Official rates.
+  const worked = m.all.filter((b) => sh.trustOf(b).level === "worked");
+  check(`official rates: ${worked.length} rows read '✓ From <network>'s official rates': all worked out from a network's own https page; none disputed, unconfirmed, pending, conditional, held or app-only`,
+    worked.length > 0 && worked.every((b) => b.computed && /^https:\/\//.test(b.source) && !isUnconfirmed(b) && !isPending(b) && !isConditional(b) && !hasConflict(b) && !b.otherSource?.summary && !b.held));
+  {
+    const c0 = worked[0];
+    const held = sh.trustOf({ ...c0, held: "price change being checked" } as Bundle).level;
+    const disp = sh.trustOf({ ...c0, otherSource: { summary: "x", contradicts: "price" } } as Bundle).level;
+    const unc = sh.trustOf({ ...c0, unconfirmed: true, asOf: "2026-01-01" } as Bundle).level;
+    check("official rates: a held, disputed or unconfirmed rate row is '! Check first', never ✓", held === "check" && disp === "check" && unc === "check");
+    check("official rates: the badge says '✓ From Telecel's official rates' (green), and More info says 'Exact, from …'",
+      textOf(html(React.createElement(sh.TrustBadge, { b: m.all.find((b) => b.network === "telecel" && sh.trustOf(b).level === "worked")! }))).includes("✓ From Telecel's official rates") &&
+      !/≈ Price we calculated|border-sky-500/.test(src("src/components/data-bundles/shared.tsx").split("export function TrustBadge")[1].split("export function")[0].split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n")));
+  }
+
+  // 1. "Most data", not "best buy".
+  check("meter: the winner's word is 'Most data ✓' (it measures data only), consistent with the 'Most data' badge", src("src/components/data-bundles/BudgetFinder.tsx").includes('"Most data ✓"') && /trophy="Most data"/.test(src("src/components/data-bundles/BudgetFinder.tsx")));
+
+  // 2. The source line: honest about the schedule.
+  const bd = (checkedAt: string, source: "live" | "saved" | "bundled" = "live") => ({ country: DATA_BUNDLE_COUNTRIES.ghana, model: m, freshness: { capturedAt: doc.capturedAt, checkedAt, source }, checking: false });
+  const fresh = textOf(html(React.createElement(SourceLine, { data: bd(new Date().toISOString()) } as any)));
+  const mtnLine = textOf(html(React.createElement(SourceLine, { data: bd(new Date().toISOString()), only: "mtn" } as any)));
+  const ms = src("src/components/data-bundles/meta.tsx");
+  check("source line: 'Prices from AT, MTN and Telecel's own websites · checked automatically every 3 hours'; a network page names its network; a tap opens 'Where our prices come from'",
+    fresh.includes("Prices from AT, MTN and Telecel's own websites · checked automatically every 3 hours") && mtnLine.includes("Prices from MTN's own website") &&
+    /<a href="#sources" onClick=\{openSources\} data-testid="source-line"/.test(ms) && /min-h-11/.test(ms.split("export function SourceLine")[1].split("export function")[0]));
+  {
+    // The schedule's space is kept (no layout shift); when not fresh it is invisible and hidden from screen readers.
+    const sched = (h: string) => (h.match(/<span data-testid="source-schedule"[^>]*>/) ?? [""])[0];
+    const savedH = sched(html(React.createElement(SourceLine, { data: bd(new Date().toISOString(), "saved") } as any)));
+    check("source line: 'every 3 hours' only while the prices are fresh (the status strip's rule); a saved copy (or, after load, an old one) hides it (invisible, aria-hidden) and keeps its space",
+      /const fresh = scheduleShown\(now \? hoursSince\(checkedAt, now\) : null, every\) && data\.freshness\.source !== "saved";/.test(ms) &&
+      /className=\{fresh \? undefined : "invisible"\} aria-hidden=\{fresh \? undefined : true\}/.test(ms) &&
+      /data-shown="0"/.test(savedH) && /class="invisible"/.test(savedH) && /aria-hidden="true"/.test(savedH), savedH);
+  }
+
+  // 5. Ranges.
+  const flexi = allday.ranked.find((r) => r.bundle.band && !r.bundle.band.exact && r.bundle.band.from === 400)!.bundle;
+  check("ranges: 'From GH¢400: 260.42 GB (more if you pay more)' (the model's figure for the band's lowest amount), never 'GH¢400 to GH¢999.99 → … to …' in the lead",
+    m.leadText(flexi) === `From GH¢400: ${m.fmtData(flexi.mb * (400 / flexi.band!.to), "telecel")} (more if you pay more)` && m.leadText(flexi) === "From GH¢400: 260.42 GB (more if you pay more)");
+
+  // 6. One board on the comparison page.
+  const dash = src("src/pages/data-bundles/DataBundlesDashboard.tsx");
+  const lb = src("src/components/data-bundles/Leaderboards.tsx");
+  check("one board: the comparison page has no separate face-off or network panels; the board carries the face-off bars (driven by its tab) and each network's 'See all … bundles' link",
+    !/<FaceOff\b|<NetworkPanels\b/.test(dash) && /<Leaderboards model=\{model\} basePath=\{basePath\} \/>/.test(dash) &&
+    /\{!network && <div data-testid="board-summary"><FaceOffBars model=\{model\} groupId=\{tab\} basePath=\{basePath\} \/><\/div>\}/.test(lb) && /const \[tab, setTab\] = useState\(BOARD_TABS\[0\]\.id\);/.test(lb) &&
+    /data-testid="faceoff-see-all">See all \{info\.name\} bundles/.test(src("src/components/data-bundles/FaceOff.tsx")));
+  check("one board: the network pages keep their own best deals (NetworkBest)", /<NetworkBest /.test(src("src/pages/data-bundles/DataBundlesNetwork.tsx")));
+  check("one board: the structured data still lists the winners of every group (ItemList), unchanged by the new tab", m.topWinners().length >= GROUPS.length - 1 && /itemList=\{winnersList\}/.test(dash));
 }
 
 function unitsLineText(mm: BundleModel): string {

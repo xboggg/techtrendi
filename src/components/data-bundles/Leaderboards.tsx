@@ -14,14 +14,18 @@ import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { ListOrdered } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { GROUPS, type Bundle, type BundleModel } from "@/lib/dataBundles";
+import { BOARD_TABS, type Bundle, type BundleModel } from "@/lib/dataBundles";
+import { FaceOffBars } from "./FaceOff";
 import { ChannelNote, ConflictNote, Details, NetPill, OtherSourceNote, SectionHeading, TrustBadge, TrustReasons, trustOf, ValueBar, extrasText, glass, textSafeFill, unitsLine, useGrowIn, valueExplainer, workedOutText, PriceLead, perGbLine } from "./shared";
 
 /** Rows shown before "Show more". */
 export const TOP = 5;
 
-export function Leaderboards({ model, network }: { model: BundleModel; network?: string }) {
-  const [tab, setTab] = useState(GROUPS[0].id);
+/** The board opens on "Small buys (up to GH¢20)", then "Any price" (all-day data) and the other
+ *  groups (BOARD_TABS). On the comparison page (no `network`) the face-off bars sit at its top as
+ *  its quick summary, driven by the selected tab, with each network's "See all … bundles" link. */
+export function Leaderboards({ model, network, basePath }: { model: BundleModel; network?: string; basePath?: string }) {
+  const [tab, setTab] = useState(BOARD_TABS[0].id);
   // The reader's pick on the comparison page. On a network page it is ignored (see above).
   const [picked, setPicked] = useState<string>("all");
   const net = network ?? picked;
@@ -29,20 +33,23 @@ export function Leaderboards({ model, network }: { model: BundleModel; network?:
 
   return (
     <section aria-labelledby="ranks-h" id="rankings" className="scroll-mt-24">
-      <SectionHeading id="ranks-h" eyebrow="Winners board" title="Best value bundles (any price)" icon={<ListOrdered className="h-4 w-4" aria-hidden />}
+      <SectionHeading id="ranks-h" eyebrow="Winners board" title="Best value bundles" icon={<ListOrdered className="h-4 w-4" aria-hidden />}
         info={<><p>Longer bar = more data for your money.</p><p>{valueExplainer(model)}</p></>} />
 
       <div className={cn(glass, "p-3 sm:p-5")}>
         <Tabs value={tab} onValueChange={(v) => { setTab(v); setExpanded(false); }}>
           {/* Tabs wrap onto more lines on narrow phones, so every tab is always fully visible. */}
           <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-xl p-1">
-            {GROUPS.map((g) => (
+            {BOARD_TABS.map((g) => (
               <TabsTrigger key={g.id} value={g.id} className="relative min-h-11 rounded-lg px-3 py-2 text-xs sm:text-sm">
                 {g.label}
                 {tab === g.id && <motion.span layoutId="lb-tab-underline" className="absolute inset-x-2 bottom-0.5 h-[3px] rounded-full bg-foreground" transition={{ type: "spring", stiffness: 420, damping: 36 }} aria-hidden />}
               </TabsTrigger>
             ))}
           </TabsList>
+
+          {/* The quick summary: each network's best of this tab, three bars (comparison page only). */}
+          {!network && <div data-testid="board-summary"><FaceOffBars model={model} groupId={tab} basePath={basePath} /></div>}
 
           {!network && (
             <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filter by network">
@@ -69,7 +76,7 @@ export function Leaderboards({ model, network }: { model: BundleModel; network?:
             </div>
           )}
 
-          {GROUPS.map((g) => (
+          {BOARD_TABS.map((g) => (
             <TabsContent key={g.id} value={g.id} className="mt-3">
               <Board model={model} groupId={g.id} hint={g.hint} net={net} expanded={expanded} onExpand={() => setExpanded(true)} />
             </TabsContent>
@@ -97,7 +104,7 @@ function Board({ model, groupId, hint, net, expanded, onExpand }: { model: Bundl
           <p>Each tab only ranks bundles of the same type. If two show the same value figure, they share a place (shown as “Tied”). If the price is the same, more data ranks higher. {unitsLine(model)}.</p>
           {groupId === "combo" && <p>We rank by the data only. Minutes and SMS are listed, but not counted.</p>}
           {groupId === "night" && <p>Night hours differ by network. Check the hours on each row.</p>}
-          <p>Rows marked “Price we calculated” use the network's price per MB for that amount.</p>
+          <p>Rows marked “From … official rates” are worked out exactly from the network's own published price per MB for that amount.</p>
         </Details>
       </div>
       {ranked.length === 0 && disputed.length === 0 && restricted.length === 0 ? (

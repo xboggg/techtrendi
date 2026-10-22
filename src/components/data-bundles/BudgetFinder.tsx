@@ -256,7 +256,8 @@ function ValueMeter({ meter, color }: { meter: Meter; color: string }) {
   const band = `conic-gradient(from 270deg, hsl(var(--muted-foreground) / 0.25) 0deg 90deg, hsl(var(--muted-foreground) / 0.45) 90deg 135deg, hsl(var(--muted-foreground) / 0.7) 135deg 171deg, ${color} 171deg 180deg, transparent 180deg)`;
   // The result in large, clear type under the gauge (no small grey zone labels on the arc):
   // the winner "BEST BUY ✓", the others "Good", "Fair" or "Poor" (plain-language round).
-  const word = meter.zone === "Best" ? "Best buy ✓" : meter.zone;
+  // It measures data only, so it never claims more than "most data" (owner, 22 Oct 2026).
+  const word = meter.zone === "Best" ? "Most data ✓" : meter.zone;
   return (
     <div className="relative shrink-0" style={{ width: W, height: 84 }} aria-hidden data-testid="gauge-wrap" data-zone={meter.zone ?? ""}>
       <div className="absolute left-1/2 top-[10px] h-[80px] w-[80px] -translate-x-1/2 overflow-hidden" style={{ height: 40 }}>

@@ -73,10 +73,10 @@ export function NetPill({ info, className, children }: { info: NetworkInfo; clas
  *  price per MB for that amount (the full wording, e.g. "Computed from MTN's published rate",
  *  is in the bundle's computedLabel). */
 export function workedOutText(model: BundleModel, b: Pick<Bundle, "network">): string {
-  return `Price we calculated from ${model.networkInfo(b.network)?.name ?? b.network}'s price list`;
+  return `Exact, from ${model.networkInfo(b.network)?.name ?? b.network}'s official per-MB rates`;
 }
 
-export function ComputedBadge({ label = "Price we calculated from MTN's price list" }: { label?: string }) {
+export function ComputedBadge({ label = "Exact, from MTN's official per-MB rates" }: { label?: string }) {
   return (
     <span className="inline-flex items-center gap-1 rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-0.5 text-[15px] lg:text-base font-medium text-sky-800 dark:text-sky-200">
       <Calculator className="h-3 w-3" aria-hidden />
@@ -360,6 +360,8 @@ export function ConflictNote({ b, className }: { b: Bundle; className?: string }
  *  something different; the note itself is behind "details". */
 /** Network names for the calm "… not clear – check with MTN" badges (components without the model). */
 const NETWORK_SHORT: Record<string, string> = { mtn: "MTN", telecel: "Telecel", at: "AT" };
+/** "✓ From Telecel's official rates": the trust label of a row worked out from the network's own per-MB rates. */
+export const officialRatesText = (network: string) => `✓ From ${NETWORK_SHORT[network] ?? "the network"}'s official rates`;
 export function OtherSourceBadge({ b }: { b: Bundle }) {
   const o = b.otherSource;
   if (!o || typeof o.summary !== "string" || !o.summary.trim()) return null;
@@ -408,9 +410,11 @@ export function OperatorTitle({ model, b }: { model: BundleModel; b: Bundle }) {
 export function TrustBadge({ b }: { b: Bundle }) {
   const { level, who } = trustOf(b);
   const tone = level === "check" ? "border-amber-500/50 bg-amber-500/10 text-amber-900 dark:text-amber-100"
-    : level === "worked" ? "border-sky-500/40 bg-sky-500/10 text-sky-900 dark:text-sky-100"
     : "border-emerald-600/40 bg-emerald-500/10 text-emerald-900 dark:text-emerald-100";
-  const text = level === "check" ? `! Check first${who ? ` · ${who}` : ""}` : level === "worked" ? "≈ Price we calculated" : "✓ Confirmed";
+  // A figure worked out from the network's own published per-MB rate is exact, not estimated:
+  // "✓ From Telecel's official rates" (owner, 22 Oct 2026; it was "≈ Price we calculated").
+  // Anything disputed, unconfirmed, held, app-screenshot-only or estimated is "! Check first" (trustOf).
+  const text = level === "check" ? `! Check first${who ? ` · ${who}` : ""}` : level === "worked" ? officialRatesText(b.network) : "✓ Confirmed";
   return <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-[15px] lg:text-base font-bold", tone)} data-testid="trust" data-level={level}>{text}</span>;
 }
 /** Why a bundle is "Check first" or "Worked out", in full (for "More info"). */
@@ -419,7 +423,7 @@ export function TrustReasons({ b }: { b: Bundle }) {
   if (level === "confirmed") return null;
   return (
     <div className="flex flex-wrap gap-1.5" data-testid="trust-reasons">
-      {b.computed && <ComputedBadge label={b.computedLabel ?? "Price we calculated from the network's price list"} />}
+      {b.computed && <ComputedBadge label={b.computedLabel ?? "Exact, from the network's official per-MB rates"} />}
       <StatusBadges b={b} />
       {fromAppOnly(b) && <span className="inline-flex items-center rounded-full border border-amber-500/50 bg-amber-500/10 px-2.5 py-0.5 text-[15px] lg:text-base font-medium text-amber-900 dark:text-amber-100" data-testid="app-only">App screenshot only</span>}
       {b.held && <span className="inline-flex items-center rounded-full border border-amber-500/50 bg-amber-500/10 px-2.5 py-0.5 text-[15px] lg:text-base font-medium text-amber-900 dark:text-amber-100" data-testid="held">New figure being checked. We show the last checked one.</span>}
@@ -1115,19 +1119,36 @@ export function ValueFigure({ model, b, share, className }: { model: BundleModel
 
 /** "GH¢400 bundle →" with the arrow kept on the same line as the last word (never alone on a line).
  *  Screen readers hear "GH¢400 bundle gives". */
-export function LeadArrow({ text }: { text: string }) {
+export function LeadArrow({ text, colon = false }: { text: string; colon?: boolean }) {
+  // A pay-any-amount range reads "From GH¢400:" (its data follows), never with an arrow.
+  if (colon) return <>{text}:</>;
   const i = text.lastIndexOf(" ");
   const head = i > 0 ? text.slice(0, i + 1) : "";
   const last = i > 0 ? text.slice(i + 1) : text;
   return <>{head}<span className="whitespace-nowrap">{last} <span aria-hidden>→</span></span><span className="sr-only"> gives</span></>;
 }
+const MORE = " (more if you pay more)";
+/** The leading data figure and, for a range, the small "(more if you pay more)" under it. */
+export function LeadData({ model, b, className }: { model: BundleModel; b: Bundle; className?: string }) {
+  const t = model.leadData(b);
+  const range = t.endsWith(MORE);
+  return (
+    <>
+      <span className={cn("block whitespace-nowrap font-black tabular-nums", className)}>{range ? t.slice(0, -MORE.length) : t}</span>
+      {range && <span className="block text-[15px] font-semibold text-foreground/85 lg:text-base" data-testid="lead-more">(more if you pay more)</span>}
+    </>
+  );
+}
+const isRange = (b: Bundle) => !!b.band && !b.band.exact;
 
 /** "GH¢400 bundle → 263.38GB": the real price and data, leading every card and row. */
 export function PriceLead({ model, b, className, dataClassName }: { model: BundleModel; b: Bundle; className?: string; dataClassName?: string }) {
   return (
     <p className={cn("font-bold leading-tight", className)} data-testid="price-lead">
-      <span className="tabular-nums">{model.priceLead(b)}</span> <span aria-hidden>→</span><span className="sr-only">gives</span>{" "}
-      <span className={cn("whitespace-nowrap font-black tabular-nums", dataClassName)}>{model.dataShown(b)}</span>
+      {isRange(b)
+        ? <><span className="tabular-nums">{model.priceLead(b)}:</span>{" "}<span className={cn("whitespace-nowrap font-black tabular-nums", dataClassName)}>{model.leadData(b).replace(MORE, "")}</span> <span className="font-semibold text-foreground/85">(more if you pay more)</span></>
+        : <><span className="tabular-nums">{model.priceLead(b)}</span> <span aria-hidden>→</span><span className="sr-only">gives</span>{" "}
+          <span className={cn("whitespace-nowrap font-black tabular-nums", dataClassName)}>{model.dataShown(b)}</span></>}
     </p>
   );
 }

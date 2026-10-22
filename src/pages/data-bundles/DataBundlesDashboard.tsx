@@ -22,11 +22,9 @@ import { GROUPS, canWin, hasConflict, isConditional, isPending, isTimeRestricted
 import { BudgetFinder } from "@/components/data-bundles/BudgetFinder";
 import { MonthlyPlanner } from "@/components/data-bundles/MonthlyPlanner";
 import { Leaderboards } from "@/components/data-bundles/Leaderboards";
-import { NetworkPanels } from "@/components/data-bundles/NetworkPanels";
 import { Advice } from "@/components/data-bundles/Advice";
-import { LiveStatus, ShareWhatsApp, SourcesAndDisclaimer } from "@/components/data-bundles/meta";
+import { LiveStatus, ShareWhatsApp, SourcesAndDisclaimer, SourceLine } from "@/components/data-bundles/meta";
 import { DataBundlesChrome, Details, NetPill, ScanSweep, TextSizeToggle, glass, useFocusTitleOnNavigate } from "@/components/data-bundles/shared";
-import { FaceOff } from "@/components/data-bundles/FaceOff";
 import { cn } from "@/lib/utils";
 
 /** Why the verified fixed bundles that are not ranked anywhere are not, from the data:
@@ -52,8 +50,6 @@ function notRankedText(model: BundleModel): string {
 }
 
 const JUMPS = [
-  ["faceoff", "Face-off"],
-  ["networks", "Networks"],
   ["rankings", "Winners"],
   ["monthly", "Monthly"],
   ["advice", "Tips"],
@@ -123,7 +119,7 @@ export default function DataBundlesDashboard() {
           </div>
 
           <header className="relative">
-            <div className="container mx-auto max-w-6xl px-4 pb-8 pt-3 pr-7 [@media(max-height:820px)_and_(max-width:639px)]:pt-1.5 md:pb-12 md:pt-8">
+            <div className="container mx-auto max-w-6xl px-4 pb-2 pt-3 pr-7 [@media(max-height:820px)_and_(max-width:639px)]:pt-1.5 md:pb-4 md:pt-8">
               {/* Phone first screen: one status line, the heading, the network chips, then "What
                   we compare" with A / A+ beside it, then the finder (its winner visible at 390x844). */}
               {/* Status, and on phones the A / A+ toggle at the top right (owner, 22 Oct 2026). */}
@@ -135,7 +131,11 @@ export default function DataBundlesDashboard() {
                 {data.country.name} data bundles,{" "}
                 <span className="bg-gradient-to-r from-amber-600 via-red-600 to-blue-700 bg-clip-text text-transparent dark:from-amber-300 dark:via-red-400 dark:to-sky-400">compared</span>
               </h1>
-              <div className="mt-2 flex flex-wrap items-center gap-2 [@media(max-height:820px)_and_(max-width:639px)]:mt-1.5 sm:mt-3">
+              {/* Where the prices come from (tap: opens the Sources section). */}
+              <div className="mt-1 [@media(max-height:820px)_and_(max-width:639px)]:mt-0"><SourceLine data={data} /></div>
+              {/* Phones: the source line above already names the networks, so the chips give their
+                  room to the finder (the answer stays on the first screen; owner, 22 Oct 2026). */}
+              <div className="mt-2 hidden flex-wrap items-center gap-2 sm:mt-3 sm:flex">
                 {model.networks.map((n) => <NetPill key={n} info={model.networkInfo(n)} />)}
               </div>
               {/* Short phones: this row moves below the finder, so the answer is on the first screen (UI audit M3). */}
@@ -175,10 +175,11 @@ export default function DataBundlesDashboard() {
             </div>
           </header>
 
-          <div className="container relative mx-auto max-w-6xl space-y-12 px-4 pb-28 pt-10 pr-7 md:space-y-16 md:pt-14">
-            <FaceOff model={model} />
-            <NetworkPanels model={model} basePath={basePath} />
-            <Leaderboards model={model} />
+          <div className="container relative mx-auto max-w-6xl space-y-12 px-4 pb-28 pt-6 pr-7 md:space-y-16 md:pt-8">
+            {/* The winners board carries the face-off (its summary bars) and each network's
+                "See all … bundles" link; the separate face-off and network panels are gone
+                from this page (owner, 22 Oct 2026). The network pages keep their own best deals. */}
+            <Leaderboards model={model} basePath={basePath} />
             <MonthlyPlanner model={model} />
             <Advice model={model} />
             <Faq model={model} />

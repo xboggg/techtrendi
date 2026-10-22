@@ -184,6 +184,28 @@ function UnitsNote({ units }: { units: unknown }) {
   return null;
 }
 
+/** The line under the page heading: where the prices come from, and (only while the prices are
+ *  fresh, the same rule as the status strip: scheduleShown) how often they are checked. A tap
+ *  scrolls to "Where our prices come from" and opens it. */
+export function SourceLine({ data, only }: { data: BundleData; only?: string }) {
+  const now = useNow();
+  const { checkedAt } = data.freshness;
+  const every = data.country.checkEveryHours;
+  const fresh = scheduleShown(now ? hoursSince(checkedAt, now) : null, every) && data.freshness.source !== "saved";
+  const names = (only ? [only] : data.model.networks).map((n) => data.model.networkInfo(n).name);
+  const who = names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}` : names[0];
+  const hasSchedule = typeof every === "number" && every > 0;
+  // The schedule's space is always kept (hidden, and silent for screen readers, while the prices are
+  // not fresh), so the line never changes height when a saved copy turns live: no layout shift.
+  return (
+    <a href="#sources" onClick={openSources} data-testid="source-line"
+      className="-my-1 inline-flex min-h-11 max-w-full items-center gap-1.5 text-[13px] font-medium sm:text-[15px] text-foreground/85 underline-offset-4 hover:text-foreground hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-ring [@media(max-height:820px)_and_(max-width:639px)]:leading-snug lg:text-base">
+      <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden />
+      <span>Prices from {who}&apos;s own website{names.length > 1 ? "s" : ""}{hasSchedule && <span data-testid="source-schedule" data-shown={fresh ? "1" : "0"} className={fresh ? undefined : "invisible"} aria-hidden={fresh ? undefined : true}> · checked automatically every {every} hours</span>}</span>
+    </a>
+  );
+}
+
 /** Opens the folded Sources section (for "How we check" links pointing at #sources). */
 export function openSources() {
   if (typeof document === "undefined") return;

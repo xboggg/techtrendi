@@ -10,7 +10,7 @@
 import { ArrowRight, Infinity as InfinityIcon, Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GROUPS, type Bundle, type BundleModel } from "@/lib/dataBundles";
-import { BuyFold, BuyLine, OperatorTitle, appSourceText, fromAppOnly, ChannelNote, CountUpText, Details, OtherSourceNote, SectionHeading, SwipeDeck, TrustBadge, TrustReasons, trustOf, ValueFigure, glass, hasNotes, textSafeFill, valueExplainer, workedOutText, QueryLink, perGbLine, LeadArrow } from "./shared";
+import { BuyFold, BuyLine, OperatorTitle, appSourceText, fromAppOnly, ChannelNote, CountUpText, Details, OtherSourceNote, SectionHeading, SwipeDeck, TrustBadge, TrustReasons, trustOf, ValueFigure, glass, hasNotes, textSafeFill, valueExplainer, workedOutText, QueryLink, perGbLine, LeadArrow, LeadData } from "./shared";
 
 /** The panel rows: like-for-like groups by id (never mixed). */
 export const PANEL_CATEGORIES = [
@@ -71,7 +71,7 @@ export function NetworkPanels({ model, basePath }: { model: BundleModel; basePat
                       {/* Compact repeat, so the row is not an empty block beside the other networks. */}
                       <p className="mt-1 text-[15px] lg:text-base" data-testid="panel-same">
                         <span className="font-semibold">Same bundle as above</span>
-                        {rows[0].b && <span className="text-foreground/85">: {model.priceLead(rows[0].b)} → {model.dataShown(rows[0].b)} · never expires</span>}
+                        {rows[0].b && <span className="text-foreground/85">: {model.leadText(rows[0].b)} · never expires</span>}
                       </p>
                     </li>
                   ) : (
@@ -145,8 +145,10 @@ function PanelDeal({ model, b, share, alsoNoExpiry, openBuy }: { model: BundleMo
     <div className="mt-1 space-y-2">
       {/* The real price and data first ("GH¢400 bundle → 263.38GB"); value under it, smaller. */}
       <p className="leading-tight" data-testid="panel-price">
-        <span className="block text-base font-bold tabular-nums"><LeadArrow text={model.priceLead(b)} /></span>
-        <span className={cn("block font-black tabular-nums", shown.length > 12 ? "text-[1.7rem]" : "text-4xl")} data-testid="panel-data"><CountUpText text={shown} testId="panel-count" /></span>
+        <span className="block text-base font-bold tabular-nums"><LeadArrow text={model.priceLead(b)} colon={!!b.band && !b.band.exact} /></span>
+        {b.band && !b.band.exact
+          ? <span data-testid="panel-data"><LeadData model={model} b={b} className={shown.length > 12 ? "text-[1.7rem]" : "text-4xl"} /></span>
+          : <span className={cn("block font-black tabular-nums", shown.length > 12 ? "text-[1.7rem]" : "text-4xl")} data-testid="panel-data"><CountUpText text={shown} testId="panel-count" /></span>}
       </p>
       <p className="text-[15px] lg:text-base">
         <span className="font-semibold">{model.nameNoPrice(b)}</span>

@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { Crown, Swords } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BundleModel } from "@/lib/dataBundles";
-import { LeadArrow, NetPill, SlideTabs, textSafeFill, useGrowIn, valueExplainer, Details } from "./shared";
+import { LeadArrow, NetPill, SlideTabs, textSafeFill, useGrowIn, valueExplainer, Details, LeadData, QueryLink } from "./shared";
 
 export const FACEOFF_TABS = [
   { id: "allday", label: "Any time" },
@@ -18,9 +18,6 @@ export const FACEOFF_TABS = [
 
 export function FaceOff({ model }: { model: BundleModel }) {
   const [tab, setTab] = useState<string>("allday");
-  const rows = model.faceOff(tab);
-  const ref = useRef<HTMLDivElement>(null);
-  const grow = useGrowIn(ref);
   return (
     <section aria-labelledby="faceoff-h" id="faceoff" className="scroll-mt-24">
       <div className="relative overflow-hidden rounded-3xl border border-border bg-card/60 p-4 sm:p-6">
@@ -43,49 +40,63 @@ export function FaceOff({ model }: { model: BundleModel }) {
             value={tab}
             onChange={(id) => setTab(id)}
           />
-          <div ref={ref} role="tabpanel" id={`faceoff-panel-${tab}`} aria-labelledby={`faceoff-tab-${tab}`} className="mt-4 grid grid-cols-3 gap-2 sm:gap-4" data-testid="faceoff">
-            {rows.map((r, i) => {
-              const info = model.networkInfo(r.n);
-              return (
-                <div key={r.n} className="flex min-w-0 flex-col items-center text-center" data-testid="faceoff-col" data-net={r.n} data-best={r.best ? "1" : "0"} data-value={r.value ?? ""}>
-                  {/* The network's name above its bar. */}
-                  <NetPill info={info} />
-                  {r.b && r.value ? (
-                    <p className="mt-1.5 leading-tight" data-testid="faceoff-lead">
-                      <span className="block text-[15px] font-bold tabular-nums sm:text-base"><LeadArrow text={model.priceLead(r.b)} /></span>
-                      <span className={cn("block whitespace-nowrap font-black tabular-nums", model.dataShown(r.b).length > 7 ? "text-xl sm:text-3xl" : "text-2xl sm:text-4xl")} data-testid="faceoff-data">{model.dataShown(r.b)}</span>
-                    </p>
-                  ) : (
-                    <p className="mt-1 text-base text-muted-foreground">None</p>
-                  )}
-                  {/* Bar: fixed-height track, the fill grows with a transform (no layout shift). */}
-                  <div className="relative mt-2 h-28 w-full max-w-[96px] overflow-hidden rounded-t-xl bg-muted/60 sm:h-36" style={r.best ? { boxShadow: `0 0 26px -2px ${info.color}` } : undefined}
-                    role="img" aria-label={r.b && r.value ? `${model.priceLead(r.b)}: value ${r.value} per ${model.money(model.valueStep)}` : `${info.name}: none`}>
-                    <motion.div
-                      className="absolute inset-0 origin-bottom rounded-t-xl"
-                      style={{ background: `linear-gradient(to top, ${info.color}66, ${info.color})` }}
-                      initial={false}
-                      animate={{ scaleY: grow ? r.share : 0 }}
-                      transition={{ type: "tween", duration: 0.4, ease: "easeOut", delay: grow ? i * 0.1 : 0 }}
-                      aria-hidden
-                    />
-                    {/* "Best" sits on the winning bar itself (the winner's bar is full height). */}
-                    {r.best && (
-                      <span className="absolute left-1/2 top-1.5 inline-flex -translate-x-1/2 items-center gap-1 rounded-full px-2.5 py-0.5 text-[15px] lg:text-base font-bold shadow" style={{ background: textSafeFill(info), color: info.ink }} data-testid="faceoff-best">
-                        <Crown className="h-3 w-3" aria-hidden /> Best
-                      </span>
-                    )}
-                  </div>
-                  {/* The bar's label: the bundle's own price. Then the value yardstick, smaller. */}
-                  {r.b && <p className="mt-1 w-full max-w-[96px] rounded-b-lg px-1 py-0.5 text-[15px] font-bold leading-tight lg:text-base" style={{ background: textSafeFill(info), color: info.ink }} data-testid="faceoff-bar-label">{model.priceLead(r.b)}</p>}
-                  {r.value && <p className="mt-1.5 text-[15px] leading-snug text-foreground/90 lg:text-base" data-testid="faceoff-value">Value: <b className="tabular-nums">{r.value}</b> per {model.money(model.valueStep)}</p>}
-                  {r.b && <p className="mt-1 line-clamp-2 text-[15px] leading-tight text-foreground/85 lg:text-base">{model.nameNoPrice(r.b)}</p>}
-                </div>
-              );
-            })}
-          </div>
+          <FaceOffBars model={model} groupId={tab} tabpanelOf="faceoff" />
         </div>
       </div>
     </section>
+  );
+}
+
+/** The face-off bars for one board tab: each network's best-value bundle in that tab (model.faceOff),
+ *  led by its own price and data, the bar labelled with its price, the value under it. Used at the
+ *  top of the winners board (the board's tabs drive it), and by FaceOff. */
+export function FaceOffBars({ model, groupId, basePath, tabpanelOf }: { model: BundleModel; groupId: string; basePath?: string; tabpanelOf?: string }) {
+  const rows = model.faceOff(groupId);
+  const ref = useRef<HTMLDivElement>(null);
+  const grow = useGrowIn(ref);
+  return (
+    <div ref={ref} {...(tabpanelOf ? { role: "tabpanel", id: `${tabpanelOf}-panel-${groupId}`, "aria-labelledby": `${tabpanelOf}-tab-${groupId}` } : {})} className="mt-4 grid grid-cols-3 gap-2 sm:gap-4" data-testid="faceoff" data-group={groupId}>
+      {rows.map((r, i) => {
+        const info = model.networkInfo(r.n);
+        return (
+          <div key={r.n} className="flex min-w-0 flex-col items-center text-center" data-testid="faceoff-col" data-net={r.n} data-best={r.best ? "1" : "0"} data-value={r.value ?? ""}>
+            {/* The network's name above its bar. */}
+            <NetPill info={info} />
+            {r.b && r.value ? (
+              <p className="mt-1.5 leading-tight" data-testid="faceoff-lead">
+                <span className="block text-[15px] font-bold tabular-nums sm:text-base"><LeadArrow text={model.priceLead(r.b)} colon={!!r.b.band && !r.b.band.exact} /></span>
+                <span data-testid="faceoff-data"><LeadData model={model} b={r.b} className={model.leadData(r.b).replace(" (more if you pay more)", "").length > 7 ? "text-xl sm:text-3xl" : "text-2xl sm:text-4xl"} /></span>
+              </p>
+            ) : (
+              <p className="mt-1 text-base text-muted-foreground">None</p>
+            )}
+            {/* Bar: fixed-height track, the fill grows with a transform (no layout shift). */}
+            <div className="relative mt-2 h-28 w-full max-w-[96px] overflow-hidden rounded-t-xl bg-muted/60 sm:h-36" style={r.best ? { boxShadow: `0 0 26px -2px ${info.color}` } : undefined}
+              role="img" aria-label={r.b && r.value ? `${model.priceLead(r.b)}: value ${r.value} per ${model.money(model.valueStep)}` : `${info.name}: none`}>
+              <motion.div
+                className="absolute inset-0 origin-bottom rounded-t-xl"
+                style={{ background: `linear-gradient(to top, ${info.color}66, ${info.color})` }}
+                initial={false}
+                animate={{ scaleY: grow ? r.share : 0 }}
+                transition={{ type: "tween", duration: 0.4, ease: "easeOut", delay: grow ? i * 0.1 : 0 }}
+                aria-hidden
+              />
+              {/* "Best" sits on the winning bar itself (the winner's bar is full height). */}
+              {r.best && (
+                <span className="absolute left-1/2 top-1.5 inline-flex -translate-x-1/2 items-center gap-1 rounded-full px-2.5 py-0.5 text-[15px] lg:text-base font-bold shadow" style={{ background: textSafeFill(info), color: info.ink }} data-testid="faceoff-best">
+                  <Crown className="h-3 w-3" aria-hidden /> Best
+                </span>
+              )}
+            </div>
+            {/* The bar's label: the bundle's own price. Then the value yardstick, smaller. */}
+            {r.b && <p className="mt-1 w-full max-w-[96px] rounded-b-lg px-1 py-0.5 text-[15px] font-bold leading-tight lg:text-base" style={{ background: textSafeFill(info), color: info.ink }} data-testid="faceoff-bar-label">{model.priceLead(r.b)}</p>}
+            {r.value && <p className="mt-1.5 text-[15px] leading-snug text-foreground/90 lg:text-base" data-testid="faceoff-value">Value: <b className="tabular-nums">{r.value}</b> per {model.money(model.valueStep)}</p>}
+            {r.b && <p className="mt-1 line-clamp-2 text-[15px] leading-tight text-foreground/85 lg:text-base">{model.nameNoPrice(r.b)}</p>}
+            {/* Each network's full list, from the summary (the comparison page has no network panels). */}
+            {basePath && <QueryLink to={`${basePath}/${r.n}`} className="mt-1 inline-flex min-h-11 items-center text-[15px] font-semibold underline underline-offset-4 hover:text-foreground lg:text-base" data-testid="faceoff-see-all">See all {info.name} bundles</QueryLink>}
+          </div>
+        );
+      })}
+    </div>
   );
 }

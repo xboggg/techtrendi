@@ -30,7 +30,7 @@ import { TelecelFlexiCalculator } from "@/components/data-bundles/TelecelFlexiCa
 import { Leaderboards } from "@/components/data-bundles/Leaderboards";
 import { Advice } from "@/components/data-bundles/Advice";
 import { Faq } from "@/components/data-bundles/Faq";
-import { LiveStatus, SourcesAndDisclaimer } from "@/components/data-bundles/meta";
+import { LiveStatus, SourcesAndDisclaimer, SourceLine } from "@/components/data-bundles/meta";
 import { DataBundlesChrome, Details, NetPill, SectionHeading, TextSizeToggle, fmtDate, textSafeFill, QueryLink, useFocusTitleOnNavigate, CodesIn } from "@/components/data-bundles/shared";
 import { cn } from "@/lib/utils";
 
@@ -101,6 +101,8 @@ export default function DataBundlesNetwork() {
                 <span className="rounded-xl px-2 sm:rounded-2xl sm:px-3" style={{ background: textSafeFill(info), color: info.ink }}>{info.name}</span>{" "}
                 data bundles
               </h1>
+              {/* Where the prices come from (tap: opens the Sources section). */}
+              <div className="mt-1"><SourceLine data={data} only={network} /></div>
               {/* Network switch: the current one is marked by a ring; the others keep the amount. */}
               <nav className="mt-2 flex flex-wrap items-center gap-1.5 sm:gap-2 [@media(max-height:820px)_and_(max-width:639px)]:mt-1.5 sm:mt-3" aria-label="Networks">
                 {model.networks.map((n) => (
