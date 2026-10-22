@@ -16,7 +16,7 @@
 // The server steps (nginx 301s and locations, checks, rollback) are the copy-paste runbook in
 // DOCS/DATA_BUNDLES_LAUNCH.md. Launch only with the owner's go-ahead.
 // DATA_BUNDLES_OFFLINE: the offline copy (public/sw-data-bundles.js), scoped to these pages only.
-export const DATA_BUNDLES_LAUNCHED = false;
+export const DATA_BUNDLES_LAUNCHED = true;
 export const DATA_BUNDLES_PREVIEW_BASE = "/tools-preview/data-bundles";
 export const DATA_BUNDLES_LAUNCH_BASE = "/data-bundles";
 export const DATA_BUNDLES_SITE = "https://techtrendi.com";

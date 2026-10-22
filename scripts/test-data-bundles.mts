@@ -2472,7 +2472,8 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("itemlist: SEOHead takes an optional itemList (other pages unchanged) and the dashboard passes the winners", /itemList\?: \{ name: string; items: string\[\] \}/.test(seo) && /'@type': 'ItemList'/.test(seo) && /itemList=\{winnersList\}/.test(dash));
 
   // Launch values: prepared, not switched.
-  check("launch: still preview (noindex, /tools-preview/data-bundles)", route.DATA_BUNDLES_LAUNCHED === false && route.DATA_BUNDLES_NOINDEX === true && route.DATA_BUNDLES_BASE === "/tools-preview/data-bundles" && route.DATA_BUNDLES_ROUTE === "tools-preview/data-bundles");
+  // Launched with the owner's go-ahead (22 Oct 2026): public, indexed, at /data-bundles.
+  check("launch: live (indexed, /data-bundles)", route.DATA_BUNDLES_LAUNCHED === true && route.DATA_BUNDLES_NOINDEX === false && route.DATA_BUNDLES_BASE === "/data-bundles" && route.DATA_BUNDLES_ROUTE === "data-bundles");
   check("launch: the launch base is /data-bundles, so the canonical becomes /data-bundles/ghana", route.DATA_BUNDLES_LAUNCH_BASE === "/data-bundles");
   const routes = src("src/ssg/routes.tsx");
   check("launch: routes, pages and registry all read the one switch", /path: `\$\{DATA_BUNDLES_ROUTE\}\/:country`/.test(routes) && /path: `\$\{DATA_BUNDLES_ROUTE\}\/:country\/:network`/.test(routes) &&
@@ -2609,7 +2610,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     JSON.stringify(L.prerenderPaths) === JSON.stringify(["/data-bundles/ghana", "/data-bundles/ghana/at", "/data-bundles/ghana/mtn", "/data-bundles/ghana/telecel"]) &&
     /\.concat\(DATA_BUNDLES_PRERENDER\)/.test(vite) && !/EXCLUDE_PREFIX = \[[^\]]*"data-bundles"/.test(src("scripts/generate-sitemap.mjs")) && /Walks the prerendered `dist\/` output/.test(src("scripts/generate-sitemap.mjs")));
   check("launch (round 10): flipped, the 301 from /tools-preview/data-bundles/ is in the config and the checklist", L.redirects.length === 4 && L.redirects[0].from === "/tools-preview/data-bundles/" && L.redirects[0].to === "/data-bundles/" && L.redirects.every((x) => x.status === 301) && src("DOCS/DATA_BUNDLES_LAUNCH.md").includes("rewrite ^/tools-preview/data-bundles(/.*)?$ /data-bundles$1 permanent;"));
-  check("launch (round 10): NOT flipped today: preview, noindex, nothing prerendered", route.DATA_BUNDLES_LAUNCHED === false && P.noindex && P.prerenderPaths.length === 0 && route.DATA_BUNDLES_PRERENDER.length === 0);
+  check("launch: flipped (22 Oct 2026): indexed, the 4 pages prerendered", route.DATA_BUNDLES_LAUNCHED === true && route.DATA_BUNDLES_NOINDEX === false && JSON.stringify([...route.DATA_BUNDLES_PRERENDER].sort()) === JSON.stringify(["/data-bundles/ghana", "/data-bundles/ghana/at", "/data-bundles/ghana/mtn", "/data-bundles/ghana/telecel"]));
   check("launch (round 10): the pages list matches the dataset's networks", JSON.stringify(route.DATA_BUNDLES_PAGES.ghana) === JSON.stringify([...m.networks].sort()));
 
   // 6. Short phones: tighter spacing only on short screens; Tailwind's max-* variants stay available.
