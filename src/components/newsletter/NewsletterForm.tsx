@@ -25,29 +25,21 @@ export function NewsletterForm({ variant = "default", className }: NewsletterFor
 
     setLoading(true);
     try {
-      const { data: existing } = await supabase
-        .from("newsletter_subscribers")
-        .select("id, status")
-        .eq("email", email)
-        .single();
+      // The subscriber list is not readable by visitors (RLS). A SECURITY DEFINER
+      // RPC checks/inserts/reactivates server-side and returns only a status word.
+      const { data, error } = await (supabase as any).rpc("subscribe_newsletter", { p_email: email });
+      if (error) throw error;
 
-      if (existing) {
-        if (existing.status === "active") {
-          toast.error("You're already subscribed!");
-          setLoading(false);
-          return;
-        } else {
-          await supabase
-            .from("newsletter_subscribers")
-            .update({ status: "active", subscribed_at: new Date().toISOString() })
-            .eq("email", email);
-        }
-      } else {
-        const { error } = await supabase
-          .from("newsletter_subscribers")
-          .insert({ email, status: "active" });
-
-        if (error) throw error;
+      if (data === "invalid") {
+        toast.error("Please enter a valid email");
+        return;
+      }
+      if (data === "already") {
+        toast.error("You're already subscribed!");
+        return;
+      }
+      if (data !== "subscribed" && data !== "reactivated") {
+        throw new Error(`Unexpected subscribe result: ${String(data)}`);
       }
 
       setSubscribed(true);

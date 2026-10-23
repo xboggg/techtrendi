@@ -68,6 +68,27 @@ async function fetchGeoData(): Promise<{ country: string | null; city: string | 
 // Cache geo data per session to avoid repeated API calls
 let geoCache: { country: string | null; city: string | null } | null = null;
 
+// page_views is not readable/writable by visitors (RLS). Both calls are
+// SECURITY DEFINER RPCs: track_page_view inserts and returns the new id;
+// update_page_view only touches this browser's own session (by its random
+// session id), optionally a single row, and only engagement fields.
+type PageViewUpdate = Partial<{
+  time_on_page: number;
+  session_duration: number;
+  exit_page: string;
+  country: string | null;
+  city: string | null;
+  is_bounce: boolean;
+}>;
+
+function updatePageView(viewId: string | null, fields: PageViewUpdate) {
+  return (supabase as any).rpc("update_page_view", {
+    p_session_id: getSessionId(),
+    p_id: viewId,
+    p: fields,
+  });
+}
+
 async function getGeo() {
   if (geoCache) return geoCache;
   geoCache = await fetchGeoData();
@@ -86,10 +107,7 @@ export function usePageView() {
     const timeSpent = Math.round((Date.now() - pageEntryTime.current) / 1000);
     if (timeSpent < 1) return;
     try {
-      await supabase
-        .from("page_views")
-        .update({ time_on_page: timeSpent })
-        .eq("id", currentViewId.current);
+      await updatePageView(currentViewId.current, { time_on_page: timeSpent });
     } catch {
       // silent
     }
@@ -102,10 +120,7 @@ export function usePageView() {
       // Mark last page as exit page
       if (currentViewId.current) {
         try {
-          await supabase
-            .from("page_views")
-            .update({ exit_page: location.pathname })
-            .eq("session_id", getSessionId());
+          await updatePageView(null, { exit_page: location.pathname });
         } catch {
           // silent
         }
@@ -114,12 +129,8 @@ export function usePageView() {
       const sessionStart = sessionStorage.getItem("tt_session_start");
       if (sessionStart) {
         const duration = Math.round((Date.now() - parseInt(sessionStart)) / 1000);
-        const sid = getSessionId();
         try {
-          await supabase
-            .from("page_views")
-            .update({ session_duration: duration })
-            .eq("session_id", sid);
+          await updatePageView(null, { session_duration: duration });
         } catch {
           // silent
         }
@@ -163,7 +174,7 @@ export function usePageView() {
       try {
         // Insert the view IMMEDIATELY (don't block on the external geo lookup —
         // it can be slow/blocked and would otherwise drop the whole view).
-        const { data } = await supabase.from("page_views").insert({
+        const { data: viewId } = await (supabase as any).rpc("track_page_view", { p: {
           page_path: location.pathname,
           page_title: document.title,
           referrer: document.referrer || null,
@@ -182,16 +193,14 @@ export function usePageView() {
           utm_source: utmParams.utm_source,
           utm_medium: utmParams.utm_medium,
           utm_campaign: utmParams.utm_campaign,
-        }).select("id").single();
+        } });
 
-        if (data) {
-          currentViewId.current = data.id;
+        if (typeof viewId === "string" && viewId) {
+          currentViewId.current = viewId;
           // Backfill geo asynchronously once it resolves (best-effort).
           getGeo().then((geo) => {
-            if ((geo.country || geo.city) && data.id) {
-              supabase.from("page_views")
-                .update({ country: geo.country, city: geo.city })
-                .eq("id", data.id)
+            if (geo.country || geo.city) {
+              updatePageView(viewId, { country: geo.country, city: geo.city })
                 .then(() => {}, () => {});
             }
           }).catch(() => {});
@@ -199,10 +208,7 @@ export function usePageView() {
 
         // If this is page 2+, mark previous pages in session as non-bounce
         if (pageCount > 1) {
-          await supabase
-            .from("page_views")
-            .update({ is_bounce: false })
-            .eq("session_id", getSessionId());
+          await updatePageView(null, { is_bounce: false });
         }
       } catch {
         // silent fail
