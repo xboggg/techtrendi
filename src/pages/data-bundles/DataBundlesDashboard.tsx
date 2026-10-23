@@ -119,7 +119,7 @@ export default function DataBundlesDashboard() {
           </div>
 
           <header className="relative">
-            <div className="container mx-auto max-w-6xl px-4 pb-2 pt-3 pr-7 [@media(max-height:820px)_and_(max-width:639px)]:pt-1.5 md:pb-4 md:pt-8">
+            <div className="container mx-auto max-w-6xl px-4 pb-2 pt-3 [@media(max-height:820px)_and_(max-width:639px)]:pt-1.5 md:pb-4 md:pt-8">
               {/* Phone first screen: one status line, the heading, the network chips, then "What
                   we compare" with A / A+ beside it, then the finder (its winner visible at 390x844). */}
               {/* Status, and on phones the A / A+ toggle at the top right (owner, 22 Oct 2026). */}
@@ -175,7 +175,7 @@ export default function DataBundlesDashboard() {
             </div>
           </header>
 
-          <div className="container relative mx-auto max-w-6xl space-y-12 px-4 pb-28 pt-6 pr-7 md:space-y-16 md:pt-8">
+          <div className="container relative mx-auto max-w-6xl space-y-12 px-4 pb-28 pt-6 md:space-y-16 md:pt-8">
             {/* The winners board carries the face-off (its summary bars) and each network's
                 "See all … bundles" link; the separate face-off and network panels are gone
                 from this page (owner, 22 Oct 2026). The network pages keep their own best deals. */}

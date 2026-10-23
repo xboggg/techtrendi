@@ -91,7 +91,7 @@ export default function DataBundlesNetwork() {
           </div>
 
           <header className="relative">
-            <div className="container mx-auto max-w-6xl px-4 pb-8 pt-3 pr-7 [@media(max-height:820px)_and_(max-width:639px)]:pt-1.5 md:pb-12 md:pt-8">
+            <div className="container mx-auto max-w-6xl px-4 pb-8 pt-3 [@media(max-height:820px)_and_(max-width:639px)]:pt-1.5 md:pb-12 md:pt-8">
               {/* Status, and on phones the A / A+ toggle at the top right (owner, 22 Oct 2026). */}
               <div className="flex items-start justify-between gap-2" data-testid="status-row">
                 <div className="min-w-0 flex-1 sm:pt-0"><LiveStatus data={data} /></div>
@@ -144,7 +144,7 @@ export default function DataBundlesNetwork() {
 
           {/* Keyed by network: every section below (list filters, rankings, calculators) starts
               fresh on each network page, so no state from the previous network can carry over. */}
-          <div key={network} className="container relative mx-auto max-w-6xl space-y-12 px-4 pb-28 pt-6 pr-7 md:space-y-16 md:pt-10">
+          <div key={network} className="container relative mx-auto max-w-6xl space-y-12 px-4 pb-28 pt-6 md:space-y-16 md:pt-10">
             <NetworkBest model={model} network={network} />
             {isMtn && <MtnCalculators model={model} />}
             {hasFlexi && <TelecelFlexiCalculator model={model} />}

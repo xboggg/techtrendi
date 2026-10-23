@@ -3,7 +3,6 @@
 // wording from familyInfo / networkFacts / bundle notes. If a fact is missing
 // from the data, its card simply does not appear.
 import { type ReactNode } from "react";
-import { motion } from "framer-motion";
 import { Lightbulb, AlertOctagon, Infinity as InfinityIcon, Moon, RefreshCw, Lock, Phone, Coins, Sparkles, Gauge, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GROUPS, bandFor, canWin, conditionalReason, hasConflict, isAllDay, isConditional, neverExpires, type Bundle, type BundleModel } from "@/lib/dataBundles";
@@ -326,13 +325,10 @@ export function Advice({ model, only }: { model: BundleModel; only?: string }) {
         All numbers come from the networks' own prices. Tap a tip to see them.
       </SectionHeading>
       <div className="grid gap-3 md:grid-cols-2">
-        {tips.map((t, i) => (
-          <motion.article
+        {/* Visible at once (owner, 22 Oct 2026): no fade-in, so a tip never looks faded while scrolling. */}
+        {tips.map((t) => (
+          <article
             key={t.id}
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.4, delay: Math.min(i, 4) * 0.05 }}
             className={cn(glass, "p-4", t.tone === "warn" && "border-red-500/40 bg-red-50/80 dark:bg-red-500/10")}
             data-testid="advice-card"
           >
@@ -347,7 +343,7 @@ export function Advice({ model, only }: { model: BundleModel; only?: string }) {
                 </Details>
               </div>
             </div>
-          </motion.article>
+          </article>
         ))}
       </div>
     </section>

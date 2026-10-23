@@ -73,6 +73,29 @@ export function clearQueryKeys(keys: string[]): void {
   } catch { /* never break the page over the URL */ }
 }
 
+/** The winners board's controls in the URL (?board=any&type=night), only when not the default
+ *  (Small buys + Any time). Kept apart from PageState: the finder's share links are unchanged. */
+export const BOARD_TYPES = ["allday", "noexpiry", "month", "night", "combo"] as const;
+export function parseBoardState(search: string): { price: "small" | "any"; type: string } {
+  const q = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+  const t = q.get("type") ?? "";
+  return { price: q.get("board") === "any" ? "any" : "small", type: (BOARD_TYPES as readonly string[]).includes(t) ? t : "allday" };
+}
+export function writeBoardState(s: { price: "small" | "any"; type: string }): void {
+  if (typeof window === "undefined") return;
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("board");
+    url.searchParams.delete("type");
+    if (s.price === "any") url.searchParams.set("board", "any");
+    if (s.type !== "allday" && (BOARD_TYPES as readonly string[]).includes(s.type)) url.searchParams.set("type", s.type);
+    const target = `${url.pathname}${url.search}${url.hash}`;
+    if (target !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {
+      window.history.replaceState(window.history.state, "", target);
+    }
+  } catch { /* never break the page over the URL */ }
+}
+
 /** Merge part of the state into the current URL with history.replaceState (no new history
  *  entry). Keeps every other query parameter and the hash. Browser only. */
 export function writeState(patch: Partial<PageState>): void {

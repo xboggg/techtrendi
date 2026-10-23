@@ -9,27 +9,39 @@
 // On a network page the `network` prop is the ONLY network shown: it is read on
 // every render, never copied into state, so moving between network pages in the
 // app (AT -> MTN) can never leave the previous network's rows on screen.
-import { useMemo, useRef, useState } from "react";
-import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
-import { ListOrdered } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-motion";
+import { CalendarDays, Clock, Infinity as InfinityIcon, ListOrdered, Moon, PhoneCall, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { BOARD_TABS, type Bundle, type BundleModel } from "@/lib/dataBundles";
+import { PRICE_FILTERS, SMALL_MAX, TYPE_FILTERS, boardHint, boardId, emptyBoardText, parseBoardId, type Bundle, type BundleModel, type PriceFilter } from "@/lib/dataBundles";
+import { parseBoardState, writeBoardState } from "@/lib/dataBundlesUrl";
 import { FaceOffBars } from "./FaceOff";
 import { ChannelNote, ConflictNote, Details, NetPill, OtherSourceNote, SectionHeading, TrustBadge, TrustReasons, trustOf, ValueBar, extrasText, glass, textSafeFill, unitsLine, useGrowIn, valueExplainer, workedOutText, PriceLead, perGbLine } from "./shared";
 
 /** Rows shown before "Show more". */
 export const TOP = 5;
 
-/** The board opens on "Small buys (up to GH¢20)", then "Any price" (all-day data) and the other
- *  groups (BOARD_TABS). On the comparison page (no `network`) the face-off bars sit at its top as
- *  its quick summary, driven by the selected tab, with each network's "See all … bundles" link. */
+/** A small icon per type pill. */
+const TYPE_ICONS: Record<string, LucideIcon> = { allday: Clock, noexpiry: InfinityIcon, month: CalendarDays, night: Moon, combo: PhoneCall };
+
+/** The board has two controls (owner, 22 Oct 2026): a price switch (Small buys up to GH¢20 |
+ *  Any price) and a type (Any time, Never expires, 30 days, Night, Calls + data). The board is
+ *  their combination (model: boardId). It opens on Small buys + Any time. On the comparison page
+ *  (no `network`) the face-off bars sit at its top as its quick summary, following the
+ *  selection, with each network's "See all … bundles" link. ?board=any&type=night in the URL
+ *  (only when not the default): read once after load, written back with replaceState. */
 export function Leaderboards({ model, network, basePath }: { model: BundleModel; network?: string; basePath?: string }) {
-  const [tab, setTab] = useState(BOARD_TABS[0].id);
+  const [price, setPrice] = useState<PriceFilter>("small");
+  const [type, setType] = useState<string>("allday");
+  const [fromUrl, setFromUrl] = useState(false);
+  useEffect(() => { const s = parseBoardState(window.location.search); setPrice(s.price); setType(s.type); setFromUrl(true); }, []);
+  useEffect(() => { if (fromUrl) writeBoardState({ price, type }); }, [fromUrl, price, type]);
+  const board = boardId(price, type);
   // The reader's pick on the comparison page. On a network page it is ignored (see above).
   const [picked, setPicked] = useState<string>("all");
   const net = network ?? picked;
   const [expanded, setExpanded] = useState(false);
+  const reduce = useReducedMotion();
 
   return (
     <section aria-labelledby="ranks-h" id="rankings" className="scroll-mt-24">
@@ -37,57 +49,82 @@ export function Leaderboards({ model, network, basePath }: { model: BundleModel;
         info={<><p>Longer bar = more data for your money.</p><p>{valueExplainer(model)}</p></>} />
 
       <div className={cn(glass, "p-3 sm:p-5")}>
-        <Tabs value={tab} onValueChange={(v) => { setTab(v); setExpanded(false); }}>
-          {/* Tabs wrap onto more lines on narrow phones, so every tab is always fully visible. */}
-          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-xl p-1">
-            {BOARD_TABS.map((g) => (
-              <TabsTrigger key={g.id} value={g.id} className="relative min-h-11 rounded-lg px-3 py-2 text-xs sm:text-sm">
-                {g.label}
-                {tab === g.id && <motion.span layoutId="lb-tab-underline" className="absolute inset-x-2 bottom-0.5 h-[3px] rounded-full bg-foreground" transition={{ type: "spring", stiffness: 420, damping: 36 }} aria-hidden />}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+        {/* Price: a two-part switch; the highlight slides to the chosen side. */}
+        <div role="group" aria-label="Price" data-testid="board-price" className="grid w-full grid-cols-2 rounded-2xl border border-border bg-muted/60 p-1 sm:max-w-xl">
+          {PRICE_FILTERS.map((p) => {
+            const on = price === p.id;
+            return (
+              <button key={p.id} type="button" aria-pressed={on} data-testid="board-price-option" data-id={p.id}
+                onClick={() => { setPrice(p.id); setExpanded(false); }}
+                className={cn("relative isolate flex min-h-12 flex-col items-center justify-center rounded-xl px-2 py-1.5 text-center leading-tight focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  on ? "text-background" : "text-foreground hover:text-foreground/80")}>
+                {/* The highlight: one shared element that slides (transform) to the chosen side; at once under reduced motion. */}
+                {on && <motion.span layoutId={`board-price-thumb-${network ?? "all"}`} data-hl aria-hidden className="pointer-events-none absolute inset-0 -z-10 rounded-xl bg-foreground shadow-sm"
+                  transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 36 }} />}
+                <span className="text-[15px] font-extrabold lg:text-base">{p.short}</span>
+                {p.id === "small" && <span className={cn("text-[15px] font-medium lg:text-base", on ? "text-background/90" : "text-foreground/80")}>(up to GH¢{SMALL_MAX})</span>}
+              </button>
+            );
+          })}
+        </div>
 
-          {/* The quick summary: each network's best of this tab, three bars (comparison page only). */}
-          {!network && <div data-testid="board-summary"><FaceOffBars model={model} groupId={tab} basePath={basePath} /></div>}
+        {/* Type: equal pills in an even grid (phones: 3 on top, 2 wider below; wider screens: one row). */}
+        <div role="group" aria-label="Bundle type" data-testid="board-type" className="mt-3 grid grid-cols-6 gap-2 sm:grid-cols-5">
+          {TYPE_FILTERS.map((t, i) => {
+            const on = type === t.id;
+            const Icon = TYPE_ICONS[t.id] ?? Clock;
+            return (
+              <button key={t.id} type="button" aria-pressed={on} data-testid="board-type-option" data-id={t.id}
+                onClick={() => { setType(t.id); setExpanded(false); }}
+                className={cn("flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-xl border px-1.5 py-1.5 text-center text-[15px] font-bold leading-tight transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:col-span-1 sm:min-h-12 sm:flex-row sm:gap-1.5 lg:text-base",
+                  i < 3 ? "col-span-2" : "col-span-3",
+                  on ? "border-foreground bg-foreground text-background" : "border-border bg-background/60 text-foreground hover:border-foreground/40")}>
+                <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                <span>{t.label}</span>
+              </button>
+            );
+          })}
+        </div>
 
-          {!network && (
-            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filter by network">
-              {["all", ...model.networks].map((id) => {
-                const active = net === id;
-                const info = id === "all" ? null : model.networkInfo(id);
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => { setPicked(id); setExpanded(false); }}
-                    className={cn(
-                      "min-h-11 rounded-full border px-4 text-xs font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                      active && !info && "border-foreground bg-foreground text-background",
-                      !active && "border-border bg-background hover:border-foreground/40",
-                    )}
-                    style={active && info ? { background: textSafeFill(info), color: info.ink, borderColor: info.color } : undefined}
-                  >
-                    {info ? info.name : "All networks"}
-                  </button>
-                );
-              })}
-            </div>
-          )}
+        {/* The quick summary: each network's best of this board, three bars (comparison page only). */}
+        {!network && <div data-testid="board-summary"><FaceOffBars model={model} groupId={board} basePath={basePath} /></div>}
 
-          {BOARD_TABS.map((g) => (
-            <TabsContent key={g.id} value={g.id} className="mt-3">
-              <Board model={model} groupId={g.id} hint={g.hint} net={net} expanded={expanded} onExpand={() => setExpanded(true)} />
-            </TabsContent>
-          ))}
-        </Tabs>
+        {!network && (
+          <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filter by network">
+            {["all", ...model.networks].map((id) => {
+              const active = net === id;
+              const info = id === "all" ? null : model.networkInfo(id);
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => { setPicked(id); setExpanded(false); }}
+                  className={cn(
+                    "min-h-11 rounded-full border px-4 text-xs font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    active && !info && "border-foreground bg-foreground text-background",
+                    !active && "border-border bg-background hover:border-foreground/40",
+                  )}
+                  style={active && info ? { background: textSafeFill(info), color: info.ink, borderColor: info.color } : undefined}
+                >
+                  {info ? info.name : "All networks"}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="mt-3" data-testid="board" data-board={board}>
+          <Board key={board} model={model} groupId={board} hint={boardHint(board)} net={net} expanded={expanded} onExpand={() => setExpanded(true)}
+            onAnyPrice={() => { setPrice("any"); setExpanded(false); }} />
+        </div>
       </div>
     </section>
   );
 }
 
-function Board({ model, groupId, hint, net, expanded, onExpand }: { model: BundleModel; groupId: string; hint: string; net: string; expanded: boolean; onExpand: () => void }) {
+function Board({ model, groupId, hint, net, expanded, onExpand, onAnyPrice }: { model: BundleModel; groupId: string; hint: string; net: string; expanded: boolean; onExpand: () => void; onAnyPrice?: () => void }) {
+  const small = parseBoardId(groupId).small;
   const { ranked, disputed, restricted } = useMemo(() => model.leaderboardRows(groupId, net === "all" ? undefined : net), [model, groupId, net]);
   const shown = expanded ? ranked : ranked.slice(0, TOP);
   // Bars are relative to the best value on this board (rank 1 = full bar).
@@ -101,14 +138,23 @@ function Board({ model, groupId, hint, net, expanded, onExpand }: { model: Bundl
       <div className="mb-2 flex flex-wrap items-center justify-between gap-x-3">
         <p className="text-xs text-muted-foreground">{hint}.</p>
         <Details summary="How we rank">
-          <p>Each tab only ranks bundles of the same type. If two show the same value figure, they share a place (shown as “Tied”). If the price is the same, more data ranks higher. {unitsLine(model)}.</p>
+          {small && <p>Small buys: bundles at GH¢20 or less. A pay-any-amount price is shown once, at its best value up to GH¢20.</p>}
+          <p>Each list only ranks bundles of the same type. If two show the same value figure, they share a place (shown as “Tied”). If the price is the same, more data ranks higher. {unitsLine(model)}.</p>
           {groupId === "combo" && <p>We rank by the data only. Minutes and SMS are listed, but not counted.</p>}
           {groupId === "night" && <p>Night hours differ by network. Check the hours on each row.</p>}
           <p>Rows marked “From … official rates” are worked out exactly from the network's own published price per MB for that amount.</p>
         </Details>
       </div>
       {ranked.length === 0 && disputed.length === 0 && restricted.length === 0 ? (
-        <p className="py-6 text-center text-sm text-muted-foreground">This network has no bundles of this type.</p>
+        small && (net === "all" || model.leaderboardRows(parseBoardId(groupId).group, net).ranked.length > 0) ? (
+          // A Small buys combination with nothing in it: say so, and offer Any price.
+          <p className="py-6 text-center text-[15px] text-foreground/85 lg:text-base" data-testid="board-empty">
+            {emptyBoardText(groupId).replace(/ – try Any price$/, "")} –{" "}
+            <button type="button" onClick={onAnyPrice} className="inline-flex min-h-11 items-center font-bold underline underline-offset-4 hover:no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">try Any price</button>
+          </p>
+        ) : (
+          <p className="py-6 text-center text-sm text-muted-foreground" data-testid="board-empty">This network has no bundles of this type.</p>
+        )
       ) : (
         // Keyed by the network filter: a new filter replaces the list at once (no exit
         // animation), so old and new rows are never on screen together.

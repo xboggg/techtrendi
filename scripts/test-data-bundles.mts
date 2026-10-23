@@ -972,10 +972,12 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     check(`L8: ${f} amount box is a text box (inputMode decimal) driven by useAmountText`, /type="text"/.test(t) && /inputMode="decimal"/.test(t) && /useAmountText\(/.test(t) && !/type="number"/.test(t));
   }
   check("L8: a chip, slider or band button updates the box even while it has focus", /normaliseAmountText\(t, max\)\.value !== value \? String\(value\) : t/.test(src("src/components/data-bundles/shared.tsx")));
-  for (const f of ["Leaderboards.tsx", "MtnCalculators.tsx"]) {
+  for (const f of ["MtnCalculators.tsx"]) {
     const t = src(`src/components/data-bundles/${f}`);
     check(`L8: ${f} tab strip wraps (no w-max / horizontal scroller)`, /<TabsList className="flex h-auto w-full flex-wrap/.test(t) && !/w-max/.test(t));
   }
+  // The winners board has no tab strip now (22 Oct 2026): an even type grid, never a scroller.
+  check("L8: Leaderboards.tsx type grid is even (no w-max / horizontal scroller)", /grid grid-cols-6 gap-2 sm:grid-cols-5/.test(src("src/components/data-bundles/Leaderboards.tsx")) && !/w-max|overflow-x-auto/.test(src("src/components/data-bundles/Leaderboards.tsx")));
 
   // L9. no stale hard-coded wording
   check("L9: the monthly planner no longer names '(daily, weekly, Sika Kokoo)'; the left-out families come from the data", !/daily, weekly, Sika Kokoo/.test(src("src/components/data-bundles/MonthlyPlanner.tsx")) && /shortFams/.test(src("src/components/data-bundles/MonthlyPlanner.tsx")));
@@ -1553,7 +1555,8 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   // L14. Room for the site-wide assistant button on these pages only.
   // Redesign 1: the comparison page has no hero tiles any more (the console replaced them); the
   // headless check measures that nothing on the first screen sits under the button.
-  check("L14 (a8): both pages end with room for the assistant button (and the button itself is unchanged)", /pb-28 pt-6 pr-7/.test(src8("src/pages/data-bundles/DataBundlesDashboard.tsx")) && /pb-28 pt-6 pr-7/.test(src8("src/pages/data-bundles/DataBundlesNetwork.tsx")) && !/pr-16|pb-28/.test(src8("src/components/ai/AIChatInterface.tsx")));
+  // 22 Oct 2026: no extra right padding any more (the button is small, round, and hides while scrolling).
+  check("L14 (a8): both pages end with room for the assistant button (and the button itself is unchanged)", /pb-28 pt-6 /.test(src8("src/pages/data-bundles/DataBundlesDashboard.tsx")) && /pb-28 pt-6 /.test(src8("src/pages/data-bundles/DataBundlesNetwork.tsx")) && !/ pr-7 /.test(src8("src/pages/data-bundles/DataBundlesDashboard.tsx") + src8("src/pages/data-bundles/DataBundlesNetwork.tsx")) && !/pr-16|pb-28/.test(src8("src/components/ai/AIChatInterface.tsx")));
 
   // Pulse: *567# (owner's live test, 18 Oct 2026) is the only code shown.
   const calcHtml = renderToStaticMarkup(React.createElement(MtnCalculators, { model: m }) as any);
@@ -1794,14 +1797,22 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   {
     const sh = await import("../src/components/data-bundles/shared");
     const aiSrc = srcR("src/components/ai/AIChatInterface.tsx");
-    check("assistant: the edge-tab style targets the site button by its own aria-label ('Open AI Chat')", sh.ASSISTANT_SELECTOR === 'button[aria-label="Open AI Chat"]' && /aria-label="Open AI Chat"/.test(aiSrc));
-    // Round 2: the edge tab at EVERY width (at 1280 the round button covered "651.04 GB"), plus the dark see-through header.
+    check("assistant: the button style targets the site button by its own aria-label ('Open AI Chat')", sh.ASSISTANT_SELECTOR === 'button[aria-label="Open AI Chat"]' && /aria-label="Open AI Chat"/.test(aiSrc));
+    // 22 Oct 2026 (owner): the edge tab looked cut off; now a small round button that hides while scrolling.
     const css = sh.chromeCss(0.6);
-    // The only media query is the bigger-text chip rule (step 4); the assistant rules are never inside one.
-    check("assistant: 24 x 48px tab at the right edge at every width (no media query)", css.split("\n").filter((l) => /@media/.test(l)).every((l) => !/Open AI Chat/.test(l) && /data-bf-chips|compare-all/.test(l)) && /button\[aria-label="Open AI Chat"\] \{ right: 0 !important; bottom: 96px !important; width: 24px !important; height: 48px !important;/.test(css));
-    check("assistant: added to <head> only while a data bundle page is mounted (textContent, nothing rendered on the server), used by both pages with 28px right padding",
-      renderToStaticMarkup(React.createElement(sh.DataBundlesChrome) as any) === "" && /el\.textContent = chromeCss\(headerAlpha\);/.test(srcR("src/components/data-bundles/shared.tsx")) && /return \(\) => el\.remove\(\);/.test(srcR("src/components/data-bundles/shared.tsx")) &&
-      ["src/pages/data-bundles/DataBundlesDashboard.tsx", "src/pages/data-bundles/DataBundlesNetwork.tsx"].every((f) => /<DataBundlesChrome headerAlpha=\{0\.\d+\} \/>/.test(srcR(f)) && (srcR(f).match(/ pr-7 /g) ?? []).length === 2 && !/max-sm:pr-6/.test(srcR(f))) &&
+    const sel = 'button\\[aria-label="Open AI Chat"\\]';
+    check("assistant: a 48px round button 16px from the bottom-right corner (≥ 44px tap), its transition opacity/transform only, and no edge tab",
+      new RegExp(`${sel} \\{ right: 16px !important; bottom: calc\\(16px \\+ env\\(safe-area-inset-bottom, 0px\\)\\) !important; width: 48px !important; height: 48px !important; padding: 0 !important; border-radius: 9999px !important;`).test(css) &&
+      /transition: opacity 200ms ease, transform 200ms ease !important;/.test(css) && !/width: 24px|border-radius: 12px 0 0 12px/.test(css));
+    check("assistant: hidden while scrolling (html.db-scrolling: faded, slid down, not tappable; keyboard focus keeps it), back 800ms after the last scroll; reduced motion: no transition",
+      new RegExp(`html\\.db-scrolling ${sel}:not\\(:focus-visible\\) \\{ opacity: 0 !important; transform: translateY\\(24px\\) scale\\(0\\.9\\) !important; pointer-events: none !important; \\}`).test(css) &&
+      new RegExp(`@media \\(prefers-reduced-motion: reduce\\) \\{ ${sel} \\{ transition: none !important; \\} \\}`).test(css) &&
+      sh.ASSISTANT_REST_MS === 800 && sh.SCROLLING_CLASS === "db-scrolling" &&
+      /t = setTimeout\(\(\) => root\.classList\.remove\(SCROLLING_CLASS\), ASSISTANT_REST_MS\);/.test(srcR("src/components/data-bundles/shared.tsx")) && /window\.addEventListener\("scroll", onScroll, \{ passive: true \}\);/.test(srcR("src/components/data-bundles/shared.tsx")) &&
+      css.split("\n").filter((l) => /@media/.test(l)).every((l) => /data-bf-chips|compare-all|prefers-reduced-motion/.test(l)));
+    check("assistant: added to <head> only while a data bundle page is mounted (textContent, nothing rendered on the server; the scroll class is removed when the page goes), both pages without extra right padding",
+      renderToStaticMarkup(React.createElement(sh.DataBundlesChrome) as any) === "" && /el\.textContent = chromeCss\(headerAlpha\);/.test(srcR("src/components/data-bundles/shared.tsx")) && /return \(\) => \{ el\.remove\(\); window\.removeEventListener\("scroll", onScroll\); clearTimeout\(t\); root\.classList\.remove\(SCROLLING_CLASS\); \};/.test(srcR("src/components/data-bundles/shared.tsx")) &&
+      ["src/pages/data-bundles/DataBundlesDashboard.tsx", "src/pages/data-bundles/DataBundlesNetwork.tsx"].every((f) => /<DataBundlesChrome headerAlpha=\{0\.\d+\} \/>/.test(srcR(f)) && !/ pr-7 /.test(srcR(f)) && !/max-sm:pr-6/.test(srcR(f))) &&
       !/DataBundlesChrome|Open AI Chat"\]/.test(aiSrc + srcR("src/App.tsx") + srcR("src/ssg/RootLayout.tsx") + srcR("src/index.css") + srcR("src/components/layout/Header.tsx")));
   }
   const dashR = srcR("src/pages/data-bundles/DataBundlesDashboard.tsx");
@@ -2273,13 +2284,15 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   // Planner upsell.
   const plans10 = m.networks.map((n) => ({ n, p: m.cheapestMonthlyPlan(n, 10 * 1024, 1) }));
   const up = m.planUpsell(plans10);
-  check("upsell: 10 GB, Once -> 'AT: +2.80 GB for GH¢17.08 more' (AT 12.80 GB for GH¢99 vs Telecel 10.00 GB for GH¢81.92)", up?.text === "AT: +2.80 GB for GH¢17.08 more", String(up?.text));
+  check("upsell: 10 GB, Once -> 'With AT, pay GH¢17.08 more and get 2.80 GB extra.' (AT 12.80 GB for GH¢99 vs Telecel 10.00 GB for GH¢81.92)", up?.text === "With AT, pay GH¢17.08 more and get 2.80 GB extra.", String(up?.text));
   let upBad = 0;
   for (const gb of [1, 5, 10, 20, 50, 100]) for (let cap = 1; cap <= 12; cap++) {
     const ps = m.networks.map((n) => ({ n, p: m.cheapestMonthlyPlan(n, gb * 1024, cap) }));
     const u = m.planUpsell(ps); if (!u) continue;
     const cheap = ps.filter((x) => x.p).reduce((a, x) => (x.p!.total < a.p!.total ? x : a));
     const other = ps.find((x) => x.n === u.n)!.p!;
+    // The words, from the model, for whichever network it names.
+    if (u.text !== `With ${m.networkInfo(u.n).name}, pay ${m.money(u.extraMoney)} more and get ${m.fmtData(u.extraMb, u.n)} extra.`) upBad++;
     if (!(other.mb > cheap.p!.mb && other.total > cheap.p!.total && other.total - cheap.p!.total <= cheap.p!.total * lib.UPSELL_MAX_EXTRA + 1e-9)) upBad++;
   }
   check("upsell: always more data for at most 25% more money than the cheapest plan", lib.UPSELL_MAX_EXTRA === 0.25 && upBad === 0, String(upBad));
@@ -3245,30 +3258,84 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const { SourceLine } = await import("../src/components/data-bundles/meta");
   const { DATA_BUNDLE_COUNTRIES } = await import("../src/data/dataBundleCountries");
 
-  // 7. Small buys.
-  check("small buys: the board's tabs are Small buys (up to GH¢20), Any price, then the other groups",
-    lib.BOARD_TABS.map((t) => t.label).join("|") === ["Small buys (up to GH¢20)", "Any price", ...GROUPS.slice(1).map((g) => g.label)].join("|") && lib.BOARD_TABS[1].id === "allday" && lib.SMALL_MAX === 20);
+  // 7. Small buys (round 2, 22-23 Oct 2026): two controls, price × type; each pay-any-amount product once.
+  check("board controls: price 'Small buys (up to GH¢20)' | 'Any price'; type 'Any time', 'Never expires', '30 days', 'Night', 'Calls + data' (one per group, GROUPS order)",
+    lib.PRICE_FILTERS.map((p) => p.label).join("|") === "Small buys (up to GH¢20)|Any price" && lib.SMALL_MAX === 20 &&
+    lib.TYPE_FILTERS.map((t) => t.label).join("|") === "Any time|Never expires|30 days|Night|Calls + data" && lib.TYPE_FILTERS.map((t) => t.id).join("|") === GROUPS.map((g) => g.id).join("|"));
+  check("board controls: Any price + a type is that group's board, unchanged; Small buys + Any time is the original 'small' board",
+    GROUPS.every((g) => lib.boardId("any", g.id) === g.id && !lib.parseBoardId(g.id).small) && lib.boardId("small", "allday") === "small" && lib.boardId("small", "night") === "small:night" &&
+    JSON.stringify(lib.parseBoardId("small:night")) === JSON.stringify({ small: true, group: "night" }) && JSON.stringify(lib.parseBoardId("small")) === JSON.stringify({ small: true, group: "allday" }));
   const small = m.leaderboardRows("small");
   const allday = m.leaderboardRows("allday");
-  const orig = (b: Bundle) => m.all.find((x) => x.network === b.network && x.rateLabel === b.rateLabel && x.band && b.band && x.band.from === b.band.from) ?? b;
-  check(`small buys: ${small.ranked.length} rows, every one GH¢20 or less, all-day eligible (same rule as 'Any price'), and rankable`,
-    small.ranked.length > 0 && small.ranked.every((r) => r.bundle.price <= 20 + 1e-9 && GROUPS[0].test(orig(r.bundle)) && canWin(orig(r.bundle)) && !isPending(r.bundle) && !isUnconfirmed(r.bundle) && !isConditional(r.bundle)));
-  const wantFixed = allday.ranked.filter((r) => !(r.bundle.band && !r.bundle.band.exact) && r.bundle.price <= 20 + 1e-9).map((r) => `${r.bundle.network}|${r.bundle.name}`).sort();
-  const gotFixed = small.ranked.filter((r) => !(r.bundle.band && !r.bundle.band.exact)).map((r) => `${r.bundle.network}|${r.bundle.name}`).sort();
-  check(`small buys: exactly the 'Any price' rows priced GH¢20 or less (${wantFixed.length}), nothing more`, JSON.stringify(gotFixed) === JSON.stringify(wantFixed));
-  const ranges = small.ranked.filter((r) => r.bundle.band && !r.bundle.band.exact);
-  const wantRanges = allday.ranked.filter((r) => r.bundle.band && !r.bundle.band.exact && r.bundle.band.from <= 20 + 1e-9);
-  check(`small buys: pay-any-amount bands that start at GH¢20 or less (${wantRanges.length}) are shown up to GH¢20, at the same rate, so the same value per GH¢10`,
-    ranges.length === wantRanges.length && ranges.every((r) => { const o = orig(r.bundle); return r.bundle.band!.to <= 20 + 1e-9 && r.bundle.price === Math.min(o.price, 20) && m.valueText(r.bundle) === m.valueText(o) && Math.abs(r.bundle.mb / r.bundle.price - o.mb / o.price) < 1e-9; }));
-  check("small buys: ranked by the same value rule (best first), ties only where the shown figure is the same (and same price with different data ranks apart)",
-    small.ranked.every((r, i, a) => i === 0 || (m.valueMb(a[i - 1].bundle) ?? 0) >= (m.valueMb(r.bundle) ?? 0) - 1e-9) &&
-    small.ranked.every((r, i, a) => i === 0 || (r.rank === a[i - 1].rank) === (m.valueText(r.bundle) === m.valueText(a[i - 1].bundle) && !(Math.abs(r.bundle.price - a[i - 1].bundle.price) < 1e-9 && Math.abs(r.bundle.mb - a[i - 1].bundle.mb) > 1e-9))) &&
-    small.ranked.every((r) => r.joint === small.ranked.filter((o) => o.rank === r.rank).length > 1));
-  const fo = m.faceOff("small");
-  check("small buys: the face-off summary shows each network's first Small buys row, and marks the best",
-    m.networks.every((n) => { const f = fo.find((x) => x.n === n)!; const first = small.ranked.find((r) => r.bundle.network === n); return (!first && !f.b) || (!!first && !!f.b && m.valueText(f.b) === m.valueText(first.bundle)); }) &&
-    fo.some((x) => x.best) && fo.filter((x) => x.best).every((x) => m.valueText(x.b!) === m.valueText(small.ranked[0].bundle)));
+  const prodKey = (b: Bundle) => `${b.network}|${b.rateLabel ?? b.family}`;
+  // A row's Any-price candidates at GH¢20 or less: a fixed price ≤ 20, or a band that starts at ≤ 20 (shown clipped, same rate).
+  const within = (b: Bundle) => (b.band && !b.band.exact ? b.band.from <= 20 + 1e-9 : b.price <= 20 + 1e-9);
+  let combos = 0, emptyCombos: string[] = [];
+  for (const t of lib.TYPE_FILTERS) {
+    const id = lib.boardId("small", t.id);
+    const s = m.leaderboardRows(id);
+    const a = m.leaderboardRows(t.id);
+    const g = GROUPS.find((x) => x.id === t.id)!;
+    combos++;
+    // Membership: the fixed bundles are exactly the Any-price board's at GH¢20 or less.
+    const wantFixed = a.ranked.filter((r) => !r.bundle.computed && r.bundle.price <= 20 + 1e-9).map((r) => `${r.bundle.network}|${r.bundle.name}|${r.bundle.price}`).sort();
+    const gotFixed = s.ranked.filter((r) => !r.bundle.computed).map((r) => `${r.bundle.network}|${r.bundle.name}|${r.bundle.price}`).sort();
+    // Pay-any-amount: each product once, at the best value of its rows within GH¢20.
+    const prods = [...new Set(a.ranked.filter((r) => r.bundle.computed && within(r.bundle)).map((r) => prodKey(r.bundle)))].sort();
+    const gotComp = s.ranked.filter((r) => r.bundle.computed);
+    const compOk = JSON.stringify(gotComp.map((r) => prodKey(r.bundle)).sort()) === JSON.stringify(prods) &&
+      gotComp.every((r) => { const best = Math.max(...a.ranked.filter((x) => x.bundle.computed && within(x.bundle) && prodKey(x.bundle) === prodKey(r.bundle)).map((x) => m.valueMb(x.bundle) ?? 0)); return Math.abs((m.valueMb(r.bundle) ?? 0) - best) < 1e-9; });
+    const eligible = s.ranked.every((r) => r.bundle.price <= 20 + 1e-9 && canWin(r.bundle) && !isPending(r.bundle) && !isUnconfirmed(r.bundle) && !isConditional(r.bundle) && (r.bundle.computed || g.test(r.bundle)));
+    check(`small buys × ${t.label}: ${s.ranked.length} rows: the ${wantFixed.length} fixed bundles of '${g.label}' at GH¢20 or less, plus ${prods.length} pay-any-amount product(s), each once at its best value up to GH¢20`,
+      JSON.stringify(gotFixed) === JSON.stringify(wantFixed) && compOk && eligible, JSON.stringify({ fixed: [gotFixed.length, wantFixed.length], comp: gotComp.map((r) => prodKey(r.bundle)), prods }));
+    check(`small buys × ${t.label}: ranked best value first; ties only where the shown figure is the same (same price with different data ranks apart)`,
+      s.ranked.every((r, i, arr) => i === 0 || (m.valueMb(arr[i - 1].bundle) ?? 0) >= (m.valueMb(r.bundle) ?? 0) - 1e-9) &&
+      s.ranked.every((r, i, arr) => i === 0 || (r.rank === arr[i - 1].rank) === (m.valueText(r.bundle) === m.valueText(arr[i - 1].bundle) && !(Math.abs(r.bundle.price - arr[i - 1].bundle.price) < 1e-9 && Math.abs(r.bundle.mb - arr[i - 1].bundle.mb) > 1e-9))) &&
+      s.ranked.every((r) => r.joint === s.ranked.filter((o) => o.rank === r.rank).length > 1));
+    const fo = m.faceOff(id);
+    check(`small buys × ${t.label}: the face-off summary shows each network's first row of this board and marks the best`,
+      m.networks.every((n) => { const f = fo.find((x) => x.n === n)!; const first = s.ranked.find((r) => r.bundle.network === n); return (!first && !f.b) || (!!first && !!f.b && m.valueText(f.b) === m.valueText(first.bundle)); }) &&
+      (s.ranked.length === 0 ? fo.every((x) => !x.b && !x.best) : fo.filter((x) => x.best).every((x) => m.valueText(x.b!) === m.valueText(s.ranked[0].bundle)) && fo.some((x) => x.best)));
+    if (s.ranked.length === 0 && s.disputed.length === 0 && s.restricted.length === 0) emptyCombos.push(t.label);
+  }
+  check(`small buys: all ${combos} combinations checked; empty ones (${emptyCombos.join(", ") || "none today"}) say so and offer Any price`,
+    combos === 5 && lib.emptyBoardText("small:night") === "No night bundles at GH¢20 or less – try Any price" && lib.emptyBoardText("small:month") === "No 30-day bundles at GH¢20 or less – try Any price" &&
+    /data-testid="board-empty"/.test(src("src/components/data-bundles/Leaderboards.tsx")) && /onClick=\{onAnyPrice\}/.test(src("src/components/data-bundles/Leaderboards.tsx")) && /setPrice\("any"\)/.test(src("src/components/data-bundles/Leaderboards.tsx")));
+  {
+    // An empty combination, from today's data: Small buys + 30 days on AT (AT's 30-day bundles all cost more than GH¢20).
+    const e = m.leaderboardRows("small:month", "at");
+    const anyAt = m.leaderboardRows("month", "at");
+    check(`small buys: an empty combination (AT, Small buys + 30 days) has no rows (the page says '${lib.emptyBoardText("small:month")}'), while Any price + 30 days on AT ranks ${anyAt.ranked.length}`,
+      e.ranked.length === 0 && e.disputed.length === 0 && e.restricted.length === 0 && anyAt.ranked.length > 0 && anyAt.ranked.every((r) => r.bundle.price > 20), `${e.ranked.length} ${anyAt.ranked.length}`);
+    // And a whole board's face-off when one network has nothing: AT's slot in Small buys + 30 days is empty, never a made-up row.
+    const foM = m.faceOff("small:month");
+    check("small buys: a network with nothing in a Small buys board has an empty face-off slot (AT, 30 days), never a row from Any price",
+      !foM.find((x) => x.n === "at")!.b && foM.some((x) => !!x.b));
+  }
+  {
+    // Owner: Telecel Flexi showed twice in Small buys (#2 "From GH¢5", #5 "From GH¢3").
+    const keys = (id: string) => m.leaderboardRows(id).ranked.filter((r) => r.bundle.computed).map((r) => prodKey(r.bundle));
+    const noDup = lib.TYPE_FILTERS.every((t) => { const k = keys(lib.boardId("small", t.id)); return k.length === new Set(k).size; });
+    const flexi = small.ranked.filter((r) => r.bundle.rateLabel === "Telecel Flexi, with expiry");
+    check(`small buys: no pay-any-amount product appears twice in any Small buys board; Telecel Flexi (with expiry) once, at its best band (${flexi[0] ? m.leadText(flexi[0].bundle) : "-"})`,
+      noDup && flexi.length === 1 && m.valueText(flexi[0].bundle) === "1.53 GB" && m.leadText(flexi[0].bundle) === "From GH¢5: 781.25 MB (more if you pay more)");
+    check("small buys: the Any price boards keep every band (unchanged)", allday.ranked.filter((r) => r.bundle.rateLabel === "Telecel Flexi, with expiry").length > 1);
+  }
   check("small buys: not one of GROUPS, so counts, winners, structured data and the social image are unchanged", !GROUPS.some((g) => g.id === "small") && m.topWinners().every((w) => !/Small buys/.test(w.text)));
+  {
+    const url = await import("../src/lib/dataBundlesUrl");
+    const p = (q: string) => JSON.stringify(url.parseBoardState(q));
+    check("board URL: ?board=any&type=night round-trips; anything else falls back to Small buys + Any time; the finder's own keys are untouched",
+      p("?board=any&type=night") === JSON.stringify({ price: "any", type: "night" }) && p("") === JSON.stringify({ price: "small", type: "allday" }) && p("?board=zzz&type=<x>") === JSON.stringify({ price: "small", type: "allday" }) &&
+      p("?type=combo") === JSON.stringify({ price: "small", type: "combo" }) && !/board|"type"/.test(url.buildQuery(url.DEFAULT_STATE)));
+  }
+  {
+    const lb = src("src/components/data-bundles/Leaderboards.tsx");
+    check("board controls (UI): a two-part price switch with a sliding highlight (one shared element, layout transform; instant under reduced motion) and an even type grid (phones 3 + 2 wider, one row from sm), every option ≥ 44px with aria-pressed; opens on Small buys + Any time",
+      /role="group" aria-label="Price"/.test(lb) && /grid w-full grid-cols-2/.test(lb) && /\{on && <motion\.span layoutId=\{`board-price-thumb-/.test(lb) && /data-hl aria-hidden/.test(lb) &&/transition=\{reduce \? \{ duration: 0 \}/.test(lb) &&
+      /role="group" aria-label="Bundle type"/.test(lb) && /grid grid-cols-6 gap-2 sm:grid-cols-5/.test(lb) && /i < 3 \? "col-span-2" : "col-span-3"/.test(lb) && /min-h-12/.test(lb) && /min-h-14/.test(lb) &&
+      (lb.match(/aria-pressed=\{on\}/g) ?? []).length === 2 && /useState<PriceFilter>\("small"\)/.test(lb) && /useState<string>\("allday"\)/.test(lb) && !/<TabsList|w-max|overflow-x-auto/.test(lb));
+  }
 
   // 3. Official rates.
   const worked = m.all.filter((b) => sh.trustOf(b).level === "worked");
@@ -3314,12 +3381,29 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   // 6. One board on the comparison page.
   const dash = src("src/pages/data-bundles/DataBundlesDashboard.tsx");
   const lb = src("src/components/data-bundles/Leaderboards.tsx");
-  check("one board: the comparison page has no separate face-off or network panels; the board carries the face-off bars (driven by its tab) and each network's 'See all … bundles' link",
+  check("one board: the comparison page has no separate face-off or network panels; the board carries the face-off bars (following the price × type selection) and each network's 'See all … bundles' link",
     !/<FaceOff\b|<NetworkPanels\b/.test(dash) && /<Leaderboards model=\{model\} basePath=\{basePath\} \/>/.test(dash) &&
-    /\{!network && <div data-testid="board-summary"><FaceOffBars model=\{model\} groupId=\{tab\} basePath=\{basePath\} \/><\/div>\}/.test(lb) && /const \[tab, setTab\] = useState\(BOARD_TABS\[0\]\.id\);/.test(lb) &&
+    /\{!network && <div data-testid="board-summary"><FaceOffBars model=\{model\} groupId=\{board\} basePath=\{basePath\} \/><\/div>\}/.test(lb) && /const board = boardId\(price, type\);/.test(lb) &&
     /data-testid="faceoff-see-all">See all \{info\.name\} bundles/.test(src("src/components/data-bundles/FaceOff.tsx")));
   check("one board: the network pages keep their own best deals (NetworkBest)", /<NetworkBest /.test(src("src/pages/data-bundles/DataBundlesNetwork.tsx")));
   check("one board: the structured data still lists the winners of every group (ItemList), unchanged by the new tab", m.topWinners().length >= GROUPS.length - 1 && /itemList=\{winnersList\}/.test(dash));
+}
+
+// ------------------------------------------------------------------ post-launch round 2 (22-23 Oct 2026): tips, header, search hint
+{
+  const src = (p: string) => readFileSync(join(ROOT, p), "utf8");
+  const adv = src("src/components/data-bundles/Advice.tsx");
+  check("tips: the cards are visible at once (no fade-in, no opacity animation on content)", /<article\s+key=\{t\.id\}/.test(adv) && !/opacity|whileInView|motion\./.test(adv.split("export function Advice")[1]));
+  const hdr = src("src/components/layout/Header.tsx");
+  check("header: the HOT badge sits in the link's own extra right padding (pr-9), clear of 'Online Safety' at every desktop width (badge unchanged)",
+    /\$\{link\.isHot \? "relative pr-9" : ""\}/.test(hdr) && /absolute -top-1 -right-1 px-1\.5 py-0\.5 text-\[10px\] font-bold/.test(hdr));
+  const sm = await import("../src/lib/platform");
+  const ss = src("src/components/ui/search-modal.tsx");
+  check("search: the shortcut hint says 'Ctrl K' (server and non-Apple) and '⌘K' on Apple after mount, in a fixed-width key (no shift); Ctrl+K and ⌘K both open search, Caps Lock too",
+    !sm.isApplePlatform({ platform: "Win32" }) && !sm.isApplePlatform({ userAgentData: { platform: "Windows" } }) && !sm.isApplePlatform({ platform: "Linux armv8l" }) && !sm.isApplePlatform(undefined) &&
+    sm.isApplePlatform({ platform: "MacIntel" }) && sm.isApplePlatform({ userAgentData: { platform: "macOS" } }) && sm.isApplePlatform({ platform: "iPhone" }) &&
+    /const \[apple, setApple\] = useState\(false\);/.test(ss) && /\{apple \? '⌘K' : 'Ctrl K'\}/.test(ss) && /min-w-\[3\.25rem\] justify-center/.test(ss) &&
+    /\(e\.metaKey \|\| e\.ctrlKey\) && !e\.altKey && typeof e\.key === 'string' && e\.key\.toLowerCase\(\) === 'k'/.test(ss));
 }
 
 function unitsLineText(mm: BundleModel): string {

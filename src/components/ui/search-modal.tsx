@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { isApplePlatform } from '@/lib/platform';
 import { Search, X, ArrowRight, FileText, Wrench, Newspaper, Clock, TrendingUp, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -311,11 +312,15 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 // Search Button/Trigger
 export function SearchButton({ className, isOverHero = false }: { className?: string; isOverHero?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
+  // The server (and first paint) shows "Ctrl K"; Apple devices switch to "⌘K" after mount. The
+  // key hint has a fixed minimum width, so the switch never moves anything.
+  const [apple, setApple] = useState(false);
+  useEffect(() => { setApple(isApplePlatform(typeof navigator !== 'undefined' ? (navigator as never) : undefined)); }, []);
 
-  // Global keyboard shortcut
+  // Global keyboard shortcut: Ctrl+K (Windows, Linux, Android) or ⌘K (Apple), with or without Caps Lock.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && typeof e.key === 'string' && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setIsOpen(true);
       }
@@ -341,12 +346,12 @@ export function SearchButton({ className, isOverHero = false }: { className?: st
         <span className="hidden sm:inline">Search...</span>
         <span className="sr-only sm:hidden">Search</span>
         <kbd className={cn(
-          "hidden md:inline-flex px-1.5 py-0.5 text-xs rounded border font-medium",
+          "hidden md:inline-flex min-w-[3.25rem] justify-center whitespace-nowrap px-1.5 py-0.5 text-xs rounded border font-medium",
           isOverHero
             ? "text-white/70 bg-white/10 border-white/20"
             : "text-gray-600 dark:text-white/70 bg-gray-100 dark:bg-white/10 border-gray-300 dark:border-white/20"
-        )}>
-          ⌘K
+        )} data-testid="search-shortcut">
+          {apple ? '⌘K' : 'Ctrl K'}
         </kbd>
       </button>
       <SearchModal isOpen={isOpen} onClose={() => setIsOpen(false)} />

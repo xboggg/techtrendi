@@ -536,13 +536,18 @@ export function ClampNote({ show, text }: { show: boolean; text: string }) {
 }
 
 /** The site-wide assistant button (AIChatInterface, mounted once for every page) is a
- *  56px circle fixed 24px from the bottom-right corner; on these pages it sat over data
- *  (at 1280px over the end of "651.04 GB" on the Telecel card). While a data bundle page is
- *  mounted, at EVERY width, the chrome style turns it into a 24 x 48px tab flush with the
- *  right edge, inside the page's right padding (pr-7), so it never covers a figure. It is the
- *  same button (same click, same "Open AI Chat" name). The selector is the button's own
- *  aria-label (tested against AIChatInterface.tsx). */
+ *  56px circle fixed 24px from the bottom-right corner with pulsing rings. While a data bundle
+ *  page is mounted, the chrome style makes it a plain 48px round button 16px from the corner
+ *  (owner, 22 Oct 2026: the old edge tab looked cut off and the page's extra right padding
+ *  looked pushed). It hides (fades and slides down) while the reader scrolls and comes back
+ *  ASSISTANT_REST_MS after scrolling stops, so it never covers what is being read; with reduced
+ *  motion it hides and shows at once. Same button (same click, same "Open AI Chat" name);
+ *  the selector is its own aria-label (tested against AIChatInterface.tsx). */
 export const ASSISTANT_SELECTOR = 'button[aria-label="Open AI Chat"]';
+/** How long after the last scroll the assistant button comes back. */
+export const ASSISTANT_REST_MS = 800;
+/** The class on <html> while the reader is scrolling a data bundle page. */
+export const SCROLLING_CLASS = "db-scrolling";
 /** The site header (Header.tsx: the one `header.fixed.top-0`). */
 export const SITE_HEADER_SELECTOR = "header.fixed.top-0";
 /** The header follows the site theme (its own tokens, from the <html> class). One token is
@@ -552,16 +557,19 @@ export const SITE_HEADER_SELECTOR = "header.fixed.top-0";
  *  (checked in the browser). The header shows no primary-coloured text on these pages. */
 export const HEADER_PRIMARY = "214 100% 45%";
 /** The chrome CSS for the data bundle pages:
- *  - the assistant button as an edge tab at every width (above);
+ *  - the assistant button as a small round button that hides while scrolling (above);
  *  - the site header see-through with a backdrop blur, in the theme in force: dark glass
  *    (`headerAlpha`) in dark mode, light glass in light mode. The comparison page runs its
  *    own section up behind the header, so its glow shows through. */
 export function chromeCss(headerAlpha: number): string {
   const blur = "-webkit-backdrop-filter: blur(16px) saturate(150%) !important; backdrop-filter: blur(16px) saturate(150%) !important; box-shadow: none !important;";
   return [
-    `${ASSISTANT_SELECTOR} { right: 0 !important; bottom: 96px !important; width: 24px !important; height: 48px !important; padding: 0 !important; border-radius: 12px 0 0 12px !important; background: linear-gradient(180deg, #7c3aed, #a21caf) !important; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.45) !important; overflow: hidden !important; display: flex !important; align-items: center !important; justify-content: center !important; }`,
+    `${ASSISTANT_SELECTOR} { right: 16px !important; bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important; width: 48px !important; height: 48px !important; padding: 0 !important; border-radius: 9999px !important; background: linear-gradient(135deg, #7c3aed, #a21caf) !important; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.45) !important; overflow: hidden !important; display: flex !important; align-items: center !important; justify-content: center !important; transition: opacity 200ms ease, transform 200ms ease !important; }`,
     `${ASSISTANT_SELECTOR} > * { display: none !important; }`,
-    `${ASSISTANT_SELECTOR}::after { content: "\\2726"; color: #fff; font-size: 14px; line-height: 1; }`,
+    `${ASSISTANT_SELECTOR}::after { content: "\\2726"; color: #fff; font-size: 20px; line-height: 1; }`,
+    // While scrolling: out of the way (never over the text being read); keyboard focus keeps it.
+    `html.${SCROLLING_CLASS} ${ASSISTANT_SELECTOR}:not(:focus-visible) { opacity: 0 !important; transform: translateY(24px) scale(0.9) !important; pointer-events: none !important; }`,
+    `@media (prefers-reduced-motion: reduce) { ${ASSISTANT_SELECTOR} { transition: none !important; } }`,
     `${SITE_HEADER_SELECTOR} { --primary: ${HEADER_PRIMARY}; ${blur} }`,
     largeTextCss(),
     `html.dark ${SITE_HEADER_SELECTOR} { background: rgba(8, 10, 14, ${headerAlpha}) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important; }`,
@@ -578,7 +586,16 @@ export function DataBundlesChrome({ headerAlpha = 0.85 }: { headerAlpha?: number
     el.setAttribute("data-testid", "data-bundles-chrome");
     el.textContent = chromeCss(headerAlpha);
     document.head.appendChild(el);
-    return () => el.remove();
+    // Hide the assistant button while scrolling; back ASSISTANT_REST_MS after the last scroll.
+    const root = document.documentElement;
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const onScroll = () => {
+      root.classList.add(SCROLLING_CLASS);
+      clearTimeout(t);
+      t = setTimeout(() => root.classList.remove(SCROLLING_CLASS), ASSISTANT_REST_MS);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { el.remove(); window.removeEventListener("scroll", onScroll); clearTimeout(t); root.classList.remove(SCROLLING_CLASS); };
   }, [headerAlpha]);
   return null;
 }

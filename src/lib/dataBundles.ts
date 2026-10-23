@@ -635,17 +635,52 @@ export const GROUPS: Group[] = [
  *  winners, structured data and social image are unchanged. */
 export const SMALL_MAX = 20;
 export const SMALL_GROUP = { id: "small", label: "Small buys (up to GH¢20)", hint: "GH¢20 or less, use any time, any app" } as const;
-/** The winners board's tabs, in order: Small buys, Any price (the all-day group), then the rest. */
-export const BOARD_TABS: { id: string; label: string; hint: string }[] = [
-  SMALL_GROUP,
-  ...GROUPS.map((g) => ({ id: g.id, label: g.id === "allday" ? "Any price" : g.label, hint: g.hint })),
+
+/** The winners board's two controls (owner, 22 Oct 2026, round 2): a price switch and a type.
+ *  The board shown is their combination: "Any price" + a type = that group (GROUPS), unchanged;
+ *  "Small buys" + a type = that group's rows at SMALL_MAX or less (smallPool). */
+export const PRICE_FILTERS = [
+  { id: "small", label: "Small buys (up to GH¢20)", short: "Small buys" },
+  { id: "any", label: "Any price", short: "Any price" },
+] as const;
+export type PriceFilter = (typeof PRICE_FILTERS)[number]["id"];
+/** The type pills, one per group, in GROUPS order. `none` names them in the empty line. */
+export const TYPE_FILTERS: { id: string; label: string; none: string }[] = [
+  { id: "allday", label: "Any time", none: "all-day bundles" },
+  { id: "noexpiry", label: "Never expires", none: "never-expiring bundles" },
+  { id: "month", label: "30 days", none: "30-day bundles" },
+  { id: "night", label: "Night", none: "night bundles" },
+  { id: "combo", label: "Calls + data", none: "calls + data bundles" },
 ];
+/** The board id for a price × type: "Any price" boards are the group ids; Small buys boards are
+ *  "small" (all-day, the original Small buys tab) or "small:<group>". */
+export const boardId = (price: PriceFilter, type: string) => (price === "any" ? type : type === "allday" ? SMALL_GROUP.id : `${SMALL_GROUP.id}:${type}`);
+/** The group a board id ranks in, and whether it is capped at SMALL_MAX. */
+export function parseBoardId(id: string): { small: boolean; group: string } {
+  if (id === SMALL_GROUP.id) return { small: true, group: "allday" };
+  if (id.startsWith(`${SMALL_GROUP.id}:`)) return { small: true, group: id.slice(SMALL_GROUP.id.length + 1) };
+  return { small: false, group: id };
+}
+/** The one-line hint under the controls for a board. */
+export function boardHint(id: string): string {
+  const { small, group } = parseBoardId(id);
+  const g = GROUPS.find((x) => x.id === group);
+  if (!g) return "";
+  return small ? (group === "allday" ? SMALL_GROUP.hint : `GH¢20 or less, ${g.hint.charAt(0).toLowerCase()}${g.hint.slice(1)}`) : g.hint;
+}
+/** The line shown when a Small buys combination has no rows. */
+export function emptyBoardText(id: string): string {
+  const { group } = parseBoardId(id);
+  const t = TYPE_FILTERS.find((x) => x.id === group);
+  return `No ${t ? t.none : "bundles"} at GH¢${SMALL_MAX} or less – try Any price`;
+}
 
 /** Bundles that would belong to a group but are usable only on some days or
  *  hours: listed beside the group, never ranked in it (night has its own tab). */
 export function restrictedTest(groupId: string): ((b: Bundle) => boolean) | null {
-  if (groupId === SMALL_GROUP.id) {
-    const t = restrictedTest("allday");
+  const sb = parseBoardId(groupId);
+  if (sb.small) {
+    const t = restrictedTest(sb.group);
     return t ? (b) => t(b) && b.price <= SMALL_MAX + 1e-9 : null;
   }
   const base: Record<string, (b: Bundle) => boolean> = {
@@ -1315,7 +1350,8 @@ export function createBundleModel(doc: BundleDataset, opts: ModelOptions = {}) {
     }
     if (!best) return null;
     return { n: best.n, extraMb: best.extraMb, extraMoney: best.extraMoney,
-      text: `${doc.networks[best.n]?.name ?? best.n}: +${data(best.extraMb, best.n)} for ${money(best.extraMoney)} more` };
+      // Plain words (owner, 22 Oct 2026): "With AT, pay GH¢17.08 more and get 2.80 GB extra."
+      text: `With ${doc.networks[best.n]?.name ?? best.n}, pay ${money(best.extraMoney)} more and get ${data(best.extraMb, best.n)} extra.` };
   }
   /** A mix as one row for the finder's comparisons: its total data (shown with fmtData), its
    *  total price, and the shortest life of its parts. */
@@ -1730,11 +1766,15 @@ export function createBundleModel(doc: BundleDataset, opts: ModelOptions = {}) {
   const tieText = (b: Bundle) => valueText(b) ?? cpgShown(b);
   /** The "Small buys" pool (SMALL_GROUP): the all-day rows at SMALL_MAX or less; a range that starts
    *  at or below SMALL_MAX is clipped to it (price and data scaled at the same rate). */
-  function smallPool(): Bundle[] {
-    const allday = GROUPS[0].test;
+  /** Each pay-any-amount product (a network's rate table: its rateLabel) appears ONCE in a Small
+   *  buys board, at its best-value band (owner, 22 Oct 2026): the first after sortByValue. */
+  const productKey = (b: Bundle) => (b.computed ? `${b.network}|${b.rateLabel ?? b.family}` : null);
+  function smallPool(groupId = "allday"): Bundle[] {
+    const test = GROUPS.find((g) => g.id === groupId)?.test;
+    if (!test) return [];
     const out: Bundle[] = [];
     for (const b of all) {
-      if (!allday(b)) continue;
+      if (!test(b)) continue;
       if (b.band && !b.band.exact) {
         if (b.band.from > SMALL_MAX + 1e-9) continue;
         if (b.band.to <= SMALL_MAX + 1e-9) { out.push(b); continue; }
@@ -1742,11 +1782,15 @@ export function createBundleModel(doc: BundleDataset, opts: ModelOptions = {}) {
         out.push({ ...b, price: to, mb: b.mb * (to / b.band.to), band: { ...b.band, to, top: false }, name: b.name.split(money(b.band.to)).join(money(to)) });
       } else if (b.price <= SMALL_MAX + 1e-9) out.push(b);
     }
-    return out;
+    // One row per pay-any-amount product: its best value within SMALL_MAX (rankable rows first, so a
+    // disputed band never hides a rankable one).
+    const sorted = out.sort((a, b) => Number(canWin(b)) - Number(canWin(a)) || sortByValue(a, b));
+    const seen = new Set<string>();
+    return sorted.filter((b) => { const k = productKey(b); if (!k) return true; if (seen.has(k)) return false; seen.add(k); return true; });
   }
   /** Bundles in one like-for-like group, cheapest per GB first. */
   function leaderboard(groupOrFilter: string | ((b: Bundle) => boolean), limit = Infinity): Bundle[] {
-    if (groupOrFilter === SMALL_GROUP.id) return smallPool().sort(sortByValue).slice(0, limit);
+    if (typeof groupOrFilter === "string" && parseBoardId(groupOrFilter).small) return smallPool(parseBoardId(groupOrFilter).group).sort(sortByValue).slice(0, limit);
     const test = typeof groupOrFilter === "string" ? GROUPS.find((g) => g.id === groupOrFilter)?.test : groupOrFilter;
     if (!test) return [];
     return all.filter(test).sort(sortByValue).slice(0, limit);
@@ -2149,10 +2193,12 @@ export function createBundleModel(doc: BundleDataset, opts: ModelOptions = {}) {
   /** Each network's best value in a like-for-like group (model.cheapestIn), for the face-off:
    *  its GH¢10 value, its share of the best one, and whether it is (joint) best on the shown text. */
   function faceOff(groupId: string) {
-    const test = GROUPS.find((g) => g.id === groupId)?.test;
-    // "Small buys": each network's best of the small pool (the board's own first rows).
-    const smallBest = (n: NetworkId) => smallPool().filter((b) => b.network === n && canWin(b)).sort(sortByValue)[0] ?? null;
-    const rows = networks.map((n) => ({ n, b: groupId === SMALL_GROUP.id ? smallBest(n) : test ? cheapestIn(test, n) : null }));
+    const sb = parseBoardId(groupId);
+    const test = GROUPS.find((g) => g.id === sb.group)?.test;
+    // "Small buys" boards: each network's best of that small pool (the board's own first rows).
+    const pool = sb.small ? smallPool(sb.group) : [];
+    const smallBest = (n: NetworkId) => pool.filter((b) => b.network === n && canWin(b)).sort(sortByValue)[0] ?? null;
+    const rows = networks.map((n) => ({ n, b: sb.small ? smallBest(n) : test ? cheapestIn(test, n) : null }));
     const best = Math.max(1e-9, ...rows.map((r) => (r.b ? valueMb(r.b) ?? 0 : 0)));
     const lead = rows.filter((r) => r.b).reduce<Bundle | null>((a, r) => (!a || (valueMb(r.b!) ?? 0) > (valueMb(a) ?? 0) + 1e-9 ? r.b : a), null);
     return rows.map((r) => ({

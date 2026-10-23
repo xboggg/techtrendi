@@ -125,7 +125,8 @@ export function Header() {
                     isActive(link.href)
                       ? isOverHero ? "text-white bg-white/20 shadow-sm" : "text-primary bg-primary/10 shadow-sm"
                       : isOverHero ? "text-white/80 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"
-                  } ${link.isHot ? "relative" : ""}`}
+                  } ${link.isHot ? "relative pr-9" : ""}`}
+                  // pr-9: the HOT badge sits in this extra right padding, clear of the label at every width.
                 >
                   {link.icon && <link.icon className="w-4 h-4 text-orange-500" />}
                   {link.label}
