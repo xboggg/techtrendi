@@ -54,6 +54,7 @@ const mustSkip = [
   "admin",
   "admin/news",
   "admin/whatsapp-queue",
+  "admin/data-deals",
   "auth",
   "profile",
   "dashboard",

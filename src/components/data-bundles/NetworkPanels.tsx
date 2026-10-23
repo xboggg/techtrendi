@@ -11,6 +11,7 @@ import { ArrowRight, Infinity as InfinityIcon, Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GROUPS, type Bundle, type BundleModel } from "@/lib/dataBundles";
 import { BuyFold, BuyLine, OperatorTitle, appSourceText, fromAppOnly, ChannelNote, CountUpText, Details, OtherSourceNote, SectionHeading, SwipeDeck, TrustBadge, TrustReasons, trustOf, ValueFigure, glass, hasNotes, textSafeFill, valueExplainer, workedOutText, QueryLink, perGbLine, LeadArrow, LeadData } from "./shared";
+import { PriceHistory } from "./PriceHistory";
 
 /** The panel rows: like-for-like groups by id (never mixed). */
 export const PANEL_CATEGORIES = [
@@ -171,6 +172,7 @@ function PanelDeal({ model, b, share, alsoNoExpiry, openBuy }: { model: BundleMo
       {(
         <Details>
           <TrustReasons b={b} />
+          <PriceHistory model={model} b={b} />
           {perGbLine(model, b) && <p data-testid="panel-cpg">{perGbLine(model, b)}</p>}
           <OperatorTitle model={model} b={b} />
           {fromAppOnly(b) && <p>{appSourceText(b, model.networkInfo(b.network).name)}</p>}

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Link, useNavigate, type LinkProps } from "react-router-dom";
 import { DATA_BUNDLES_BASE, DATA_BUNDLES_OFFLINE, DATA_BUNDLES_PAGES as DATA_BUNDLE_PAGES, DATA_BUNDLES_SW, DATA_BUNDLES_SW_URLS } from "@/data/dataBundlesRoute";
 import { bundleFilePath } from "@/lib/dataBundleSchema.js";
+import { changesFilePath, historyFilePath } from "@/lib/bundleChanges";
 import { hasVolume, conditionalReason, dialText, hasConflict, isConditional, isPending, isTimeRestricted, isUnconfirmed, normaliseAmountText, type Bundle, type BundleModel, type Kind, type NetworkInfo } from "@/lib/dataBundles";
 
 export const glass =
@@ -910,10 +911,11 @@ export function useFocusTitleOnNavigate<T extends HTMLElement>(path: string) {
 
 /** The files the offline copy keeps after a visit: this page and every other data bundle page,
  *  the built files this page loaded (same site, /assets/ or the preview's /pv-assets/), the
- *  prices file and the logo. The worker adds this build's route files itself. */
+ *  prices file, the changes and price-history files, and the logo. The worker adds this build's route files itself. */
 export const offlineUrls = (): string[] => {
   // The prices file always (on the first visit it may still be loading when this runs).
-  const out = new Set<string>([location.pathname, ...dataBundlePagePaths(), ...Object.keys(DATA_BUNDLE_PAGES).map((c) => bundleFilePath(c)), "/logo-t.png", "/favicon.ico"]);
+  // The changes and price-history files too (23 Oct 2026), so "What changed" and the history lines work offline.
+  const out = new Set<string>([location.pathname, ...dataBundlePagePaths(), ...Object.keys(DATA_BUNDLE_PAGES).flatMap((c) => [bundleFilePath(c), changesFilePath(c), historyFilePath(c)]), "/logo-t.png", "/favicon.ico"]);
   try {
     for (const e of performance.getEntriesByType("resource")) {
       const u = new URL(e.name);

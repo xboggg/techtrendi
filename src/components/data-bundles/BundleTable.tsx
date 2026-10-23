@@ -12,6 +12,7 @@ import { Search, Table2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TABLE_SECTIONS, expiryDisputed, hasVolume, neverExpires, tableSection, type Bundle, type BundleModel, type Kind } from "@/lib/dataBundles";
 import { BuyFold, BuyLine, CodesIn, OperatorTitle, appSourceText, fromAppOnly, ChannelNote, CodeActions, ConflictNote, Details, dialCodes, KIND_LABEL, KindBadge, OtherSourceNote, SectionHeading, SourceRef, TrustBadge, TrustReasons, trustOf, extrasText, glass, hasNotes, perGb, unitsLine, ussdText, PriceLead, perGbLine } from "./shared";
+import { PriceHistory } from "./PriceHistory";
 
 type SortKey = "grouped" | "price" | "data" | "validity";
 const SORTS: { id: SortKey; label: string }[] = [
@@ -239,9 +240,11 @@ function Extras({ model, b, networkSource }: { model: BundleModel; b: Bundle; ne
         {/* Notes, terms, disputes and the bundle's own source: one tap away, never removed.
             The trust badge above stays visible ("! Check first", with who can buy it), so a disputed
             or conditional row is always marked; the specific reasons are the first thing inside. */}
-        {(hasNotes(model, b) || (b.source && b.source !== networkSource) || trustOf(b).level !== "confirmed" || (ussdText(b) && ussdText(b) !== buy) || model.shortValidity(b) !== model.validityText(b) || !!b.operatorTitle) && (
+        {/* Every listed bundle has More info: at least its price history (23 Oct 2026). */}
+        {(!b.computed || hasNotes(model, b) || (b.source && b.source !== networkSource) || trustOf(b).level !== "confirmed" || (ussdText(b) && ussdText(b) !== buy) || model.shortValidity(b) !== model.validityText(b) || !!b.operatorTitle) && (
           <Details>
             <TrustReasons b={b} />
+            <PriceHistory model={model} b={b} />
             {perGbLine(model, b) && <p data-testid="bt-cpg">{perGbLine(model, b)}</p>}
             <OperatorTitle model={model} b={b} />
             {fromAppOnly(b) && <p data-testid="app-source">{appSourceText(b, model.networkInfo(b.network).name)}</p>}

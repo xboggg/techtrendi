@@ -2,7 +2,7 @@ import { ReactNode, useState, useEffect } from "react";
 import { Link, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
-import { LayoutDashboard, FileText, MessageSquare, Users, ArrowLeft, Loader2, PenSquare, Mail, Package, Newspaper, BarChart3, Ghost, Shield, ShieldAlert, Lightbulb, Activity, Flag, Wrench, LogOut, MessageCircle, Megaphone, Menu, X, BookHeart } from "lucide-react";
+import { LayoutDashboard, FileText, MessageSquare, Users, ArrowLeft, Loader2, PenSquare, Mail, Package, Newspaper, BarChart3, Ghost, Shield, ShieldAlert, Lightbulb, Activity, Flag, Wrench, LogOut, MessageCircle, Megaphone, Menu, X, BookHeart, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AdminLayoutProps {
@@ -15,6 +15,7 @@ const navItems = [
   { label: "News", href: "/admin/news", icon: Newspaper },
   { label: "Articles", href: "/admin/articles", icon: PenSquare },
   { label: "WhatsApp Queue", href: "/admin/whatsapp-queue", icon: MessageCircle },
+  { label: "Data Deal Posts", href: "/admin/data-deals", icon: Smartphone },
   { label: "Reviews", href: "/admin/reviews", icon: FileText },
   { label: "Products", href: "/admin/products", icon: Package },
   { label: "Comments", href: "/admin/comments", icon: MessageSquare },

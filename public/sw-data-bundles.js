@@ -8,7 +8,9 @@
 // Registered with the scope of the data bundle pages, so it never controls any other page; the
 // fetch handler also checks every navigation is inside that scope.
 //   - Pages (navigations): network first; the saved copy only when the network fails.
-//   - The prices file: network first with an 8 s limit, then the saved copy. A late network
+//   - The prices file (and, since 23 Oct 2026, the changes and price-history files beside it,
+//     <country>-changes.json and <country>-history.json: everything under /storage/data-bundles/
+//     takes this path): network first with an 8 s limit, then the saved copy. A late network
 //     answer is still saved, and open pages are told (message "tt-db-prices-fresh") so they
 //     can re-check and show it. Only a JSON answer that parses is ever saved.
 //   - Built files with a hash in their name (/assets/ or the preview's /pv-assets/): saved copy

@@ -77,6 +77,7 @@ const AdminCreepyTech = lazy(() => import("./pages/admin/AdminCreepyTech"));
 const AdminCyberAwareness = lazy(() => import("./pages/admin/AdminCyberAwareness"));
 const AdminToolFeedback = lazy(() => import("./pages/admin/AdminToolFeedback"));
 const AdminWhatsAppQueue = lazy(() => import("./pages/admin/AdminWhatsAppQueue"));
+const AdminDataDeals = lazy(() => import("./pages/admin/AdminDataDeals"));
 
 // Category pages
 const Phones = lazy(() => import("./pages/categories/Phones"));
@@ -506,6 +507,7 @@ const App = () => (
                       <Route path="/admin/scam-stories" element={<AdminScamStories />} />
                       <Route path="/admin/tool-feedback" element={<AdminToolFeedback />} />
                       <Route path="/admin/whatsapp-queue" element={<AdminWhatsAppQueue />} />
+                      <Route path="/admin/data-deals" element={<AdminDataDeals />} />
                       <Route path="/arcade" element={<ArcadeHub />} />
                       <Route path="/arcade/math-tug-of-war" element={<ArcadeMathTugOfWar />} />
                       <Route path="/arcade/speed-typing-race" element={<ArcadeSpeedTypingRace />} />

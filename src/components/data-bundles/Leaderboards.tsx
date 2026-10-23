@@ -17,6 +17,7 @@ import { PRICE_FILTERS, SMALL_MAX, TYPE_FILTERS, boardHint, boardId, emptyBoardT
 import { parseBoardState, writeBoardState } from "@/lib/dataBundlesUrl";
 import { FaceOffBars } from "./FaceOff";
 import { ChannelNote, ConflictNote, Details, NetPill, OtherSourceNote, SectionHeading, TrustBadge, TrustReasons, trustOf, ValueBar, extrasText, glass, textSafeFill, unitsLine, useGrowIn, valueExplainer, workedOutText, PriceLead, perGbLine } from "./shared";
+import { PriceHistory } from "./PriceHistory";
 
 /** Rows shown before "Show more". */
 export const TOP = 5;
@@ -242,6 +243,7 @@ function Row({ model, b, share, rankLabel, first, joint, unranked, delay = 0 }: 
         {(
           <Details className="mt-1">
             <TrustReasons b={b} />
+            <PriceHistory model={model} b={b} />
             {perGbLine(model, b) && <p data-testid="lb-cpg">{perGbLine(model, b)}</p>}
             {b.computed && b.computedLabel && <p>{b.computedLabel}.</p>}
             <ChannelNote model={model} b={b} noteShown={false} />

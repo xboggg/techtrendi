@@ -103,6 +103,7 @@ export const routes: RouteRecord[] = [
       { path: "admin/scam-stories", lazy: d(() => import("../pages/admin/AdminScamStories")) },
       { path: "admin/tool-feedback", lazy: d(() => import("../pages/admin/AdminToolFeedback")) },
       { path: "admin/whatsapp-queue", lazy: d(() => import("../pages/admin/AdminWhatsAppQueue")) },
+      { path: "admin/data-deals", lazy: d(() => import("../pages/admin/AdminDataDeals")) },
       { path: "arcade", lazy: d(() => import("../pages/Arcade")) },
       { path: "arcade/math-tug-of-war", lazy: d(() => import("../pages/arcade/MathTugOfWar")) },
       { path: "arcade/speed-typing-race", lazy: d(() => import("../pages/arcade/SpeedTypingRace")) },

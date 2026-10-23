@@ -24,6 +24,7 @@ import { MonthlyPlanner } from "@/components/data-bundles/MonthlyPlanner";
 import { Leaderboards } from "@/components/data-bundles/Leaderboards";
 import { Advice } from "@/components/data-bundles/Advice";
 import { LiveStatus, ShareWhatsApp, SourcesAndDisclaimer, SourceLine } from "@/components/data-bundles/meta";
+import { WhatChanged } from "@/components/data-bundles/WhatChanged";
 import { DataBundlesChrome, Details, NetPill, ScanSweep, TextSizeToggle, glass, useFocusTitleOnNavigate } from "@/components/data-bundles/shared";
 import { cn } from "@/lib/utils";
 
@@ -133,6 +134,8 @@ export default function DataBundlesDashboard() {
               </h1>
               {/* Where the prices come from (tap: opens the Sources section). */}
               <div className="mt-1 [@media(max-height:820px)_and_(max-width:639px)]:mt-0"><SourceLine data={data} /></div>
+              {/* What changed this week (real changes only; hidden when there are none). */}
+              <WhatChanged model={model} country={data.country.id} className="mt-2" />
               {/* Phones: the source line above already names the networks, so the chips give their
                   room to the finder (the answer stays on the first screen; owner, 22 Oct 2026). */}
               <div className="mt-2 hidden flex-wrap items-center gap-2 sm:mt-3 sm:flex">
@@ -162,6 +165,8 @@ export default function DataBundlesDashboard() {
 
               <div className="mt-3 [@media(max-height:820px)_and_(max-width:639px)]:mt-2 sm:mt-4">
                 <BudgetFinder model={model} />
+                {/* Short phones: the strip sits under the finder, so the answer stays on the first screen. */}
+                <WhatChanged model={model} country={data.country.id} placement="below-finder" className="mt-3" />
               </div>
               </div>
 

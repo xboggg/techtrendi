@@ -3406,6 +3406,132 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     /\(e\.metaKey \|\| e\.ctrlKey\) && !e\.altKey && typeof e\.key === 'string' && e\.key\.toLowerCase\(\) === 'k'/.test(ss));
 }
 
+// ------------------------------------------------------------------ changes, price history, deal posts (23 Oct 2026)
+{
+  const src = (p: string) => readFileSync(join(ROOT, p), "utf8");
+  const ch = await import("../src/lib/bundleChanges");
+  const NOW = new Date("2026-10-23T15:00:00Z");
+  // The file as the checker's backfill wrote it on 23 Oct 2026 (rows 8-13).
+  const real = {"v":1,"start":"2026-10-18","startRow":8,"latestRow":13,"generatedAt":"2026-10-23T14:39:00Z","changes":[
+    {"date":"2026-10-21","network":"telecel","family":"Special offer","name":"501.4MB Special","kind":"retired","old":{"price":2.5,"mb":501.4,"days":1},"new":null,"rows":[12,13]},
+    {"date":"2026-10-21","network":"telecel","family":"Special offer","name":"891.4MB Special","kind":"retired","old":{"price":3.5,"mb":891.4,"days":1},"new":null,"rows":[12,13]},
+    {"date":"2026-10-21","network":"telecel","family":"Special offer","name":"1.45GB Special","kind":"retired","old":{"price":4.5,"mb":1484.8,"days":1},"new":null,"rows":[12,13]}]};
+  const cd = ch.parseChanges(real, NOW)!;
+  check("changes file: the backfilled file parses (3 changes, start 18 Oct 2026, rows 8-13)", !!cd && cd.changes.length === 3 && cd.start === "2026-10-18" && cd.startRow === 8 && cd.latestRow === 13 && ch.dayLabelYear(cd.start) === "18 Oct 2026");
+  const bad = (f: (x: any) => void) => { const x = JSON.parse(JSON.stringify(real)); f(x); return ch.parseChanges(x, NOW); };
+  check("changes file: anything wrong hides it (wrong version, malformed, a change dated in the future, generated in the future, a kind that does not fit its figures, missing rows)",
+    ch.parseChanges(null, NOW) === null && ch.parseChanges("x", NOW) === null && ch.parseChanges({}, NOW) === null &&
+    bad((x) => { x.v = 2; }) === null && bad((x) => { x.changes = {}; }) === null && bad((x) => { x.changes[0].date = "2026-11-30"; }) === null &&
+    bad((x) => { x.generatedAt = "2027-01-01T00:00:00Z"; }) === null && bad((x) => { x.changes[0].kind = "price_down"; }) === null &&
+    bad((x) => { x.changes[0].kind = "nonsense"; }) === null && bad((x) => { x.changes[0].rows = [12]; }) === null &&
+    bad((x) => { x.changes[0].date = "2026-10-01"; }) === null && bad((x) => { x.changes[0].old.price = -1; }) === null &&
+    bad((x) => { x.changes.push({ ...x.changes[0], kind: "price_down", old: { price: 5, mb: 1, days: 1 }, new: { price: 6, mb: 1, days: 1 } }); }) === null &&
+    bad((x) => { x.changes.push({ ...x.changes[0], kind: "price_down", old: { price: 6, mb: 1, days: 1 }, new: { price: 5, mb: 1, days: 1 } }); }) !== null);
+  const week = ch.recentChanges(cd, NOW, ch.STRIP_DAYS);
+  check("strip: on 23 Oct the 21 Oct changes are 'this week'; on 28 Oct still (7 days, today counted); on 29 Oct they are gone; a network page sees its own only",
+    week.length === 3 && ch.recentChanges(cd, new Date("2026-10-27T23:00:00Z"), 7).length === 3 && ch.recentChanges(cd, new Date("2026-10-28T08:00:00Z"), 7).length === 0 &&
+    ch.recentChanges(cd, NOW, 7, "telecel").length === 3 && ch.recentChanges(cd, NOW, 7, "mtn").length === 0 && ch.recentChanges(null, NOW, 7).length === 0);
+  const groups = ch.groupChanges(m, week);
+  check(`strip: one line for the three: '${groups[0]?.text} (${groups[0] && ch.dayLabel(groups[0].date)})'`, groups.length === 1 && groups[0].text === "Telecel ended 3 Special offer bundles" && ch.dayLabel(groups[0].date) === "21 Oct");
+  const mk = (kind: string, old: any, nw: any) => ({ date: "2026-10-22", network: "mtn", family: "Data", name: "Data GH¢5", kind, old, new: nw, rows: [13, 14] } as any);
+  const lines = [
+    ch.changeLine(m, mk("price_down", { price: 5.5, mb: 521, days: null }, { price: 5, mb: 521, days: null })),
+    ch.changeLine(m, mk("price_up", { price: 5, mb: 521, days: null }, { price: 5.5, mb: 521, days: null })),
+    ch.changeLine(m, mk("more_data", { price: 5, mb: 521, days: null }, { price: 5, mb: 600, days: null })),
+    ch.changeLine(m, mk("less_data", { price: 5, mb: 600, days: null }, { price: 5, mb: 521, days: null })),
+    ch.changeLine(m, mk("validity", { price: 5, mb: 521, days: 3 }, { price: 5, mb: 521, days: 5 })),
+    ch.changeLine(m, mk("new", null, { price: 5, mb: 2048, days: 7 })),
+    ch.changeLine(m, real.changes[2] as any),
+  ];
+  check("strip: plain words for every kind, figures in the model's formats",
+    JSON.stringify(lines) === JSON.stringify(["MTN cut the price of Data GH¢5: GH¢5.50 → GH¢5", "MTN raised the price of Data GH¢5: GH¢5 → GH¢5.50", "MTN gives more data on Data GH¢5: 521 MB → 600 MB",
+      "MTN cut the data on Data GH¢5: 600 MB → 521 MB", "MTN changed how long Data GH¢5 lasts: 3 days → 5 days", "MTN added Data GH¢5 (GH¢5, 2.00 GB)", "Telecel ended 1.45GB Special"]), JSON.stringify(lines));
+  check("strip: never 'GH¢10 gets/buys', never 'Every GH¢10'", lines.concat(groups.map((g) => g.text)).every((t) => !/GH¢10 (gets|buys)|Every GH¢10/.test(t)));
+
+  // Price history.
+  const start = "2026-10-18";
+  const histRaw = { v: 1, start, startRow: 8, latestRow: 13, generatedAt: "2026-10-23T14:39:00Z", retired: { "telecel|Special offer|1.45GB Special": "2026-10-21" },
+    bundles: Object.fromEntries(m.bundles.map((b) => [ch.historyKey(b), [[start, b.price, b.mb, b.days]]])) as any };
+  const hd = ch.parseHistory(histRaw, NOW)!;
+  const flat = m.bundles.find((b) => b.network === "at" && !b.computed)!;
+  check(`history: a bundle that did not change says '${ch.historyView(m, hd, flat)?.text}'`, !!hd && ch.historyView(m, hd, flat)?.text === "Price since 18 Oct: unchanged" && ch.historyView(m, hd, flat)!.unchanged);
+  const changed = JSON.parse(JSON.stringify(histRaw));
+  changed.bundles[ch.historyKey(flat)] = [[start, flat.price + 1, flat.mb, flat.days], ["2026-10-21", flat.price, flat.mb, flat.days]];
+  const hv = ch.historyView(m, ch.parseHistory(changed, NOW), flat)!;
+  check(`history: a bundle that changed says '${hv?.text}' and keeps both dated points for the chart`, !!hv && !hv.unchanged && hv.text === `Since 18 Oct: price ${m.money(flat.price + 1)} → ${m.money(flat.price)}` && hv.points.length === 2);
+  const stale = JSON.parse(JSON.stringify(histRaw));
+  stale.bundles[ch.historyKey(flat)] = [[start, flat.price + 3, flat.mb, flat.days]];
+  check("history: says nothing when the file does not end at today's figures, for worked-out prices, or with no file; a malformed or future file is ignored",
+    ch.historyView(m, ch.parseHistory(stale, NOW), flat) === null && ch.historyView(m, hd, m.computed[0]) === null && ch.historyView(m, null, flat) === null &&
+    ch.parseHistory({ ...histRaw, v: 2 }, NOW) === null && ch.parseHistory({ ...histRaw, bundles: { x: [["2027-01-01", 1, 1, 1]] } }, NOW) === null &&
+    ch.parseHistory({ ...histRaw, bundles: { x: [[start, 1, 1]] } }, NOW) === null && ch.parseHistory({ ...histRaw, bundles: { x: [["2026-10-20", 1, 1, 1], ["2026-10-19", 1, 1, 1]] } }, NOW) === null);
+  const ph = src("src/components/data-bundles/PriceHistory.tsx");
+  check("history (UI): fetched only when More info opens (the details' toggle), drawn as a small inline SVG step chart (no chart library) with the dates as text; in the boards, the network panels and the bundle lists",
+    /const load = \(\) => \{ if \(el\.open\) loadHistory\(/.test(ph) && /el\.addEventListener\("toggle", load\);/.test(ph) && /<svg viewBox=/.test(ph) && !/recharts|chart\.js|d3/.test(ph) && /data-testid="price-history-points"/.test(ph) &&
+    ["Leaderboards", "NetworkPanels", "BundleTable"].every((f) => /<PriceHistory model=\{model\} b=\{b\} \/>/.test(src(`src/components/data-bundles/${f}.tsx`))));
+
+  // The strip (UI).
+  const wc = src("src/components/data-bundles/WhatChanged.tsx");
+  const React = await import("react");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { WhatChanged } = await import("../src/components/data-bundles/WhatChanged");
+  {
+    // The build's copy (src/data/ghanaDataBundleChanges.json, refreshed by scripts/fetch-bundle-changes.mjs) is shown in the
+    // server HTML, judged at its own time, so the strip is there from the first paint (no layout shift).
+    const bundled = JSON.parse(src("src/data/ghanaDataBundleChanges.json"));
+    const at = new Date(bundled.generatedAt);
+    const want = ch.groupChanges(m, ch.recentChanges(ch.parseChanges(bundled, at), at, ch.STRIP_DAYS)).slice(0, 2);
+    const ssr = renderToStaticMarkup(React.createElement(WhatChanged, { model: m, country: "ghana" })).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+    const ssrMtn = renderToStaticMarkup(React.createElement(WhatChanged, { model: m, country: "ghana", network: "mtn" }));
+    const wantMtn = ch.recentChanges(ch.parseChanges(bundled, at), at, ch.STRIP_DAYS, "mtn").length;
+    check(`strip (UI): the server HTML carries the build's copy (${want.length ? `'This week: ${want[0].text} (${ch.dayLabel(want[0].date)})'` : "nothing this week"}); a network page only its own network's; hidden when there is nothing`,
+      !!ch.parseChanges(bundled, at) && (want.length ? ssr.includes(`This week: ${want[0].text} (${ch.dayLabel(want[0].date)})`) && ssr.includes("See all changes") : ssr.trim() === "") && (wantMtn ? ssrMtn !== "" : ssrMtn === "") && /if \(!week\.length\) return null;/.test(wc), ssr.slice(0, 200));
+  }
+  check("strip (UI): up to 2 lines (1 on phones) and 'See all changes' in place, ending the last line shown; network colour dot; a tap target of 44px",
+    /\.slice\(0, 2\)/.test(wc) && /i > 0 && "max-sm:hidden"/.test(wc) && /i === week\.length - 1 \? toggle\(""\) : i === 0 \? toggle\("sm:hidden"\) : null/.test(wc) &&
+    /aria-expanded=\{open\}/.test(wc) && /\{open \? "Hide changes" : "See all changes"\}/.test(wc) && /style=\{\{ background: color \}\}/.test(wc) && /min-h-11/.test(wc));
+  {
+    const fb = await import("../scripts/fetch-bundle-changes.mjs");
+    const good = JSON.parse(src("src/data/ghanaDataBundleChanges.json"));
+    check("strip (build): the prebuild keeps the committed changes file unless the new one passes the checks (version, dates, nothing in the future), and never fails the build",
+      fb.okChanges(good, Date.parse(good.generatedAt)) && !fb.okChanges({ ...good, v: 2 }, Date.parse(good.generatedAt)) && !fb.okChanges({ ...good, generatedAt: "2099-01-01T00:00:00Z" }, Date.parse(good.generatedAt)) &&
+      !fb.okChanges({ ...good, changes: [{ ...good.changes[0] ?? {}, date: "2099-01-01" }] }, Date.parse(good.generatedAt)) && !fb.okChanges(null) &&
+      /"build": "node scripts\/fetch-data-bundles\.mjs && node scripts\/fetch-bundle-changes\.mjs && vite-react-ssg build/.test(src("package.json")) && !/process\.exit\(/.test(src("scripts/fetch-bundle-changes.mjs")));
+  }
+  const dash = src("src/pages/data-bundles/DataBundlesDashboard.tsx"), net = src("src/pages/data-bundles/DataBundlesNetwork.tsx");
+  check("strip (UI): under the source line on both pages (a network page filters to its network); on short phones it moves under the finder, so the answer stays on the first screen",
+    dash.indexOf("<SourceLine") < dash.indexOf("<WhatChanged") && dash.indexOf("<WhatChanged") < dash.indexOf("<BudgetFinder") && /placement="below-finder"/.test(dash) &&
+    /<WhatChanged model=\{model\} country=\{data\.country\.id\} network=\{network\} className="mt-2" \/>/.test(net) && /network=\{network\} placement="below-finder"/.test(net) &&
+    /"\[@media\(max-height:820px\)_and_\(max-width:639px\)\]:hidden" : "hidden \[@media\(max-height:820px\)_and_\(max-width:639px\)\]:block"/.test(wc));
+  check("offline: the changes and history files are kept with the prices (same network-first path in the worker)",
+    /flatMap\(\(c\) => \[bundleFilePath\(c\), changesFilePath\(c\), historyFilePath\(c\)\]\)/.test(src("src/components/data-bundles/shared.tsx")) && /const PRICES_PATH = '\/storage\/data-bundles\/';/.test(src("public/sw-data-bundles.js")) &&
+    ch.changesFilePath("ghana") === "/storage/data-bundles/ghana-changes.json" && ch.historyFilePath("ghana") === "/storage/data-bundles/ghana-history.json");
+
+  // Deal posts.
+  const checked = "2026-10-23T13:17:17Z";
+  const posts = ch.dealPosts(m, cd, NOW, checked, "/data-bundles/ghana");
+  const weekly = posts.find((p) => p.kind === "weekly")!;
+  const sw = m.leaderboardRows("small").ranked[0].bundle;
+  check(`deal posts: the weekly post (Monday ${weekly && ch.dayLabel(weekly.date)}) names the Small buys, Any price and Never expires winners with their dial codes, 'Checked 23 Oct' and the link at the Small buys winner's amount`,
+    !!weekly && weekly.date === "2026-10-19" && weekly.id === "weekly:2026-10-19" && weekly.text.includes(`Small buys (up to GH¢20): `) && weekly.text.includes(m.leadText(sw)) && (!sw.ussd || weekly.text.includes(`Dial ${sw.ussd}.`)) &&
+    weekly.text.includes("Any price: ") && weekly.text.includes("Never expires: ") && weekly.text.includes("Checked 23 Oct.") && weekly.link === `https://techtrendi.com/data-bundles/ghana?amount=${sw.band && !sw.band.exact ? sw.band.from : sw.price}` && weekly.text.includes(weekly.link), weekly?.text);
+  check("deal posts: a bundle whose name already says its network is never named twice ('Telecel Telecel …')", [...posts].every((p) => !/\b(AT|MTN|Telecel) \1\b/.test(p.text)), weekly?.text);
+  check("deal posts: the retired Specials make no post (only cuts, more data, new top-value bundles and new winners do)", posts.every((p) => p.kind === "weekly"));
+  // A price cut this week on today's Small buys winner: a cut post and a new-winner post.
+  const cut = { ...real, changes: [{ date: "2026-10-22", network: sw.network, family: sw.family, name: sw.name, kind: "price_down", old: { price: sw.price + 1, mb: sw.mb, days: sw.days }, new: { price: sw.price, mb: sw.mb, days: sw.days }, rows: [13, 14] }] };
+  const p2 = ch.dealPosts(m, ch.parseChanges(cut, NOW), NOW, checked, "/data-bundles/ghana");
+  const cutPost = p2.find((p) => p.kind === "price_drop")!, win = p2.find((p) => p.kind === "new_winner")!;
+  check("deal posts: a price cut this week makes a cut post ('Was: … → …') and, when it put the bundle on top, a 'New best value' post; both with the dial code, 'Checked' and the link",
+    !!cutPost && cutPost.text.includes(`Was: ${m.money(sw.price + 1)} → ${m.money(sw.price)}.`) && !!win && win.text.startsWith("🏆 New best value in Small buys (up to GH¢20)") &&
+    [cutPost, win].every((p) => p.text.includes("Checked 23 Oct.") && p.text.includes("https://techtrendi.com/data-bundles/ghana?amount=") && (!sw.ussd || p.text.includes(`Dial ${sw.ussd}.`))), JSON.stringify(p2.map((p) => p.text)));
+  check("deal posts: every text follows the wording rules (never 'GH¢10 gets/buys' or 'Every GH¢10'; single bundles only, no mixes); WhatsApp link carries the whole text",
+    [...posts, ...p2].every((p) => !/GH¢10 (gets|buys)|Every GH¢10|\bbuys?\b \d|\d+ buys/.test(p.text) && !/×/.test(p.text) && decodeURIComponent(ch.whatsappLink(p.text).split("?text=")[1]) === p.text && ch.whatsappLink(p.text).startsWith("https://wa.me/?text=")));
+  const ad = src("src/pages/admin/AdminDataDeals.tsx");
+  check("deal posts (admin): own admin page inside AdminLayout (the same admin check as every admin page), linked in the admin menu, never prerendered; Copy, Open WhatsApp, Mark as posted (this browser only, no new table)",
+    /<AdminLayout>/.test(ad) && /from "\.\/AdminLayout"/.test(ad) && /Open WhatsApp/.test(ad) && /Mark as posted/.test(ad) && /localStorage\.setItem\(POSTED_KEY/.test(ad) && !/supabase/.test(ad) &&
+    /\{ label: "Data Deal Posts", href: "\/admin\/data-deals"/.test(src("src/pages/admin/AdminLayout.tsx")) && /path="\/admin\/data-deals"/.test(src("src/App.tsx")) && /path: "admin\/data-deals"/.test(src("src/ssg/routes.tsx")) && /"admin\/data-deals"/.test(src("scripts/test-included-routes.mjs")));
+}
+
 function unitsLineText(mm: BundleModel): string {
   const f = mm.sharedMbPerGb();
   return f !== null ? `1 GB = ${f.toLocaleString("en-GB")} MB` : "";

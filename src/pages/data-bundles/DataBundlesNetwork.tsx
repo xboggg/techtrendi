@@ -31,6 +31,7 @@ import { Leaderboards } from "@/components/data-bundles/Leaderboards";
 import { Advice } from "@/components/data-bundles/Advice";
 import { Faq } from "@/components/data-bundles/Faq";
 import { LiveStatus, SourcesAndDisclaimer, SourceLine } from "@/components/data-bundles/meta";
+import { WhatChanged } from "@/components/data-bundles/WhatChanged";
 import { DataBundlesChrome, Details, NetPill, SectionHeading, TextSizeToggle, fmtDate, textSafeFill, QueryLink, useFocusTitleOnNavigate, CodesIn } from "@/components/data-bundles/shared";
 import { cn } from "@/lib/utils";
 
@@ -103,6 +104,8 @@ export default function DataBundlesNetwork() {
               </h1>
               {/* Where the prices come from (tap: opens the Sources section). */}
               <div className="mt-1"><SourceLine data={data} only={network} /></div>
+              {/* What changed this week (real changes only; hidden when there are none). */}
+              <WhatChanged model={model} country={data.country.id} network={network} className="mt-2" />
               {/* Network switch: the current one is marked by a ring; the others keep the amount. */}
               <nav className="mt-2 flex flex-wrap items-center gap-1.5 sm:gap-2 [@media(max-height:820px)_and_(max-width:639px)]:mt-1.5 sm:mt-3" aria-label="Networks">
                 {model.networks.map((n) => (
@@ -137,6 +140,8 @@ export default function DataBundlesNetwork() {
               <div className="mt-3 [@media(max-height:820px)_and_(max-width:639px)]:mt-2 sm:mt-4">
                 {/* Keyed by network: the finder starts fresh on each network page (reads ?amount= again). */}
                 <BudgetFinder key={network} model={model} only={network} />
+                {/* Short phones: the strip sits under the finder, so the answer stays on the first screen. */}
+                <WhatChanged model={model} country={data.country.id} network={network} placement="below-finder" className="mt-3" />
               </div>
               </div>
             </div>
