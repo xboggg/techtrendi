@@ -346,7 +346,7 @@ export function SearchButton({ className, isOverHero = false }: { className?: st
         <span className="hidden sm:inline">Search...</span>
         <span className="sr-only sm:hidden">Search</span>
         <kbd className={cn(
-          "hidden md:inline-flex min-w-[3.25rem] justify-center whitespace-nowrap px-1.5 py-0.5 text-xs rounded border font-medium",
+          "hidden [@media(min-width:768px)_and_(pointer:fine)]:inline-flex min-w-[3.25rem] justify-center whitespace-nowrap px-1.5 py-0.5 text-xs rounded border font-medium",
           isOverHero
             ? "text-white/70 bg-white/10 border-white/20"
             : "text-gray-600 dark:text-white/70 bg-gray-100 dark:bg-white/10 border-gray-300 dark:border-white/20"

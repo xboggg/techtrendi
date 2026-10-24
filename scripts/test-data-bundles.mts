@@ -2417,7 +2417,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("text size: localStorage reads and writes are wrapped in try/catch; only the page content (main) grows, and only while the page is open",
     /try \{ setLarge\(window\.localStorage\.getItem\(TEXT_SIZE_KEY\)/.test(shSrc) && /try \{ window\.localStorage\.setItem\(TEXT_SIZE_KEY/.test(shSrc) && /return \(\) => \{ root\.removeAttribute\(LARGE_TEXT_ATTR\); \};/.test(shSrc) && sh.largeTextCss().startsWith('html[data-db-text="large"] main#main-content { zoom: 1.125; }') && /repeat\(4, minmax\(0, 1fr\)\)/.test(sh.largeTextCss()) && sh.chromeCss(0.6).includes(sh.largeTextCss()));
   const pages = ["DataBundlesDashboard.tsx", "DataBundlesNetwork.tsx"].map((f) => readFileSync(join(ROOT, "src/pages/data-bundles/" + f), "utf8"));
-  check("text size: on both data bundle pages: at the top on phones (status row), beside 'What we compare' / 'What we list' from 640px", pages.every((p) => p.includes('<TextSizeToggle className="-mt-2 shrink-0 sm:hidden" />') && p.includes('<TextSizeToggle className="shrink-0 max-sm:hidden" />') && p.indexOf('sm:hidden" />') < p.indexOf("<BudgetFinder")));
+  check("text size: on both data bundle pages: at the top on phones (status row), beside 'What we compare' / 'What we list' from 640px", pages.every((p) => p.includes('<div className="-mt-2 flex shrink-0 items-center gap-1.5 sm:hidden"><ThemePill /><TextSizeToggle /></div>') && p.includes('<div className="flex shrink-0 items-center gap-1.5 max-sm:hidden"><ThemePill /><TextSizeToggle /></div>') && p.indexOf("<ThemePill /><TextSizeToggle />") < p.indexOf("<BudgetFinder")));
 }
 
 // ------------------------------------------------------------------ step 5 (19 Oct 2026): FAQ, structured data, launch switch, offline copy, sliders
@@ -2525,9 +2525,10 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     !/data-testid="meter-label"/.test(bf) && bf.includes('const word = meter.zone === "Best" ? "Most data ✓" : meter.zone;') && !/"Best buy ✓"/.test(bf) && bf.includes('meter.zone === "Best" ? "text-[15px] sm:text-base" : "text-base sm:text-lg")} data-testid="meter-zone">{word}'));
   check("first screen (round 8): one status line (no wrap), no cadence line on top, tighter heading and finder spacing on phones",
     /whitespace-nowrap text-xs font-medium/.test(meta) && !/<CadenceLine/.test(dash) && /text-\[1\.75rem\]/.test(dash) && /className="mt-2 block text-base font-bold text-muted-foreground (\S+ )*sm:mt-3 sm:text-lg">I have/.test(bf) && /col-span-2 flex items-center gap-2 sm:block/.test(bf));
-  check("A / A+: at the top on phones (status row, right), beside 'What we compare' from 640px",
-    /<div className="min-w-0 flex-1 sm:pt-0"><LiveStatus data=\{data\} \/><\/div>\s*<TextSizeToggle className="-mt-2 shrink-0 sm:hidden" \/>/.test(dash) &&
-    /<Details summary="What we compare"[\s\S]*?<\/Details>\s*<TextSizeToggle className="shrink-0 max-sm:hidden" \/>/.test(dash));
+  // 24 Oct 2026: the Light/Dark pill sits beside A / A+ in both places.
+  check("A / A+ (with the Light/Dark pill): at the top on phones (status row, right), beside 'What we compare' from 640px",
+    /<div className="min-w-0 flex-1 sm:pt-0"><LiveStatus data=\{data\} \/><\/div>\s*<div className="-mt-2 flex shrink-0 items-center gap-1\.5 sm:hidden"><ThemePill \/><TextSizeToggle \/><\/div>/.test(dash) &&
+    /<Details summary="What we compare"[\s\S]*?<\/Details>\s*<div className="flex shrink-0 items-center gap-1\.5 max-sm:hidden"><ThemePill \/><TextSizeToggle \/><\/div>/.test(dash));
   {
     // The finder's default amount: GH¢5 (owner, 22 Oct 2026); the social image stays at GH¢20.
     const React = await import("react");
@@ -3530,6 +3531,28 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("deal posts (admin): own admin page inside AdminLayout (the same admin check as every admin page), linked in the admin menu, never prerendered; Copy, Open WhatsApp, Mark as posted (this browser only, no new table)",
     /<AdminLayout>/.test(ad) && /from "\.\/AdminLayout"/.test(ad) && /Open WhatsApp/.test(ad) && /Mark as posted/.test(ad) && /localStorage\.setItem\(POSTED_KEY/.test(ad) && !/supabase/.test(ad) &&
     /\{ label: "Data Deal Posts", href: "\/admin\/data-deals"/.test(src("src/pages/admin/AdminLayout.tsx")) && /path="\/admin\/data-deals"/.test(src("src/App.tsx")) && /path: "admin\/data-deals"/.test(src("src/ssg/routes.tsx")) && /"admin\/data-deals"/.test(src("scripts/test-included-routes.mjs")));
+}
+
+// ------------------------------------------------------------------ polish (24 Oct 2026): finder cards, search hint, Light/Dark pill
+{
+  const src = (p: string) => readFileSync(join(ROOT, p), "utf8");
+  const bf = src("src/components/data-bundles/BudgetFinder.tsx");
+  check("finder cards: each card is a flex column; the actions (how to buy, More info) sit at the bottom (mt-auto), so a shorter card's extra space is in the middle, not an empty bottom",
+    /className=\{cn\("relative flex flex-col rounded-2xl border/.test(bf) && /<div className="mt-3 flex flex-1 flex-col gap-1\.5 text-\[15px\] lg:text-base">/.test(bf) && /<div className="mt-auto space-y-1\.5 pt-1\.5" data-testid="bf-actions">/.test(bf));
+  const sm = src("src/components/ui/search-modal.tsx");
+  check("search: the Ctrl K / ⌘K hint shows only from 768px wide AND with a fine pointer (never on narrow or touch screens); its box keeps a fixed width",
+    /"hidden \[@media\(min-width:768px\)_and_\(pointer:fine\)\]:inline-flex min-w-\[3\.25rem\] justify-center/.test(sm) && !/hidden md:inline-flex/.test(sm));
+  const tp = src("src/components/data-bundles/ThemePill.tsx");
+  check("theme pill: names the theme it switches to ('Light' with a sun while dark is on, 'Dark' with a moon while light is on), 44px tall, fixed width (sun or moon only under 380px wide), and uses the site's ThemeContext setTheme (stored site-wide like the header toggle)",
+    /import \{ useTheme \} from "@\/contexts\/ThemeContext";/.test(tp) && /onClick=\{\(\) => theme!\.setTheme\(to\)\}/.test(tp) && /<span className="max-\[379px\]:sr-only">\{dark \? "Light" : "Dark"\}<\/span>/.test(tp) && /h-11 min-w-11 /.test(tp) && /min-\[380px\]:min-w-\[5\.25rem\]/.test(tp) &&
+    /aria-label=\{dark \? "Switch to light mode" : "Switch to dark mode"\}/.test(tp) && !/localStorage/.test(tp));
+  const React = await import("react");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { ThemeProvider } = await import("../src/contexts/ThemeContext");
+  const { ThemePill } = await import("../src/components/data-bundles/ThemePill");
+  const html = renderToStaticMarkup(React.createElement(ThemeProvider, null, React.createElement(ThemePill)));
+  check("theme pill: the server HTML says 'Dark' (the provider starts light, as the first client render does: no hydration difference); outside a provider it renders nothing",
+    /data-to="dark"/.test(html) && />Dark<\/span><\/button>$/.test(html) && renderToStaticMarkup(React.createElement(ThemePill)) === "", html);
 }
 
 function unitsLineText(mm: BundleModel): string {

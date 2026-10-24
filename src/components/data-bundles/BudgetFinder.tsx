@@ -331,7 +331,9 @@ function ResultCard({ model, pick, budget, lead, tie, meter, trophy, night, solo
         {shownB && meter.zone && !solo && <ValueMeter meter={meter} color={info.color} />}
       </div>
       {shownB && b ? (
-        <div className="mt-3 space-y-1.5 text-[15px] lg:text-base">
+        // A flex column: the bundle's details at the top, the actions (how to buy, More info) pinned
+        // to the bottom, so cards beside the taller winner share their extra space in the middle.
+        <div className="mt-3 flex flex-1 flex-col gap-1.5 text-[15px] lg:text-base">
           {combo ? (
             <p>
               <span className="font-bold" data-testid="bf-pay">Pay {model.money(combo.total)} in total</span>
@@ -350,6 +352,7 @@ function ResultCard({ model, pick, budget, lead, tie, meter, trophy, night, solo
             <KindBadge kind={shownB.kind} />
             {trustB && <TrustBadge b={trustB} />}
           </div>
+          <div className="mt-auto space-y-1.5 pt-1.5" data-testid="bf-actions">
           {/* What to buy: each part of a mix by name and price, each with its own Dial/Copy; folded on cards that are not the winner. */}
           {combo ? (
             <BuyFold open testId="bf-buy-fold">
@@ -380,6 +383,7 @@ function ResultCard({ model, pick, budget, lead, tie, meter, trophy, night, solo
               <OtherSourceNote b={b} />
             </Details>
           )}
+          </div>
         </div>
       ) : (
         <p className="mt-3 text-sm text-muted-foreground">
