@@ -815,6 +815,10 @@ export interface RateSource {
    *  MTN regular data and Midnight: the myMTN app section that sells it; Telecel
    *  Flexi: telecelRates.flexi.buyVia). Becomes the computed bundles' `channel`. */
   buy?: string;
+  /** A dial code the operator states for this table (MTN regular data: mtnRates.regularBuy.ussd,
+   *  "*138# then 1, then 1", MTN's help centre, 26 Oct 2026). Becomes the computed bundles' `ussd`,
+   *  so they get the Dial / Copy chip; `buy` then stays as the other way to buy. */
+  ussd?: string;
 }
 
 /** Telecel Flexi, normalised from whatever shape the dataset uses. */
@@ -1017,13 +1021,18 @@ export function createBundleModel(doc: BundleDataset, opts: ModelOptions = {}) {
 
   // ---- any-amount rate tables
   const sources: RateSource[] = [];
+  // MTN regular data's dial code, only when the data states it as a code ("*138# then 1, then 1").
+  const regularUssd = (() => { const u = str(obj(doc.mtnRates?.regularBuy)?.ussd); return u && /^\*[\d*]+#/.test(u) ? u : undefined; })();
   if (rates && hasNet("mtn")) {
     const src = doc.networks.mtn?.source ?? "";
     const label = "Computed from MTN's published rate";
     if (Array.isArray(rates.regular) && rates.regular.length) sources.push({
       id: "mtn-regular", network: "mtn", family: "Regular data (any amount)", label: "MTN data", kind: "noexpiry",
       table: rates.regular, computedLabel: label, source: src, validity: () => "No expiry", days: () => null,
-      ...(appRoute("regular") ? { buy: appRoute("regular") } : {}),
+      // MTN's help centre (and the *138# menu, 26 Oct 2026): dial *138#, then 1, then 1; the
+      // myMTN app section stays as the other way to buy (More info).
+      ...(regularUssd ? { ussd: regularUssd } : {}),
+      ...(appRoute("regular") ? { buy: regularUssd ? `Or ${appRoute("regular")!.replace(/^In the/, "in the")}` : appRoute("regular") } : {}),
     });
     // Midnight: MTN's help centre says it does not expire, MTN's Kokrokoo terms treat it
     // like Kokrokoo ("Any unused data is lost after 8am"). With that dispute in the data
@@ -1084,7 +1093,7 @@ export function createBundleModel(doc: BundleDataset, opts: ModelOptions = {}) {
     const amt = roundCents(amount);
     return {
       network: s.network, family: s.family, name: `${s.label}, ${money(amt)}`,
-      price: amt, mb: amt / band.ghsPerMb, validity: s.validity(band), days: s.days(band), kind: s.kind, ussd: null,
+      price: amt, mb: amt / band.ghsPerMb, validity: s.validity(band), days: s.days(band), kind: s.kind, ussd: s.ussd ?? null,
       source: s.source, computed: true, computedLabel: s.computedLabel, rateLabel: s.label,
       ...(s.otherSource ? { otherSource: s.otherSource } : {}), ...(s.note ? { note: s.note } : {}), ...(s.buy ? { channel: s.buy } : {}),
     };

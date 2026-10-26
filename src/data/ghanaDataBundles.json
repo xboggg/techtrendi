@@ -2391,6 +2391,61 @@
    "label": "MTN help centre, How do I stop the data bundle auto renewal?",
    "updated": "2026-07-06"
   },
+  "regularBuy": {
+   "menu": {
+    "any": {
+     "to": 399,
+     "from": 0.03
+    },
+    "date": "2026-10-26",
+    "note": "The menu's six amounts equal MTN's tariff-page rates exactly (the same figures as the myMTN app), and it sells any amount from GH¢0.03 to GH¢399, as the app does (see mtnRates.app).",
+    "fixed": [
+     {
+      "price": 0.5,
+      "shown": "20.73MB"
+     },
+     {
+      "price": 1,
+      "shown": "41.46MB"
+     },
+     {
+      "price": 3,
+      "shown": "406.89MB"
+     },
+     {
+      "price": 10,
+      "shown": "837.55MB"
+     },
+     {
+      "price": 350,
+      "shown": "108.21GB"
+     },
+     {
+      "price": 399,
+      "shown": "217.34GB"
+     }
+    ],
+    "shows": [
+     "Buy any amount-Flexi Bundles(GHC 0.03 - 399)",
+     "GHC 0.5 (20.73MB)",
+     "GHC 1 (41.46MB)",
+     "GHC 3 (406.89MB)",
+     "GHC 10 (837.55MB)",
+     "GHC 350 (108.21GB)",
+     "GHC 399 (217.34GB)"
+    ],
+    "source": "MTN *138# menu on one customer's line, 26 Oct 2026 (screenshots)"
+   },
+   "says": "USSD Dial *138# Select 1 to proceed to buy bundle (No 4G bonus) Select option 1 to Buy Data Bundles Select option 1 or 2 to Buy For Self/Others Select preferred data bundle to purchase",
+   "ussd": "*138# then 1, then 1",
+   "label": "MTN help centre, How do I purchase data bundle?",
+   "alsoIn": [
+    "https://help-center.mtn.com.gh/hc/en-us/articles/4405321091474",
+    "https://help-center.mtn.com.gh/hc/en-us/articles/4409556335506"
+   ],
+   "source": "https://help-center.mtn.com.gh/hc/en-us/articles/4409539682450",
+   "updated": "2022-03-01"
+  },
   "socialNote": "One flat rate per MB, but only for social media or video apps. MTN's tariff page allows any amount from GH¢0.03 to GH¢1,000 for both; in the myMTN app the Social flexi option goes up to GH¢399 and Video up to GH¢1,000. MTN does not state a validity.",
   "socialRange": [
    0.03,
@@ -2774,7 +2829,8 @@
    },
    {
     "for": [
-     "All MTN data bundles"
+     "All MTN data bundles",
+     "Regular data (any amount)"
     ],
     "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4409539682450",
     "date": "2022-03-01",
@@ -2797,6 +2853,24 @@
     "url": "https://help-center.mtn.com.gh/hc/en-us/articles/27285471574418",
     "date": "2025-06-12",
     "label": "MTN help centre, What is Adwumapa bundle",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Regular data (any amount)"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4405321091474",
+    "date": "2022-04-15",
+    "label": "MTN help centre, How do I purchase mobile data bundle package?",
+    "dateLabel": "last edited"
+   },
+   {
+    "for": [
+     "Regular data (any amount)"
+    ],
+    "url": "https://help-center.mtn.com.gh/hc/en-us/articles/4409556335506",
+    "date": "2022-03-01",
+    "label": "MTN help centre, How do I purchase mobile data bundle?",
     "dateLabel": "last edited"
    }
   ],
@@ -2844,7 +2918,7 @@
    "mbPerGb": 1024
   }
  },
- "capturedAt": "2026-10-25T22:12:37Z",
+ "capturedAt": "2026-10-26T15:20:35Z",
  "familyInfo": {
   "at": {
    "Sika Kokoo": "Up to 15 days. Buy another Sika Kokoo bundle within 24 hours of expiry and your leftover data rolls over. Dial *111*4#, option 1.",
@@ -2872,7 +2946,7 @@
    "Sunday Special": "Small packs of minutes, SMS and a little data that work on Sundays only (MTN Offers, help centre, last edited 11 Nov 2025: 'special voice or data deals available every Sunday only'). MTN's terms say 'Promo is open to only prepaid customers' and name no region. A weekly subscription that renews automatically until you stop it (MTN's terms: 'Weekly auto subscription applies'). Subscribe on *550#. MTN's Sunday Special page (last modified 8 Oct 2026) says 'just 65 Pesewas … inclusive Calls, Data, and SMS' and names no pack, so 65 Pesewas is not used as a price here. The introduction to MTN's Sunday Special terms (PDF dated 22 Mar 2024) says 'For only 76 Pesewas': that is the terms' Option 1 ('Cost of offer subscription is Ghc0.76': 20 minutes and 10 SMS, no data), which MTN's tariff page lists as 'Sunday Special – 20mins, 10SMS ( all net)' at 0.750. With no data it is not listed here.",
    "Xtra4U (*203#)": "MTN's *203# (Xtra4U) menu offered one customer 3% off on 25 Oct 2026, e.g. 406.89 MB for GH¢2.91 instead of GH¢3, and 8.48 GB Midnight for GH¢2.91. Offers can differ by customer – dial *203# to see yours.",
    "Association bundle": "Voice, SMS and data packs for members of professional and gazetted associations that MTN has registered. MTN's help centre (last edited 24 Nov 2023) calls it 'an exclusive service offer designed for members of professional and gazetted associations in Ghana' that lets them 'purchase combo bundles (including Voice, SMS, and Data) at discounted prices', with calls inside the group (Closed User Group, CUG) while a bundle is active. To register, an association's administrator needs 'a member list, administrator ID, association documents (certificates), and a request letter'. MTN: 'Association bundle expires after 30 days'. To buy: 'Dial *5060#', then 'Select Option 2 for Association Bundles'.",
-   "Regular data (any amount)": "Spend any amount. The rate per MB depends on how much you spend, and it does not always fall as you spend more: some amounts buy less data than a smaller amount, so check the calculator before you pay. GH¢3, GH¢10 and GH¢399 get special rates. It does not expire: the myMTN app lists it under 'Low Cost Non Expiry Bundles'."
+   "Regular data (any amount)": "Spend any amount. The rate per MB depends on how much you spend, and it does not always fall as you spend more: some amounts buy less data than a smaller amount, so check the calculator before you pay. GH¢3, GH¢10 and GH¢399 get special rates. It does not expire: the myMTN app lists it under 'Low Cost Non Expiry Bundles'. To buy: dial *138#, then 1, then 1 (MTN's help centre: 'Dial *138# Select 1 to proceed to buy bundle (No 4G bonus) Select option 1 to Buy Data Bundles'), or use the myMTN app."
   },
   "telecel": {
    "Daily": "1 to 5 days.",
@@ -3124,7 +3198,7 @@
   "outOfBundleNote": "When all your data is used up, browsing is blocked unless you have allowed pay-as-you-go browsing, charged at 11.5p per MB. Switch it on or off on *700#.",
   "outOfBundlePerMb": 0.115
  },
- "verification": "Checked automatically on 25 Oct 2026 at 22:12 UTC. The checker downloaded, over plain HTTPS and without a browser, the operators' own published sources: MTN's tariff page (mtn.com.gh); the feed behind Telecel's bundles page and the feed behind its data bundle terms page (telecel.com.gh); and AT's site feed (web.airteltigo.com.gh), which holds AT's BigTime, Sika Kokoo, Night, Family Pack, Fuse, top-up, Sunday Bundle, Morning Rush and Data Kredit pages and its FAQ entries for Night, Unlimited Daily Data, Morning Rush, Sunday and Premier Packs bundles, plus the feed behind the cards on AT's Data Bundles page (for the USSD codes printed there). AT's static copy of its site data (page.json) was also downloaded and its four data tables agreed. It compared every price, volume, validity, rate and code found there with this dataset, and AT's Night Bundle page with AT's FAQ answer for the same bundle. GB figures are worked out at 1,024 MB per GB for every network. Not re-checked by this run: what the myMTN app showed (screenshots, 17 Oct 2026: the non-expiry label for regular data, the Social and Video amounts, the Kokrokoo volume and the Just4U examples; the Social and Video volumes are recomputed from MTN's tariff rates), MTN's help centre (help-center.mtn.com.gh: Midnight, Kokrokoo and Pulse validity, Pulse buying codes, minimum and older volumes, Sunday Special and Jara restrictions, Data Zone help-centre prices, Xtrabyte borrowing, how to stop auto-renewal, and the AFA, Association and Adwumapa bundles), MTN's Pulse, Jara, Sunday Special and Just4U pages, and MTN's terms-and-conditions PDFs for Kokrokoo, Pulse, Jara and Sunday Special, and how Telecel says to buy its Voice & Data Combo and Boss Plan bundles (its bundles page's purchase form and its Boss Plan page). The dates the site gives for MTN's help-centre answers are their last-edit dates, recorded on 18 Oct 2026.",
+ "verification": "Checked automatically on 26 Oct 2026 at 15:20 UTC. The checker downloaded, over plain HTTPS and without a browser, the operators' own published sources: MTN's tariff page (mtn.com.gh); the feed behind Telecel's bundles page and the feed behind its data bundle terms page (telecel.com.gh); and AT's site feed (web.airteltigo.com.gh), which holds AT's BigTime, Sika Kokoo, Night, Family Pack, Fuse, top-up, Sunday Bundle, Morning Rush and Data Kredit pages and its FAQ entries for Night, Unlimited Daily Data, Morning Rush, Sunday and Premier Packs bundles, plus the feed behind the cards on AT's Data Bundles page (for the USSD codes printed there). AT's static copy of its site data (page.json) was also downloaded and its four data tables agreed. It compared every price, volume, validity, rate and code found there with this dataset, and AT's Night Bundle page with AT's FAQ answer for the same bundle. GB figures are worked out at 1,024 MB per GB for every network. Not re-checked by this run: what the myMTN app showed (screenshots, 17 Oct 2026: the non-expiry label for regular data, the Social and Video amounts, the Kokrokoo volume and the Just4U examples; the Social and Video volumes are recomputed from MTN's tariff rates), MTN's help centre (help-center.mtn.com.gh: Midnight, Kokrokoo and Pulse validity, Pulse buying codes, minimum and older volumes, Sunday Special and Jara restrictions, Data Zone help-centre prices, Xtrabyte borrowing, how to stop auto-renewal, and the AFA, Association and Adwumapa bundles), MTN's Pulse, Jara, Sunday Special and Just4U pages, and MTN's terms-and-conditions PDFs for Kokrokoo, Pulse, Jara and Sunday Special, and how Telecel says to buy its Voice & Data Combo and Boss Plan bundles (its bundles page's purchase form and its Boss Plan page). The dates the site gives for MTN's help-centre answers are their last-edit dates, recorded on 18 Oct 2026.",
  "retiredBundles": [
   {
    "name": "1.45GB Special",

@@ -1387,7 +1387,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const noRoute = [...picks.entries()].filter(([, b]) => !m.howToBuy(b)).map(([k]) => k);
   check(`L9: every finder/planner pick and headline winner has a buy route (${picks.size} picks)`, picks.size > 20 && noRoute.length === 0, noRoute.join(", "));
   check("L9: a Pulse pick says 'Dial *567# or use the myMTN app (Shop, then Mash Up).' and no other code", m.howToBuy(pulsePick) === "Dial *567# or use the myMTN app (Shop, then Mash Up).", m.howToBuy(pulsePick) ?? "");
-  check("L9: an MTN regular-data pick names the myMTN app section that sells it", /In the myMTN app: “Data Bundles”, then “Low Cost Non Expiry Bundles”/.test(m.howToBuy(m.regularBundle(20)!) ?? ""));
+  check("L9: an MTN regular-data pick says 'Dial *138# then 1, then 1' (MTN's help centre), with the myMTN app section as the other way (More info)", m.howToBuy(m.regularBundle(20)!) === "Dial *138# then 1, then 1" && /^Or in the myMTN app: “Data Bundles”, then “Low Cost Non Expiry Bundles”/.test(m.channelNote(m.regularBundle(20)!) ?? ""), `${m.howToBuy(m.regularBundle(20)!)} | ${m.channelNote(m.regularBundle(20)!)}`);
   check("L9: Telecel data-terms bundles get the terms' channels; Special offers keep their own narrower line", /^Dial \*700# or \*110#, or use the My Telecel Play App/.test(m.howToBuy(m.bundles.find((b) => b.name === "263.38GB Monthly")!) ?? "") && m.bundles.filter((b) => b.family === "Special offer").every((b) => m.howToBuy(b) === "Dial *110# or use the Telecel Play app"));
   check("L9: Telecel Flexi picks name *700#, *110# and the Telecel Play app", m.howToBuy(m.bestForBudget("telecel", 500)!) === "Dial *700# or *110#, or use the Telecel Play app (Telecel's data terms).", m.howToBuy(m.bestForBudget("telecel", 500)!) ?? "");
   check("L9: the finder shows the channel and the planner shows how to buy each purchase", /<ChannelNote model=\{model\} b=\{b\} \/>/.test(src7("src/components/data-bundles/BudgetFinder.tsx")) && /testId="plan-buy"/.test(src7("src/components/data-bundles/MonthlyPlanner.tsx")));
@@ -3646,6 +3646,29 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     /\{tip && <DialTipCard model=\{model\} \/>\}/.test(src("src/pages/data-bundles/DataBundlesNetwork.tsx")) && /const tip = network === "mtn" \? xtra4uTip\(model\.doc\) : null;/.test(src("src/pages/data-bundles/DataBundlesNetwork.tsx")));
   const bad = JSON.parse(JSON.stringify(doc)); bad.mtnRates.xtra4u.ussd = "203"; const bad2 = JSON.parse(JSON.stringify(doc)); delete bad2.familyInfo.mtn["Xtra4U (*203#)"];
   check("Xtra4U: a malformed tip (bad code, no text) shows nothing", tips.xtra4uTip(bad) === null && tips.xtra4uTip(bad2) === null && tips.xtra4uTip(null) === null);
+}
+
+// ------------------------------------------------------------------ MTN regular data on *138# (26 Oct 2026)
+{
+  const src = (p: string) => readFileSync(join(ROOT, p), "utf8");
+  const sh = await import("../src/components/data-bundles/shared");
+  const React = await import("react");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const rb = (doc as any).mtnRates.regularBuy;
+  const regular = m.computed.filter((b) => b.rateLabel === "MTN data");
+  check("*138#: the data states MTN's route for regular data (help-centre article, its quote and date) and the menu seen on one line on 26 Oct 2026 (a screenshot source)",
+    rb.ussd === "*138# then 1, then 1" && rb.source === "https://help-center.mtn.com.gh/hc/en-us/articles/4409539682450" && /Dial \*138# Select 1 to proceed to buy bundle/.test(rb.says) && rb.updated === "2022-03-01" &&
+    rb.menu.date === "2026-10-26" && /screenshots/.test(rb.menu.source) && !/^https?:/.test(rb.menu.source) && rb.menu.any.from === 0.03 && rb.menu.any.to === 399 &&
+    ((doc as any).mtnRates.citedSources as any[]).some((c) => c.url === rb.source && c.for.includes("Regular data (any amount)")));
+  check(`*138#: the menu's six amounts equal the model's regular-data figures exactly (${rb.menu.fixed.map((x: any) => x.shown).join(", ")})`,
+    rb.menu.fixed.length === 6 && rb.menu.fixed.every((x: any) => { const b = m.regularBundle(x.price); return !!b && m.fmtData(b.mb, "mtn").replace(" ", "") === x.shown; }));
+  check(`*138#: every MTN regular-data row (${regular.length}) carries the code (Dial / Copy chip), the app route is its other way, and the badge stays '✓ From MTN's official rates'`,
+    regular.length > 0 && regular.every((b) => b.ussd === "*138# then 1, then 1" && /^Or in the myMTN app/.test(b.channel ?? "") && sh.trustOf(b).level === "worked") && sh.officialRatesText("mtn") === "✓ From MTN's official rates" &&
+    m.computed.filter((b) => b.rateLabel !== "MTN data").every((b) => b.ussd === null));
+  const line = renderToStaticMarkup(React.createElement(sh.BuyLine, { text: m.buyShort(m.regularBundle(5)!)! }));
+  check("*138#: the card's line reads 'How to buy: Dial *138# then 1, then 1' with a dial link encoded as tel:*138%23", /How to buy: <\/span>Dial \*138# then 1, then 1</.test(line) && /href="tel:\*138%23"/.test(line), line.slice(0, 300));
+  const all = JSON.stringify((doc as any).familyInfo.mtn) + src("src/lib/dataBundles.ts") + src("src/components/data-bundles/Faq.tsx") + src("src/components/data-bundles/Advice.tsx") + src("src/components/data-bundles/MonthlyPlanner.tsx");
+  check("*138#: nothing says MTN regular data is app-only", !/(regular|non[- ]expiry)[^.]{0,80}only (on|in|via) the myMTN app|only (on|in|via) the myMTN app[^.]{0,80}(regular|non[- ]expiry)/i.test(all) && /To buy: dial \*138#, then 1, then 1/.test((doc as any).familyInfo.mtn["Regular data (any amount)"]));
 }
 
 function unitsLineText(mm: BundleModel): string {
