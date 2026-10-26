@@ -195,8 +195,8 @@ export function timeAgo(s: string, now: Date): string {
 
 /** Hours since a check. Date-only values count from the start of that day,
  *  so the stale warning errs on the side of showing. */
-/** When a check happened, in Ghana time (GMT = UTC, all year): "today, 4:17 PM",
- *  "yesterday, 10:17 PM", else "18 Oct, 4:17 PM". A date-only value gives the day alone. */
+/** When a check happened, in Ghana time (GMT = UTC, all year): "today, 4:17 PM GMT",
+ *  "yesterday, 10:17 PM GMT", else "18 Oct, 4:17 PM GMT". A date-only value gives the day alone. */
 export function checkedClock(s: string, now: Date): string {
   const t = Date.parse(DATE_ONLY.test(s) ? `${s}T00:00:00Z` : s);
   if (Number.isNaN(t)) return s;
@@ -205,19 +205,32 @@ export function checkedClock(s: string, now: Date): string {
   const diff = Math.round((day(now) - day(d)) / 86_400_000);
   const dayText = diff === 0 ? "today" : diff === 1 ? "yesterday" : `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
   if (DATE_ONLY.test(s)) return dayText;
-  const h = d.getUTCHours(), m = d.getUTCMinutes();
-  return `${dayText}, ${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
+  return `${dayText}, ${clockGmt(d)}`;
 }
 
-/** "19 Oct, 11:09 PM" (Ghana time = UTC): when a saved copy was checked. */
+/** "5:17 PM GMT": the clock in Ghana time (GMT = UTC+0 all year), always saying which clock. */
+export function clockGmt(d: Date): string {
+  const h = d.getUTCHours(), m = d.getUTCMinutes();
+  return `${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"} GMT`;
+}
+
+/** The full date and time for a <time> title: "Sunday 25 Oct 2026, 5:17 PM GMT" (date only: no clock). */
+export function fullStamp(s: string): string {
+  const t = Date.parse(DATE_ONLY.test(s) ? `${s}T00:00:00Z` : s);
+  if (Number.isNaN(t)) return s;
+  const d = new Date(t);
+  const day = `${["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+  return DATE_ONLY.test(s) ? day : `${day}, ${clockGmt(d)}`;
+}
+
+/** "19 Oct, 11:09 PM GMT" (Ghana time = UTC): when a saved copy was checked. */
 export function savedStamp(s: string): string {
   const t = Date.parse(DATE_ONLY.test(s) ? `${s}T00:00:00Z` : s);
   if (Number.isNaN(t)) return s;
   const d = new Date(t);
   const day = `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
   if (DATE_ONLY.test(s)) return day;
-  const h = d.getUTCHours(), m = d.getUTCMinutes();
-  return `${day}, ${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
+  return `${day}, ${clockGmt(d)}`;
 }
 
 export function hoursSince(s: string, now: Date): number {
@@ -363,6 +376,8 @@ export function ConflictNote({ b, className }: { b: Bundle; className?: string }
 const NETWORK_SHORT: Record<string, string> = { mtn: "MTN", telecel: "Telecel", at: "AT" };
 /** "✓ From Telecel's official rates": the trust label of a row worked out from the network's own per-MB rates. */
 export const officialRatesText = (network: string) => `✓ From ${NETWORK_SHORT[network] ?? "the network"}'s official rates`;
+/** A fixed bundle printed on the network's own price list (owner, 25 Oct 2026; it said: ✓ Confirmed). */
+export const priceListText = (network: string) => `✓ On ${NETWORK_SHORT[network] ?? "the network"}'s price list`;
 export function OtherSourceBadge({ b }: { b: Bundle }) {
   const o = b.otherSource;
   if (!o || typeof o.summary !== "string" || !o.summary.trim()) return null;
@@ -382,7 +397,7 @@ export function OtherSourceBadge({ b }: { b: Bundle }) {
  *                     is only on an old page. A limit on WHO can buy stays visible:
  *                     "! Check first · Some regions only".
  *    "≈ Worked out"   a figure worked out from the network's price per MB.
- *    "✓ Confirmed"    printed by the network and checked. */
+ *    "✓ On AT's price list"  printed on the network's own price list and checked (it said: ✓ Confirmed). */
 export type TrustLevel = "confirmed" | "worked" | "check";
 export function trustOf(b: Bundle): { level: TrustLevel; who: string | null } {
   // A change the checker is holding back: "! Check first · price change being checked".
@@ -415,7 +430,7 @@ export function TrustBadge({ b }: { b: Bundle }) {
   // A figure worked out from the network's own published per-MB rate is exact, not estimated:
   // "✓ From Telecel's official rates" (owner, 22 Oct 2026; it was "≈ Price we calculated").
   // Anything disputed, unconfirmed, held, app-screenshot-only or estimated is "! Check first" (trustOf).
-  const text = level === "check" ? `! Check first${who ? ` · ${who}` : ""}` : level === "worked" ? officialRatesText(b.network) : "✓ Confirmed";
+  const text = level === "check" ? `! Check first${who ? ` · ${who}` : ""}` : level === "worked" ? officialRatesText(b.network) : priceListText(b.network);
   return <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-[15px] lg:text-base font-bold", tone)} data-testid="trust" data-level={level}>{text}</span>;
 }
 /** Why a bundle is "Check first" or "Worked out", in full (for "More info"). */
@@ -549,6 +564,25 @@ export const ASSISTANT_SELECTOR = 'button[aria-label="Open AI Chat"]';
 export const ASSISTANT_REST_MS = 800;
 /** The class on <html> while the reader is scrolling a data bundle page. */
 export const SCROLLING_CLASS = "db-scrolling";
+/** The class on <html> while the button, at rest, would sit over a link, button or field (a
+ *  narrow desktop window put it over the GH¢400 chip): it stays out of the way until a scroll
+ *  moves that control away (owner, 25 Oct 2026). */
+export const COVERING_CLASS = "db-chat-covering";
+const INTERACTIVE = "a[href],button,input,select,textarea,summary,label,[role=button],[role=radio],[role=tab],[tabindex]:not([tabindex='-1'])";
+/** True when something tappable is under the assistant button's resting place (48px, 16px from
+ *  the bottom-right corner). Uses the place, not the button, so it works while the button is hidden. */
+export function chatWouldCover(): boolean {
+  if (typeof document === "undefined") return false;
+  const w = document.documentElement.clientWidth, h = window.innerHeight;
+  const L = w - 16 - 48, T = h - 16 - 48;
+  const pts: [number, number][] = [[L + 24, T + 24], [L + 6, T + 6], [L + 42, T + 6], [L + 6, T + 42], [L + 42, T + 42]];
+  for (const [x, y] of pts) {
+    const stack = document.elementsFromPoint(x, y);
+    const under = stack.find((e) => !e.closest(ASSISTANT_SELECTOR));
+    if (under && under.closest(INTERACTIVE)) return true;
+  }
+  return false;
+}
 /** The site header (Header.tsx: the one `header.fixed.top-0`). */
 export const SITE_HEADER_SELECTOR = "header.fixed.top-0";
 /** The header follows the site theme (its own tokens, from the <html> class). One token is
@@ -570,6 +604,8 @@ export function chromeCss(headerAlpha: number): string {
     `${ASSISTANT_SELECTOR}::after { content: "\\2726"; color: #fff; font-size: 20px; line-height: 1; }`,
     // While scrolling: out of the way (never over the text being read); keyboard focus keeps it.
     `html.${SCROLLING_CLASS} ${ASSISTANT_SELECTOR}:not(:focus-visible) { opacity: 0 !important; transform: translateY(24px) scale(0.9) !important; pointer-events: none !important; }`,
+    // At rest over a link, button or field: out of the way too (never covers something tappable).
+    `html.${COVERING_CLASS} ${ASSISTANT_SELECTOR}:not(:focus-visible) { opacity: 0 !important; transform: translateY(24px) scale(0.9) !important; pointer-events: none !important; }`,
     `@media (prefers-reduced-motion: reduce) { ${ASSISTANT_SELECTOR} { transition: none !important; } }`,
     `${SITE_HEADER_SELECTOR} { --primary: ${HEADER_PRIMARY}; ${blur} }`,
     largeTextCss(),
@@ -582,6 +618,7 @@ export function chromeCss(headerAlpha: number): string {
  *  is parsed); nothing is rendered on the server, where the site's normal header shows. */
 export function DataBundlesChrome({ headerAlpha = 0.85 }: { headerAlpha?: number }) {
   useDataBundlesOffline();
+  useLargeTextMark();
   useEffect(() => {
     const el = document.createElement("style");
     el.setAttribute("data-testid", "data-bundles-chrome");
@@ -590,13 +627,18 @@ export function DataBundlesChrome({ headerAlpha = 0.85 }: { headerAlpha?: number
     // Hide the assistant button while scrolling; back ASSISTANT_REST_MS after the last scroll.
     const root = document.documentElement;
     let t: ReturnType<typeof setTimeout> | undefined;
+    // At rest: hidden too while its place is over something tappable.
+    const settle = () => root.classList.toggle(COVERING_CLASS, chatWouldCover());
     const onScroll = () => {
       root.classList.add(SCROLLING_CLASS);
       clearTimeout(t);
-      t = setTimeout(() => root.classList.remove(SCROLLING_CLASS), ASSISTANT_REST_MS);
+      t = setTimeout(() => { settle(); root.classList.remove(SCROLLING_CLASS); }, ASSISTANT_REST_MS);
     };
+    settle();
+    const first = setTimeout(settle, 600);
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { el.remove(); window.removeEventListener("scroll", onScroll); clearTimeout(t); root.classList.remove(SCROLLING_CLASS); };
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => { el.remove(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); clearTimeout(t); clearTimeout(first); root.classList.remove(SCROLLING_CLASS, COVERING_CLASS); };
   }, [headerAlpha]);
   return null;
 }
@@ -979,21 +1021,38 @@ export const largeTextCss = () => [
   // jumps when the web font arrives (it fits beside the pills only at normal size).
   `@media (max-width: 639px) { html[${LARGE_TEXT_ATTR}="large"] [data-testid="compare-all"] { flex-basis: 100%; } }`,
 ].join("\n");
-export function TextSizeToggle({ className }: { className?: string }) {
+const TEXT_SIZE_EVENT = "tt-db-text-change";
+const readLarge = () => { try { return window.localStorage.getItem(TEXT_SIZE_KEY) === "large"; } catch { return false; } };
+/** The text size, shared by every A / A+ control on the page (the inline one from 640px and the
+ *  phone's Display menu), so they never disagree. Choosing sets the mark on <html> at once and
+ *  stores it (same key as before; the pre-paint script in index.html reads it). */
+export function useLargeText(): [boolean, (v: boolean) => void] {
   const [large, setLarge] = useState(false);
   useEffect(() => {
-    try { setLarge(window.localStorage.getItem(TEXT_SIZE_KEY) === "large"); } catch { /* storage blocked */ }
+    setLarge(readLarge());
+    const on = (e: Event) => setLarge(!!(e as CustomEvent<boolean>).detail);
+    window.addEventListener(TEXT_SIZE_EVENT, on);
+    return () => window.removeEventListener(TEXT_SIZE_EVENT, on);
   }, []);
+  const pick = (v: boolean) => {
+    try { window.localStorage.setItem(TEXT_SIZE_KEY, v ? "large" : "normal"); } catch { /* storage blocked */ }
+    const root = document.documentElement;
+    if (v) root.setAttribute(LARGE_TEXT_ATTR, "large"); else root.removeAttribute(LARGE_TEXT_ATTR);
+    window.dispatchEvent(new CustomEvent(TEXT_SIZE_EVENT, { detail: v }));
+  };
+  return [large, pick];
+}
+/** While a data bundle page is open the stored size applies; leaving takes the mark off (used by
+ *  DataBundlesChrome, which every data bundle page mounts). */
+export function useLargeTextMark() {
   useEffect(() => {
     const root = document.documentElement;
-    if (!large) return;
-    root.setAttribute(LARGE_TEXT_ATTR, "large");
+    if (readLarge()) root.setAttribute(LARGE_TEXT_ATTR, "large");
     return () => { root.removeAttribute(LARGE_TEXT_ATTR); };
-  }, [large]);
-  const pick = (v: boolean) => {
-    setLarge(v);
-    try { window.localStorage.setItem(TEXT_SIZE_KEY, v ? "large" : "normal"); } catch { /* storage blocked */ }
-  };
+  }, []);
+}
+export function TextSizeToggle({ className }: { className?: string }) {
+  const [large, pick] = useLargeText();
   const btn = (on: boolean) => cn(
     "inline-flex h-11 min-w-11 items-center justify-center rounded-full px-2 font-black transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
     on ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground",

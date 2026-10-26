@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { isBotTraffic } from "@/lib/isBotTraffic";
+import { hasAnalyticsConsent, isNewView, readGeo, takeBounceClear, writeGeo, type Geo } from "@/lib/pageViewHelpers";
 
 function getDeviceType(): string {
   const w = window.innerWidth;
@@ -54,7 +55,7 @@ function getUTMParams(): { utm_source: string | null; utm_medium: string | null;
   };
 }
 
-async function fetchGeoData(): Promise<{ country: string | null; city: string | null }> {
+async function fetchGeoData(): Promise<Geo> {
   try {
     const res = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(3000) });
     if (!res.ok) return { country: null, city: null };
@@ -65,8 +66,8 @@ async function fetchGeoData(): Promise<{ country: string | null; city: string | 
   }
 }
 
-// Cache geo data per session to avoid repeated API calls
-let geoCache: { country: string | null; city: string | null } | null = null;
+const safeLocal = (): Storage | null => { try { return window.localStorage; } catch { return null; } };
+const safeSession = (): Storage | null => { try { return window.sessionStorage; } catch { return null; } };
 
 // page_views is not readable/writable by visitors (RLS). Both calls are
 // SECURITY DEFINER RPCs: track_page_view inserts and returns the new id;
@@ -89,11 +90,23 @@ function updatePageView(viewId: string | null, fields: PageViewUpdate) {
   });
 }
 
-async function getGeo() {
-  if (geoCache) return geoCache;
-  geoCache = await fetchGeoData();
-  return geoCache;
+// The visitor's approximate location: ONLY with analytics consent (cookie banner), and at most one
+// ipapi.co lookup per visitor per day (cached in localStorage for 24 h; pageViewHelpers).
+let geoLookup: Promise<Geo> | null = null;
+function getGeo(): Promise<Geo | null> {
+  const store = safeLocal();
+  if (!hasAnalyticsConsent(store)) return Promise.resolve(null);
+  const cached = readGeo(store, Date.now());
+  if (cached) return Promise.resolve(cached);
+  if (!geoLookup) {
+    geoLookup = fetchGeoData().then((g) => { writeGeo(store, g, Date.now()); return g; });
+    geoLookup.finally(() => { geoLookup = null; });
+  }
+  return geoLookup;
 }
+
+// The last route recorded (module-wide, so a remount of the tracker never records it twice).
+let lastView: { path: string; at: number } | null = null;
 
 export function usePageView() {
   const location = useLocation();
@@ -117,20 +130,14 @@ export function usePageView() {
   useEffect(() => {
     const handleUnload = async () => {
       await updateTimeOnPage();
-      // Mark last page as exit page
-      if (currentViewId.current) {
-        try {
-          await updatePageView(null, { exit_page: location.pathname });
-        } catch {
-          // silent
-        }
-      }
-      // Calculate session duration
+      // Exit page and session duration in ONE call (they were two).
+      const fields: PageViewUpdate = {};
+      if (currentViewId.current) fields.exit_page = location.pathname;
       const sessionStart = sessionStorage.getItem("tt_session_start");
-      if (sessionStart) {
-        const duration = Math.round((Date.now() - parseInt(sessionStart)) / 1000);
+      if (sessionStart) fields.session_duration = Math.round((Date.now() - parseInt(sessionStart)) / 1000);
+      if (Object.keys(fields).length) {
         try {
-          await updatePageView(null, { session_duration: duration });
+          await updatePageView(null, fields);
         } catch {
           // silent
         }
@@ -148,6 +155,9 @@ export function usePageView() {
     // Google alone accounted for 257 of 445 "US" pageviews, making the
     // dashboard overstate US traffic by roughly 2.6x.
     if (isBotTraffic()) return;
+    // One view per route change: the same path again within a moment (a remount) is not a new view.
+    if (!isNewView(lastView, location.pathname, Date.now())) { lastPath.current = location.pathname; return; }
+    lastView = { path: location.pathname, at: Date.now() };
 
     // Update time on previous page before recording new one
     if (lastPath.current) {
@@ -170,6 +180,11 @@ export function usePageView() {
     const utmParams = getUTMParams();
     const newVisitor = isNewVisitor();
 
+    // A location already known (consent given, looked up within 24 h) goes into the view itself,
+    // so no separate update is needed.
+    const store = safeLocal();
+    const knownGeo = hasAnalyticsConsent(store) ? readGeo(store, Date.now()) : null;
+
     const record = async () => {
       try {
         // Insert the view IMMEDIATELY (don't block on the external geo lookup —
@@ -185,8 +200,8 @@ export function usePageView() {
           os: getOS(),
           screen_width: window.screen.width,
           screen_height: window.screen.height,
-          country: null,
-          city: null,
+          country: knownGeo?.country ?? null,
+          city: knownGeo?.city ?? null,
           entry_page: isFirst ? location.pathname : null,
           is_new_visitor: newVisitor,
           is_bounce: true, // Will be updated to false if user visits another page
@@ -197,17 +212,19 @@ export function usePageView() {
 
         if (typeof viewId === "string" && viewId) {
           currentViewId.current = viewId;
-          // Backfill geo asynchronously once it resolves (best-effort).
-          getGeo().then((geo) => {
-            if (geo.country || geo.city) {
-              updatePageView(viewId, { country: geo.country, city: geo.city })
-                .then(() => {}, () => {});
-            }
-          }).catch(() => {});
+          // Not known yet: backfill once it resolves (best-effort; only with analytics consent).
+          if (!knownGeo) {
+            getGeo().then((geo) => {
+              if (geo && (geo.country || geo.city)) {
+                updatePageView(viewId, { country: geo.country, city: geo.city })
+                  .then(() => {}, () => {});
+              }
+            }).catch(() => {});
+          }
         }
 
-        // If this is page 2+, mark previous pages in session as non-bounce
-        if (pageCount > 1) {
+        // The session's second page: mark its pages as not a bounce (once per session, not on every page).
+        if (takeBounceClear(safeSession(), pageCount)) {
           await updatePageView(null, { is_bounce: false });
         }
       } catch {

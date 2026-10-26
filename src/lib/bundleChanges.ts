@@ -218,7 +218,10 @@ function bundleLine(model: BundleModel, b: Bundle): string {
 export function dealPosts(model: BundleModel, changes: ChangesDoc | null, now: Date, checked: string, basePath: string): DealPost[] {
   const out: DealPost[] = [];
   const day = (d: string) => dayLabel(d.slice(0, 10));
-  const checkedLine = `Checked ${day(checked)}.`;
+  // "Checked 23 Oct, 5:17 PM GMT." (Ghana time = GMT; a date-only value gives the day alone).
+  const ct = new Date(checked);
+  const checkedLine = Number.isNaN(ct.getTime()) || /^\d{4}-\d{2}-\d{2}$/.test(checked) ? `Checked ${day(checked)}.`
+    : `Checked ${day(checked)}, ${ct.getUTCHours() % 12 === 0 ? 12 : ct.getUTCHours() % 12}:${String(ct.getUTCMinutes()).padStart(2, "0")} ${ct.getUTCHours() < 12 ? "AM" : "PM"} GMT.`;
   const recent = recentChanges(changes, now, STRIP_DAYS);
   const find = (c: Change) => model.bundles.find((b) => historyKey(b) === `${c.network}|${c.family}|${c.name}`) ?? null;
   const winners = (["small", "allday"] as const).map((g) => ({ g, b: model.leaderboardRows(g).ranked[0]?.bundle ?? null }));

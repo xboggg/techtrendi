@@ -54,7 +54,7 @@ export default function AdminDataDeals() {
           <h1 className="flex items-center gap-2 text-2xl font-bold"><Smartphone className="h-6 w-6" aria-hidden /> Data deal posts</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Ready-to-paste posts for the WhatsApp channel, from the real price changes and today's prices. Nothing is posted by itself.
-            {data && <> Prices checked {new Date(data.freshness.checkedAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" })} (Ghana time).</>}
+            {data && <> Prices checked {new Date(data.freshness.checkedAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" })} GMT (Ghana time).</>}
           </p>
         </div>
         {!data && <p className="text-muted-foreground">Loading prices…</p>}

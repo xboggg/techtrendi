@@ -14,7 +14,7 @@ import type { BundleModel } from "@/lib/dataBundles";
 import { ALL_DAYS, STRIP_DAYS, dayLabel, groupChanges, parseChanges, recentChanges, changeLine, type ChangesDoc } from "@/lib/bundleChanges";
 import { useBundleChanges } from "@/hooks/useBundleChanges";
 import { cn } from "@/lib/utils";
-import { useNow } from "./shared";
+import { fullStamp, useNow } from "./shared";
 import ghanaChanges from "@/data/ghanaDataBundleChanges.json";
 
 /** The build's copy of each country's changes file, and the time it was made. */
@@ -61,7 +61,7 @@ export function WhatChanged({ model, country, network, placement = "top", classN
         {week.map((g, i) => (
           <li key={`${g.date}-${g.network}-${g.kind}-${g.family}`} data-testid="what-changed-line" className={cn(i > 0 && "max-sm:hidden")}>
             <Dot color={color(g.network)} />
-            {i === 0 && <b className="font-semibold">This week: </b>}{g.text} <span className="whitespace-nowrap text-foreground/80">({dayLabel(g.date)})</span>
+            {i === 0 && <b className="font-semibold">This week: </b>}{g.text} <span className="whitespace-nowrap text-foreground/80">(<time dateTime={g.date} title={fullStamp(g.date)}>{dayLabel(g.date)}</time>)</span>
             {/* "See all changes" ends the last line shown (phones show one line). */}
             {i === week.length - 1 ? toggle("") : i === 0 ? toggle("sm:hidden") : null}
           </li>
@@ -72,7 +72,7 @@ export function WhatChanged({ model, country, network, placement = "top", classN
           {all.map((c) => (
             <li key={`${c.date}-${c.network}-${c.kind}-${c.name}`}>
               <Dot color={color(c.network)} />
-              {changeLine(model, c)} <span className="whitespace-nowrap text-foreground/80">({dayLabel(c.date)})</span>
+              {changeLine(model, c)} <span className="whitespace-nowrap text-foreground/80">(<time dateTime={c.date} title={fullStamp(c.date)}>{dayLabel(c.date)}</time>)</span>
             </li>
           ))}
         </ul>

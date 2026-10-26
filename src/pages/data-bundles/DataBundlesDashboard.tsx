@@ -25,7 +25,7 @@ import { Leaderboards } from "@/components/data-bundles/Leaderboards";
 import { Advice } from "@/components/data-bundles/Advice";
 import { LiveStatus, ShareWhatsApp, SourcesAndDisclaimer, SourceLine } from "@/components/data-bundles/meta";
 import { WhatChanged } from "@/components/data-bundles/WhatChanged";
-import { ThemePill } from "@/components/data-bundles/ThemePill";
+import { DisplayMenu, ThemePill } from "@/components/data-bundles/ThemePill";
 import { DataBundlesChrome, Details, NetPill, ScanSweep, TextSizeToggle, glass, useFocusTitleOnNavigate } from "@/components/data-bundles/shared";
 import { cn } from "@/lib/utils";
 
@@ -127,7 +127,7 @@ export default function DataBundlesDashboard() {
               {/* Status, and on phones the A / A+ toggle at the top right (owner, 22 Oct 2026). */}
               <div className="flex items-start justify-between gap-2" data-testid="status-row">
                 <div className="min-w-0 flex-1 sm:pt-0"><LiveStatus data={data} /></div>
-                <div className="-mt-2 flex shrink-0 items-center gap-1.5 sm:hidden"><ThemePill /><TextSizeToggle /></div>
+                <DisplayMenu className="-mt-2 shrink-0 sm:hidden" />
               </div>
               <h1 ref={titleRef} tabIndex={-1} data-testid="page-title" className="focus:outline-none mt-2 text-[1.75rem] font-black leading-[1.05] tracking-tight [@media(max-height:820px)_and_(max-width:639px)]:mt-1 [@media(max-height:820px)_and_(max-width:639px)]:text-[1.5rem] sm:mt-3 sm:text-5xl">
                 {data.country.name} data bundles,{" "}

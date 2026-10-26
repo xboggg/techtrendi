@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import { AlertTriangle, BadgeCheck, Check, ChevronDown, ExternalLink, Clock, Link2, ShieldCheck, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BundleData } from "@/hooks/useBundleData";
-import { NetPill, checkedClock, copyText, savedStamp, fmtDate, glass, hoursSince, timeAgo, useNow, unitsMethod } from "./shared";
+import { NetPill, checkedClock, copyText, savedStamp, fmtDate, fullStamp, glass, hoursSince, timeAgo, useNow, unitsMethod } from "./shared";
 
 const STALE_HOURS = 24;
 
@@ -20,7 +20,7 @@ export function Freshness({ data, compact = false }: { data: BundleData; compact
         <Clock className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
         <span>
           Prices checked{" "}
-          <time dateTime={checkedAt} className="font-semibold">{when ?? `on ${fmtDate(checkedAt)}`}</time>
+          <time dateTime={checkedAt} title={fullStamp(checkedAt)} className="font-semibold">{when ?? `on ${fmtDate(checkedAt)}`}</time>
           {when && <span className="text-muted-foreground"> ({fmtDate(checkedAt)})</span>}
         </span>
       </p>
@@ -79,7 +79,7 @@ export function LiveStatus({ data }: { data: BundleData }) {
         <p className="flex min-w-0 items-start gap-2 whitespace-nowrap text-xs font-medium sm:text-sm">
           <span className="relative mt-[3px] flex h-2.5 w-2.5 shrink-0 sm:mt-1" aria-hidden><span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-400" /></span>
           <span className="min-w-0 truncate font-semibold text-amber-800 dark:text-amber-300" data-testid="saved-prices">
-            Saved prices from <time dateTime={checkedAt}>{savedStamp(checkedAt)}</time>
+            Saved prices from <time dateTime={checkedAt} title={fullStamp(checkedAt)}>{savedStamp(checkedAt)}</time>
           </span>
         </p>
         {/* A saved copy over a day old gets the same warning as a stale live check. */}
@@ -97,12 +97,12 @@ export function LiveStatus({ data }: { data: BundleData }) {
         {now && onSchedule ? (
           // Fresh: the clock time of the last check, Ghana time (= UTC), e.g. "Checked today, 4:17 PM".
           <span data-testid="checked-clock">
-            Checked <time dateTime={checkedAt} className="font-bold">{checkedClock(checkedAt, now)}</time>
+            Checked <time dateTime={checkedAt} title={fullStamp(checkedAt)} className="font-bold">{checkedClock(checkedAt, now)}</time>
           </span>
         ) : (
           <span className="min-w-0 truncate">
             Prices checked{" "}
-            <time dateTime={checkedAt} className="font-bold">{when ?? `on ${fmtDate(checkedAt)}`}</time>
+            <time dateTime={checkedAt} title={fullStamp(checkedAt)} className="font-bold">{when ?? `on ${fmtDate(checkedAt)}`}</time>
             {now && typeof every === "number" && every > 0 && !onSchedule && (
               <span className="text-muted-foreground" data-testid="saved-check"> · last saved prices</span>
             )}

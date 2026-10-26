@@ -7,6 +7,7 @@ import { Lightbulb, AlertOctagon, Infinity as InfinityIcon, Moon, RefreshCw, Loc
 import { cn } from "@/lib/utils";
 import { GROUPS, bandFor, canWin, conditionalReason, hasConflict, isAllDay, isConditional, neverExpires, type Bundle, type BundleModel } from "@/lib/dataBundles";
 import { CodesIn, Details, NetPill, SectionHeading, fmtDate, glass } from "./shared";
+import { xtra4uTip } from "@/lib/bundleTips";
 
 interface Tip { id: string; icon: ReactNode; title: string; body: ReactNode; networks: string[]; tone?: "warn" }
 
@@ -308,6 +309,15 @@ export function buildTips(model: BundleModel, only?: string): Tip[] {
     const fact = model.factText(n);
     if (!fact) continue;
     tips.push({ id: `fact-${n}`, networks: [n], icon: <Lightbulb className="h-5 w-5" aria-hidden />, title: `${model.networkInfo(n).name}: worth knowing`, body: <><p>{fact}</p><CodesIn texts={[fact]} /></> });
+  }
+  // MTN's *203# (Xtra4U): a possible discount seen on one customer's line (25 Oct 2026). A tip only.
+  {
+    const x = xtra4uTip(model.doc);
+    if (x && (!only || only === x.network)) {
+      tips.push({ id: "xtra4u", networks: [x.network], icon: <Phone className="h-5 w-5" aria-hidden />,
+        title: `MTN: try ${x.ussd} for a possible ${x.discountPct ? `${x.discountPct}% ` : ""}discount`,
+        body: <><p>{x.text}</p><p className="mt-1">! Check first: seen {fmtDate(x.date)} on one customer's line; not ranked or compared.</p><CodesIn texts={[x.ussd]} /></> });
+    }
   }
   if (r?.balanceCheck && has("mtn")) {
     tips.push({ id: "balance", networks: ["mtn"], icon: <Gauge className="h-5 w-5" aria-hidden />, title: "Check your MTN data balance", body: <><p>{r.balanceCheck}</p><CodesIn texts={[r.balanceCheck]} /></> });

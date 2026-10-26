@@ -8,6 +8,8 @@
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useLargeText } from "./shared";
 
 export function ThemePill({ className }: { className?: string }) {
   let theme: ReturnType<typeof useTheme> | null = null;
@@ -24,5 +26,51 @@ export function ThemePill({ className }: { className?: string }) {
       {/* The narrowest phones (under 380px) show the sun or moon only, so the status line keeps its room. */}
       <span className="max-[379px]:sr-only">{dark ? "Light" : "Dark"}</span>
     </button>
+  );
+}
+
+/** Phones (owner, 25 Oct 2026): ONE compact "Aa" button at the right of the status row (44px,
+ *  named "Display settings") instead of the Light/Dark pill and A / A+ side by side, which
+ *  crowded the status line and the heading. It opens a small panel with two rows: "Text size"
+ *  (A, A+) and "Theme" (Light, Dark). Same behaviour and storage as the inline controls: the text
+ *  size through useLargeText, the theme through the site's ThemeContext. The panel is a Radix
+ *  popover: it closes on an outside tap or Escape, takes focus when it opens and gives it back to
+ *  the button when it closes. */
+export function DisplayMenu({ className }: { className?: string }) {
+  const [large, pickSize] = useLargeText();
+  let theme: ReturnType<typeof useTheme> | null = null;
+  try { theme = useTheme(); } catch { theme = null; }
+  const dark = theme?.resolvedTheme === "dark";
+  const opt = (on: boolean) => cn(
+    "inline-flex h-11 min-w-11 flex-1 items-center justify-center gap-1.5 rounded-full px-3 text-[15px] font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+    on ? "bg-foreground text-background" : "border border-border text-foreground hover:border-foreground/40",
+  );
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button type="button" aria-label="Display settings" data-testid="display-menu"
+          className={cn("inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-background/60 text-base font-black transition hover:border-foreground/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring", className)}>
+          <span aria-hidden>Aa</span>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" sideOffset={6} aria-label="Display settings" data-testid="display-panel" className="w-64 space-y-3 rounded-2xl p-3">
+        <div role="group" aria-labelledby="db-display-size" className="space-y-1.5">
+          <p id="db-display-size" className="text-[15px] font-semibold">Text size</p>
+          <div className="flex gap-2">
+            <button type="button" className={opt(!large)} aria-pressed={!large} onClick={() => pickSize(false)} aria-label="A normal text" data-testid="display-size-normal"><span className="text-sm">A</span></button>
+            <button type="button" className={opt(large)} aria-pressed={large} onClick={() => pickSize(true)} aria-label="A+ bigger text" data-testid="display-size-large"><span className="text-lg">A+</span></button>
+          </div>
+        </div>
+        {theme && (
+          <div role="group" aria-labelledby="db-display-theme" className="space-y-1.5">
+            <p id="db-display-theme" className="text-[15px] font-semibold">Theme</p>
+            <div className="flex gap-2">
+              <button type="button" className={opt(!dark)} aria-pressed={!dark} onClick={() => theme!.setTheme("light")} data-testid="display-theme-light"><Sun className="h-4 w-4" aria-hidden /> Light</button>
+              <button type="button" className={opt(dark)} aria-pressed={dark} onClick={() => theme!.setTheme("dark")} data-testid="display-theme-dark"><Moon className="h-4 w-4" aria-hidden /> Dark</button>
+            </div>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
   );
 }

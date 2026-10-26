@@ -314,12 +314,13 @@ function ResultCard({ model, pick, budget, lead, tie, meter, trophy, night, solo
         )}
       </div>
       {/* The figure and, beside it, the value meter (compact, so the answer stays on the first screen). */}
-      <div className="mt-2 flex items-end justify-between gap-x-2 [@media(max-height:820px)_and_(max-width:639px)]:mt-1">
+      {/* flex-wrap: when the figure and the meter do not fit side by side (A+ on a narrow desktop card), the meter goes under the figure; the figure itself never breaks. */}
+      <div className="mt-2 flex flex-wrap items-end justify-between gap-x-2 gap-y-1 [@media(max-height:820px)_and_(max-width:639px)]:mt-1">
         <div className="min-w-0">
           {/* The final figure, rendered directly: an interactive output never counts up; it rolls to the new text. */}
           {shownB ? (
             <p className="leading-none" data-testid="bf-headline" data-net={n} data-mb={shownB.mb.toFixed(3)} data-buys={combo ? combo.purchases : 1}>
-              <RollText text={shown} testId="bf-amount" net={n} className={cn("font-black leading-none tabular-nums", shown.length > 8 ? "text-[1.7rem] sm:text-3xl" : isWin ? "text-4xl sm:text-[2.6rem]" : "text-3xl max-sm:text-[1.7rem] sm:text-[2.6rem]")} />
+              <RollText text={shown} testId="bf-amount" net={n} className={cn("whitespace-nowrap font-black leading-none tabular-nums", shown.length > 8 ? "text-[1.7rem] sm:text-3xl" : isWin ? "text-4xl sm:text-[2.6rem]" : "text-3xl max-sm:text-[1.7rem] sm:text-[2.6rem]")} />
               {combo && <span className="ml-1.5 whitespace-nowrap text-[15px] font-bold text-foreground/85 lg:text-base" data-testid="bf-buys">· {model.buysText(combo)}</span>}
             </p>
           ) : (

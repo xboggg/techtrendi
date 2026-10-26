@@ -1074,7 +1074,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("L6: no 'Telecel changes offers often' claim", !/changes offers often/.test(doc.networkFacts.telecel));
   // L7. Social & video is not a family of its own; family totals agree everywhere.
   check("L7: 'Social & video' is not a family (its note lives in mtnRates.socialNote)", !m.familiesOf("mtn").includes("Social & video") && !m.rateFamilies("mtn").includes("Social & video") && /GH¢0\.03 to GH¢1,000/.test((R as any).socialNote));
-  check("L7: MTN has 13 package families (audit 6: Sunday Special and Jara split; audit 7: SME bundles removed, no data in MTN's article), counted the same on the hero and every page", m.familiesOf("mtn").length === 13 && m.stats.familyCount === m.networks.reduce((s, n) => s + m.familiesOf(n).length, 0), m.familiesOf("mtn").join(", "));
+  check("L7: MTN has 14 package families (audit 6: Sunday Special and Jara split; audit 7: SME bundles removed, no data in MTN's article; 25 Oct 2026: Xtra4U (*203#) described without figures), counted the same on the hero and every page", m.familiesOf("mtn").length === 14 && m.stats.familyCount === m.networks.reduce((s, n) => s + m.familiesOf(n).length, 0), m.familiesOf("mtn").join(", "));
   check("L7: the calculators take the any-amount note from mtnRates.socialNote", /notes: \[r\.socialNote, fi\["Social bundles"\]\]/.test(src("src/components/data-bundles/MtnCalculators.tsx")));
 }
 
@@ -1400,7 +1400,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   // L11. SME bundles out of the mobile data families.
   {
     const allFam = m.stats.familiesWithFigures + m.stats.familiesDescribedOnly;
-    check(`L11: SME bundles (MTN's article mentions no data) are not a family; MTN has 13 families, ${allFam} in all (with figures + described only)`, !m.familiesOf("mtn").includes("SME bundles") && m.familiesOf("mtn").length === 13 && m.stats.familyCount === allFam && m.stats.familyCount === m.networks.reduce((t, n) => t + m.familiesOf(n).length, 0), `${m.familiesOf("mtn").length} / ${m.stats.familyCount}`);
+    check(`L11: SME bundles (MTN's article mentions no data) are not a family; MTN has 14 families, ${allFam} in all (with figures + described only)`, !m.familiesOf("mtn").includes("SME bundles") && m.familiesOf("mtn").length === 14 && m.stats.familyCount === allFam && m.stats.familyCount === m.networks.reduce((t, n) => t + m.familiesOf(n).length, 0), `${m.familiesOf("mtn").length} / ${m.stats.familyCount}`);
   }
   check("L11: no SME citation left", !(R.citedSources ?? []).some((c) => /36652796705426/.test(c.url)));
 
@@ -1539,8 +1539,8 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     const withFigRaw = m.networks.reduce((t, n) => t + new Set([...doc.bundles.filter((b) => b.network === n && (b.kind as string) !== "router").map((b) => b.family), ...m.rateFamilies(n)].filter((f) => !m.borrowed(n).some((x) => x.title === f))).size, 0);
     const retired = ((doc as any).retiredFamilies ?? []) as { network: string; family: string }[];
     const listed = m.networks.flatMap((n) => [...m.familyCounts(n).withFigures, ...m.familyCounts(n).describedOnly].map((f) => `${n}|${f}`));
-    check(`L10 (a8): families: ${withFigRaw} with figures plus 2 described without figures (Just4U, Adwumapa); retired families are never listed`,
-      m.stats.familiesWithFigures === withFigRaw && m.stats.familiesDescribedOnly === 2 && JSON.stringify(m.familyCounts("mtn").describedOnly) === '["Just4U","Adwumapa"]' &&
+    check(`L10 (a8): families: ${withFigRaw} with figures plus 3 described without figures (Just4U, Adwumapa, Xtra4U (*203#)); retired families are never listed`,
+      m.stats.familiesWithFigures === withFigRaw && m.stats.familiesDescribedOnly === 3 && JSON.stringify(m.familyCounts("mtn").describedOnly) === '["Just4U","Adwumapa","Xtra4U (*203#)"]' &&
       retired.every((x) => !listed.includes(`${x.network}|${x.family}`) || doc.bundles.some((b) => b.network === x.network && b.family === x.family)), `${m.stats.familiesWithFigures} vs ${withFigRaw}; ${JSON.stringify(m.familyCounts("telecel").describedOnly)}`);
     const back = clone(doc) as any; back.bundles.push({ ...clone(doc.bundles.find((b) => b.network === "telecel")!), name: "TEST back", family: "Special offer", pending: true });
     check("L10 (a8): a retired family that has bundles again is listed again (with figures)", createBundleModel(back).familyCounts("telecel").withFigures.includes("Special offer"));
@@ -1782,10 +1782,10 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     const sh2 = await import("../src/components/data-bundles/shared");
     const n = new Date("2026-10-19T19:40:00Z");
     check("status: fresh check time in Ghana time: 'today, 4:17 PM', 'yesterday, 10:17 PM', '17 Oct, 12:05 AM', noon '12:00 PM'",
-      sh2.checkedClock("2026-10-19T16:17:15.9+00:00", n) === "today, 4:17 PM" && sh2.checkedClock("2026-10-18T22:17:00Z", n) === "yesterday, 10:17 PM" &&
-      sh2.checkedClock("2026-10-17T00:05:00Z", n) === "17 Oct, 12:05 AM" && sh2.checkedClock("2026-10-19T12:00:00Z", n) === "today, 12:00 PM" && sh2.checkedClock("2026-10-19", n) === "today");
+      sh2.checkedClock("2026-10-19T16:17:15.9+00:00", n) === "today, 4:17 PM GMT" && sh2.checkedClock("2026-10-18T22:17:00Z", n) === "yesterday, 10:17 PM GMT" &&
+      sh2.checkedClock("2026-10-17T00:05:00Z", n) === "17 Oct, 12:05 AM GMT" && sh2.checkedClock("2026-10-19T12:00:00Z", n) === "today, 12:00 PM GMT" && sh2.checkedClock("2026-10-19", n) === "today");
     check("status: the clock wording shows only while the check is on schedule (scheduleShown), else the honest 'showing our last saved prices'",
-      /\{now && onSchedule \? \(/.test(srcR("src/components/data-bundles/meta.tsx")) && /Checked <time dateTime=\{checkedAt\} className="font-bold">\{checkedClock\(checkedAt, now\)\}<\/time>/.test(srcR("src/components/data-bundles/meta.tsx")) && /showing our last saved prices/.test(srcR("src/components/data-bundles/meta.tsx")));
+      /\{now && onSchedule \? \(/.test(srcR("src/components/data-bundles/meta.tsx")) && /Checked <time dateTime=\{checkedAt\} title=\{fullStamp\(checkedAt\)\} className="font-bold">\{checkedClock\(checkedAt, now\)\}<\/time>/.test(srcR("src/components/data-bundles/meta.tsx")) && /showing our last saved prices/.test(srcR("src/components/data-bundles/meta.tsx")));
   }
   {
     const { scheduleShown } = await import("../src/components/data-bundles/meta");
@@ -1808,10 +1808,10 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
       new RegExp(`html\\.db-scrolling ${sel}:not\\(:focus-visible\\) \\{ opacity: 0 !important; transform: translateY\\(24px\\) scale\\(0\\.9\\) !important; pointer-events: none !important; \\}`).test(css) &&
       new RegExp(`@media \\(prefers-reduced-motion: reduce\\) \\{ ${sel} \\{ transition: none !important; \\} \\}`).test(css) &&
       sh.ASSISTANT_REST_MS === 800 && sh.SCROLLING_CLASS === "db-scrolling" &&
-      /t = setTimeout\(\(\) => root\.classList\.remove\(SCROLLING_CLASS\), ASSISTANT_REST_MS\);/.test(srcR("src/components/data-bundles/shared.tsx")) && /window\.addEventListener\("scroll", onScroll, \{ passive: true \}\);/.test(srcR("src/components/data-bundles/shared.tsx")) &&
+      /t = setTimeout\(\(\) => \{ settle\(\); root\.classList\.remove\(SCROLLING_CLASS\); \}, ASSISTANT_REST_MS\);/.test(srcR("src/components/data-bundles/shared.tsx")) && /window\.addEventListener\("scroll", onScroll, \{ passive: true \}\);/.test(srcR("src/components/data-bundles/shared.tsx")) &&
       css.split("\n").filter((l) => /@media/.test(l)).every((l) => /data-bf-chips|compare-all|prefers-reduced-motion/.test(l)));
     check("assistant: added to <head> only while a data bundle page is mounted (textContent, nothing rendered on the server; the scroll class is removed when the page goes), both pages without extra right padding",
-      renderToStaticMarkup(React.createElement(sh.DataBundlesChrome) as any) === "" && /el\.textContent = chromeCss\(headerAlpha\);/.test(srcR("src/components/data-bundles/shared.tsx")) && /return \(\) => \{ el\.remove\(\); window\.removeEventListener\("scroll", onScroll\); clearTimeout\(t\); root\.classList\.remove\(SCROLLING_CLASS\); \};/.test(srcR("src/components/data-bundles/shared.tsx")) &&
+      renderToStaticMarkup(React.createElement(sh.DataBundlesChrome) as any) === "" && /el\.textContent = chromeCss\(headerAlpha\);/.test(srcR("src/components/data-bundles/shared.tsx")) && /return \(\) => \{ el\.remove\(\); window\.removeEventListener\("scroll", onScroll\); window\.removeEventListener\("resize", onScroll\); clearTimeout\(t\); clearTimeout\(first\); root\.classList\.remove\(SCROLLING_CLASS, COVERING_CLASS\); \};/.test(srcR("src/components/data-bundles/shared.tsx")) &&
       ["src/pages/data-bundles/DataBundlesDashboard.tsx", "src/pages/data-bundles/DataBundlesNetwork.tsx"].every((f) => /<DataBundlesChrome headerAlpha=\{0\.\d+\} \/>/.test(srcR(f)) && !/ pr-7 /.test(srcR(f)) && !/max-sm:pr-6/.test(srcR(f))) &&
       !/DataBundlesChrome|Open AI Chat"\]/.test(aiSrc + srcR("src/App.tsx") + srcR("src/ssg/RootLayout.tsx") + srcR("src/index.css") + srcR("src/components/layout/Header.tsx")));
   }
@@ -2415,9 +2415,9 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("text size: 'A' and 'A+' buttons, labelled and pressed-state, at least 44px", /aria-label="A normal text"[^>]*>A</.test(th) && /aria-label="A\+ bigger text"[^>]*>A\+</.test(th) && (th.match(/aria-pressed=/g) ?? []).length === 2 && (th.match(/h-11 min-w-11/g) ?? []).length === 2 && /role="group" aria-label="Text size"/.test(th));
   const shSrc = readFileSync(join(ROOT, "src/components/data-bundles/shared.tsx"), "utf8");
   check("text size: localStorage reads and writes are wrapped in try/catch; only the page content (main) grows, and only while the page is open",
-    /try \{ setLarge\(window\.localStorage\.getItem\(TEXT_SIZE_KEY\)/.test(shSrc) && /try \{ window\.localStorage\.setItem\(TEXT_SIZE_KEY/.test(shSrc) && /return \(\) => \{ root\.removeAttribute\(LARGE_TEXT_ATTR\); \};/.test(shSrc) && sh.largeTextCss().startsWith('html[data-db-text="large"] main#main-content { zoom: 1.125; }') && /repeat\(4, minmax\(0, 1fr\)\)/.test(sh.largeTextCss()) && sh.chromeCss(0.6).includes(sh.largeTextCss()));
+    /const readLarge = \(\) => \{ try \{ return window\.localStorage\.getItem\(TEXT_SIZE_KEY\) === "large"; \} catch/.test(shSrc) && /try \{ window\.localStorage\.setItem\(TEXT_SIZE_KEY/.test(shSrc) && /return \(\) => \{ root\.removeAttribute\(LARGE_TEXT_ATTR\); \};/.test(shSrc) && /useDataBundlesOffline\(\);\s*useLargeTextMark\(\);/.test(shSrc) && sh.largeTextCss().startsWith('html[data-db-text="large"] main#main-content { zoom: 1.125; }') && /repeat\(4, minmax\(0, 1fr\)\)/.test(sh.largeTextCss()) && sh.chromeCss(0.6).includes(sh.largeTextCss()));
   const pages = ["DataBundlesDashboard.tsx", "DataBundlesNetwork.tsx"].map((f) => readFileSync(join(ROOT, "src/pages/data-bundles/" + f), "utf8"));
-  check("text size: on both data bundle pages: at the top on phones (status row), beside 'What we compare' / 'What we list' from 640px", pages.every((p) => p.includes('<div className="-mt-2 flex shrink-0 items-center gap-1.5 sm:hidden"><ThemePill /><TextSizeToggle /></div>') && p.includes('<div className="flex shrink-0 items-center gap-1.5 max-sm:hidden"><ThemePill /><TextSizeToggle /></div>') && p.indexOf("<ThemePill /><TextSizeToggle />") < p.indexOf("<BudgetFinder")));
+  check("text size: on both data bundle pages: at the top on phones (status row, in the Display menu), beside 'What we compare' / 'What we list' from 640px", pages.every((p) => p.includes('<DisplayMenu className="-mt-2 shrink-0 sm:hidden" />') && p.includes('<div className="flex shrink-0 items-center gap-1.5 max-sm:hidden"><ThemePill /><TextSizeToggle /></div>') && p.indexOf("<DisplayMenu") < p.indexOf("<BudgetFinder")));
 }
 
 // ------------------------------------------------------------------ step 5 (19 Oct 2026): FAQ, structured data, launch switch, offline copy, sliders
@@ -2526,8 +2526,8 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("first screen (round 8): one status line (no wrap), no cadence line on top, tighter heading and finder spacing on phones",
     /whitespace-nowrap text-xs font-medium/.test(meta) && !/<CadenceLine/.test(dash) && /text-\[1\.75rem\]/.test(dash) && /className="mt-2 block text-base font-bold text-muted-foreground (\S+ )*sm:mt-3 sm:text-lg">I have/.test(bf) && /col-span-2 flex items-center gap-2 sm:block/.test(bf));
   // 24 Oct 2026: the Light/Dark pill sits beside A / A+ in both places.
-  check("A / A+ (with the Light/Dark pill): at the top on phones (status row, right), beside 'What we compare' from 640px",
-    /<div className="min-w-0 flex-1 sm:pt-0"><LiveStatus data=\{data\} \/><\/div>\s*<div className="-mt-2 flex shrink-0 items-center gap-1\.5 sm:hidden"><ThemePill \/><TextSizeToggle \/><\/div>/.test(dash) &&
+  check("A / A+ and Light/Dark: on phones in ONE 'Aa' Display menu at the right of the status row (25 Oct 2026); inline beside 'What we compare' from 640px",
+    /<div className="min-w-0 flex-1 sm:pt-0"><LiveStatus data=\{data\} \/><\/div>\s*<DisplayMenu className="-mt-2 shrink-0 sm:hidden" \/>/.test(dash) &&
     /<Details summary="What we compare"[\s\S]*?<\/Details>\s*<div className="flex shrink-0 items-center gap-1\.5 max-sm:hidden"><ThemePill \/><TextSizeToggle \/><\/div>/.test(dash));
   {
     // The finder's default amount: GH¢5 (owner, 22 Oct 2026); the social image stays at GH¢20.
@@ -2598,9 +2598,9 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("offline (round 10): a saved copy is marked (X-TT-Saved-Copy) and the page says 'Saved prices from ...'", /headers\.set\('X-TT-Saved-Copy', '1'\)/.test(sw) && /SAVED_COPY_HEADER = "X-TT-Saved-Copy"/.test(src("src/hooks/useBundleData.ts")) && /setSaved\(!o\.ok \|\| !!o\.saved\)/.test(src("src/hooks/useBundleData.ts")));
   const fr = (source: "live" | "saved" | "bundled") => ({ country: DATA_BUNDLE_COUNTRIES.ghana, model: m, freshness: { capturedAt: doc.capturedAt, checkedAt: "2026-10-19T23:09:39Z", source } });
   const savedHtml = dec(html(React.createElement(LiveStatus, { data: fr("saved") } as any)));
-  check("offline (round 10): status for a saved copy: 'Saved prices from 19 Oct, 11:09 PM', amber, never 'Checked'",
-    /Saved prices from <time[^>]*>19 Oct, 11:09 PM<\/time>/.test(savedHtml) && /bg-amber-400/.test(savedHtml) && /text-amber-800/.test(savedHtml) && !/Checked/.test(savedHtml.replace(/<[^>]+>/g, " ")), savedHtml.replace(/<[^>]+>/g, " ").trim());
-  check("offline (round 10): savedStamp formats date and time in Ghana time", sh.savedStamp("2026-10-20T00:05:00Z") === "20 Oct, 12:05 AM" && sh.savedStamp("2026-10-19") === "19 Oct");
+  check("offline (round 10): status for a saved copy: 'Saved prices from 19 Oct, 11:09 PM GMT' (with the full date as its title), amber, never 'Checked'",
+    /Saved prices from <time[^>]*title="Monday 19 Oct 2026, 11:09 PM GMT"[^>]*>19 Oct, 11:09 PM GMT<\/time>/.test(savedHtml) && /bg-amber-400/.test(savedHtml) && /text-amber-800/.test(savedHtml) && !/Checked/.test(savedHtml.replace(/<[^>]+>/g, " ")), savedHtml.replace(/<[^>]+>/g, " ").trim());
+  check("offline (round 10): savedStamp formats date and time in Ghana time", sh.savedStamp("2026-10-20T00:05:00Z") === "20 Oct, 12:05 AM GMT" && sh.savedStamp("2026-10-19") === "19 Oct");
 
   // 2. FAQ closed by default; answers still in the server-rendered markup.
   const fq = dec(html(React.createElement(Faq, { model: m })));
@@ -3174,8 +3174,8 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
 
   // 1. Words.
   const worked = m.all.find((b) => b.computed && sh.trustOf(b).level === "worked")!;
-  check("words: '≈ Price we calculated' (never 'Worked out'); ✓ Confirmed and ! Check first unchanged",
-    txt(html(React.createElement(sh.TrustBadge, { b: worked }))).includes(sh.officialRatesText(worked.network)) && sh.officialRatesText("telecel") === "✓ From Telecel's official rates" && /"✓ Confirmed"/.test(src("src/components/data-bundles/shared.tsx")) && /! Check first/.test(src("src/components/data-bundles/shared.tsx")));
+  check("words: '✓ From <Network>'s official rates' for rate rows, '✓ On <Network>'s price list' for fixed bundles (it said '✓ Confirmed'), '! Check first' unchanged",
+    txt(html(React.createElement(sh.TrustBadge, { b: worked }))).includes(sh.officialRatesText(worked.network)) && sh.officialRatesText("telecel") === "✓ From Telecel's official rates" && sh.priceListText("at") === "✓ On AT's price list" && sh.priceListText("mtn") === "✓ On MTN's price list" && m.networks.every((n) => { const cb = m.bundles.find((b) => sh.trustOf(b).level === "confirmed" && b.network === n); return !cb || txt(html(React.createElement(sh.TrustBadge, { b: cb }))).includes(sh.priceListText(n)); }) && m.bundles.some((b) => sh.trustOf(b).level === "confirmed") && !/"✓ Confirmed"/.test(src("src/components/data-bundles/shared.tsx")) && /! Check first/.test(src("src/components/data-bundles/shared.tsx")));
   const kok = m.bundles.find((b) => b.name === "Kokrokoo Bundle")!;
   check("words: a disputed expiry reads 'Expiry not clear – check with MTN'; price and volume disputes the same way",
     m.disputeText(kok) === "Expiry not clear – check with MTN" && m.disputeText({ network: "telecel", otherSource: { contradicts: "price" } } as any) === "Price not clear – check with Telecel" &&
@@ -3482,7 +3482,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     const bundled = JSON.parse(src("src/data/ghanaDataBundleChanges.json"));
     const at = new Date(bundled.generatedAt);
     const want = ch.groupChanges(m, ch.recentChanges(ch.parseChanges(bundled, at), at, ch.STRIP_DAYS)).slice(0, 2);
-    const ssr = renderToStaticMarkup(React.createElement(WhatChanged, { model: m, country: "ghana" })).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+    const ssr = renderToStaticMarkup(React.createElement(WhatChanged, { model: m, country: "ghana" })).replace(/<\/?time[^>]*>/g, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
     const ssrMtn = renderToStaticMarkup(React.createElement(WhatChanged, { model: m, country: "ghana", network: "mtn" }));
     const wantMtn = ch.recentChanges(ch.parseChanges(bundled, at), at, ch.STRIP_DAYS, "mtn").length;
     check(`strip (UI): the server HTML carries the build's copy (${want.length ? `'This week: ${want[0].text} (${ch.dayLabel(want[0].date)})'` : "nothing this week"}); a network page only its own network's; hidden when there is nothing`,
@@ -3513,9 +3513,9 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const posts = ch.dealPosts(m, cd, NOW, checked, "/data-bundles/ghana");
   const weekly = posts.find((p) => p.kind === "weekly")!;
   const sw = m.leaderboardRows("small").ranked[0].bundle;
-  check(`deal posts: the weekly post (Monday ${weekly && ch.dayLabel(weekly.date)}) names the Small buys, Any price and Never expires winners with their dial codes, 'Checked 23 Oct' and the link at the Small buys winner's amount`,
+  check(`deal posts: the weekly post (Monday ${weekly && ch.dayLabel(weekly.date)}) names the Small buys, Any price and Never expires winners with their dial codes, 'Checked 23 Oct, 1:17 PM GMT' and the link at the Small buys winner's amount`,
     !!weekly && weekly.date === "2026-10-19" && weekly.id === "weekly:2026-10-19" && weekly.text.includes(`Small buys (up to GH¢20): `) && weekly.text.includes(m.leadText(sw)) && (!sw.ussd || weekly.text.includes(`Dial ${sw.ussd}.`)) &&
-    weekly.text.includes("Any price: ") && weekly.text.includes("Never expires: ") && weekly.text.includes("Checked 23 Oct.") && weekly.link === `https://techtrendi.com/data-bundles/ghana?amount=${sw.band && !sw.band.exact ? sw.band.from : sw.price}` && weekly.text.includes(weekly.link), weekly?.text);
+    weekly.text.includes("Any price: ") && weekly.text.includes("Never expires: ") && weekly.text.includes("Checked 23 Oct, 1:17 PM GMT.") && weekly.link === `https://techtrendi.com/data-bundles/ghana?amount=${sw.band && !sw.band.exact ? sw.band.from : sw.price}` && weekly.text.includes(weekly.link), weekly?.text);
   check("deal posts: a bundle whose name already says its network is never named twice ('Telecel Telecel …')", [...posts].every((p) => !/\b(AT|MTN|Telecel) \1\b/.test(p.text)), weekly?.text);
   check("deal posts: the retired Specials make no post (only cuts, more data, new top-value bundles and new winners do)", posts.every((p) => p.kind === "weekly"));
   // A price cut this week on today's Small buys winner: a cut post and a new-winner post.
@@ -3524,7 +3524,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const cutPost = p2.find((p) => p.kind === "price_drop")!, win = p2.find((p) => p.kind === "new_winner")!;
   check("deal posts: a price cut this week makes a cut post ('Was: … → …') and, when it put the bundle on top, a 'New best value' post; both with the dial code, 'Checked' and the link",
     !!cutPost && cutPost.text.includes(`Was: ${m.money(sw.price + 1)} → ${m.money(sw.price)}.`) && !!win && win.text.startsWith("🏆 New best value in Small buys (up to GH¢20)") &&
-    [cutPost, win].every((p) => p.text.includes("Checked 23 Oct.") && p.text.includes("https://techtrendi.com/data-bundles/ghana?amount=") && (!sw.ussd || p.text.includes(`Dial ${sw.ussd}.`))), JSON.stringify(p2.map((p) => p.text)));
+    [cutPost, win].every((p) => p.text.includes("Checked 23 Oct, 1:17 PM GMT.") && p.text.includes("https://techtrendi.com/data-bundles/ghana?amount=") && (!sw.ussd || p.text.includes(`Dial ${sw.ussd}.`))), JSON.stringify(p2.map((p) => p.text)));
   check("deal posts: every text follows the wording rules (never 'GH¢10 gets/buys' or 'Every GH¢10'; single bundles only, no mixes); WhatsApp link carries the whole text",
     [...posts, ...p2].every((p) => !/GH¢10 (gets|buys)|Every GH¢10|\bbuys?\b \d|\d+ buys/.test(p.text) && !/×/.test(p.text) && decodeURIComponent(ch.whatsappLink(p.text).split("?text=")[1]) === p.text && ch.whatsappLink(p.text).startsWith("https://wa.me/?text=")));
   const ad = src("src/pages/admin/AdminDataDeals.tsx");
@@ -3553,6 +3553,99 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const html = renderToStaticMarkup(React.createElement(ThemeProvider, null, React.createElement(ThemePill)));
   check("theme pill: the server HTML says 'Dark' (the provider starts light, as the first client render does: no hydration difference); outside a provider it renders nothing",
     /data-to="dark"/.test(html) && />Dark<\/span><\/button>$/.test(html) && renderToStaticMarkup(React.createElement(ThemePill)) === "", html);
+}
+
+// ------------------------------------------------------------------ fix round (25 Oct 2026): display menu, GMT, badges, page views, chat button
+{
+  const src = (p: string) => readFileSync(join(ROOT, p), "utf8");
+  const React = await import("react");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const sh = await import("../src/components/data-bundles/shared");
+  // 1. One Display menu on phones.
+  const tp = src("src/components/data-bundles/ThemePill.tsx");
+  const { DisplayMenu } = await import("../src/components/data-bundles/ThemePill");
+  const { ThemeProvider } = await import("../src/contexts/ThemeContext");
+  const dm = renderToStaticMarkup(React.createElement(ThemeProvider, null, React.createElement(DisplayMenu)));
+  check("display menu: one 44px 'Aa' button named 'Display settings' (a Radix popover: outside tap and Escape close it, focus goes in and comes back); rows 'Text size' (A, A+) and 'Theme' (Light, Dark), pressed states",
+    /aria-label="Display settings"/.test(dm) && /h-11 w-11/.test(dm) && /<span aria-hidden="true">Aa<\/span>/.test(dm) && /aria-haspopup="dialog"/.test(dm) &&
+    /from "@\/components\/ui\/popover"/.test(tp) && />Text size</.test(tp) && />Theme</.test(tp) && /data-testid="display-theme-light"/.test(tp) && /data-testid="display-size-large"/.test(tp) && (tp.match(/aria-pressed=\{/g) ?? []).length >= 4);
+  check("display menu: the same storage as before (text size: one shared useLargeText, the stored key and the <html> mark; theme: ThemeContext setTheme), the mark kept by the page itself (DataBundlesChrome) so closing the menu never drops A+",
+    /const \[large, pickSize\] = useLargeText\(\);/.test(tp) && /theme!\.setTheme\("light"\)/.test(tp) && /theme!\.setTheme\("dark"\)/.test(tp) && sh.TEXT_SIZE_KEY === "techtrendi-db-text" &&
+    /window\.dispatchEvent\(new CustomEvent\(TEXT_SIZE_EVENT, \{ detail: v \}\)\);/.test(src("src/components/data-bundles/shared.tsx")) && /useLargeTextMark\(\);/.test(src("src/components/data-bundles/shared.tsx")) &&
+    /data-db-text/.test(src("index.html")));
+  // 2. GMT.
+  const n = new Date("2026-10-25T18:00:00Z");
+  check("time: every clock says GMT (Ghana time, UTC+0): 'today, 5:17 PM GMT', saved copies, and a full date in each <time> title",
+    sh.checkedClock("2026-10-25T17:17:00Z", n) === "today, 5:17 PM GMT" && sh.savedStamp("2026-10-24T08:05:00Z") === "24 Oct, 8:05 AM GMT" && sh.clockGmt(new Date("2026-10-25T00:00:00Z")) === "12:00 AM GMT" &&
+    sh.fullStamp("2026-10-25T17:17:00Z") === "Sunday 25 Oct 2026, 5:17 PM GMT" && sh.fullStamp("2026-10-21") === "Wednesday 21 Oct 2026" &&
+    (src("src/components/data-bundles/meta.tsx").match(/title=\{fullStamp\(checkedAt\)\}/g) ?? []).length >= 3 && (src("src/components/data-bundles/WhatChanged.tsx").match(/<time dateTime=\{(g|c)\.date\} title=\{fullStamp\((g|c)\.date\)\}>/g) ?? []).length === 2);
+  // 3. Badges.
+  check("badges: fixed bundles '✓ On <Network>'s price list', rate rows '✓ From <Network>'s official rates', '! Check first' unchanged; never '✓ Confirmed' on screen",
+    m.bundles.filter((b) => sh.trustOf(b).level === "confirmed").every((b) => sh.priceListText(b.network) === `✓ On ${({ mtn: "MTN", telecel: "Telecel", at: "AT" } as Record<string, string>)[b.network]}'s price list`) && !/"✓ Confirmed"/.test(src("src/components/data-bundles/shared.tsx")));
+  // 5-6. Page views.
+  const pv = await import("../src/lib/pageViewHelpers");
+  const mem = () => { const o = new Map<string, string>(); return { getItem: (k: string) => o.get(k) ?? null, setItem: (k: string, v: string) => { o.set(k, v); } }; };
+  const t0 = Date.parse("2026-10-25T10:00:00Z");
+  const st = mem();
+  pv.writeGeo(st, { country: "Ghana", city: "Accra" }, t0);
+  const blocked = { getItem: () => { throw new Error("blocked"); }, setItem: () => { throw new Error("blocked"); } };
+  check("location: cached for 24 h per visitor (one ipapi.co lookup a day at most); a broken or blocked store means no cache, never an error",
+    JSON.stringify(pv.readGeo(st, t0 + 23 * 3_600_000)) === JSON.stringify({ country: "Ghana", city: "Accra" }) && pv.readGeo(st, t0 + 25 * 3_600_000) === null && pv.readGeo(mem(), t0) === null &&
+    pv.readGeo(blocked, t0) === null && (() => { pv.writeGeo(blocked, { country: null, city: null }, t0); return true; })() && pv.GEO_TTL_MS === 86_400_000);
+  const cs = mem();
+  check("location: looked up ONLY after the cookie banner recorded analytics consent (cookie-consent analytics: true)",
+    !pv.hasAnalyticsConsent(cs) && (cs.setItem("cookie-consent", JSON.stringify({ essential: true, analytics: false })), !pv.hasAnalyticsConsent(cs)) &&
+    (cs.setItem("cookie-consent", JSON.stringify({ essential: true, analytics: true })), pv.hasAnalyticsConsent(cs)) && !pv.hasAnalyticsConsent(blocked) && (cs.setItem("cookie-consent", "{oops"), !pv.hasAnalyticsConsent(cs)));
+  const ss = mem();
+  check("page views: one view per route change (the same path again within 2 s, e.g. a remount, is not a new view); 'not a bounce' sent once per session",
+    pv.isNewView(null, "/a", t0) && !pv.isNewView({ path: "/a", at: t0 }, "/a", t0 + 500) && pv.isNewView({ path: "/a", at: t0 }, "/b", t0 + 500) && pv.isNewView({ path: "/a", at: t0 }, "/a", t0 + 5000) &&
+    !pv.takeBounceClear(ss, 1) && pv.takeBounceClear(ss, 2) && !pv.takeBounceClear(ss, 3) && !pv.takeBounceClear(ss, 9));
+  const hook = src("src/hooks/usePageView.ts");
+  check("page views: still only through the private RPCs (track_page_view, update_page_view; never a direct table write); the location goes into the view when known (no extra update); exit page and session length in ONE update; the geo lookup only with consent",
+    /rpc\("track_page_view"/.test(hook) && /rpc\("update_page_view"/.test(hook) && !/\.from\(["']page_views["']\)/.test(hook) && !/\.(insert|update|upsert)\(/.test(hook.replace(/updatePageView/g, "")) &&
+    /country: knownGeo\?\.country \?\? null,/.test(hook) && /if \(!knownGeo\) \{/.test(hook) && /if \(!hasAnalyticsConsent\(store\)\) return Promise\.resolve\(null\);/.test(hook) &&
+    /await updatePageView\(null, fields\);/.test(hook) && !/updatePageView\(null, \{ exit_page/.test(hook) && /takeBounceClear\(safeSession\(\), pageCount\)/.test(hook) && /isNewView\(lastView, location\.pathname, Date\.now\(\)\)/.test(hook) &&
+    (src("src/ssg/RootLayout.tsx").match(/<PageViewTracker \/>/g) ?? []).length === 1);
+  // 7. The winner's figure never breaks.
+  const bf = src("src/components/data-bundles/BudgetFinder.tsx");
+  check("finder: the figure never breaks onto two lines ('781.25 MB' with A+); when it and the meter do not fit side by side the meter goes under it",
+    /className=\{cn\("whitespace-nowrap font-black leading-none tabular-nums",/.test(bf) && /<div className="mt-2 flex flex-wrap items-end justify-between gap-x-2 gap-y-1/.test(bf));
+  // 9. The chat button never rests over something tappable.
+  const css = sh.chromeCss(0.6);
+  check("assistant: at rest it hides while its place (48px, 16px from the corner) is over a link, button or field, and comes back when a scroll moves that away",
+    sh.COVERING_CLASS === "db-chat-covering" && css.includes(`html.db-chat-covering ${sh.ASSISTANT_SELECTOR}:not(:focus-visible) { opacity: 0 !important;`) &&
+    /const settle = \(\) => root\.classList\.toggle\(COVERING_CLASS, chatWouldCover\(\)\);/.test(src("src/components/data-bundles/shared.tsx")) && sh.chatWouldCover() === false);
+}
+
+// ------------------------------------------------------------------ MTN *203# (Xtra4U) tip (25 Oct 2026): a tip, never a bundle
+{
+  const src = (p: string) => readFileSync(join(ROOT, p), "utf8");
+  const React = await import("react");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { StaticRouter } = await import("react-router-dom/server");
+  const tips = await import("../src/lib/bundleTips");
+  const t = tips.xtra4uTip(doc)!;
+  check("Xtra4U: the data holds a description-only MTN family 'Xtra4U (*203#)' and its tip (code *203#, seen 25 Oct 2026, a screenshot source, 3%)",
+    !!t && t.family === "Xtra4U (*203#)" && t.ussd === "*203#" && t.date === "2026-10-25" && t.discountPct === 3 && !/^https?:/.test(t.source) && /screenshots/.test(t.source) &&
+    t.text === "MTN's *203# (Xtra4U) menu offered one customer 3% off on 25 Oct 2026, e.g. 406.89 MB for GH¢2.91 instead of GH¢3, and 8.48 GB Midnight for GH¢2.91. Offers can differ by customer – dial *203# to see yours.");
+  check("Xtra4U: never a bundle, never ranked or used in any figure (no bundle or rate row, not in any board, the finder, the planner, the deal posts or the social image)",
+    !m.all.some((b) => b.family === t.family || /xtra4u|\*203#/i.test(`${b.name} ${b.ussd ?? ""}`)) &&
+    GROUPS.every((g) => !m.leaderboardRows(g.id).ranked.some((r) => r.bundle.family === t.family)) &&
+    [1, 3, 5, 10, 20, 50].every((a) => m.networks.every((n) => { const p = m.finderPick(n, a); return !p.b || p.b.family !== t.family; })) &&
+    !/xtra4u/i.test(src("src/lib/dataBundles.ts") + src("src/lib/ogSummary.ts") + src("src/components/data-bundles/MonthlyPlanner.tsx") + src("src/lib/bundleChanges.ts")) &&
+    m.familyCounts("mtn").describedOnly.includes(t.family) && !m.familyCounts("mtn").withFigures.includes(t.family));
+  const { DialTipCard } = await import("../src/components/data-bundles/DialTip");
+  const card = renderToStaticMarkup(React.createElement(StaticRouter, { location: "/x" }, React.createElement(DialTipCard, { model: m }) as any) as any);
+  check("Xtra4U: the MTN page's card has the dial chip with # encoded (tel:*203%23) and Copy, '! Check first', the date in a <time>, and says it is not ranked",
+    /href="tel:\*203%23"/.test(card) && /data-testid="copy"|Copy/.test(card) && /data-level="check"[^>]*>! Check first</.test(card) && /<time dateTime="2026-10-25" title="Sunday 25 Oct 2026">25 Oct 2026<\/time>/.test(card) && /Not ranked or compared/.test(card));
+  const plain = card.replace(/<[^>]+>/g, " ");
+  check("Xtra4U: plain words, never 'GH¢10 gets/buys' or 'Every GH¢10'", !/GH¢10 (gets|buys)|Every GH¢10/.test(plain + t.text));
+  const adv = src("src/components/data-bundles/Advice.tsx");
+  check("Xtra4U: one tip in 'Tips to pay less' ('MTN: try *203# for a possible 3% discount'), on the comparison page and MTN's page only; the card in MTN's Good to know",
+    /title: `MTN: try \$\{x\.ussd\} for a possible \$\{x\.discountPct \? `\$\{x\.discountPct\}% ` : ""\}discount`/.test(adv) && /if \(x && \(!only \|\| only === x\.network\)\)/.test(adv) &&
+    /\{tip && <DialTipCard model=\{model\} \/>\}/.test(src("src/pages/data-bundles/DataBundlesNetwork.tsx")) && /const tip = network === "mtn" \? xtra4uTip\(model\.doc\) : null;/.test(src("src/pages/data-bundles/DataBundlesNetwork.tsx")));
+  const bad = JSON.parse(JSON.stringify(doc)); bad.mtnRates.xtra4u.ussd = "203"; const bad2 = JSON.parse(JSON.stringify(doc)); delete bad2.familyInfo.mtn["Xtra4U (*203#)"];
+  check("Xtra4U: a malformed tip (bad code, no text) shows nothing", tips.xtra4uTip(bad) === null && tips.xtra4uTip(bad2) === null && tips.xtra4uTip(null) === null);
 }
 
 function unitsLineText(mm: BundleModel): string {

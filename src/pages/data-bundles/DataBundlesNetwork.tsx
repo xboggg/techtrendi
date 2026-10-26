@@ -32,7 +32,9 @@ import { Advice } from "@/components/data-bundles/Advice";
 import { Faq } from "@/components/data-bundles/Faq";
 import { LiveStatus, SourcesAndDisclaimer, SourceLine } from "@/components/data-bundles/meta";
 import { WhatChanged } from "@/components/data-bundles/WhatChanged";
-import { ThemePill } from "@/components/data-bundles/ThemePill";
+import { DialTipCard } from "@/components/data-bundles/DialTip";
+import { xtra4uTip } from "@/lib/bundleTips";
+import { DisplayMenu, ThemePill } from "@/components/data-bundles/ThemePill";
 import { DataBundlesChrome, Details, NetPill, SectionHeading, TextSizeToggle, fmtDate, textSafeFill, QueryLink, useFocusTitleOnNavigate, CodesIn } from "@/components/data-bundles/shared";
 import { cn } from "@/lib/utils";
 
@@ -97,7 +99,7 @@ export default function DataBundlesNetwork() {
               {/* Status, and on phones the A / A+ toggle at the top right (owner, 22 Oct 2026). */}
               <div className="flex items-start justify-between gap-2" data-testid="status-row">
                 <div className="min-w-0 flex-1 sm:pt-0"><LiveStatus data={data} /></div>
-                <div className="-mt-2 flex shrink-0 items-center gap-1.5 sm:hidden"><ThemePill /><TextSizeToggle /></div>
+                <DisplayMenu className="-mt-2 shrink-0 sm:hidden" />
               </div>
               <h1 ref={titleRef} tabIndex={-1} data-testid="page-title" className="focus:outline-none mt-2 text-[1.75rem] font-black leading-[1.15] tracking-tight [@media(max-height:820px)_and_(max-width:639px)]:mt-1 [@media(max-height:820px)_and_(max-width:639px)]:text-[1.5rem] sm:mt-3 sm:text-5xl">
                 <span className="rounded-xl px-2 sm:rounded-2xl sm:px-3" style={{ background: textSafeFill(info), color: info.ink }}>{info.name}</span>{" "}
@@ -180,7 +182,8 @@ export default function DataBundlesNetwork() {
 function GoodToKnow({ model, network }: { model: BundleModel; network: string }) {
   const o = model.outOfBundle(network);
   const borrowed = model.borrowed(network);
-  if (!o && !borrowed.length) return null;
+  const tip = network === "mtn" ? xtra4uTip(model.doc) : null;
+  if (!o && !borrowed.length && !tip) return null;
   const name = model.networkInfo(network).name;
   const best = model.bestForBudget(network, 1);
   // A help-centre link named by its article title (from the cited sources), never "help centre 1".
@@ -200,6 +203,8 @@ function GoodToKnow({ model, network }: { model: BundleModel; network: string })
             {o.note && <Details className="mt-2" testId="oob-note"><p>{o.note}</p></Details>}
           </div>
         )}
+        {/* A dial-code tip (MTN *203#, Xtra4U): never ranked, "! Check first". */}
+        {tip && <DialTipCard model={model} />}
         {borrowed.map(({ key, title, block: v }) => {
           const rows = Array.isArray(v.rows) ? v.rows.filter((r) => r && typeof r.price === "number") : [];
           const help = Array.isArray(v.helpSources) ? v.helpSources.filter((u) => typeof u === "string" && /^https:\/\//.test(u)) : [];
