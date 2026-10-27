@@ -2,7 +2,7 @@
 // using only bundles that last at least 30 days or never expire, with at most
 // the number of purchases the reader picks (1 to 12 on a slider; default 3), all
 // bought within the month. Worded for everyone (owner, 18 Oct 2026: "as simple as ABC").
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { GB_STEPS, parseState, writeState } from "@/lib/dataBundlesUrl";
 import { motion } from "framer-motion";
 import * as SliderPrimitive from "@radix-ui/react-slider";
@@ -27,6 +27,35 @@ export const buyTimes = (n: number) => (n === 1 ? "Buy once" : `Buy ${n} times`)
 
 /** A big slider for thumbs: 36px handle, thicker track, tall touch area. */
 const sliderBig = "py-4 [&_[role=slider]]:h-9 [&_[role=slider]]:w-9 [&_[role=slider]]:border-[3px] [&>span:first-child]:h-3";
+
+/** "once", "up to 4 times": the phone row's value after "I buy data". */
+export const oftenWords = (n: number) => (n === 1 ? "once" : `up to ${n} times`);
+
+/** The phone rows' slider: a 28px thumb (52px touch area with the labelled slider's own padding). */
+const sliderRow = "py-2 [&_[role=slider]]:h-7 [&_[role=slider]]:w-7 [&_[role=slider]]:border-[3px] [&>span:first-child]:h-2.5";
+
+/** One phone row: the label, the value with small - and + beside it, and the slider under them. */
+function PhoneRow({ label, value, less, more, testId, children }: {
+  label: string; value: ReactNode; testId: string; children: ReactNode;
+  less: { label: string; on: () => void; disabled: boolean }; more: { label: string; on: () => void; disabled: boolean };
+}) {
+  const btn = "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-background/60 text-foreground transition hover:border-foreground/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40";
+  return (
+    <div data-testid={testId}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="text-2xl font-black leading-tight" data-testid={`${testId}-value`}>{value}</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <button type="button" className={btn} onClick={less.on} disabled={less.disabled} aria-label={less.label}><Minus className="h-5 w-5" aria-hidden /></button>
+          <button type="button" className={btn} onClick={more.on} disabled={more.disabled} aria-label={more.label}><Plus className="h-5 w-5" aria-hidden /></button>
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}
 
 export function MonthlyPlanner({ model }: { model: BundleModel }) {
   const [idx, setIdx] = useState(STEPS.indexOf(10));
@@ -79,6 +108,31 @@ export function MonthlyPlanner({ model }: { model: BundleModel }) {
       </SectionHeading>
 
       <div className={cn(glass, "p-4 sm:p-6")}>
+        {/* Phones (below 640px): exactly two rows, each a value with small - and + and a labelled
+            slider under it, then the "Not sure?" tip (owner-approved "Planner D", 27 Oct 2026).
+            From 640px: the controls below, unchanged. */}
+        <div className="space-y-3 sm:hidden" data-testid="plan-phone">
+          <PhoneRow
+            label="I use about"
+            value={<><span className="tabular-nums">{gb.toLocaleString("en-GB")} GB</span> <span className="text-sm font-semibold text-muted-foreground">a month</span></>}
+            testId="plan-row-gb"
+            less={{ label: "Less data", on: () => setIdx((i) => Math.max(0, i - 1)), disabled: idx === 0 }}
+            more={{ label: "More data", on: () => setIdx((i) => Math.min(STEPS.length - 1, i + 1)), disabled: idx === STEPS.length - 1 }}
+          >
+            <Slider className={sliderRow} min={0} max={STEPS.length - 1} step={1} value={[idx]} onValueChange={([v]) => setIdx(v)} aria-label="How much data you use in a month" aria-valuetext={`${gb} GB a month`} />
+          </PhoneRow>
+          <PhoneRow
+            label="I buy data"
+            value={<span>{oftenWords(cap)}</span>}
+            testId="plan-row-often"
+            less={{ label: "Buy less often", on: () => setCap((c) => Math.max(1, c - 1)), disabled: cap === 1 }}
+            more={{ label: "Buy more often", on: () => setCap((c) => Math.min(MAX_PURCHASES, c + 1)), disabled: cap === MAX_PURCHASES }}
+          >
+            <Slider className={sliderRow} min={1} max={MAX_PURCHASES} step={1} value={[cap]} onValueChange={([v]) => setCap(v)} aria-label="How often you will buy data this month" aria-valuetext={capLabel(cap)} />
+          </PhoneRow>
+          <p className="text-xs text-muted-foreground">Not sure? Settings → Mobile data.</p>
+        </div>
+        <div className="max-sm:hidden" data-testid="plan-desktop-controls">
         <p className="text-sm text-muted-foreground">I use about</p>
         {/* - and + move one step; the figure rolls to the new amount. */}
         <div className="mt-1 flex items-center justify-between gap-3">
@@ -162,6 +216,7 @@ export function MonthlyPlanner({ model }: { model: BundleModel }) {
         <p className="mt-2 text-sm text-muted-foreground">
           All buys happen within one month.
         </p>
+        </div>
 
         <div className="mt-5" aria-live="polite">
         <SwipeDeck

@@ -3671,6 +3671,76 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("*138#: nothing says MTN regular data is app-only", !/(regular|non[- ]expiry)[^.]{0,80}only (on|in|via) the myMTN app|only (on|in|via) the myMTN app[^.]{0,80}(regular|non[- ]expiry)/i.test(all) && /To buy: dial \*138#, then 1, then 1/.test((doc as any).familyInfo.mtn["Regular data (any amount)"]));
 }
 
+// ------------------------------------------------------------------ phone finder + planner (27 Oct 2026, owner-approved Draft 4 / Planner D)
+{
+  const src = (p: string) => readFileSync(join(ROOT, p), "utf8");
+  const React = await import("react");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { StaticRouter } = await import("react-router-dom/server");
+  const fp = await import("../src/components/data-bundles/FinderPhone");
+  const { BudgetFinder, CHIPS, INPUT_MAX } = await import("../src/components/data-bundles/BudgetFinder");
+  const { MonthlyPlanner, oftenWords } = await import("../src/components/data-bundles/MonthlyPlanner");
+  const html = (el: unknown) => renderToStaticMarkup(React.createElement(StaticRouter, { location: "/data-bundles/ghana" }, el as any) as any);
+  const ph = src("src/components/data-bundles/FinderPhone.tsx");
+  const bf = src("src/components/data-bundles/BudgetFinder.tsx");
+  const mp = src("src/components/data-bundles/MonthlyPlanner.tsx");
+  // The words.
+  check("phone finder: the sentence says what is on ('Showing all-day data of any length.', '…all-day and night data that never expires.', '…that lasts 30+ days.')",
+    fp.filterSentence({ night: false, noExpiryOnly: false, minDays: 0 }) === "Showing all-day data of any length." &&
+    fp.filterSentence({ night: true, noExpiryOnly: true, minDays: 0 }) === "Showing all-day and night data that never expires." &&
+    fp.filterSentence({ night: false, noExpiryOnly: false, minDays: 30 }) === "Showing all-day data that lasts 30+ days." &&
+    fp.filterSentence({ night: true, noExpiryOnly: false, minDays: 7 }) === "Showing all-day and night data that lasts 7+ days.");
+  check("phone finder: the length button cycles Any length -> 7+ days -> 30+ days -> Any length",
+    fp.nextLength(0) === 7 && fp.nextLength(7) === 30 && fp.nextLength(30) === 0 && [0, 7, 30].map(fp.lengthLabel).join("|") === "Any length|7+ days|30+ days");
+  // The keypad keeps the amount box's rules (normaliseAmountText).
+  const run = (keys: string[], start = { text: "5", fresh: true }) => keys.reduce((s, k) => fp.keypadPress(s, k, INPUT_MAX), { ...start, value: 0, clamped: false });
+  const k1 = run(["2", "0"]), k2 = run(["2", ".", "5", "5", "5"]), k3 = run(["del"]), k4 = run(["."]), k5 = run(["0", "0", "7"]), k6 = run(["9", "9", "9", "9"]), k7 = run([".", "."]);
+  check("phone keypad: the first key replaces the shown amount; '.', two decimals, no leading zeros, ⌫, and amounts above GH¢1,000 set to GH¢1,000 (with the note)",
+    k1.text === "20" && k1.value === 20 && k2.text === "2.55" && k2.value === 2.55 && k3.text === "" && k3.value === 0 && k4.text === "0." && k4.value === 0 &&
+    k5.text === "7" && k6.text === "1000" && k6.value === INPUT_MAX && k6.clamped && k7.text === "0." && run(["del", "del"], { text: "12", fresh: false }).text === "" &&
+    /<ClampNote show=\{pad\.clamped\}/.test(ph) && /Type an amount, like \$\{model\.money\(DEFAULT_STATE\.amount\)\}/.test(ph) && /disabled=\{!ok\}/.test(ph),
+    JSON.stringify([k1, k2, k3, k4, k5, k6, k7]));
+  // The mini display uses the cards' own picks.
+  const p5 = fp.finderPicksFor(m, 5, {}), p20 = fp.finderPicksFor(m, 20, {});
+  const shown = (ps: typeof p5, n: string) => { const p = ps.find((x) => x.n === n)!; return `${m.dataShown(p.b!)}|${m.validityText(p.b!)}${p.combo ? `|${m.buysText(p.combo)}` : ""}`; };
+  check("phone sheet: the bars use finderPicksFor (= model.finderPicks, one network on its page), the same call as the cards: GH¢5 Telecel 781.25 MB 7 days, AT 780 MB 3 days, MTN 521.03 MB no expiry; GH¢20 Telecel 3.05 GB if you buy 2 times",
+    JSON.stringify(p5) === JSON.stringify(m.finderPicks(5, {})) && fp.finderPicksFor(m, 5, {}, "mtn").length === 1 && fp.finderPicksFor(m, 5, {}, "mtn")[0].n === "mtn" &&
+    shown(p5, "telecel") === "781.25 MB|7 days" && shown(p5, "at") === "780 MB|3 days" && /^521\.03 MB\|.*(no expiry|never expires)/i.test(shown(p5, "mtn")) &&
+    [...m.mostData(p5)].join() === "telecel" && shown(p20, "telecel") === "3.05 GB|7 days|if you buy 2 times" && [...m.mostData(p20)].join() === "telecel" &&
+    /finderPicksFor\(model, budget, \{ noExpiryOnly, minDays \}, only\)/.test(bf) && /finderPicksFor\(model, value, opts, only\)/.test(ph) && /model\.mostData\(day\)/.test(ph) && /model\.valueMeter\(day\)/.test(ph),
+    `${shown(p5, "telecel")} / ${shown(p5, "at")} / ${shown(p5, "mtn")} / ${shown(p20, "telecel")}`);
+  // Server HTML: the phone controls (sm:hidden) and the unchanged controls from 640px (max-sm:hidden).
+  const fh = html(React.createElement(BudgetFinder, { model: m, initialAmount: 5 }));
+  check("phone finder: one amount button ('Amount GH¢5, tap to change'), three labelled filter buttons and the sentence (aria-live), phones only; the old controls are kept from 640px",
+    /<div class="sm:hidden" data-testid="bf-phone">/.test(fh) && /aria-haspopup="dialog"[^>]*aria-label="Amount GH¢5, tap to change"/.test(fh) &&
+    /data-testid="bf-f-noexp"[^>]*>.*?Never expires<\/button>/.test(fh) && /data-testid="bf-f-night"[^>]*>.*?Night deals<\/button>/.test(fh) && /aria-label="Any length, tap to change how long it lasts"[^>]*data-testid="bf-f-lasts"/.test(fh) &&
+    /aria-live="polite" data-testid="bf-sentence">Showing all-day data of any length\.</.test(fh) && /<div class="max-sm:hidden" data-testid="bf-desktop-controls">/.test(fh) &&
+    fh.indexOf('data-testid="bf-desktop-controls"') < fh.indexOf('role="group" aria-label="Quick amounts"') && !/role="dialog"/.test(fh), fh.slice(fh.indexOf("bf-phone"), fh.indexOf("bf-phone") + 400));
+  check("phone sheet: a dialog (aria-modal, labelled) in a portal above the cookie bar; Escape, ✕ and a tap outside close it; Tab stays inside; focus goes back to the amount button; the page does not scroll behind it",
+    /role="dialog"\s+aria-modal="true"\s+aria-labelledby=\{titleId\}/.test(ph) && /createPortal\(/.test(ph) && /z-\[10000\]/.test(ph) && /e\.key === "Escape"/.test(ph) && /aria-label="Close"/.test(ph) &&
+    /onClick=\{onClose\}\s+aria-hidden/.test(ph) && /e\.key !== "Tab"/.test(ph) && /opener\.current\?\.focus\(\)/.test(ph) && /body\.style\.overflow = "hidden"/.test(ph) && /body\.style\.overflow = prev/.test(ph));
+  check("phone sheet: the amount changes only on 'Show results' (✕, outside tap and Escape keep it); quick amounts are the finder's CHIPS in five columns; keypad 1-9, '.', 0, ⌫",
+    /onApply=\{\(v\) => \{ setBudget\(v\); close\(\); \}\}/.test(ph) && /chips=\{CHIPS\}/.test(bf) && /grid grid-cols-5 gap-1\.5" role="group" aria-label="Quick amounts"/.test(ph) && CHIPS.length === 10 &&
+    /const KEYS = \["1", "2", "3", "4", "5", "6", "7", "8", "9", "\.", "0", "del"\];/.test(ph) && /k === "del" \? "Delete"/.test(ph));
+  check("phone sheet: motion is transform/opacity only (slide 0.25 s, fade 0.2 s, bars scaleX 0.3 s, none under reduced motion); never 'GH¢10 gets/buys'",
+    /initial=\{\{ y: "100%" \}\} animate=\{\{ y: 0 \}\} transition=\{\{ type: "tween", duration: 0\.25/.test(ph) && /initial=\{\{ opacity: 0 \}\} animate=\{\{ opacity: 1 \}\} transition=\{\{ duration: 0\.2 \}\}/.test(ph) &&
+    /transform: `scaleX\(\$\{share\}\)`/.test(ph) && /transition-transform duration-300 ease-out motion-reduce:transition-none/.test(ph) && !/animate=\{\{ ?(width|height|top|left)/.test(ph) && !/GH¢10 (gets|buys)/.test(ph));
+  // Planner rows.
+  const pl = html(React.createElement(MonthlyPlanner, { model: m }));
+  const phonePart = pl.slice(pl.indexOf('data-testid="plan-phone"'), pl.indexOf('data-testid="plan-desktop-controls"'));
+  check("phone planner: exactly two rows ('I use about' 10 GB a month, 'I buy data' once), each with − and + and a labelled slider, then 'Not sure? Settings → Mobile data.'; no GB chips and no big stepper on phones",
+    /<div class="space-y-3 sm:hidden" data-testid="plan-phone">/.test(pl) && (phonePart.match(/data-testid="plan-row-(gb|often)"/g) ?? []).length === 2 &&
+    /I use about<\/p><p[^>]*data-testid="plan-row-gb-value"><span class="tabular-nums">10 GB<\/span> <span[^>]*>a month<\/span>/.test(phonePart) &&
+    /I buy data<\/p><p[^>]*data-testid="plan-row-often-value"><span>once<\/span>/.test(phonePart) &&
+    ["Less data", "More data", "Buy less often", "Buy more often"].every((l) => phonePart.includes(`aria-label="${l}"`)) &&
+    /aria-label="How much data you use in a month"[^>]*aria-valuetext="10 GB a month"/.test(phonePart) &&
+    /aria-label="How often you will buy data this month"[^>]*aria-valuetext="Once"/.test(phonePart) && phonePart.includes("Not sure? Settings → Mobile data.") &&
+    !/aria-label="Quick amounts"/.test(phonePart) && /<div class="max-sm:hidden" data-testid="plan-desktop-controls">/.test(pl) && oftenWords(1) === "once" && oftenWords(4) === "up to 4 times" &&
+    /import \{ Slider \} from "\.\/LabelledSlider";/.test(mp) && /max=\{MAX_PURCHASES\} step=\{1\} value=\{\[cap\]\}/.test(mp), phonePart.slice(0, 600));
+  check("phone planner: the save chip, upsell line, plan cards and swipe deck are shared (one copy, outside the phone/desktop controls)",
+    (pl.match(/data-testid="plan-swipe"/g) ?? []).length === 1 && pl.indexOf('data-testid="plan-swipe"') > pl.indexOf('data-testid="plan-desktop-controls"') && (pl.match(/data-testid="plan-save"/g) ?? []).length === 2);
+}
+
 function unitsLineText(mm: BundleModel): string {
   const f = mm.sharedMbPerGb();
   return f !== null ? `1 GB = ${f.toLocaleString("en-GB")} MB` : "";

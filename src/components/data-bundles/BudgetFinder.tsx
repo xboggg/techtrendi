@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { Trophy, Moon, Infinity as InfinityIcon, Gauge as GaugeIcon, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isConditional, type Bundle, type BundleModel, type FinderPick } from "@/lib/dataBundles";
+import { FinderPhoneControls, finderPicksFor } from "./FinderPhone";
 import { BuyFold, BuyLine, OperatorTitle, appSourceText, fromAppOnly, ChannelNote, ClampNote, Details, KindBadge, NetPill, OtherSourceNote, RollText, TrustBadge, TrustReasons, trustOf, textSafeFill, unitsLine, useAmountText, ussdText, workedOutText } from "./shared";
 
 /** Quick amounts on the console: two rows of five on phones, one row from 640px. */
@@ -68,11 +69,12 @@ export function BudgetFinder({ model, only, initialAmount = DEFAULT_STATE.amount
 
   // Each network's answer is the better of its single best buy and its mix (model.finderPick):
   // the headline, the meter, "Most data" and the share text all use the same figure.
-  const mine = (ps: Pick[]) => (only ? ps.filter((p) => p.n === only) : ps);
-  const day = useMemo(() => mine(model.finderPicks(budget, { noExpiryOnly, minDays })), [model, budget, noExpiryOnly, minDays, only]); // eslint-disable-line react-hooks/exhaustive-deps
+  // finderPicksFor (model.finderPicks, one network on its own page) is also what the phone's
+  // amount sheet shows, so its mini display and these cards always agree.
+  const day = useMemo(() => finderPicksFor(model, budget, { noExpiryOnly, minDays }, only), [model, budget, noExpiryOnly, minDays, only]);
   const night = useMemo(
-    () => (allowNight ? mine(model.finderPicks(budget, { nightOnly: true, noExpiryOnly, minDays })) : []),
-    [model, budget, allowNight, noExpiryOnly, minDays, only], // eslint-disable-line react-hooks/exhaustive-deps
+    () => (allowNight ? finderPicksFor(model, budget, { nightOnly: true, noExpiryOnly, minDays }, only) : []),
+    [model, budget, allowNight, noExpiryOnly, minDays, only],
   );
   const dayLead = leaders(model, day);
   const nightLead = leaders(model, night);
@@ -103,6 +105,14 @@ export function BudgetFinder({ model, only, initialAmount = DEFAULT_STATE.amount
           <h2 id="budget-h" className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
             <GaugeIcon className="h-4 w-4" aria-hidden /> {only ? "What should I buy?" : "Find the best buy"}
           </h2>
+          {/* Phones (below 640px): the amount button, three filter buttons and the amount sheet
+              (FinderPhone, owner-approved 27 Oct 2026). From 640px: the controls below, unchanged. */}
+          <FinderPhoneControls
+            model={model} only={only} budget={budget} setBudget={setBudget} chips={CHIPS} max={INPUT_MAX}
+            noExpiryOnly={noExpiryOnly} setNoExpiryOnly={setNoExpiryOnly} allowNight={allowNight} setAllowNight={setAllowNight}
+            minDays={minDays} setMinDays={setMinDays}
+          />
+          <div className="max-sm:hidden" data-testid="bf-desktop-controls">
           <label htmlFor={ids.amount} className="mt-2 block text-base font-bold text-muted-foreground [@media(max-height:820px)_and_(max-width:639px)]:mt-1 sm:mt-3 sm:text-lg">I have</label>
           <div className="mt-1 flex items-center gap-2">
             <button type="button" className={stepBtn} onClick={() => setBudget((b) => stepAmount(b, -1))} disabled={budget <= STEP} aria-label={`${model.money(STEP)} less`} data-testid="bf-minus">
@@ -178,6 +188,7 @@ export function BudgetFinder({ model, only, initialAmount = DEFAULT_STATE.amount
                 ))}
               </div>
             </div>
+          </div>
           </div>
 
           {!noAmount && <h3 className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground [@media(max-height:820px)_and_(max-width:639px)]:mt-2.5 sm:mt-5" data-testid="bf-result-title">{only ? `Best for ${model.money(budget)} on ${model.networkInfo(only).name}` : <>Most data for {model.money(budget)}</>}</h3>}
