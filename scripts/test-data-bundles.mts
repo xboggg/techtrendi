@@ -2262,8 +2262,10 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     const fin8 = html(React.createElement((await import("../src/components/data-bundles/BudgetFinder")).BudgetFinder, { model: m, initialAmount: 20 }));
     const p20 = m.finderPicks(20);
     const mixCard = p20.find((p) => p.combo)!;
-    check("finder: a mix headline says '· if you buy 2 times' and the single shows as 'Or buy once: X'",
-      !!mixCard && m.buysText(mixCard.combo!) === `if you buy ${mixCard.combo!.purchases} times` && fin8.includes(`· ${m.buysText(mixCard.combo!)}`) && (!mixCard.single || textOf(fin8).includes(`Or buy once: ${m.dataShown(mixCard.single)}`)) && !/in \d buys|Or one bundle/.test(textOf(fin8)));
+    // 28 Oct 2026: from 640px "· if you buy 2 times" beside the figure; on phones the same words on their
+    // own line under it (the "· " hidden there), so the line never overflows the card.
+    check("finder: a mix headline says '· if you buy 2 times' (phones: 'if you buy 2 times' on its own line) and the single shows as 'Or buy once: X'",
+      !!mixCard && m.buysText(mixCard.combo!) === `if you buy ${mixCard.combo!.purchases} times` && fin8.includes(`max-sm:block max-sm:whitespace-normal max-sm:leading-snug lg:text-base" data-testid="bf-buys"><span class="max-sm:hidden">· </span>${m.buysText(mixCard.combo!)}</span>`) && (!mixCard.single || textOf(fin8).includes(`Or buy once: ${m.dataShown(mixCard.single)}`)) && !/in \d buys|Or one bundle/.test(textOf(fin8)));
     check("finder (round 8): each part of a mix is listed by name and price with its own Dial/Copy", p20.filter((p) => p.combo).every((p) => m.mixParts(p.combo!).every((x) => textOf(fin8).includes(`${x.count} × ${x.text}`))) && (fin8.match(/data-testid="bf-part"/g) ?? []).length === p20.reduce((t, p) => t + (p.combo ? p.combo.items.length : 0), 0));
     const lead20 = m.mostData(p20);
     const folds = (fin8.match(/data-testid="bf-buy-fold"/g) ?? []).length;
@@ -3538,7 +3540,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const src = (p: string) => readFileSync(join(ROOT, p), "utf8");
   const bf = src("src/components/data-bundles/BudgetFinder.tsx");
   check("finder cards: each card is a flex column; the actions (how to buy, More info) sit at the bottom (mt-auto), so a shorter card's extra space is in the middle, not an empty bottom",
-    /className=\{cn\("relative flex flex-col rounded-2xl border/.test(bf) && /<div className="mt-3 flex flex-1 flex-col gap-1\.5 text-\[15px\] lg:text-base">/.test(bf) && /<div className="mt-auto space-y-1\.5 pt-1\.5" data-testid="bf-actions">/.test(bf));
+    /className=\{cn\("relative flex min-w-0 flex-col rounded-2xl border/.test(bf) && /<div className="mt-3 flex flex-1 flex-col gap-1\.5 text-\[15px\] lg:text-base">/.test(bf) && /<div className="mt-auto space-y-1\.5 pt-1\.5" data-testid="bf-actions">/.test(bf));
   const sm = src("src/components/ui/search-modal.tsx");
   check("search: the Ctrl K / ⌘K hint shows only from 768px wide AND with a fine pointer (never on narrow or touch screens); its box keeps a fixed width",
     /"hidden \[@media\(min-width:768px\)_and_\(pointer:fine\)\]:inline-flex min-w-\[3\.25rem\] justify-center/.test(sm) && !/hidden md:inline-flex/.test(sm));
@@ -3609,7 +3611,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   // 7. The winner's figure never breaks.
   const bf = src("src/components/data-bundles/BudgetFinder.tsx");
   check("finder: the figure never breaks onto two lines ('781.25 MB' with A+); when it and the meter do not fit side by side the meter goes under it",
-    /className=\{cn\("whitespace-nowrap font-black leading-none tabular-nums",/.test(bf) && /<div className="mt-2 flex flex-wrap items-end justify-between gap-x-2 gap-y-1/.test(bf));
+    /className=\{cn\("whitespace-nowrap font-black leading-none tabular-nums max-sm:!\[font-size:min\(var\(--bf-fig-max\),var\(--bf-fig-fit\)\)\]",/.test(bf) && /<div className="mt-2 flex flex-wrap items-end justify-between gap-x-2 gap-y-1/.test(bf));
   // 9. The chat button never rests over something tappable.
   const css = sh.chromeCss(0.6);
   check("assistant: at rest it hides while its place (48px, 16px from the corner) is over a link, button or field, and comes back when a scroll moves that away",
@@ -3739,6 +3741,50 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     /import \{ Slider \} from "\.\/LabelledSlider";/.test(mp) && /max=\{MAX_PURCHASES\} step=\{1\} value=\{\[cap\]\}/.test(mp), phonePart.slice(0, 600));
   check("phone planner: the save chip, upsell line, plan cards and swipe deck are shared (one copy, outside the phone/desktop controls)",
     (pl.match(/data-testid="plan-swipe"/g) ?? []).length === 1 && pl.indexOf('data-testid="plan-swipe"') > pl.indexOf('data-testid="plan-desktop-controls"') && (pl.match(/data-testid="plan-save"/g) ?? []).length === 2);
+}
+
+// ------------------------------------------------------------------ phone fixes (28 Oct 2026): mix cards, deck height, "I buy data" colours, A+ sheet
+{
+  const src = (p: string) => readFileSync(join(ROOT, p), "utf8");
+  const React = await import("react");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { StaticRouter } = await import("react-router-dom/server");
+  const { BudgetFinder, figureFit } = await import("../src/components/data-bundles/BudgetFinder");
+  const { MonthlyPlanner, sliderOften } = await import("../src/components/data-bundles/MonthlyPlanner");
+  const html = (el: unknown) => renderToStaticMarkup(React.createElement(StaticRouter, { location: "/data-bundles/ghana" }, el as any) as any);
+  const bf = src("src/components/data-bundles/BudgetFinder.tsx");
+  const sh = src("src/components/data-bundles/shared.tsx");
+  const ph = src("src/components/data-bundles/FinderPhone.tsx");
+  // 1. Every finder card on a phone: figure and meter side by side, "if you buy N times" on its own line.
+  const f5 = figureFit("781.25 MB", true) as Record<string, string>, f2 = figureFit("1.96 GB", false) as Record<string, string>, f9 = figureFit("1,228.80 MB", true) as Record<string, string>;
+  check("phone cards: the figure's size is the smaller of its usual phone size (a winner of up to 8 characters 2.25rem, else 1.7rem, as before) and what fits its column (100 / (0.7 x characters) cqw)",
+    f5["--bf-fig-max"] === "1.7rem" && f5["--bf-fig-fit"] === "15.87cqw" && (figureFit("2.5 GB", true) as Record<string, string>)["--bf-fig-max"] === "2.25rem" && f2["--bf-fig-max"] === "1.7rem" && f2["--bf-fig-fit"] === "20.41cqw" && f9["--bf-fig-max"] === "1.7rem" &&
+    bf.includes("max-sm:![font-size:min(var(--bf-fig-max),var(--bf-fig-fit))]") && bf.includes('<div className="min-w-0 max-sm:flex-1 max-sm:[container-type:inline-size]">'),
+    JSON.stringify([f5, f2, f9]));
+  const fin = html(React.createElement(BudgetFinder, { model: m, initialAmount: 20 }));
+  const mixes = (fin.match(/data-testid="bf-buys"><span class="max-sm:hidden">· <\/span>if you buy \d+ times<\/span>/g) ?? []).length;
+  check("phone cards: figure row never wraps on phones (meter beside the figure, at 85%); 'if you buy N times' is its own line there (block, no '· '); desktop keeps '· if you buy N times' beside the figure",
+    /<div className="mt-2 flex flex-wrap items-end justify-between gap-x-2 gap-y-1 max-sm:flex-nowrap/.test(bf) && /className="max-sm:\[zoom:0\.85\]"/.test(bf) &&
+    mixes === m.finderPicks(20).filter((p) => p.combo).length && mixes > 0 && /max-sm:ml-0 max-sm:mt-1 max-sm:block max-sm:whitespace-normal/.test(bf), String(mixes));
+  check("phone cards: nothing can push a card past its column or be scrolled sideways (one minmax(0,1fr) column on phones, min-w-0 cards, the finder box clips with overflow-clip, which cannot scroll)",
+    (bf.match(/max-sm:grid-cols-\[minmax\(0,1fr\)\]/g) ?? []).length === 2 && /className=\{cn\("relative flex min-w-0 flex-col rounded-2xl border/.test(bf) &&
+    /<div className="relative overflow-clip rounded-3xl border border-border bg-card\/70 p-4/.test(bf) && !/relative overflow-hidden rounded-3xl border border-border bg-card\/70/.test(bf));
+  // 2. Swipe decks follow the card in view.
+  check("swipe decks (planner plans, network best deals): on phones the view is as tall as the card in view (measured, ResizeObserver), eased 0.25 s (none under reduced motion); nothing set from 640px",
+    /const \[viewH, setViewH\] = useState<number \| null>\(null\);/.test(sh) && /if \(wide\) \{ setViewH\(null\); return; \}/.test(sh) && /new ResizeObserver\(set\)/.test(sh) &&
+    /style=\{viewH !== null \? \{ height: viewH, transition: reduce \? undefined : "height 0\.25s ease-out" \} : undefined\}/.test(sh) && /max-sm:items-start max-sm:overflow-y-hidden"/.test(sh) &&
+    /w-full shrink-0 snap-start snap-always overflow-hidden p-1 sm:w-auto sm:overflow-visible sm:p-0/.test(sh));
+  // 3. "I buy data" slider colours.
+  const pl = html(React.createElement(MonthlyPlanner, { model: m }));
+  const oftenRow = pl.slice(pl.indexOf('data-testid="plan-row-often"'), pl.indexOf('data-testid="plan-desktop-controls"'));
+  const gbRow = pl.slice(pl.indexOf('data-testid="plan-row-gb"'), pl.indexOf('data-testid="plan-row-often"'));
+  check("planner: the 'I buy data' slider has its own teal-to-emerald fill and emerald thumb ring (deeper shades in light for 3:1 on white); the GB slider keeps the site blue",
+    sliderOften.includes("bg-[linear-gradient(90deg,#0d9488,#059669)]") && sliderOften.includes("dark:[&>span:first-child>span]:bg-[linear-gradient(90deg,#14b8a6,#10b981)]") &&
+    sliderOften.includes("[&_[role=slider]]:border-emerald-600") && sliderOften.includes("dark:[&_[role=slider]]:border-emerald-400") &&
+    oftenRow.includes("linear-gradient(90deg,#0d9488,#059669)") && !gbRow.includes("linear-gradient") && /bg-primary/.test(gbRow));
+  // 4. A+ sheet.
+  check("A+ sheet: only the heading and the mini display grow (zoom); quick amounts, keypad and 'Show results' keep their size, so every key shows at 390x844",
+    /const zoom = large \? \{ zoom: LARGE_TEXT_ZOOM \} : undefined;/.test(ph) && (ph.match(/style=\{zoom\}/g) ?? []).length === 2 && /data-testid="bf-mini" style=\{zoom\}/.test(ph) && !/flex min-h-0 flex-1 flex-col" style=/.test(ph));
 }
 
 function unitsLineText(mm: BundleModel): string {

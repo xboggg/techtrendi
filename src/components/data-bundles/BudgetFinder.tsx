@@ -2,7 +2,7 @@
 // for that money (model.bestForBudget: the finder's maths lives in the model only).
 // Night-only bundles, when switched on, are shown and compared SEPARATELY:
 // a night-only amount is never weighed against an all-day amount.
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { DEFAULT_STATE, clearQueryKeys, parseState, writeState } from "@/lib/dataBundlesUrl";
 import { ShareLink, ShareWhatsApp } from "./meta";
@@ -98,7 +98,7 @@ export function BudgetFinder({ model, only, initialAmount = DEFAULT_STATE.amount
 
   return (
     <section aria-labelledby="budget-h" id="budget" className="scroll-mt-24">
-      <div className="relative overflow-hidden rounded-3xl border border-border bg-card/70 p-4 [@media(max-height:820px)_and_(max-width:639px)]:px-3 [@media(max-height:820px)_and_(max-width:639px)]:pb-3 [@media(max-height:820px)_and_(max-width:639px)]:pt-2.5 shadow-[0_24px_48px_-32px_rgba(15,23,42,0.35)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_30px_60px_-30px_rgba(0,0,0,0.8)] sm:p-6">
+      <div className="relative overflow-clip rounded-3xl border border-border bg-card/70 p-4 [@media(max-height:820px)_and_(max-width:639px)]:px-3 [@media(max-height:820px)_and_(max-width:639px)]:pb-3 [@media(max-height:820px)_and_(max-width:639px)]:pt-2.5 shadow-[0_24px_48px_-32px_rgba(15,23,42,0.35)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_30px_60px_-30px_rgba(0,0,0,0.8)] sm:p-6">
         {/* Console grid: decoration only. */}
         <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:linear-gradient(to_right,currentColor_1px,transparent_1px),linear-gradient(to_bottom,currentColor_1px,transparent_1px)] [background-size:28px_28px]" />
         <div className="relative">
@@ -197,7 +197,7 @@ export function BudgetFinder({ model, only, initialAmount = DEFAULT_STATE.amount
               {noAmount ? `Type an amount, like ${model.money(DEFAULT_STATE.amount)}.` : `Nothing for ${model.money(budget)}.${minimum ? ` The smallest buy is ${model.money(minimum)}.` : ""}`}
             </p>
           ) : (
-          <ul className={cn("mt-2 grid gap-3 [@media(max-height:820px)_and_(max-width:639px)]:mt-1.5", only ? "lg:max-w-2xl" : "md:grid-cols-3")} aria-live="polite">
+          <ul className={cn("mt-2 grid gap-3 max-sm:grid-cols-[minmax(0,1fr)] [@media(max-height:820px)_and_(max-width:639px)]:mt-1.5", only ? "lg:max-w-2xl" : "md:grid-cols-3")} aria-live="polite">
             {winnerFirst(day, dayLead).map((p) => (
               <ResultCard key={p.n} model={model} pick={p} budget={budget} lead={dayLead.has(p.n)} tie={dayTie} meter={dayMeter[p.n]} trophy="Most data" solo={!!only} />
             ))}
@@ -211,7 +211,7 @@ export function BudgetFinder({ model, only, initialAmount = DEFAULT_STATE.amount
                 <Moon className="h-4 w-4" aria-hidden /> Night bundles, shown apart
               </h3>
               <p className="mt-1 text-xs text-muted-foreground">Night data only works at night. So we don't compare it with the bundles above.</p>
-              <ul className={cn("mt-2 grid gap-3", !only && "md:grid-cols-3")} aria-live="polite">
+              <ul className={cn("mt-2 grid gap-3 max-sm:grid-cols-[minmax(0,1fr)]", !only && "md:grid-cols-3")} aria-live="polite">
                 {winnerFirst(night, nightLead).map((p) => (
                   <ResultCard key={p.n} model={model} pick={p} budget={budget} lead={nightLead.has(p.n)} tie={nightTie} meter={nightMeter[p.n]} trophy="Most night data" night solo={!!only} />
                 ))}
@@ -245,6 +245,15 @@ export function BudgetFinder({ model, only, initialAmount = DEFAULT_STATE.amount
 
 type Meter = ReturnType<BundleModel["valueMeter"]>[number];
 
+/** Phones: the figure's size as CSS variables for its column (a size container). The figure is
+ *  at most its usual phone size (a winner of up to 8 characters 2.25rem, else 1.7rem) and at most what fits the column:
+ *  a heavy figure is about 0.7em per character, so 100 / (0.7 x characters) cqw always fits.
+ *  From 640px the variables are unused (the sizes are the usual classes). */
+export const figureFit = (text: string, win: boolean) => ({
+  "--bf-fig-max": win && text.length <= 8 ? "2.25rem" : "1.7rem",
+  "--bf-fig-fit": `${(100 / (0.7 * Math.max(4, text.length))).toFixed(2)}cqw`,
+}) as CSSProperties;
+
 /** Winner first (a tie keeps network order), then the others: on phones the answer leads. */
 const winnerFirst = <T extends { n: string }>(picks: T[], lead: Set<string>) => [...picks].sort((a, b) => Number(lead.has(b.n)) - Number(lead.has(a.n)));
 
@@ -259,7 +268,7 @@ const arcPoint = (share: number, r: number, cx: number, cy: number) => {
  *  Good (75%) · Best (model.valueMeter / VALUE_ZONES). The needle swings to the new share
  *  (rotation only, 0.35 s; instant under reduced motion). */
 const METER_EASE = { type: "tween", duration: 0.35, ease: "easeOut" } as const;
-function ValueMeter({ meter, color }: { meter: Meter; color: string }) {
+function ValueMeter({ meter, color, className }: { meter: Meter; color: string; className?: string }) {
   const s = Math.max(0, Math.min(1, meter.share));
   const W = 112, R = 40, CX = W / 2, CY = 50;
   const ring = "radial-gradient(circle at 50% 50%, transparent 29px, #000 30px)";
@@ -270,7 +279,7 @@ function ValueMeter({ meter, color }: { meter: Meter; color: string }) {
   // It measures data only, so it never claims more than "most data" (owner, 22 Oct 2026).
   const word = meter.zone === "Best" ? "Most data ✓" : meter.zone;
   return (
-    <div className="relative shrink-0" style={{ width: W, height: 84 }} aria-hidden data-testid="gauge-wrap" data-zone={meter.zone ?? ""}>
+    <div className={cn("relative shrink-0", className)} style={{ width: W, height: 84 }} aria-hidden data-testid="gauge-wrap" data-zone={meter.zone ?? ""}>
       <div className="absolute left-1/2 top-[10px] h-[80px] w-[80px] -translate-x-1/2 overflow-hidden" style={{ height: 40 }}>
         <div className="absolute inset-x-0 top-0 h-[80px] rounded-full" style={{ background: band, WebkitMaskImage: ring, maskImage: ring }} />
       </div>
@@ -311,7 +320,7 @@ function ResultCard({ model, pick, budget, lead, tie, meter, trophy, night, solo
     <motion.li
       layout="position"
       transition={{ type: "tween", duration: 0.3, ease: "easeOut" }}
-      className={cn("relative flex flex-col rounded-2xl border p-3 transition-colors [@media(max-height:820px)_and_(max-width:639px)]:pt-2 sm:p-4", isWin ? "border-transparent bg-background/80" : "border-border bg-background/40 max-sm:p-2.5")}
+      className={cn("relative flex min-w-0 flex-col rounded-2xl border p-3 transition-colors [@media(max-height:820px)_and_(max-width:639px)]:pt-2 sm:p-4", isWin ? "border-transparent bg-background/80" : "border-border bg-background/40 max-sm:p-2.5")}
       style={isWin ? { boxShadow: `0 0 0 2px ${info.color}, 0 0 26px -8px ${info.color}` } : undefined}
       data-testid="bf-card"
       data-net={n}
@@ -326,13 +335,16 @@ function ResultCard({ model, pick, budget, lead, tie, meter, trophy, night, solo
       </div>
       {/* The figure and, beside it, the value meter (compact, so the answer stays on the first screen). */}
       {/* flex-wrap: when the figure and the meter do not fit side by side (A+ on a narrow desktop card), the meter goes under the figure; the figure itself never breaks. */}
-      <div className="mt-2 flex flex-wrap items-end justify-between gap-x-2 gap-y-1 [@media(max-height:820px)_and_(max-width:639px)]:mt-1">
-        <div className="min-w-0">
+      {/* Phones: the figure column and the meter ALWAYS side by side (max-sm:flex-nowrap); the column
+          is a size container, so the figure's size follows its width (figureFit) and never overflows. */}
+      <div className="mt-2 flex flex-wrap items-end justify-between gap-x-2 gap-y-1 max-sm:flex-nowrap [@media(max-height:820px)_and_(max-width:639px)]:mt-1">
+        <div className="min-w-0 max-sm:flex-1 max-sm:[container-type:inline-size]">
           {/* The final figure, rendered directly: an interactive output never counts up; it rolls to the new text. */}
           {shownB ? (
-            <p className="leading-none" data-testid="bf-headline" data-net={n} data-mb={shownB.mb.toFixed(3)} data-buys={combo ? combo.purchases : 1}>
-              <RollText text={shown} testId="bf-amount" net={n} className={cn("whitespace-nowrap font-black leading-none tabular-nums", shown.length > 8 ? "text-[1.7rem] sm:text-3xl" : isWin ? "text-4xl sm:text-[2.6rem]" : "text-3xl max-sm:text-[1.7rem] sm:text-[2.6rem]")} />
-              {combo && <span className="ml-1.5 whitespace-nowrap text-[15px] font-bold text-foreground/85 lg:text-base" data-testid="bf-buys">· {model.buysText(combo)}</span>}
+            <p className="leading-none" data-testid="bf-headline" data-net={n} data-mb={shownB.mb.toFixed(3)} data-buys={combo ? combo.purchases : 1} style={figureFit(shown, isWin)}>
+              <RollText text={shown} testId="bf-amount" net={n} className={cn("whitespace-nowrap font-black leading-none tabular-nums max-sm:![font-size:min(var(--bf-fig-max),var(--bf-fig-fit))]", shown.length > 8 ? "text-[1.7rem] sm:text-3xl" : isWin ? "text-4xl sm:text-[2.6rem]" : "text-3xl max-sm:text-[1.7rem] sm:text-[2.6rem]")} />
+              {/* Phones: "if you buy 3 times" on its own small line under the figure; from 640px beside it. */}
+              {combo && <span className="ml-1.5 whitespace-nowrap text-[15px] font-bold text-foreground/85 max-sm:ml-0 max-sm:mt-1 max-sm:block max-sm:whitespace-normal max-sm:leading-snug lg:text-base" data-testid="bf-buys"><span className="max-sm:hidden">· </span>{model.buysText(combo)}</span>}
             </p>
           ) : (
             <span className="text-base font-semibold text-muted-foreground" data-testid="bf-amount" data-net={n}>Nothing for this amount</span>
@@ -340,7 +352,7 @@ function ResultCard({ model, pick, budget, lead, tie, meter, trophy, night, solo
           {shownB && <p className="mt-1 text-[15px] font-semibold text-foreground/85 lg:text-base"><RollText text={model.validityText(shownB)} /></p>}
           {combo && pick.single && <p className="mt-0.5 text-[15px] text-foreground/85 lg:text-base" data-testid="bf-single">Or buy once: {model.dataShown(pick.single)}</p>}
         </div>
-        {shownB && meter.zone && !solo && <ValueMeter meter={meter} color={info.color} />}
+        {shownB && meter.zone && !solo && <ValueMeter meter={meter} color={info.color} className="max-sm:[zoom:0.85]" />}
       </div>
       {shownB && b ? (
         // A flex column: the bundle's details at the top, the actions (how to buy, More info) pinned

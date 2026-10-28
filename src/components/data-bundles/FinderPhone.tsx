@@ -122,6 +122,7 @@ function AmountSheet({ model, only, start, chips, max, opts, night, onClose, onA
   const first = useRef<HTMLButtonElement>(null);
   const titleId = useId();
   const [large] = useLargeText();
+  const zoom = large ? { zoom: LARGE_TEXT_ZOOM } : undefined;
 
   // Body scroll lock and first focus.
   useEffect(() => {
@@ -188,8 +189,11 @@ function AmountSheet({ model, only, start, chips, max, opts, night, onClose, onA
         initial={{ y: "100%" }} animate={{ y: 0 }} transition={{ type: "tween", duration: 0.25, ease: "easeOut" }}
         data-testid="bf-sheet"
       >
-        <div className="flex min-h-0 flex-1 flex-col" style={large ? { zoom: LARGE_TEXT_ZOOM } : undefined}>
-          <div className="flex items-center justify-between gap-2 px-4 pb-1 pt-2">
+        {/* A+: the heading and the mini display grow (zoom, like the page); the quick amounts, keypad
+            and "Show results" keep their size (already 44px and more), so at 390x844 every key shows
+            without scrolling. */}
+        <div className="flex min-h-0 flex-1 flex-col">
+          <div className="flex items-center justify-between gap-2 px-4 pb-1 pt-2" style={zoom}>
             <h2 id={titleId} className="text-base font-bold">How much do you have?</h2>
             <button ref={first} type="button" onClick={onClose} aria-label="Close" className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-background/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="bf-sheet-close">
               <X className="h-5 w-5" aria-hidden />
@@ -197,7 +201,7 @@ function AmountSheet({ model, only, start, chips, max, opts, night, onClose, onA
           </div>
           <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto overscroll-contain px-4 pb-2">
             {/* The mini display. The bars: winner first, as the cards are. */}
-            <div className="space-y-2 rounded-2xl border border-border bg-background p-3" data-testid="bf-mini">
+            <div className="space-y-2 rounded-2xl border border-border bg-background p-3" data-testid="bf-mini" style={zoom}>
               <p className="text-4xl font-black leading-none tabular-nums tracking-tight" data-testid="bf-typed" aria-label={`Amount ${model.currency}${typed}`}>
                 {model.currency}{typed}<span aria-hidden className="ml-0.5 inline-block h-8 w-[3px] translate-y-1 rounded bg-emerald-500 dark:bg-emerald-300" />
               </p>

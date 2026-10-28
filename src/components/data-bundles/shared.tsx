@@ -806,6 +806,23 @@ export function SwipeDeck({ id, label, items, testId, slotTestId, dotTestId, lay
     const el = scroller.current;
     if (el && el.scrollWidth > el.clientWidth) el.scrollTo({ left: idx * el.clientWidth, behavior: "auto" });
   }, [order]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Phones: the view is as tall as the card in view, not the tallest card, so a short card never
+  // shows an empty area under it. Measured (ResizeObserver, so an opened "More info" grows it) and
+  // eased over 0.25 s; at once under reduced motion. The other cards are cut to that height while
+  // they are out of view (overflow-y hidden). From 640px: nothing changes (no height is set).
+  const slots = useRef(new Map<string, HTMLDivElement>());
+  const [viewH, setViewH] = useState<number | null>(null);
+  const activeKey = items[idx]?.id ?? "";
+  useEffect(() => {
+    if (wide) { setViewH(null); return; }
+    const el = slots.current.get(activeKey);
+    if (!el) return;
+    const set = () => setViewH(el.offsetHeight);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [wide, activeKey, order]);
   const go = (i: number) => {
     const it = items[i];
     if (!it) return;
@@ -821,12 +838,15 @@ export function SwipeDeck({ id, label, items, testId, slotTestId, dotTestId, lay
       </div>
       <div
         ref={scroller}
-        className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] sm:grid sm:gap-4 sm:overflow-visible md:grid-cols-3 [&::-webkit-scrollbar]:hidden"
+        className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] sm:grid sm:gap-4 sm:overflow-visible md:grid-cols-3 [&::-webkit-scrollbar]:hidden max-sm:items-start max-sm:overflow-y-hidden"
+        style={viewH !== null ? { height: viewH, transition: reduce ? undefined : "height 0.25s ease-out" } : undefined}
         data-testid={testId}
+        data-view-h={viewH ?? undefined}
       >
         {items.map((it) => (
           <motion.div
             key={it.id}
+            ref={(node: HTMLDivElement | null) => { if (node) slots.current.set(it.id, node); else slots.current.delete(it.id); }}
             layout={layout && wide ? "position" : false}
             transition={{ type: "spring", stiffness: 300, damping: 32 }}
             id={`${id}-panel-${it.id}`}

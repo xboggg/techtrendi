@@ -34,6 +34,15 @@ export const oftenWords = (n: number) => (n === 1 ? "once" : `up to ${n} times`)
 /** The phone rows' slider: a 28px thumb (52px touch area with the labelled slider's own padding). */
 const sliderRow = "py-2 [&_[role=slider]]:h-7 [&_[role=slider]]:w-7 [&_[role=slider]]:border-[3px] [&>span:first-child]:h-2.5";
 
+/** The "I buy data" slider's own colours (the GB slider keeps the site's blue): a teal-to-emerald
+ *  filled part on a pale teal track, and a matching thumb ring. Light theme uses the deeper teal-600 /
+ *  emerald-600 (at least 3:1 against the white card, WCAG 1.4.11); dark uses teal-500 / emerald-500. */
+export const sliderOften = [
+  "[&>span:first-child]:bg-teal-600/15 dark:[&>span:first-child]:bg-teal-400/20",
+  "[&>span:first-child>span]:bg-[linear-gradient(90deg,#0d9488,#059669)] dark:[&>span:first-child>span]:bg-[linear-gradient(90deg,#14b8a6,#10b981)]",
+  "[&_[role=slider]]:border-emerald-600 dark:[&_[role=slider]]:border-emerald-400",
+].join(" ");
+
 /** One phone row: the label, the value with small - and + beside it, and the slider under them. */
 function PhoneRow({ label, value, less, more, testId, children }: {
   label: string; value: ReactNode; testId: string; children: ReactNode;
@@ -128,7 +137,7 @@ export function MonthlyPlanner({ model }: { model: BundleModel }) {
             less={{ label: "Buy less often", on: () => setCap((c) => Math.max(1, c - 1)), disabled: cap === 1 }}
             more={{ label: "Buy more often", on: () => setCap((c) => Math.min(MAX_PURCHASES, c + 1)), disabled: cap === MAX_PURCHASES }}
           >
-            <Slider className={sliderRow} min={1} max={MAX_PURCHASES} step={1} value={[cap]} onValueChange={([v]) => setCap(v)} aria-label="How often you will buy data this month" aria-valuetext={capLabel(cap)} />
+            <Slider className={cn(sliderRow, sliderOften)} min={1} max={MAX_PURCHASES} step={1} value={[cap]} onValueChange={([v]) => setCap(v)} aria-label="How often you will buy data this month" aria-valuetext={capLabel(cap)} />
           </PhoneRow>
           <p className="text-xs text-muted-foreground">Not sure? Settings → Mobile data.</p>
         </div>
