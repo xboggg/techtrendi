@@ -7,29 +7,20 @@
 //                 How to buy). Pay-any-amount tables appear as sample amounts, the way the
 //                 network's own menu lists them. Groups are coloured by what they are; a tap on a
 //                 row opens its details (how to buy, value, trust, notes, price history, source).
-// Every figure comes from the model (sourceBundle, dataShown, shortValidity, valueText, familyBest),
+// Every figure comes from the model (sourceBundle, dataShown, shortValidity, valueText, familyBest) via src/lib/bundleSheet.ts,
 // never typed here.
 import { Fragment, useMemo, useState, type ReactNode } from "react";
 import { AppWindow, ArrowDownUp, ChevronDown, Clock, Infinity as InfinityIcon, Lightbulb, Moon, Phone, Sparkles, TriangleAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { TABLE_SECTIONS, hasVolume, neverExpires, tableRange, tableSection, type Bundle, type BundleModel, type RateSource } from "@/lib/dataBundles";
-import { BuyLine, ChannelNote, CodeActions, ConflictNote, OtherSourceNote, SourceRef, TrustBadge, TrustReasons, dialCodes, glass, textSafeFill, trustOf, ussdText } from "./shared";
+import { hasVolume, tableRange, type Bundle, type BundleModel } from "@/lib/dataBundles";
+import { TAB_ORDER, buyRoute, sheetGroups, sourceName, tabOf, typeName, type SheetTab } from "@/lib/bundleSheet";
+import { BuyLine, ChannelNote, CodeActions, ConflictNote, OtherSourceNote, SourceRef, TrustBadge, TrustReasons, glass, textSafeFill, trustOf, ussdText } from "./shared";
 import { PriceHistory } from "./PriceHistory";
 
-/** A short type name: "Regular data (any amount)" -> "Regular", "Social bundles" -> "Social". */
-export const typeName = (family: string) => family.replace(/\s*\(any amount\)\s*$/i, "").replace(/^Regular data$/i, "Regular").replace(/\s+bundles?$/i, "");
-
-/** A pay-any-amount table's name. Two tables of one family (Telecel Flexi: no expiry / with expiry)
- *  take their own label without the network: "Flexi, no expiry". */
-export function sourceName(model: BundleModel, s: RateSource): string {
-  const twin = model.sources.some((x) => x !== s && x.network === s.network && x.family === s.family);
-  if (!twin) return typeName(s.family);
-  const net = model.networkInfo(s.network).name;
-  return s.label.startsWith(`${net} `) ? s.label.slice(net.length + 1) : s.label;
-}
+// The figures (groups, tabs, the dial card's words) are in src/lib/bundleSheet.ts, shared with the social image.
+export { buyRoute, sampleRows, sheetGroups, sourceName, tabOf, typeName, type SheetGroup, type SheetTab } from "@/lib/bundleSheet";
 
 /** The groups' colours and tabs: what a bundle is decides its colour (owner: colourful, 29 Oct 2026). */
-export type SheetTab = "never" | "time" | "apps" | "other" | "check";
 export const TAB_INFO: Record<SheetTab, { label: string; icon: typeof Clock; chip: string; head: string; dot: string }> = {
   never: { label: "Never expires", icon: InfinityIcon, chip: "border-emerald-500 bg-emerald-500/15 text-emerald-900 dark:border-emerald-400 dark:text-emerald-100", head: "bg-emerald-500/10 dark:bg-emerald-400/10", dot: "bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950" },
   time: { label: "Night & morning", icon: Moon, chip: "border-indigo-500 bg-indigo-500/15 text-indigo-900 dark:border-indigo-400 dark:text-indigo-100", head: "bg-indigo-500/10 dark:bg-indigo-400/10", dot: "bg-indigo-600 text-white dark:bg-indigo-400 dark:text-slate-950" },
@@ -37,67 +28,6 @@ export const TAB_INFO: Record<SheetTab, { label: string; icon: typeof Clock; chi
   other: { label: "Other", icon: Clock, chip: "border-teal-500 bg-teal-500/15 text-teal-900 dark:border-teal-400 dark:text-teal-100", head: "bg-teal-500/10 dark:bg-teal-400/10", dot: "bg-teal-600 text-white dark:bg-teal-400 dark:text-slate-950" },
   check: { label: "Check first", icon: TriangleAlert, chip: "border-amber-500 bg-amber-500/15 text-amber-900 dark:border-amber-400 dark:text-amber-100", head: "bg-amber-500/10 dark:bg-amber-400/10", dot: "bg-amber-500 text-slate-950 dark:bg-amber-400" },
 };
-const TAB_ORDER: SheetTab[] = ["never", "time", "apps", "other", "check"];
-
-/** Which tab (and colour) a bundle belongs to. */
-export function tabOf(b: Bundle): SheetTab {
-  const s = tableSection(b);
-  if (s === "unranked") return "check";
-  if (s === "social" || s === "video") return "apps";
-  if (s === "night" || s === "morning" || s === "hourly" || s === "restricted") return "time";
-  return neverExpires(b) ? "never" : "other";
-}
-
-/** A group's tab: its rows' tab when they all agree; a mix (Telecel's Voice & Data Combo: some never
- *  expire, some last 30 days) is "Other", so "Never expires" only ever shows bundles that never expire. */
-const groupTab = (rows: Bundle[]): SheetTab => {
-  const t = new Set(rows.map(tabOf));
-  return t.size === 1 ? tabOf(rows[0]) : "other";
-};
-
-/** The sample amounts a pay-any-amount table is listed at (inside its range; its top added). */
-const SAMPLES = [0.5, 1, 2, 3, 5, 10, 20, 50, 100, 200, 350];
-export function sampleRows(model: BundleModel, s: RateSource): Bundle[] {
-  const [lo, hi] = tableRange(s.table);
-  const amounts = [...new Set([...SAMPLES.filter((a) => a >= lo - 1e-9 && a <= hi + 1e-9), hi])];
-  return amounts.map((a) => model.sourceBundle(s, a)).filter((b): b is Bundle => !!b && hasVolume(b));
-}
-
-export interface SheetGroup { id: string; name: string; note: string; tab: SheetTab; rows: Bundle[]; best: Bundle | null; anyAmount: boolean }
-
-/** The table's groups, in order: pay-any-amount tables first (all-day before night), then the fixed
- *  families (by type, then cheapest per GB, as the old list), then everything not ranked. */
-export function sheetGroups(model: BundleModel, network: string): SheetGroup[] {
-  const groups: SheetGroup[] = [];
-  const srcs = model.sources.filter((s) => s.network === network).sort((a, b) => Number(a.kind === "night") - Number(b.kind === "night"));
-  for (const s of srcs) {
-    const rows = sampleRows(model, s);
-    if (!rows.length) continue;
-    const [lo, hi] = tableRange(s.table);
-    const best = rows.reduce((x, y) => ((model.valueMb(y) ?? 0) > (model.valueMb(x) ?? 0) ? y : x));
-    groups.push({ id: s.id, name: sourceName(model, s), note: `Pay any amount, ${model.money(lo)} to ${model.money(hi)}`, tab: groupTab(rows), rows, best, anyAmount: true });
-  }
-  const fixed = model.bundles.filter((b) => b.network === network);
-  const secIdx = (b: Bundle) => TABLE_SECTIONS.findIndex((x) => x.id === tableSection(b));
-  const key = (f: string) => {
-    const r = fixed.filter((b) => b.family === f);
-    return { sec: Math.min(...r.map(secIdx)), cpg: Math.min(...r.map((b) => (hasVolume(b) ? model.costPerGb(b) : Infinity))) };
-  };
-  const fams = [...new Set(fixed.map((b) => b.family))].sort((a, b) => key(a).sec - key(b).sec || key(a).cpg - key(b).cpg);
-  const unranked: Bundle[] = [];
-  for (const f of fams) {
-    const all = fixed.filter((b) => b.family === f).sort((a, b) => a.price - b.price);
-    const rows = all.filter((b) => tabOf(b) !== "check");
-    unranked.push(...all.filter((b) => tabOf(b) === "check"));
-    if (!rows.length) continue;
-    const fb = model.familyBest(network, f)?.bundle ?? null;
-    const lengths = new Set(rows.map((b) => model.shortValidity(b)));
-    groups.push({ id: `fam-${f}`, name: typeName(f), note: lengths.size === 1 ? model.shortValidity(rows[0]) : "Different lengths, see each row", tab: groupTab(rows), rows, best: fb && rows.includes(fb) ? fb : null, anyAmount: false });
-  }
-  if (unranked.length) groups.push({ id: "check", name: "Check first", note: "Not ranked: details not clear, or not for everyone", tab: "check", rows: unranked, best: null, anyAmount: false });
-  return groups;
-}
-
 /** How to buy, short: the dial line, else the app route. */
 const buyText = (model: BundleModel, b: Bundle) => ussdText(b) ?? model.buyShort(b) ?? null;
 
@@ -215,6 +145,9 @@ export function BundleSheet({ model, network }: { model: BundleModel; network: s
                       </Fragment>
                     );
                   })}
+                  {g.id === "mtn-pulse" && model.mashup && (
+                    <MashupRow model={model} open={open === "mashup"} onToggle={() => setOpen(open === "mashup" ? null : "mashup")} asc={asc} />
+                  )}
                 </Fragment>
               );
             })}
@@ -227,6 +160,71 @@ export function BundleSheet({ model, network }: { model: BundleModel; network: s
         <span>Tap a row for how to buy and more.</span>
       </p>
     </section>
+  );
+}
+
+/** MTN Pulse as the myMTN app sells it (Mashup): each amount as data only or as data plus call
+ *  minutes, every option the app lists (owner, 29 Oct 2026: "let's not pick only the data side").
+ *  One tap-to-open row under the Pulse group; facts, never ranked. */
+function MashupRow({ model, open, onToggle, asc }: { model: BundleModel; open: boolean; onToggle: () => void; asc: boolean }) {
+  const mx = model.mashup!;
+  const mixes = mx.options.filter((o) => o.mins > 0).length;
+  // Per amount: data only first, then the mixes from most data to most minutes.
+  const rows = [...mx.options].sort((a, b) => (asc ? a.price - b.price : b.price - a.price) || Number(a.mins > 0) - Number(b.mins > 0) || b.mb - a.mb);
+  // How to buy and how long it lasts: Pulse's own data (mtnRates.pulse.ussd and validity).
+  const buy = model.rates?.pulse?.ussd ? ussdText({ ussd: model.rates.pulse.ussd } as Bundle) : null;
+  const lasts = model.rates?.pulse?.validity ?? null;
+  return (
+    <>
+      <tr tabIndex={0} role="button" aria-expanded={open} onClick={onToggle}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle(); } }}
+        className={cn("cursor-pointer border-t border-border transition-colors hover:bg-muted/50 focus:outline-none focus-visible:bg-muted/60", open && "bg-muted/40")}
+        data-testid="mashup-row">
+        <td colSpan={5} className="px-2 py-3 sm:px-3">
+          <span className="flex items-center justify-between gap-2">
+            <span className="flex min-w-0 items-center gap-2">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-amber-400 text-slate-950" aria-hidden><Phone className="h-4 w-4" /></span>
+              <span className="min-w-0">
+                <span className="block text-[15px] font-black leading-tight">Data + calls mixes</span>
+                <span className="block text-xs font-semibold text-muted-foreground">{mixes} more ways to spend the same money, as the MTN app shows them</span>
+              </span>
+            </span>
+            <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform motion-reduce:transition-none", open && "rotate-180")} aria-hidden />
+          </span>
+        </td>
+      </tr>
+      {open && (
+        <tr className="bg-muted/40" data-testid="mashup-more">
+          <td colSpan={5} className="px-2 pb-4 pt-1 sm:px-3">
+            <table className="w-full max-w-md border-collapse text-left text-sm tabular-nums" data-testid="mashup-table">
+              <caption className="sr-only">{mx.name}: data and call minutes for each amount</caption>
+              <thead>
+                <tr className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
+                  <th scope="col" className="py-1.5 pr-2">Price</th>
+                  <th scope="col" className="py-1.5 pr-2">Data</th>
+                  <th scope="col" className="py-1.5">Calls</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((o, i) => (
+                  <tr key={`${o.price}-${i}`} className={cn("border-t border-border/70", i > 0 && rows[i - 1].price !== o.price && "border-t-2 border-border")} data-testid="mashup-option">
+                    <td className="whitespace-nowrap py-2 pr-2 font-extrabold">{model.money(o.price)}</td>
+                    <td className="whitespace-nowrap py-2 pr-2 font-black">{o.data}</td>
+                    <td className="whitespace-nowrap py-2">{o.mins > 0 ? `${o.mins.toFixed(2)} mins` : <span className="text-muted-foreground">Data only</span>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {buy && <div className="mt-2 text-sm"><BuyLine text={buy} /></div>}
+            <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+              {lasts && <p>Lasts: {lasts}.</p>}
+              <p>Not ranked: in a mix, part of the money buys call minutes.</p>
+              <SourceRef source={mx.source} />
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
   );
 }
 
@@ -316,34 +314,6 @@ export function CliffTip({ model, network, amount }: { model: BundleModel; netwo
       <span><b>Tip:</b> on {sourceName(model, s)},{model.money(c.better)} gives {model.fmtData(c.betterMb, network)}, more than {model.money(amount)} does. Anything from {model.money(c.from)} to {model.money(c.to)} gives less.</span>
     </p>
   );
-}
-
-/** What the buy card says, from the data only (null: no clear route, no card):
- *  1. a pay-any-amount table with its own dial steps (MTN: "*138# → 1 → 1", then type the amount);
- *  2. a pay-any-amount table with "where to buy" codes (Telecel Flexi: *700#, or *110# or the app);
- *  3. no pay-any-amount table (AT): the first never-expiring family sold on ONE code (BigTime Data). */
-export function buyRoute(model: BundleModel, network: string): { code: string; steps: string; also: string | null; then: string } | null {
-  const srcs = model.sources.filter((x) => x.network === network && x.kind !== "night");
-  const range = (s: RateSource) => `${model.money(tableRange(s.table)[0])} to ${model.money(tableRange(s.table)[1])}`;
-  const dialed = srcs.find((x) => x.ussd && dialCodes(x.ussd).length);
-  if (dialed) {
-    return { code: dialCodes(dialed.ussd!)[0], steps: dialed.ussd!.replace(/,?\s+then\s+/g, " → "), also: null, then: `Then type your amount. Any amount from ${range(dialed)}.` };
-  }
-  const bought = srcs.find((x) => x.buy && dialCodes(x.buy).length);
-  if (bought) {
-    const code = dialCodes(bought.buy!)[0];
-    // "Dial *700# or *110#, or use the Telecel Play app (Telecel's data terms)." -> "Or *110#, or use the Telecel Play app."
-    const rest = bought.buy!.replace(/\s*\([^)]*\)\.?\s*$/, "").replace(/\.$/, "").replace(new RegExp(`^Dial\\s+${code.replace(/[*#]/g, "\\$&")}\\s*,?\\s*`), "").trim();
-    const twins = srcs.filter((x) => x.family === bought.family);
-    const choose = twins.some((x) => x.kind === "noexpiry") && twins.some((x) => x.kind !== "noexpiry") ? ", and choose no expiry or with expiry" : "";
-    return { code, steps: code, also: /^or\s/i.test(rest) ? `${rest[0].toUpperCase()}${rest.slice(1)}.` : null, then: `Then type any amount from ${range(bought)}${choose}.` };
-  }
-  if (srcs.length) return null;
-  const g = sheetGroups(model, network).find((x) => x.tab === "never" && !x.anyAmount && x.rows.every((b) => trustOf(b).level !== "check" && !b.altUssd?.code && b.ussd === x.rows[0].ussd));
-  const one = g?.rows[0].ussd ? dialCodes(g.rows[0].ussd) : [];
-  if (!g || one.length !== 1) return null;
-  const prices = g.rows.map((b) => b.price);
-  return { code: one[0], steps: one[0], also: null, then: `Then pick a ${g.name} bundle, ${model.money(Math.min(...prices))} to ${model.money(Math.max(...prices))}. They never expire.` };
 }
 
 /** The big "how to buy" card in the network's colour: the main dial route (buyRoute), with Dial / Copy. */

@@ -162,8 +162,26 @@ check("midnight GH¢3 special", rateFor(3, R.midnight) === 0.0003455);
 check("midnight GH¢3.01 not sold", rateFor(3.01, R.midnight) === null);
 if (R.pulse) {
   // Audit 6: MTN's GH¢5–9.99 Pulse data rate (0.0447653) is the voice rate printed in the row above it:
-  // the data marks it unconfirmed, so no figure is worked out for it, but MTN's figure is kept.
-  check("pulse GH¢5–9.99 is unconfirmed: MTN's figure kept, no data worked out", (R.pulse.data[1] as any).ghsPerMb === 0.0447653 && (R.pulse.data[1] as any).unconfirmed === true && rateFor(5, m.rates!.pulse.data) === null && m.pulseMb(9.99) === 0);
+  // the data marks it unconfirmed and keeps MTN's figure. The myMTN app (Mashup, owner's screenshots
+  // 29 Oct 2026) shows GH¢5 for 287.08MB, so the model prices the band at the app's rate, sourced to the app.
+  check("pulse GH¢5–9.99 is unconfirmed in the data: MTN's figure kept", (R.pulse.data[1] as any).ghsPerMb === 0.0447653 && (R.pulse.data[1] as any).unconfirmed === true);
+  const pfix = m.sources.find((s) => s.id === "mtn-pulse")!;
+  const p5 = m.sourceBundle(pfix, 5), p999 = m.sourceBundle(pfix, 9.99), p499 = m.sourceBundle(pfix, 4.99), p10 = m.sourceBundle(pfix, 10);
+  check("pulse GH¢5–9.99 from the myMTN app: GH¢5 = 287.08 MB, GH¢9.99 = 9.99/(5/287.08) MB, source the app with the reason; GH¢4.99 and GH¢10 stay on the tariff",
+    !!p5 && near(p5.mb, 287.08, 1e-6) && !!p999 && near(p999.mb, 9.99 * 287.08 / 5, 1e-6) && /myMTN app, Mashup/.test(p5.source ?? "") && /287\.08MB/.test(p5.note ?? "") &&
+    !!p499 && /^https:\/\/mtn\.com\.gh\//.test(p499.source ?? "") && near(p499.mb, 4.99 / 0.0196497, 1e-6) && !!p10 && near(p10.mb, 10 / 0.0166006, 1e-6) && m.pulseMb(9.99) > 0,
+    `${p5?.mb} ${p999?.mb} ${p5?.source}`);
+  { const fixed = clone(doc) as BundleDataset; (fixed.mtnRates as any).pulse.data[1] = { from: 5, to: 9.99, ghsPerMb: 0.0174 };
+    const mf = createBundleModel(fixed), b5 = mf.sourceBundle(mf.sources.find((s) => s.id === "mtn-pulse")!, 5);
+    check("pulse app fix: once MTN's tariff page has a real GH¢5–9.99 rate, the tariff wins (the app fix is ignored)", !!b5 && near(b5.mb, 5 / 0.0174, 1e-6) && /^https:/.test(b5.source ?? ""), b5?.source);
+    const noApp = clone(doc) as BundleDataset; delete (noApp.mtnRates as any).pulse.app;
+    const mn = createBundleModel(noApp);
+    check("pulse app fix: without the app record, GH¢5–9.99 is not worked out and there is no Mashup list", rateFor(5, mn.rates!.pulse.data) === null && mn.pulseMb(9.99) === 0 && mn.mashup === null); }
+  check("mashup: the myMTN app's 16 options (4 data-only, 12 data + minutes mixes) at GH¢1, 5, 10 and 30; data-only figures equal the Pulse rows",
+    !!m.mashup && m.mashup.name === "Mashup" && m.mashup.options.length === 16 && m.mashup.options.filter((o) => o.mins === 0).length === 4 &&
+    JSON.stringify([...new Set(m.mashup.options.map((o) => o.price))]) === "[1,5,10,30]" &&
+    m.mashup.options.filter((o) => o.mins === 0).every((o) => m.dataShown(m.sourceBundle(pfix, o.price)!) === o.data) &&
+    m.mashup.options.some((o) => o.price === 5 && o.data === "143.54 MB" && o.mins === 59.45), JSON.stringify(m.mashup?.options.slice(0, 6)));
   check("pulse GH¢30 special", rateFor(30, R.pulse.data) === 0.0095726);
 }
 check("social GH¢1000 allowed, GH¢1000.01 not", m.flatMb(1000, "social") > 0 && m.flatMb(1000.01, "social") === 0);
@@ -1107,7 +1125,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
 
   // M1. Pulse ranked as a never-expires source; the suspect GH¢5–9.99 band is never used.
   check("M1: Pulse is in the never-expires and all-day rankings as computed rows", !!pulse && m.leaderboard("noexpiry").some((b) => b.family === "Pulse" && b.computed) && m.leaderboard("allday").some((b) => b.family === "Pulse"));
-  check("M1: no Pulse row covers GH¢5–9.99", m.computed.filter((b) => b.family === "Pulse").every((b) => !b.band || b.band.to < 5 || b.band.from > 9.99));
+  check("M1: the Pulse row covering GH¢5–9.99 is the myMTN app's rate (owner's screenshots, 29 Oct 2026)", m.computed.filter((b) => b.family === "Pulse" && b.band && b.band.to >= 5 && b.band.from <= 9.99).every((b) => /myMTN app/.test(b.source ?? "") && near(b.price / b.mb, 5 / 287.08, 1e-9)));
   const f30 = m.bestForBudget("mtn", 30);
   check("M1: finder, GH¢30 on MTN: Pulse exactly GH¢30 (3,134 MB) beats regular GH¢30 (2,134 MB)", f30?.family === "Pulse" && near(f30.mb, 30 / 0.0095726, 0.01), f30?.name);
   check("M1: Pulse text says who MTN aims it at and that no MTN source restricts who may buy it; no 'not ranked'", /young/.test(doc.familyInfo.mtn.Pulse) && /No MTN source says who may or may not buy it/.test(doc.familyInfo.mtn.Pulse) && !/not ranked/i.test(doc.familyInfo.mtn.Pulse));
@@ -1584,20 +1602,20 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   // What each network has in the rankings (fixed bundles and rows from pay-any-amount rates).
   { const rk = (n?: string) => m.rankedCounts(n);
     const mtnR = rk("mtn"), telR = rk("telecel"), atR = rk("at"), allR = rk();
-    check("ranked: MTN has no ranked fixed bundle but 16 rate rows (MTN data, Midnight, Pulse), so it is 'ranked through its rates'",
-      mtnR.fixed === 0 && mtnR.rateRows === 16 && JSON.stringify(mtnR.rateLabels) === '["MTN data","MTN Midnight","MTN Pulse"]' && JSON.stringify(mtnR.rateOnly) === '["mtn"]', JSON.stringify(mtnR));
+    check("ranked: MTN has no ranked fixed bundle but 17 rate rows (MTN data, Midnight, Pulse with the app's GH¢5–9.99), so it is 'ranked through its rates'",
+      mtnR.fixed === 0 && mtnR.rateRows === 17 && JSON.stringify(mtnR.rateLabels) === '["MTN data","MTN Midnight","MTN Pulse"]' && JSON.stringify(mtnR.rateOnly) === '["mtn"]', JSON.stringify(mtnR));
     // Fixed counts from the dataset's own bundles (verified, may win, in a like-for-like group).
     const fixedRaw = (n: string) => m.bundles.filter((b) => b.network === n && !isPending(b) && !isUnconfirmed(b) && canWin(b) && GROUPS.some((g) => g.test(b))).length;
     check(`ranked: Telecel ${fixedRaw("telecel")} fixed + 24 Flexi rows, AT ${fixedRaw("at")} fixed and no rate rows`,
       telR.fixed === fixedRaw("telecel") && telR.fixed > 0 && telR.rateRows === 24 && JSON.stringify(telR.rateLabels) === '["Telecel Flexi"]' && atR.fixed === fixedRaw("at") && atR.fixed > 0 && atR.rateRows === 0, `${JSON.stringify(telR)} ${JSON.stringify(atR)}`);
     check("ranked: fixed counts equal bundleCounts().ranked per network and the hero's comparedCount overall; rows add up",
       m.networks.every((n) => rk(n).fixed === m.bundleCounts(n).ranked) && allR.fixed === m.stats.comparedCount &&
-      allR.rateRows === m.networks.reduce((t, n) => t + rk(n).rateRows, 0) && allR.rateRows === 40 && JSON.stringify(allR.rateOnly) === '["mtn"]' && JSON.stringify(allR.rateNetworks) === '["mtn","telecel"]', JSON.stringify(allR));
+      allR.rateRows === m.networks.reduce((t, n) => t + rk(n).rateRows, 0) && allR.rateRows === 41 && JSON.stringify(allR.rateOnly) === '["mtn"]' && JSON.stringify(allR.rateNetworks) === '["mtn","telecel"]', JSON.stringify(allR));
     check("ranked: every rate row counted is a ranked leaderboard row (computed from a rate table)",
       m.networks.every((n) => { const ids = new Set(GROUPS.flatMap((g) => m.leaderboardRows(g.id, n).ranked.map((r) => r.bundle)).filter((b) => b.computed)); return ids.size === rk(n).rateRows; }));
     const lines = Object.fromEntries(m.networks.map((n) => [n, m.rankedLine(n)]));
     check("ranked line: MTN says it is ranked through its pay-any-amount rates, never '0 ranked like for like'",
-      lines.mtn === "None ranked as fixed bundles: MTN data is ranked through its pay-any-amount rates, 16 rows in the rankings (MTN data, MTN Midnight, MTN Pulse; see the calculator)", lines.mtn);
+      lines.mtn === "None ranked as fixed bundles: MTN data is ranked through its pay-any-amount rates, 17 rows in the rankings (MTN data, MTN Midnight, MTN Pulse; see the calculator)", lines.mtn);
     check("ranked line: Telecel and AT", lines.telecel === `${telR.fixed} ranked like for like, plus 24 rows from Telecel's pay-any-amount rates (Telecel Flexi)` && lines.at === `${atR.fixed} ranked like for like`, JSON.stringify(lines));
     check("ranked line: no network reads '0 ranked', NaN or undefined", Object.values(lines).every((l) => !/^0 ranked|NaN|undefined/.test(l)));
     const netSrc = src8("src/pages/data-bundles/DataBundlesNetwork.tsx");
@@ -2800,13 +2818,19 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
       groups.find((g) => g.id === "mtn-midnight")?.tab === "time" && groups.find((g) => g.name === "Kokrokoo")?.tab === "time" &&
       groups.find((g) => g.name === "Social")?.tab === "apps" && groups.find((g) => g.name === "Video")?.tab === "apps" && groups.find((g) => g.id === "mtn-pulse")?.tab === "never" &&
       groups.filter((g) => g.anyAmount).every((g) => g.rows.every((b) => b.computed && ns.sampleRows(m, m.sources.find((s) => s.id === g.id)!).includes(b) || true)) &&
-      !groups.find((g) => g.id === "mtn-pulse")!.rows.some((b) => Math.abs(b.price - 5) < 1e-9));
+      groups.find((g) => g.id === "mtn-pulse")!.name === "Pulse (Mashup)" && m.dataShown(groups.find((g) => g.id === "mtn-pulse")!.rows.find((b) => Math.abs(b.price - 5) < 1e-9)!) === "287.08 MB");
     const sheet = html(React.createElement(ns.BundleSheet, { model: m, network: "mtn" }));
     check("simple table (HTML): a real table (caption, Price sort button, Data, Lasts; Value and How to buy from md), tabs All + each type, tap-to-open rows (role=button, aria-expanded)",
       /<table[^>]*data-testid="sheet-table"/.test(sheet) && /<caption class="sr-only">All MTN bundles/.test(sheet) && /data-testid="sheet-sort"/.test(sheet) &&
       /max-md:hidden">Value per GH¢10<\/th>/.test(sheet) && /max-md:hidden">How to buy<\/th>/.test(sheet) &&
       (sheet.match(/data-testid="sheet-group"/g) ?? []).length === groups.length && (sheet.match(/data-testid="sheet-row"/g) ?? []).length === groups.reduce((n, g) => n + g.rows.length, 0) &&
       /role="button" aria-expanded="false"/.test(sheet) && ["all", "never", "time", "apps", "check"].every((t) => sheet.includes(`data-id="${t}"`)));
+    check("simple table (HTML): one closed 'Data + calls mixes' row under Pulse (Mashup), 12 mixes; Telecel and AT have none",
+      (sheet.match(/data-testid="mashup-row"/g) ?? []).length === 1 && /Data \+ calls mixes/.test(sheet) && /12 more ways to spend the same money/.test(sheet) && !/mashup-table/.test(sheet) &&
+      !/mashup-row/.test(html(React.createElement(ns.BundleSheet, { model: m, network: "telecel" }))) && !/mashup-row/.test(html(React.createElement(ns.BundleSheet, { model: m, network: "at" }))));
+    const nsSrc = src("src/components/data-bundles/NetworkSimple.tsx");
+    check("mashup list: every option's Price / Data / Calls ('Data only' when no minutes), buy line and lasts from Pulse's data, never ranked, source shown",
+      /function MashupRow/.test(nsSrc) && /o\.mins > 0 \? `\$\{o\.mins\.toFixed\(2\)\} mins` : <span[^>]*>Data only<\/span>/.test(nsSrc) && /model\.rates\?\.pulse\?\.ussd/.test(nsSrc) && /Not ranked: in a mix, part of the money buys call minutes\./.test(nsSrc) && /<SourceRef source=\{mx\.source\} \/>/.test(nsSrc));
     const buy = html(React.createElement(ns.BuyCard, { model: m, network: "mtn" }));
     check("simple buy card: 'To buy MTN data, dial' *138# → 1 → 1 with Dial / Copy for *138#, in MTN's colour",
       /To buy MTN data, dial/.test(buy) && /data-testid="buy-steps">\*138# → 1 → 1</.test(buy) && /data-code="\*138#"/.test(buy) && /Then type your amount\. Any amount from GH¢0\.31 to GH¢399\./.test(buy) && !/buy-also/.test(buy), buy.slice(0, 300));
@@ -2825,8 +2849,8 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
       !/pay-any-amount/.test(html(React.createElement(ns.BundleSheet, { model: m, network: "at" }))) && /pay-any-amount/.test(html(React.createElement(ns.BundleSheet, { model: m, network: "telecel" }))),
       tg.map((g) => `${g.name}[${g.tab}]`).join(", ") + " | " + ag.map((g) => `${g.name}[${g.tab}]`).join(", "));
     const ot = html(React.createElement(ns.OtherTypes, { model: m, network: "mtn", amount: 10 }));
-    check("other types at GH¢10: Regular 837.55 MB, Pulse 602.39 MB, Midnight at its GH¢3 top (said so), Social 825.7MB and Video 1.54GB (app-only, said so); facts, not a ranking",
-      /Other MTN types for GH¢10/.test(ot) && /Regular<\/span><span[^>]*>837\.55 MB</.test(ot) && /Pulse<\/span><span[^>]*>602\.39 MB</.test(ot) &&
+    check("other types at GH¢10: Regular 837.55 MB, Pulse (Mashup) 602.39 MB, Midnight at its GH¢3 top (said so), Social 825.7MB and Video 1.54GB (app-only, said so); facts, not a ranking",
+      /Other MTN types for GH¢10/.test(ot) && /Regular<\/span><span[^>]*>837\.55 MB</.test(ot) && /Pulse \(Mashup\)<\/span><span[^>]*>602\.39 MB</.test(ot) &&
       /Midnight<\/span><span[^>]*>8\.48 GB<\/span><\/span><span[^>]*>[^<]*for GH¢3, the most it takes/.test(ot) && /Video apps only/.test(ot) && /Some apps only/.test(ot) && /facts, not a ranking/.test(ot), ot.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").slice(0, 600));
     const tip = (a: number) => html(React.createElement(ns.CliffTip, { model: m, network: "mtn", amount: a }));
     check("spend tip: shown inside a spend cliff (GH¢10.50: GH¢10 gives 837.55 MB, more), not outside one (GH¢10, GH¢20)",

@@ -2178,6 +2178,103 @@
    "midnight": []
   },
   "pulse": {
+   "app": {
+    "date": "2026-10-29",
+    "name": "Mashup",
+    "note": "What the myMTN app's Mashup section (MTN Pulse in the app) showed on 29 Oct 2026: each amount as data only, or as a mix of data and voice minutes. Every figure equals MTN's tariff rates for that amount, except data from GH¢5 to GH¢9.99 (see fixes).",
+    "fixes": [
+     {
+      "to": 9.99,
+      "data": "287.08MB",
+      "from": 5,
+      "note": "MTN's tariff page prints 0.0447653 per MB for Pulse data from GH¢5 to GH¢9.99, the same figure as its voice rate per minute below GH¢5. The myMTN app showed GH¢5 for 287.08MB on 29 Oct 2026, so these amounts use the app's rate (GH¢5 for 287.08MB).",
+      "price": 5
+     }
+    ],
+    "source": "myMTN app, Mashup (screenshots 29 Oct 2026)",
+    "options": [
+     {
+      "data": "50.89MB",
+      "mins": 0,
+      "price": 1
+     },
+     {
+      "data": "25.45MB",
+      "mins": 11.17,
+      "price": 1
+     },
+     {
+      "data": "30.53MB",
+      "mins": 8.94,
+      "price": 1
+     },
+     {
+      "data": "35.62MB",
+      "mins": 6.7,
+      "price": 1
+     },
+     {
+      "data": "15.27MB",
+      "mins": 15.64,
+      "price": 1
+     },
+     {
+      "data": "287.08MB",
+      "mins": 0,
+      "price": 5
+     },
+     {
+      "data": "143.54MB",
+      "mins": 59.45,
+      "price": 5
+     },
+     {
+      "data": "172.25MB",
+      "mins": 47.56,
+      "price": 5
+     },
+     {
+      "data": "200.95MB",
+      "mins": 35.67,
+      "price": 5
+     },
+     {
+      "data": "86.12MB",
+      "mins": 83.24,
+      "price": 5
+     },
+     {
+      "data": "602.39MB",
+      "mins": 0,
+      "price": 10
+     },
+     {
+      "data": "301.19MB",
+      "mins": 123.85,
+      "price": 10
+     },
+     {
+      "data": "361.43MB",
+      "mins": 99.08,
+      "price": 10
+     },
+     {
+      "data": "421.67MB",
+      "mins": 74.31,
+      "price": 10
+     },
+     {
+      "data": "180.72MB",
+      "mins": 173.39,
+      "price": 10
+     },
+     {
+      "data": "3.06GB",
+      "mins": 0,
+      "price": 30
+     }
+    ]
+   },
    "data": [
     {
      "to": 4.99,
@@ -2202,7 +2299,7 @@
      "ghsPerMb": 0.0095726
     }
    ],
-   "note": "MTN aims Pulse at young customers. No MTN source says who may or may not buy it. These are MTN's data-only Pulse rates per MB; mixes of data and minutes are not priced here.",
+   "note": "MTN aims Pulse at young customers. No MTN source says who may or may not buy it. These are MTN's data-only Pulse rates per MB; the myMTN app's mixes of data and minutes (Mashup) are listed beside them.",
    "ussd": "*567# or the myMTN app (Shop, then Mash Up)",
    "minSpend": {
     "url": "https://help-center.mtn.com.gh/hc/en-us/articles/5106366483730",
@@ -2918,7 +3015,7 @@
    "mbPerGb": 1024
   }
  },
- "capturedAt": "2026-10-26T15:20:35Z",
+ "capturedAt": "2026-10-29T19:10:38Z",
  "familyInfo": {
   "at": {
    "Sika Kokoo": "Up to 15 days. Buy another Sika Kokoo bundle within 24 hours of expiry and your leftover data rolls over. Dial *111*4#, option 1.",
@@ -3198,7 +3295,7 @@
   "outOfBundleNote": "When all your data is used up, browsing is blocked unless you have allowed pay-as-you-go browsing, charged at 11.5p per MB. Switch it on or off on *700#.",
   "outOfBundlePerMb": 0.115
  },
- "verification": "Checked automatically on 26 Oct 2026 at 15:20 UTC. The checker downloaded, over plain HTTPS and without a browser, the operators' own published sources: MTN's tariff page (mtn.com.gh); the feed behind Telecel's bundles page and the feed behind its data bundle terms page (telecel.com.gh); and AT's site feed (web.airteltigo.com.gh), which holds AT's BigTime, Sika Kokoo, Night, Family Pack, Fuse, top-up, Sunday Bundle, Morning Rush and Data Kredit pages and its FAQ entries for Night, Unlimited Daily Data, Morning Rush, Sunday and Premier Packs bundles, plus the feed behind the cards on AT's Data Bundles page (for the USSD codes printed there). AT's static copy of its site data (page.json) was also downloaded and its four data tables agreed. It compared every price, volume, validity, rate and code found there with this dataset, and AT's Night Bundle page with AT's FAQ answer for the same bundle. GB figures are worked out at 1,024 MB per GB for every network. Not re-checked by this run: what the myMTN app showed (screenshots, 17 Oct 2026: the non-expiry label for regular data, the Social and Video amounts, the Kokrokoo volume and the Just4U examples; the Social and Video volumes are recomputed from MTN's tariff rates), MTN's help centre (help-center.mtn.com.gh: Midnight, Kokrokoo and Pulse validity, Pulse buying codes, minimum and older volumes, Sunday Special and Jara restrictions, Data Zone help-centre prices, Xtrabyte borrowing, how to stop auto-renewal, and the AFA, Association and Adwumapa bundles), MTN's Pulse, Jara, Sunday Special and Just4U pages, and MTN's terms-and-conditions PDFs for Kokrokoo, Pulse, Jara and Sunday Special, and how Telecel says to buy its Voice & Data Combo and Boss Plan bundles (its bundles page's purchase form and its Boss Plan page). The dates the site gives for MTN's help-centre answers are their last-edit dates, recorded on 18 Oct 2026.",
+ "verification": "Checked automatically on 29 Oct 2026 at 19:10 UTC. The checker downloaded, over plain HTTPS and without a browser, the operators' own published sources: MTN's tariff page (mtn.com.gh); the feed behind Telecel's bundles page and the feed behind its data bundle terms page (telecel.com.gh); and AT's site feed (web.airteltigo.com.gh), which holds AT's BigTime, Sika Kokoo, Night, Family Pack, Fuse, top-up, Sunday Bundle, Morning Rush and Data Kredit pages and its FAQ entries for Night, Unlimited Daily Data, Morning Rush, Sunday and Premier Packs bundles, plus the feed behind the cards on AT's Data Bundles page (for the USSD codes printed there). AT's static copy of its site data (page.json) was also downloaded and its four data tables agreed. It compared every price, volume, validity, rate and code found there with this dataset, and AT's Night Bundle page with AT's FAQ answer for the same bundle. GB figures are worked out at 1,024 MB per GB for every network. Not re-checked by this run: what the myMTN app showed (screenshots, 17 Oct 2026: the non-expiry label for regular data, the Social and Video amounts, the Kokrokoo volume and the Just4U examples; the Social and Video volumes are recomputed from MTN's tariff rates), MTN's help centre (help-center.mtn.com.gh: Midnight, Kokrokoo and Pulse validity, Pulse buying codes, minimum and older volumes, Sunday Special and Jara restrictions, Data Zone help-centre prices, Xtrabyte borrowing, how to stop auto-renewal, and the AFA, Association and Adwumapa bundles), MTN's Pulse, Jara, Sunday Special and Just4U pages, and MTN's terms-and-conditions PDFs for Kokrokoo, Pulse, Jara and Sunday Special, and how Telecel says to buy its Voice & Data Combo and Boss Plan bundles (its bundles page's purchase form and its Boss Plan page). The dates the site gives for MTN's help-centre answers are their last-edit dates, recorded on 18 Oct 2026.",
  "retiredBundles": [
   {
    "name": "1.45GB Special",

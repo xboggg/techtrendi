@@ -122,6 +122,9 @@ export interface RateBand {
    *  Pulse: the tariff prices it, MTN's help centre says offers start at
    *  GH¢0.07): the minimum, and whose minimum it is ("MTN's help-centre minimum"). */
   belowMinimum?: { amount: number; label: string };
+  /** Set by withAppFixes on an unconfirmed band the operator's app gives a figure for (MTN Pulse
+   *  GH¢5 to GH¢9.99: the app's GH¢5 for 287.08MB, 29 Oct 2026): the app as source, and why. */
+  fromApp?: { source: string; note: string };
 }
 
 /** A band the data marks as not published / not confirmed. */
@@ -151,6 +154,9 @@ export interface MtnRates {
      *  (help centre 5106366483730, last edited 17 Jul 2024: older volumes,
      *  contradicts "volume"). Shown beside the figures, which are the tariff's. */
     otherSource?: Bundle["otherSource"];
+    /** What the myMTN app's Mashup section (Pulse in the app) showed: each amount as data only or as a
+     *  mix of data and minutes (options), and the app's figure for a band MTN's tariff page gets wrong (fixes). */
+    app?: PulseApp;
   };
   /** MTN's help-centre answer on stopping a data bundle's auto-renewal, verbatim. */
   autoRenew?: { label?: string; url?: string; updated?: string; says?: string };
@@ -162,6 +168,37 @@ export interface MtnRates {
   /** MTN's note on any-amount Social and Video data (one flat rate per MB). */
   socialNote?: string;
   [k: string]: unknown;
+}
+
+/** mtnRates.pulse.app: the myMTN app's Mashup section, as the owner's screenshots showed it.
+ *  data is the app's own text ("287.08MB", "3.06GB"); mins 0 = data only. */
+export interface PulseApp {
+  name: string; source: string; date: string; note?: string;
+  fixes?: { from: number; to: number; price: number; data: string; note: string }[];
+  options: { price: number; data: string; mins: number }[];
+}
+
+/** "287.08MB" / "3.06GB" (GB = MB x mbPerGb, the app's way) -> MB, or null. */
+export function shownToMb(text: string, mbPerGb: number): number | null {
+  const m = String(text).match(/^\s*([\d,]+(?:\.\d+)?)\s*(MB|GB)\s*$/i);
+  if (!m) return null;
+  const v = Number(m[1].replace(/,/g, ""));
+  return m[2].toUpperCase() === "GB" ? v * mbPerGb : v;
+}
+
+/** An unconfirmed band the app gives a figure for gets the app's rate (price / MB) and the app as
+ *  its source. Only while the band is still unconfirmed: once the tariff page is right, it wins. */
+export function withAppFixes(table: RateBand[], app: PulseApp | undefined): RateBand[] {
+  const fixes = Array.isArray(app?.fixes) ? app!.fixes : [];
+  if (!fixes.length) return table;
+  return table.map((b) => {
+    const f = fixes.find((x) => b.unconfirmed === true && b.exactly === undefined && b.from === x.from && b.to === x.to);
+    // The fix's figure must be in MB (a GB figure is rounded too much to give a rate).
+    const mb = f && /MB\s*$/i.test(f.data) ? shownToMb(f.data, 1) : null;
+    if (!f || !mb || !(f.price > 0) || !bandMatches(b, f.price)) return b;
+    const { unconfirmed: _u, note: _n, ...rest } = b;
+    return { ...rest, ghsPerMb: f.price / mb, fromApp: { source: app!.source, note: f.note } };
+  });
 }
 
 /** A quoted source and its date: help centre = last edited (Zendesk edited_at),
@@ -906,10 +943,12 @@ export function createBundleModel(doc: BundleDataset, opts: ModelOptions = {}) {
   const networks: NetworkId[] = Object.keys(doc.networks);
   // MTN rate tables with mtnRates.gaps merged in as unpublished bands, so no
   // figure is ever computed for an amount MTN publishes no rate for.
-  // Pulse also starts at the lowest amount MTN's help centre gives (mtnRates.pulse.minSpend).
+  // Pulse also starts at the lowest amount MTN's help centre gives (mtnRates.pulse.minSpend), and
+  // takes the myMTN app's figure for a band MTN's tariff page gets wrong (mtnRates.pulse.app.fixes).
   const rates: MtnRates | null = (() => {
     if (!doc.mtnRates) return null;
-    const r = withGaps(doc.mtnRates);
+    let r = withGaps(doc.mtnRates);
+    if (r.pulse && Array.isArray(r.pulse.data) && r.pulse.app) r = { ...r, pulse: { ...r.pulse, data: withAppFixes(r.pulse.data, r.pulse.app) } };
     const ms = r.pulse?.minSpend;
     if (!r.pulse || !Array.isArray(r.pulse.data) || !ms) return r;
     const whose = /^https:\/\/help-center\.mtn\.com\.gh\//.test(ms.url ?? "") ? "MTN's help-centre minimum" : "MTN's published minimum";
@@ -1096,6 +1135,8 @@ export function createBundleModel(doc: BundleDataset, opts: ModelOptions = {}) {
       price: amt, mb: amt / band.ghsPerMb, validity: s.validity(band), days: s.days(band), kind: s.kind, ussd: s.ussd ?? null,
       source: s.source, computed: true, computedLabel: s.computedLabel, rateLabel: s.label,
       ...(s.otherSource ? { otherSource: s.otherSource } : {}), ...(s.note ? { note: s.note } : {}), ...(s.buy ? { channel: s.buy } : {}),
+      // A band priced from the operator's app (MTN Pulse GH¢5 to GH¢9.99): the app is the source, said why.
+      ...(band.fromApp ? { source: band.fromApp.source, note: [s.note, band.fromApp.note].filter(Boolean).join(" ") } : {}),
     };
   }
   /** What a rate source's data is, for the "never expires" tests (validity plus any dispute). */
@@ -2324,8 +2365,22 @@ export function createBundleModel(doc: BundleDataset, opts: ModelOptions = {}) {
     return { cited: cited.filter((c) => c.url !== outdated), urls };
   }
 
+  /** MTN Pulse as the myMTN app sells it, "Mashup": every amount as data only or as a mix of data
+   *  and minutes, in the app's order (mtnRates.pulse.app, owner's screenshots). Facts, never ranked:
+   *  part of a mix's money goes to minutes. null when the data has no app record. */
+  const mashup = (() => {
+    const a = rates?.pulse?.app;
+    if (!a || !Array.isArray(a.options) || !hasNet("mtn")) return null;
+    const per = mbPerGb("mtn");
+    const options = a.options.flatMap((o) => {
+      const mb = shownToMb(o.data, per);
+      return mb && o.price > 0 ? [{ price: o.price, mb, data: data(mb, "mtn"), mins: o.mins > 0 ? o.mins : 0 }] : [];
+    });
+    return options.length ? { name: a.name, source: a.source, date: a.date, note: a.note ?? null, options } : null;
+  })();
+
   return {
-    doc, currency, money, rate: (n: number) => fmtRate(n, currency), networks, rates, flexi, sources, validityText, factText, sourcesFor,
+    doc, currency, money, rate: (n: number) => fmtRate(n, currency), networks, rates, flexi, sources, validityText, factText, sourcesFor, mashup,
     networkInfo: (id: NetworkId) => doc.networks[id],
     mbPerGb, sharedMbPerGb, gbOf, costPerGb: cpg, fmtData: data, perGbText, valueMb, valueText, valuePer, valueLine, priceLead, leadData, leadText, disputeText, smallPool, valueStep: VALUE_STEP, dataText, priceText, spendScope, dealText, bundleCounts,
     bundles, computed, computedRegular, computedMidnight, all,

@@ -390,29 +390,9 @@ export function OtherSourceBadge({ b }: { b: Bundle }) {
   );
 }
 
-/** The one trust level a bundle shows in the main view (the specific reasons are under
- *  "More info", as StatusBadges):
- *    "! Check first"  the network's pages disagree, another page says something different,
- *                     only some customers can buy it, it is new and still being checked, or it
- *                     is only on an old page. A limit on WHO can buy stays visible:
- *                     "! Check first · Some regions only".
- *    "≈ Worked out"   a figure worked out from the network's price per MB.
- *    "✓ On AT's price list"  printed on the network's own price list and checked (it said: ✓ Confirmed). */
-export type TrustLevel = "confirmed" | "worked" | "check";
-export function trustOf(b: Bundle): { level: TrustLevel; who: string | null } {
-  // A change the checker is holding back: "! Check first · price change being checked".
-  if (b.held) return { level: "check", who: b.held };
-  const r = conditionalReason(b);
-  const who = !isConditional(b) ? null : r === "regional" ? "Some regions only" : r === "eligibility" ? "Some groups only" : "Some customers only";
-  if (hasConflict(b) || isPending(b) || isUnconfirmed(b) || isConditional(b) || !!(b.otherSource?.summary && b.otherSource.summary.trim())) return { level: "check", who };
-  if (b.computed) return { level: "worked", who: null };
-  // Figures the checker cannot re-read (an app screenshot, not a web page): check first.
-  if (fromAppOnly(b)) return { level: "check", who };
-  return { level: "confirmed", who: null };
-}
-/** True when a bundle's only source is an app capture, not a web page the checker re-reads
- *  (MTN Social, Video and Kokrokoo: "myMTN app (screenshot 17 Oct 2026)"). */
-export const fromAppOnly = (b: Bundle) => !b.computed && !!b.source && !/^https:\/\//.test(b.source);
+// trustOf, fromAppOnly and dialCodes live in src/lib/bundleSheet.ts (no React), so the server's social image uses them too.
+export { trustOf, fromAppOnly, dialCodes, type TrustLevel } from "@/lib/bundleSheet";
+import { trustOf, fromAppOnly, dialCodes } from "@/lib/bundleSheet";
 /** "From MTN's app on 17 Oct 2026", from the bundle's own source text. */
 export function appSourceText(b: Bundle, networkName: string): string {
   const d = (b.source ?? "").match(/(\d{1,2} [A-Z][a-z]{2} \d{4})/);
@@ -896,7 +876,6 @@ export function ScanSweep() {
  *  ("*111*4#" -> "tel:*111*4%23"), as dialler apps need. */
 export const telHref = (code: string) => `tel:${code.replace(/#/g, "%23")}`;
 /** The USSD codes in a how-to-buy line ("*111*4#"), in order, each once. */
-export const dialCodes = (text: string): string[] => [...new Set(text.match(/\*[\d*]+#/g) ?? [])];
 
 /** True on iPhone and iPad (iOS blocks USSD codes in tel: links), after mount only. */
 export function useIsIOS(): boolean {
