@@ -3764,6 +3764,12 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     /data-testid="bf-f-noexp"[^>]*>.*?Never expires<\/button>/.test(fh) && /data-testid="bf-f-night"[^>]*>.*?Night deals<\/button>/.test(fh) && /aria-haspopup="menu" aria-expanded="false" aria-label="How long it lasts: Any length. Tap to choose"[^>]*data-testid="bf-f-lasts"/.test(fh) && !/data-testid="bf-lasts-menu"/.test(fh) &&
     /aria-live="polite" data-testid="bf-sentence">Showing all-day data of any length\.</.test(fh) && /<div class="max-sm:hidden" data-testid="bf-desktop-controls">/.test(fh) &&
     fh.indexOf('data-testid="bf-desktop-controls"') < fh.indexOf('role="group" aria-label="Quick amounts"') && !/role="dialog"/.test(fh), fh.slice(fh.indexOf("bf-phone"), fh.indexOf("bf-phone") + 400));
+  const lastsCls = fh.match(/class="([^"]*)"[^>]*data-testid="bf-f-lasts"/)?.[1] ?? "";
+  const noexpCls = fh.match(/class="([^"]*)"[^>]*data-testid="bf-f-noexp"/)?.[1] ?? "";
+  check("phone finder: the length button (it opens a list) is blue in light and dark, the two on/off switches beside it are not",
+    /border-sky-400\/70/.test(lastsCls) && /bg-sky-400\/10/.test(lastsCls) && /text-sky-800/.test(lastsCls) && /dark:text-sky-200/.test(lastsCls) &&
+    !/border-border|text-muted-foreground/.test(lastsCls) && !/sky/.test(noexpCls) && /border-border/.test(noexpCls) &&
+    /on \? "border-sky-500 bg-sky-400\/25 text-sky-900/.test(ph), lastsCls);
   check("phone sheet: a dialog (aria-modal, labelled) in a portal above the cookie bar; Escape, ✕ and a tap outside close it; Tab stays inside; focus goes back to the amount button; the page does not scroll behind it",
     /role="dialog"\s+aria-modal="true"\s+aria-labelledby=\{titleId\}/.test(ph) && /createPortal\(/.test(ph) && /z-\[10000\]/.test(ph) && /e\.key === "Escape"/.test(ph) && /aria-label="Close"/.test(ph) &&
     /onClick=\{onClose\}\s+aria-hidden/.test(ph) && /e\.key !== "Tab"/.test(ph) && /opener\.current\?\.focus\(\)/.test(ph) && /body\.style\.overflow = "hidden"/.test(ph) && /body\.style\.overflow = prev/.test(ph));

@@ -55,6 +55,13 @@ const filterBtn = (on: boolean) => cn(
   "flex min-h-[3.75rem] [@media(max-height:820px)]:min-h-[3.25rem] flex-col items-center justify-center gap-1 rounded-2xl border px-1 py-1.5 text-center text-xs font-semibold leading-tight transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
   on ? "border-emerald-400 bg-emerald-400/15 text-foreground" : "border-border bg-background/40 text-muted-foreground",
 );
+/** The length button opens a list, so it is blue (owner, 29 Oct 2026): never mistaken for the two
+ *  green on/off switches beside it. Stronger blue once a length is chosen. */
+const lengthBtn = (on: boolean) => cn(
+  filterBtn(false), "w-full",
+  on ? "border-sky-500 bg-sky-400/25 text-sky-900 dark:border-sky-300 dark:bg-sky-400/25 dark:text-sky-50"
+     : "border-sky-400/70 bg-sky-400/10 text-sky-800 dark:border-sky-400/60 dark:bg-sky-400/10 dark:text-sky-200",
+);
 
 /** The phone controls: amount button, three filter buttons, the sentence, and the sheet. */
 export function FinderPhoneControls({ model, only, budget, setBudget, chips, max, noExpiryOnly, setNoExpiryOnly, allowNight, setAllowNight, minDays, setMinDays }: {
@@ -137,7 +144,7 @@ function LengthMenu({ minDays, setMinDays }: { minDays: number; setMinDays: (d: 
   return (
     <div ref={wrap} className="relative" onKeyDown={onKeyDown}>
       <button ref={btn} type="button" onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open} aria-controls={open ? listId : undefined}
-        aria-label={`How long it lasts: ${lengthChoice(minDays)}. Tap to choose`} className={cn(filterBtn(minDays > 0), "w-full")} data-testid="bf-f-lasts" data-days={minDays}>
+        aria-label={`How long it lasts: ${lengthChoice(minDays)}. Tap to choose`} className={lengthBtn(minDays > 0)} data-testid="bf-f-lasts" data-days={minDays}>
         <Timer className="h-5 w-5" aria-hidden />
         <span className="inline-flex items-center gap-0.5">{lengthLabel(minDays)} <ChevronDown className={cn("h-3.5 w-3.5 transition-transform motion-reduce:transition-none", open && "rotate-180")} aria-hidden /></span>
       </button>
