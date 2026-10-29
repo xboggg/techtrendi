@@ -14,7 +14,7 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { usePageDefaultTheme } from "@/contexts/ThemeContext";
 import { MotionConfig } from "framer-motion";
-import { AlertOctagon, ArrowLeft, ArrowRight, HandCoins, HelpCircle, Info, Lightbulb, Percent } from "lucide-react";
+import { AlertOctagon, ArrowLeft, ArrowRight, Gift, HandCoins, HelpCircle, Info, Lightbulb, Percent } from "lucide-react";
 import { BundleSheet, BuyCard, CliffTip, Fold, OtherTypes } from "@/components/data-bundles/NetworkSimple";
 import { FlexiCalculator } from "@/components/data-bundles/FlexiCalculator";
 import { flexiTabs } from "@/lib/bundleSheet";
@@ -23,7 +23,7 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import NotFound from "@/pages/NotFound";
 import { useBundleData } from "@/hooks/useBundleData";
 import { DATA_BUNDLES_BASE, DATA_BUNDLES_NOINDEX } from "@/data/dataBundleCountries";
-import { DATA_BUNDLES_KEYWORDS, DATA_BUNDLES_OG_ALT, dataBundlesCrumbs, dataBundlesOgImage, networkSeo } from "@/data/dataBundlesRoute";
+import { DATA_BUNDLES_KEYWORDS, dataBundlesCrumbs, dataBundlesNetworkOgAlt, dataBundlesOgImage, networkSeo } from "@/data/dataBundlesRoute";
 import { type BundleModel } from "@/lib/dataBundles";
 import { BudgetFinder } from "@/components/data-bundles/BudgetFinder";
 import { NetworkBest } from "@/components/data-bundles/NetworkPanels";
@@ -35,7 +35,7 @@ import { Advice } from "@/components/data-bundles/Advice";
 import { Faq } from "@/components/data-bundles/Faq";
 import { LiveStatus, SourcesAndDisclaimer, SourceLine } from "@/components/data-bundles/meta";
 import { WhatChanged } from "@/components/data-bundles/WhatChanged";
-import { DialTipCard } from "@/components/data-bundles/DialTip";
+import { DialTipCard, Just4UCard, just4uText } from "@/components/data-bundles/DialTip";
 import { xtra4uTip } from "@/lib/bundleTips";
 import { DisplayMenu, ThemePill } from "@/components/data-bundles/ThemePill";
 import { DataBundlesChrome, Details, NetPill, SectionHeading, TextSizeToggle, fmtDate, glass, textSafeFill, QueryLink, useFocusTitleOnNavigate, CodesIn } from "@/components/data-bundles/shared";
@@ -84,8 +84,8 @@ export default function DataBundlesNetwork() {
         description={seo.description}
         canonical={`${basePath}/${network}`}
         noindex={DATA_BUNDLES_NOINDEX}
-        image={dataBundlesOgImage(data.country.id, data.freshness.checkedAt)}
-        imageAlt={DATA_BUNDLES_OG_ALT}
+        image={dataBundlesOgImage(data.country.id, data.freshness.checkedAt, network)}
+        imageAlt={dataBundlesNetworkOgAlt(info.name)}
         keywords={DATA_BUNDLES_KEYWORDS}
         keywordsOnly
         webPage
@@ -280,6 +280,7 @@ function GoodToKnow({ model, network, simple }: { model: BundleModel; network: s
           {borrowed.map((x, i) => (
             <Fold key={x.key} title={`Borrow data (${x.title})`} icon={<HandCoins className="h-4 w-4" />} tone="bg-amber-500 text-slate-950 dark:bg-amber-400" testId="fold-borrowed">{borrowedCards[i]}</Fold>
           ))}
+          {network === "mtn" && just4uText(model) && <Fold title="Your own MTN offers (Just4U)" icon={<Gift className="h-4 w-4" />} tone="bg-rose-600 text-white dark:bg-rose-400 dark:text-slate-950" testId="fold-just4u"><Just4UCard model={model} /></Fold>}
           {tip && <Fold title={`${name} offers on ${tip.ussd}`} icon={<Percent className="h-4 w-4" />} tone="bg-fuchsia-600 text-white dark:bg-fuchsia-400 dark:text-slate-950" testId="fold-tip"><DialTipCard model={model} /></Fold>}
           <Fold title="Common questions" icon={<HelpCircle className="h-4 w-4" />} tone="bg-sky-600 text-white dark:bg-sky-400 dark:text-slate-950" testId="fold-faq"><Faq model={model} only={network} bare /></Fold>
           <Fold title="Tips to pay less" icon={<Lightbulb className="h-4 w-4" />} tone="bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950" testId="fold-advice"><Advice model={model} only={network} bare /></Fold>

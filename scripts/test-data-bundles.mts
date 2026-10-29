@@ -2635,7 +2635,13 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   // 4. Social image.
   check("og image (round 10): the pages use /storage/data-bundles/og-ghana.jpg?v=YYYYMMDDHH of the checked time, with alt text",
     route.dataBundlesOgImage("ghana", "2026-10-19T23:09:39.553506+00:00") === "/storage/data-bundles/og-ghana.jpg?v=2026101923" && route.dataBundlesOgImage("ghana", "x") === "/storage/data-bundles/og-ghana.jpg" &&
-    ["DataBundlesDashboard.tsx", "DataBundlesNetwork.tsx"].every((f) => /image=\{dataBundlesOgImage\(data\.country\.id, data\.freshness\.checkedAt\)\}/.test(src("src/pages/data-bundles/" + f)) && /imageAlt=\{DATA_BUNDLES_OG_ALT\}/.test(src("src/pages/data-bundles/" + f))));
+    /image=\{dataBundlesOgImage\(data\.country\.id, data\.freshness\.checkedAt\)\}/.test(src("src/pages/data-bundles/DataBundlesDashboard.tsx")) && /imageAlt=\{DATA_BUNDLES_OG_ALT\}/.test(src("src/pages/data-bundles/DataBundlesDashboard.tsx")));
+  // One image per network page (29 Oct 2026): og-ghana-<network>.jpg, its own alt; og-meta.php serves the same to social bots.
+  check("og image per network page: /storage/data-bundles/og-ghana-mtn.jpg?v=..., alt names the network; og-meta.php falls back to og-ghana.jpg when the file is missing",
+    route.dataBundlesOgImage("ghana", "2026-10-19T23:09:39.553506+00:00", "mtn") === "/storage/data-bundles/og-ghana-mtn.jpg?v=2026101923" &&
+    route.dataBundlesNetworkOgAlt("MTN") === "MTN data bundles: the most data for GH¢5, GH¢10 and GH¢20" &&
+    /image=\{dataBundlesOgImage\(data\.country\.id, data\.freshness\.checkedAt, network\)\}/.test(src("src/pages/data-bundles/DataBundlesNetwork.tsx")) && /imageAlt=\{dataBundlesNetworkOgAlt\(info\.name\)\}/.test(src("src/pages/data-bundles/DataBundlesNetwork.tsx")) &&
+    /\$img = 'og-' \. \$country \. \(\$net \? '-' \. \$net : ''\) \. '\.jpg';/.test(src("public/og-meta.php")) && /if \(\$net && !is_file\(/.test(src("public/og-meta.php")));
   // Round 11: the image says what the finder and the winners board say (src/lib/ogSummary.ts,
   // bundled for the server as og_summary.mjs; the server's test_og_image pins the same figures).
   const { ogSummary, OG_AMOUNT } = await import("../src/lib/ogSummary");
@@ -2667,7 +2673,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     !/tools-preview|data-bundles\/ghana/.test(sw) && /const SCOPE_PATH = new URL\(self\.registration\.scope\)\.pathname;/.test(sw));
   const og = src("public/og-meta.php");
   check("og image (round 10): og-meta.php serves it to bots for /data-bundles/ghana[/at|/mtn|/telecel] and the preview paths, cache-busted by the latest check",
-    /preg_match\('#\^\(tools-preview\/\)\?data-bundles\/\(ghana\)\(\/\(at\|mtn\|telecel\)\)\?\$#'/.test(og) && /gmdate\('YmdH', \$ts\)/.test(og) && /\/storage\/data-bundles\/og-' \. \$country \. '\.jpg' \. \$v/.test(og) && /og:image:width" content="1200"/.test(og) && /og:image:height" content="630"/.test(og) && /og:image:alt/.test(og));
+    /preg_match\('#\^\(tools-preview\/\)\?data-bundles\/\(ghana\)\(\/\(at\|mtn\|telecel\)\)\?\$#'/.test(og) && /gmdate\('YmdH', \$ts\)/.test(og) && /'\/storage\/data-bundles\/' \. \$img \. \$v/.test(og) && /og:image:width" content="1200"/.test(og) && /og:image:height" content="630"/.test(og) && /og:image:alt/.test(og));
 
   // 5. Launch values (switch not flipped).
   const L = route.dataBundlesRouteConfig(true), P = route.dataBundlesRouteConfig(false);
@@ -2874,6 +2880,12 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
         /data-testid="flexi-calc"/.test(fc) && (fc.match(/data-id="mtn-/g) ?? []).length === 4 && /id="flexi-amount"/.test(fc) && /data-testid="flexi-fixed"/.test(fc) && /bg-\[#ffcb05\]/.test(fc) &&
         !/data-tab="never"[^>]*>[\s\S]{0,400}?>Regular</.test(sheetSkip) && /data-testid="sheet-flexi-note"/.test(sheetSkip) && /Pulse \(Mashup\)/.test(sheetSkip) &&
         !sheetSkip.includes(">Midnight<") && !html(React.createElement(ns.BundleSheet, { model: m, network: "mtn" })).includes("sheet-flexi-note")); }
+    { const dt = await import("../src/components/data-bundles/DialTip");
+      const j = html(React.createElement(dt.Just4UCard, { model: m }));
+      const pg = src("src/pages/data-bundles/DataBundlesNetwork.tsx");
+      check("Just4U (owner yes, 29 Oct 2026): MTN's personal offers card, myMTN app or *141# (Dial / Copy), '! Check first', the data's own text, never ranked; a fold on the MTN page only",
+        /data-testid="just4u-tip"/.test(j) && /check your Just4U offers first/.test(j) && /data-code="\*141#"/.test(j) && /data-level="check"/.test(j) && /vary from subscriber to subscriber/.test(j) && /Not ranked or compared\./.test(j) &&
+        /network === "mtn" && just4uText\(model\) && <Fold title="Your own MTN offers \(Just4U\)"/.test(pg) && !m.bundles.some((b) => /just4u/i.test(b.family)), j.replace(/<[^>]+>/g, " ").slice(0, 300)); }
     const tip = (a: number) => html(React.createElement(ns.CliffTip, { model: m, network: "mtn", amount: a }));
     check("spend tip: shown inside a spend cliff (GH¢10.50: GH¢10 gives 837.55 MB, more), not outside one (GH¢10, GH¢20)",
       /GH¢10 gives 837\.55 MB, more than GH¢10\.50/.test(tip(10.5)) && tip(10) === "" && tip(20) === "", tip(10.5));

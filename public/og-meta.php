@@ -68,10 +68,14 @@ if (preg_match('#^(tools-preview/)?data-bundles/(ghana)(/(at|mtn|telecel))?$#', 
     $desc = $net
         ? 'What to buy on ' . $names[$net] . ' Ghana: the most data for your money, every ' . $names[$net] . ' bundle with its price, how long it lasts and how to buy it.'
         : 'Compare Ghana mobile data bundles from AT, MTN and Telecel: the most data for your money, the cheapest plan for a month, and the best value of each type.';
+    // Each network page has its own image (og-ghana-mtn.jpg ..., 29 Oct 2026); the comparison image
+    // is the fallback while a network's file is missing.
+    $img = 'og-' . $country . ($net ? '-' . $net : '') . '.jpg';
+    if ($net && !is_file(__DIR__ . '/storage/data-bundles/' . $img)) $img = 'og-' . $country . '.jpg';
     serve_og(
         htmlspecialchars($title, ENT_QUOTES, 'UTF-8'),
         htmlspecialchars($desc, ENT_QUOTES, 'UTF-8'),
-        $SITE_URL . '/storage/data-bundles/og-' . $country . '.jpg' . $v, 'image/jpeg', $SITE_URL . '/' . $path, '', '', '', 'website'
+        $SITE_URL . '/storage/data-bundles/' . $img . $v, 'image/jpeg', $SITE_URL . '/' . $path, '', '', '', 'website'
     );
     exit;
 }

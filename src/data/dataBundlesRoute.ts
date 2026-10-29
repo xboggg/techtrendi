@@ -68,9 +68,11 @@ export const DATA_BUNDLES_PRERENDER = CURRENT.prerenderPaths;
  *  for it with ?v=YYYYMMDDHH of the prices' checked time, so WhatsApp and Facebook fetch a new
  *  image when the prices are re-checked (the same stamp as og_image.version). */
 export const DATA_BUNDLES_OG_ALT = "Today's best data deals in Ghana: how much data GH¢20 buys on AT, MTN and Telecel";
-export function dataBundlesOgImage(country: string, checkedAt: string): string {
+/** A network page's image (og-<country>-<network>.jpg, 29 Oct 2026): its finder at GH¢5, 10 and 20. */
+export const dataBundlesNetworkOgAlt = (name: string) => `${name} data bundles: the most data for GH¢5, GH¢10 and GH¢20`;
+export function dataBundlesOgImage(country: string, checkedAt: string, network?: string): string {
   const t = Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(checkedAt) ? `${checkedAt}T00:00:00Z` : checkedAt);
-  const base = `/storage/data-bundles/og-${country}.jpg`;
+  const base = `/storage/data-bundles/og-${country}${network ? `-${network}` : ""}.jpg`;
   if (Number.isNaN(t)) return base;
   const d = new Date(t);
   const p = (n: number) => String(n).padStart(2, "0");
