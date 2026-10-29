@@ -35,12 +35,10 @@ export function ThemePill({ className }: { className?: string }) {
  *  (A, A+) and "Theme" (Light, Dark). Same behaviour and storage as the inline controls: the text
  *  size through useLargeText, the theme through the site's ThemeContext. The panel is a Radix
  *  popover: it closes on an outside tap or Escape, takes focus when it opens and gives it back to
- *  the button when it closes. */
+ *  the button when it closes. Owner, 29 Oct 2026: the "Theme" row is gone (the site header already
+ *  has the light/dark switch); the panel is "Text size" only. */
 export function DisplayMenu({ className }: { className?: string }) {
   const [large, pickSize] = useLargeText();
-  let theme: ReturnType<typeof useTheme> | null = null;
-  try { theme = useTheme(); } catch { theme = null; }
-  const dark = theme?.resolvedTheme === "dark";
   const opt = (on: boolean) => cn(
     "inline-flex h-11 min-w-11 flex-1 items-center justify-center gap-1.5 rounded-full px-3 text-[15px] font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
     on ? "bg-foreground text-background" : "border border-border text-foreground hover:border-foreground/40",
@@ -61,15 +59,6 @@ export function DisplayMenu({ className }: { className?: string }) {
             <button type="button" className={opt(large)} aria-pressed={large} onClick={() => pickSize(true)} aria-label="A+ bigger text" data-testid="display-size-large"><span className="text-lg">A+</span></button>
           </div>
         </div>
-        {theme && (
-          <div role="group" aria-labelledby="db-display-theme" className="space-y-1.5">
-            <p id="db-display-theme" className="text-[15px] font-semibold">Theme</p>
-            <div className="flex gap-2">
-              <button type="button" className={opt(!dark)} aria-pressed={!dark} onClick={() => theme!.setTheme("light")} data-testid="display-theme-light"><Sun className="h-4 w-4" aria-hidden /> Light</button>
-              <button type="button" className={opt(dark)} aria-pressed={dark} onClick={() => theme!.setTheme("dark")} data-testid="display-theme-dark"><Moon className="h-4 w-4" aria-hidden /> Dark</button>
-            </div>
-          </div>
-        )}
       </PopoverContent>
     </Popover>
   );

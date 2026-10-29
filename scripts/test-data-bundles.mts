@@ -2437,7 +2437,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("text size: localStorage reads and writes are wrapped in try/catch; only the page content (main) grows, and only while the page is open",
     /const readLarge = \(\) => \{ try \{ return window\.localStorage\.getItem\(TEXT_SIZE_KEY\) === "large"; \} catch/.test(shSrc) && /try \{ window\.localStorage\.setItem\(TEXT_SIZE_KEY/.test(shSrc) && /return \(\) => \{ root\.removeAttribute\(LARGE_TEXT_ATTR\); \};/.test(shSrc) && /useDataBundlesOffline\(\);\s*useLargeTextMark\(\);/.test(shSrc) && sh.largeTextCss().startsWith('html[data-db-text="large"] main#main-content { zoom: 1.125; }') && /repeat\(4, minmax\(0, 1fr\)\)/.test(sh.largeTextCss()) && sh.chromeCss(0.6).includes(sh.largeTextCss()));
   const pages = ["DataBundlesDashboard.tsx", "DataBundlesNetwork.tsx"].map((f) => readFileSync(join(ROOT, "src/pages/data-bundles/" + f), "utf8"));
-  check("text size: on both data bundle pages: at the top on phones (status row, in the Display menu), beside 'What we compare' / 'What we list' from 640px", pages.every((p) => p.includes('<DisplayMenu className="-mt-2 shrink-0 sm:hidden" />') && p.includes('<div className="flex shrink-0 items-center gap-1.5 max-sm:hidden"><ThemePill /><TextSizeToggle /></div>') && p.indexOf("<DisplayMenu") < p.indexOf("<BudgetFinder")));
+  check("text size: on both data bundle pages: at the top on phones (status row, in the Display menu), beside 'What we compare' / 'What we list' from 640px", pages.every((p) => p.includes('<DisplayMenu className="-mt-2 shrink-0 sm:hidden" />') && p.includes('<div className="flex shrink-0 items-center gap-1.5 max-sm:hidden"><TextSizeToggle /></div>') && !p.includes('<ThemePill') && p.indexOf("<DisplayMenu") < p.indexOf("<BudgetFinder")));
 }
 
 // ------------------------------------------------------------------ step 5 (19 Oct 2026): FAQ, structured data, launch switch, offline copy, sliders
@@ -2546,9 +2546,9 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("first screen (round 8): one status line (no wrap), no cadence line on top, tighter heading and finder spacing on phones",
     /whitespace-nowrap text-xs font-medium/.test(meta) && !/<CadenceLine/.test(dash) && /text-\[1\.75rem\]/.test(dash) && /className="mt-2 block text-base font-bold text-muted-foreground (\S+ )*sm:mt-3 sm:text-lg">I have/.test(bf) && /col-span-2 flex items-center gap-2 sm:block/.test(bf));
   // 24 Oct 2026: the Light/Dark pill sits beside A / A+ in both places.
-  check("A / A+ and Light/Dark: on phones in ONE 'Aa' Display menu at the right of the status row (25 Oct 2026); inline beside 'What we compare' from 640px",
+  check("A / A+ on phones in ONE 'Aa' Display menu at the right of the status row (25 Oct 2026); inline beside 'What we compare' from 640px; no page theme switch (the site header has it, owner 29 Oct 2026)",
     /<div className="min-w-0 flex-1 sm:pt-0"><LiveStatus data=\{data\} \/><\/div>\s*<DisplayMenu className="-mt-2 shrink-0 sm:hidden" \/>/.test(dash) &&
-    /<Details summary="What we compare"[\s\S]*?<\/Details>\s*<div className="flex shrink-0 items-center gap-1\.5 max-sm:hidden"><ThemePill \/><TextSizeToggle \/><\/div>/.test(dash));
+    /<Details summary="What we compare"[\s\S]*?<\/Details>\s*\{\/\*[^*]*\*\/\}<div className="flex shrink-0 items-center gap-1\.5 max-sm:hidden"><TextSizeToggle \/><\/div>/.test(dash));
   {
     // The finder's default amount: GH¢5 (owner, 22 Oct 2026); the social image stays at GH¢20.
     const React = await import("react");
@@ -2806,7 +2806,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     const { FlexiCalculator: FlexiCalc } = await import("../src/components/data-bundles/FlexiCalculator");
     check("simple page: MTN, Telecel and AT; one answer (finder + other types + spend tip), one dial card, one table, folded extras, sources",
       /export const SIMPLE_NETWORKS = \["mtn", "telecel", "at"\];/.test(page) && /extra=\{simple \? \(a\) => <><OtherTypes model=\{model\} network=\{network\} amount=\{a\} \/><CliffTip/.test(page) &&
-      /<BuyCard model=\{model\} network=\{network\} \/>\s*\{flexiIds\.length > 0 \?/.test(page) && /<FlexiCalculator model=\{model\} network=\{network\} \/>/.test(page) &&
+      /\{flexiIds\.length === 0 && <BuyCard model=\{model\} network=\{network\} \/>\}\s*\{flexiIds\.length > 0 \?/.test(page) && /<FlexiCalculator model=\{model\} network=\{network\} \/>/.test(page) &&
       /<BundleSheet model=\{model\} network=\{network\} skip=\{flexiIds\} \/>/.test(page) && /: <BundleSheet model=\{model\} network=\{network\} \/>\}\s*<GoodToKnow model=\{model\} network=\{network\} simple \/>/.test(page) &&
       /<Faq model=\{model\} only=\{network\} bare \/>/.test(page) && /<Advice model=\{model\} only=\{network\} bare \/>/.test(page));
     const groups = ns.sheetGroups(m, "mtn");
@@ -3691,11 +3691,11 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const { DisplayMenu } = await import("../src/components/data-bundles/ThemePill");
   const { ThemeProvider } = await import("../src/contexts/ThemeContext");
   const dm = renderToStaticMarkup(React.createElement(ThemeProvider, null, React.createElement(DisplayMenu)));
-  check("display menu: one 44px 'Aa' button named 'Display settings' (a Radix popover: outside tap and Escape close it, focus goes in and comes back); rows 'Text size' (A, A+) and 'Theme' (Light, Dark), pressed states",
+  check("display menu: one 44px 'Aa' button named 'Display settings' (a Radix popover: outside tap and Escape close it, focus goes in and comes back); one row 'Text size' (A, A+) with pressed states; no 'Theme' row (owner, 29 Oct 2026: the site header has light/dark)",
     /aria-label="Display settings"/.test(dm) && /h-11 w-11/.test(dm) && /<span aria-hidden="true">Aa<\/span>/.test(dm) && /aria-haspopup="dialog"/.test(dm) &&
-    /from "@\/components\/ui\/popover"/.test(tp) && />Text size</.test(tp) && />Theme</.test(tp) && /data-testid="display-theme-light"/.test(tp) && /data-testid="display-size-large"/.test(tp) && (tp.match(/aria-pressed=\{/g) ?? []).length >= 4);
-  check("display menu: the same storage as before (text size: one shared useLargeText, the stored key and the <html> mark; theme: ThemeContext setTheme), the mark kept by the page itself (DataBundlesChrome) so closing the menu never drops A+",
-    /const \[large, pickSize\] = useLargeText\(\);/.test(tp) && /theme!\.setTheme\("light"\)/.test(tp) && /theme!\.setTheme\("dark"\)/.test(tp) && sh.TEXT_SIZE_KEY === "techtrendi-db-text" &&
+    /from "@\/components\/ui\/popover"/.test(tp) && />Text size</.test(tp) && !/>Theme</.test(tp) && !/data-testid="display-theme-light"/.test(tp) && /data-testid="display-size-large"/.test(tp) && (tp.match(/aria-pressed=\{/g) ?? []).length >= 2);
+  check("display menu: the same storage as before (text size: one shared useLargeText, the stored key and the <html> mark), the mark kept by the page itself (DataBundlesChrome) so closing the menu never drops A+",
+    /const \[large, pickSize\] = useLargeText\(\);/.test(tp) && !/setTheme\("light"\)/.test(tp.slice(tp.indexOf("export function DisplayMenu"))) && sh.TEXT_SIZE_KEY === "techtrendi-db-text" &&
     /window\.dispatchEvent\(new CustomEvent\(TEXT_SIZE_EVENT, \{ detail: v \}\)\);/.test(src("src/components/data-bundles/shared.tsx")) && /useLargeTextMark\(\);/.test(src("src/components/data-bundles/shared.tsx")) &&
     /data-db-text/.test(src("index.html")));
   // 2. GMT.

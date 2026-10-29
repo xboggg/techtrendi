@@ -6,7 +6,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { BundleModel } from "@/lib/dataBundles";
-import { flexiAnswer, flexiTabs } from "@/lib/bundleSheet";
+import { dialCodes, flexiAnswer, flexiTabs } from "@/lib/bundleSheet";
+import { CodeActions } from "./shared";
 
 /** "521.03 MB" -> ["521.03", "MB"]. */
 const split = (text: string): [string, string] => {
@@ -110,8 +111,9 @@ export function FlexiCalculator({ model, network }: { model: BundleModel; networ
       <div className="grid gap-1.5 text-[13px] leading-snug">
         <p className="opacity-80">{tab.use}.</p>
         {ans.tip && <p className="rounded-xl bg-[#16130a] px-2.5 py-2 font-bold text-[#ffcb05]" data-testid="flexi-tip">{ans.tip}</p>}
-        {/* Plain text in the card's ink: the dial card above already has the Dial / Copy buttons. */}
+        {/* How to buy, in the card's ink, with Dial / Copy for a code (the page has no separate dial card on MTN). */}
         {tab.buy && <p className="font-bold" data-testid="flexi-buy">How to buy: {tab.buy.replace(/\.$/, "")}.</p>}
+        {tab.buy && dialCodes(tab.buy)[0] && <div className="pt-0.5"><CodeActions code={dialCodes(tab.buy)[0]} /></div>}
       </div>
       <div className="grid gap-1.5">
         <p className="flex justify-between font-mono text-[11px] font-bold uppercase tracking-widest opacity-75"><span>{tab.fixed.length === 1 ? "Fixed bundle" : "Fixed bundles"}</span><span>tap one</span></p>

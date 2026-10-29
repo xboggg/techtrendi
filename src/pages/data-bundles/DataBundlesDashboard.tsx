@@ -25,7 +25,7 @@ import { Leaderboards } from "@/components/data-bundles/Leaderboards";
 import { Advice } from "@/components/data-bundles/Advice";
 import { LiveStatus, ShareWhatsApp, SourcesAndDisclaimer, SourceLine } from "@/components/data-bundles/meta";
 import { WhatChanged } from "@/components/data-bundles/WhatChanged";
-import { DisplayMenu, ThemePill } from "@/components/data-bundles/ThemePill";
+import { DisplayMenu } from "@/components/data-bundles/ThemePill";
 import { DataBundlesChrome, Details, NetPill, ScanSweep, TextSizeToggle, glass, useFocusTitleOnNavigate } from "@/components/data-bundles/shared";
 import { cn } from "@/lib/utils";
 
@@ -161,7 +161,7 @@ export default function DataBundlesDashboard() {
                       : <> Our checker re-checks all {s.fixedCount} on the networks' own pages.</>}
                   </p>
                 </Details>
-                <div className="flex shrink-0 items-center gap-1.5 max-sm:hidden"><ThemePill /><TextSizeToggle /></div>
+                {/* Text size only: the site header has the light/dark switch (owner, 29 Oct 2026). */}<div className="flex shrink-0 items-center gap-1.5 max-sm:hidden"><TextSizeToggle /></div>
               </div>
 
               <div className="mt-3 [@media(max-height:820px)_and_(max-width:639px)]:mt-2 sm:mt-4">

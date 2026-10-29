@@ -37,7 +37,7 @@ import { LiveStatus, SourcesAndDisclaimer, SourceLine } from "@/components/data-
 import { WhatChanged } from "@/components/data-bundles/WhatChanged";
 import { DialTipCard, Just4UCard, just4uText } from "@/components/data-bundles/DialTip";
 import { xtra4uTip } from "@/lib/bundleTips";
-import { DisplayMenu, ThemePill } from "@/components/data-bundles/ThemePill";
+import { DisplayMenu } from "@/components/data-bundles/ThemePill";
 import { DataBundlesChrome, Details, NetPill, SectionHeading, TextSizeToggle, fmtDate, glass, textSafeFill, QueryLink, useFocusTitleOnNavigate, CodesIn } from "@/components/data-bundles/shared";
 import { cn } from "@/lib/utils";
 
@@ -147,7 +147,7 @@ export default function DataBundlesNetwork() {
                   <CodesIn texts={[model.factText(network)]} />
                   {typeof data.country.checkEveryHours === "number" && data.country.checkEveryHours > 0 && <p>We check the prices every {data.country.checkEveryHours} hours.</p>}
                 </Details>
-                <div className="flex shrink-0 items-center gap-1.5 max-sm:hidden"><ThemePill /><TextSizeToggle /></div>
+                {/* Text size only: the site header has the light/dark switch (owner, 29 Oct 2026). */}<div className="flex shrink-0 items-center gap-1.5 max-sm:hidden"><TextSizeToggle /></div>
               </div>
 
               <div className="mt-3 [@media(max-height:820px)_and_(max-width:639px)]:mt-2 sm:mt-4">
@@ -166,7 +166,8 @@ export default function DataBundlesNetwork() {
           <div key={network} className={cn("container relative mx-auto max-w-6xl px-4 pb-28 pt-6 md:pt-10", simple ? "space-y-10 md:space-y-12" : "space-y-12 md:space-y-16")}>
             {simple ? (
               <>
-                <BuyCard model={model} network={network} />
+                {/* The dial card only where there is no Flexi calculator: on MTN the calculator says how to buy (owner, 29 Oct 2026: no repetition). */}
+                {flexiIds.length === 0 && <BuyCard model={model} network={network} />}
                 {flexiIds.length > 0 ? (
                   // Flexi calculator above the table on phones, beside it (and staying in view) on wide screens.
                   <div className="grid gap-10 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:items-start lg:gap-8">
