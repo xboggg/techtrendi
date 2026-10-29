@@ -50,38 +50,43 @@ export function Leaderboards({ model, network, basePath }: { model: BundleModel;
         info={<><p>Longer bar = more data for your money.</p><p>{valueExplainer(model)}</p></>} />
 
       <div className={cn(glass, "p-3 sm:p-5")}>
-        {/* Price: a two-part switch; the highlight slides to the chosen side. */}
-        <div role="group" aria-label="Price" data-testid="board-price" className="grid w-full grid-cols-2 rounded-2xl border border-border bg-muted/60 p-1 sm:max-w-xl">
+        {/* Price: a slim rounded switch; a raised thumb slides to the chosen side (owner's "Draft 3", 29 Oct 2026). */}
+        <div role="group" aria-label="Price" data-testid="board-price" className="grid w-full grid-cols-2 rounded-full border border-border bg-muted/70 p-1 sm:max-w-xl">
           {PRICE_FILTERS.map((p) => {
             const on = price === p.id;
             return (
               <button key={p.id} type="button" aria-pressed={on} data-testid="board-price-option" data-id={p.id}
                 onClick={() => { setPrice(p.id); setExpanded(false); }}
-                className={cn("relative isolate flex min-h-12 flex-col items-center justify-center rounded-xl px-2 py-1.5 text-center leading-tight focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  on ? "text-background" : "text-foreground hover:text-foreground/80")}>
-                {/* The highlight: one shared element that slides (transform) to the chosen side; at once under reduced motion. */}
-                {on && <motion.span layoutId={`board-price-thumb-${network ?? "all"}`} data-hl aria-hidden className="pointer-events-none absolute inset-0 -z-10 rounded-xl bg-foreground shadow-sm"
+                className={cn("relative isolate flex min-h-11 items-center justify-center rounded-full px-2 text-center text-[15px] leading-tight transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:text-base",
+                  on ? "font-extrabold text-foreground" : "font-semibold text-muted-foreground hover:text-foreground")}>
+                {/* The thumb: one shared element that slides (transform) to the chosen side; at once under reduced motion. */}
+                {on && <motion.span layoutId={`board-price-thumb-${network ?? "all"}`} data-hl aria-hidden className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-background shadow-md ring-1 ring-border dark:bg-white/[0.12] dark:ring-white/15"
                   transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 36 }} />}
-                <span className="text-[15px] font-extrabold lg:text-base">{p.short}</span>
-                {p.id === "small" && <span className={cn("text-[15px] font-medium lg:text-base", on ? "text-background/90" : "text-foreground/80")}>(up to GH¢{SMALL_MAX})</span>}
+                {p.id === "small"
+                  ? <><span className="sm:hidden">Up to GH¢{SMALL_MAX}</span><span className="max-sm:hidden">{p.short} (up to GH¢{SMALL_MAX})</span></>
+                  : p.short}
               </button>
             );
           })}
         </div>
 
-        {/* Type: equal pills in an even grid (phones: 3 on top, 2 wider below; wider screens: one row). */}
-        <div role="group" aria-label="Bundle type" data-testid="board-type" className="mt-3 grid grid-cols-6 gap-2 sm:grid-cols-5">
-          {TYPE_FILTERS.map((t, i) => {
+        {/* Type: all five in one row. Phones and tablets: icon tiles (icon on top, label under it); from
+            1024px: rounded pills (icon beside the label). The chosen one turns green, like the finder. */}
+        <div role="group" aria-label="Bundle type" data-testid="board-type" className="mt-2.5 grid grid-cols-5 gap-1.5 max-[359px]:gap-1 sm:gap-2">
+          {TYPE_FILTERS.map((t) => {
             const on = type === t.id;
             const Icon = TYPE_ICONS[t.id] ?? Clock;
             return (
               <button key={t.id} type="button" aria-pressed={on} data-testid="board-type-option" data-id={t.id}
                 onClick={() => { setType(t.id); setExpanded(false); }}
-                className={cn("flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-xl border px-1.5 py-1.5 text-center text-[15px] font-bold leading-tight transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:col-span-1 sm:min-h-12 sm:flex-row sm:gap-1.5 lg:text-base",
-                  i < 3 ? "col-span-2" : "col-span-3",
-                  on ? "border-foreground bg-foreground text-background" : "border-border bg-background/60 text-foreground hover:border-foreground/40")}>
-                <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                <span>{t.label}</span>
+                className={cn("group flex min-h-[4.75rem] min-w-0 flex-col items-center justify-start gap-1.5 rounded-2xl border px-0.5 pb-2 pt-2.5 max-[359px]:px-0 max-[359px]:text-[11px] text-center text-xs font-bold leading-tight transition-[color,background-color,border-color,transform] active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "sm:text-sm lg:min-h-12 lg:flex-row lg:justify-center lg:gap-2 lg:rounded-full lg:px-2 lg:py-1.5 lg:text-base",
+                  on ? "border-emerald-500 bg-emerald-400/15 text-foreground dark:border-emerald-400" : "border-border bg-background/60 text-muted-foreground hover:border-foreground/30 hover:text-foreground")}>
+                <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-xl transition-colors lg:h-7 lg:w-7 lg:rounded-full",
+                  on ? "bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950" : "bg-muted text-foreground")} aria-hidden>
+                  <Icon className="h-4 w-4" />
+                </span>
+                <span className="min-w-0 lg:whitespace-nowrap">{t.label}</span>
               </button>
             );
           })}

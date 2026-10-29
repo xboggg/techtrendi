@@ -1,6 +1,6 @@
 // The finder's controls on phones (below 640px; owner-approved "Draft 4", 27 Oct 2026):
 //   one big amount button ("GH¢5 · ✎ tap to change"), three labelled filter buttons
-//   (Never expires, Night deals, and a length button that cycles Any → 7+ days → 30+ days),
+//   (Never expires, Night deals, and a length button "Any length ▾" that opens a small list),
 //   and one plain sentence saying what is shown.
 // Tapping the amount opens a bottom sheet with a live mini display: the typed amount, the
 // winner line, one bar per network (figure + how long it lasts), the filters, quick amounts,
@@ -10,7 +10,7 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
-import { Delete, Infinity as InfinityIcon, Moon, Pencil, Timer, X } from "lucide-react";
+import { Check, ChevronDown, Delete, Infinity as InfinityIcon, Moon, Pencil, Timer, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DEFAULT_STATE } from "@/lib/dataBundlesUrl";
 import { normaliseAmountText, type BudgetOptions, type BundleModel, type FinderPick } from "@/lib/dataBundles";
@@ -23,10 +23,9 @@ export const finderPicksFor = (model: BundleModel, amount: number, o: BudgetOpti
   return only ? ps.filter((p) => p.n === only) : ps;
 };
 
-/** The length button's steps, in the order a tap cycles through them. */
+/** The length choices, in the order the length list shows them; the button's short label. */
 export const LENGTHS = [0, 7, 30] as const;
 export const lengthLabel = (d: number) => (d === 7 ? "7+ days" : d === 30 ? "30+ days" : "Any length");
-export const nextLength = (d: number): 0 | 7 | 30 => LENGTHS[(LENGTHS.indexOf(d as 0 | 7 | 30) + 1) % LENGTHS.length];
 
 /** The one plain sentence under the filter buttons. */
 export function filterSentence(o: { night: boolean; noExpiryOnly: boolean; minDays: number }): string {
@@ -92,9 +91,7 @@ export function FinderPhoneControls({ model, only, budget, setBudget, chips, max
         <button type="button" aria-pressed={allowNight} onClick={() => setAllowNight(!allowNight)} className={filterBtn(allowNight)} data-testid="bf-f-night">
           <Moon className="h-5 w-5" aria-hidden /> Night deals
         </button>
-        <button type="button" onClick={() => setMinDays(nextLength(minDays))} aria-label={`${lengthLabel(minDays)}, tap to change how long it lasts`} className={filterBtn(minDays > 0)} data-testid="bf-f-lasts" data-days={minDays}>
-          <Timer className="h-5 w-5" aria-hidden /> {lengthLabel(minDays)}
-        </button>
+        <LengthMenu minDays={minDays} setMinDays={setMinDays} />
       </div>
       <p className="mt-2 text-sm text-muted-foreground [@media(max-height:820px)]:mt-1.5" aria-live="polite" data-testid="bf-sentence">{filterSentence({ night: allowNight, noExpiryOnly, minDays })}</p>
       {open && (
@@ -104,6 +101,60 @@ export function FinderPhoneControls({ model, only, budget, setBudget, chips, max
           onClose={close}
           onApply={(v) => { setBudget(v); close(); }}
         />
+      )}
+    </div>
+  );
+}
+
+/** The length choices in plain words, for the pop-up list. */
+export const lengthChoice = (d: number) => (d === 7 ? "7 days or more" : d === 30 ? "30 days or more" : "Any length");
+
+/** The length button (owner's "C", 28 Oct 2026): shows the choice with a ▾; a tap opens a small list
+ *  under it (Any length / 7 days or more / 30 days or more, the chosen one ticked). Picking one, a tap
+ *  outside or Escape closes it; focus goes back to the button. */
+function LengthMenu({ minDays, setMinDays }: { minDays: number; setMinDays: (d: 0 | 7 | 30) => void }) {
+  const [open, setOpen] = useState(false);
+  const wrap = useRef<HTMLDivElement>(null);
+  const btn = useRef<HTMLButtonElement>(null);
+  const listId = useId();
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: PointerEvent) => { if (!wrap.current?.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("pointerdown", away);
+    wrap.current?.querySelector<HTMLButtonElement>("[aria-checked=true]")?.focus();
+    return () => document.removeEventListener("pointerdown", away);
+  }, [open]);
+  const close = () => { setOpen(false); btn.current?.focus(); };
+  const onKeyDown = (e: ReactKeyboardEvent) => {
+    if (e.key === "Escape" && open) { e.preventDefault(); close(); return; }
+    if (!open || (e.key !== "ArrowDown" && e.key !== "ArrowUp")) return;
+    e.preventDefault();
+    const items = [...(wrap.current?.querySelectorAll<HTMLButtonElement>("[role=menuitemradio]") ?? [])];
+    const i = items.indexOf(document.activeElement as HTMLButtonElement);
+    items[(i + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length]?.focus();
+  };
+  return (
+    <div ref={wrap} className="relative" onKeyDown={onKeyDown}>
+      <button ref={btn} type="button" onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open} aria-controls={open ? listId : undefined}
+        aria-label={`How long it lasts: ${lengthChoice(minDays)}. Tap to choose`} className={cn(filterBtn(minDays > 0), "w-full")} data-testid="bf-f-lasts" data-days={minDays}>
+        <Timer className="h-5 w-5" aria-hidden />
+        <span className="inline-flex items-center gap-0.5">{lengthLabel(minDays)} <ChevronDown className={cn("h-3.5 w-3.5 transition-transform motion-reduce:transition-none", open && "rotate-180")} aria-hidden /></span>
+      </button>
+      {open && (
+        <motion.div id={listId} role="menu" aria-label="How long it lasts"
+          initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15 }}
+          className="absolute right-0 top-full z-30 mt-1.5 w-52 rounded-2xl border border-border bg-card p-1.5 text-foreground shadow-xl" data-testid="bf-lasts-menu">
+          {LENGTHS.map((d) => {
+            const on = d === minDays;
+            return (
+              <button key={d} type="button" role="menuitemradio" aria-checked={on} onClick={() => { setMinDays(d); close(); }} data-days={d}
+                className={cn("flex min-h-11 w-full items-center justify-between gap-2 rounded-xl px-3 text-left text-[15px] font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-ring", on ? "bg-emerald-400/15" : "hover:bg-muted")}>
+                {lengthChoice(d)}
+                {on && <Check className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden />}
+              </button>
+            );
+          })}
+        </motion.div>
       )}
     </div>
   );

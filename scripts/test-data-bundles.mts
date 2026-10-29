@@ -977,7 +977,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     check(`L8: ${f} tab strip wraps (no w-max / horizontal scroller)`, /<TabsList className="flex h-auto w-full flex-wrap/.test(t) && !/w-max/.test(t));
   }
   // The winners board has no tab strip now (22 Oct 2026): an even type grid, never a scroller.
-  check("L8: Leaderboards.tsx type grid is even (no w-max / horizontal scroller)", /grid grid-cols-6 gap-2 sm:grid-cols-5/.test(src("src/components/data-bundles/Leaderboards.tsx")) && !/w-max|overflow-x-auto/.test(src("src/components/data-bundles/Leaderboards.tsx")));
+  check("L8: Leaderboards.tsx type grid is even (no w-max / horizontal scroller)", /grid grid-cols-5 gap-1\.5/.test(src("src/components/data-bundles/Leaderboards.tsx")) && !/w-max|overflow-x-auto/.test(src("src/components/data-bundles/Leaderboards.tsx")));
 
   // L9. no stale hard-coded wording
   check("L9: the monthly planner no longer names '(daily, weekly, Sika Kokoo)'; the left-out families come from the data", !/daily, weekly, Sika Kokoo/.test(src("src/components/data-bundles/MonthlyPlanner.tsx")) && /shortFams/.test(src("src/components/data-bundles/MonthlyPlanner.tsx")));
@@ -3334,9 +3334,10 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   }
   {
     const lb = src("src/components/data-bundles/Leaderboards.tsx");
-    check("board controls (UI): a two-part price switch with a sliding highlight (one shared element, layout transform; instant under reduced motion) and an even type grid (phones 3 + 2 wider, one row from sm), every option ≥ 44px with aria-pressed; opens on Small buys + Any time",
-      /role="group" aria-label="Price"/.test(lb) && /grid w-full grid-cols-2/.test(lb) && /\{on && <motion\.span layoutId=\{`board-price-thumb-/.test(lb) && /data-hl aria-hidden/.test(lb) &&/transition=\{reduce \? \{ duration: 0 \}/.test(lb) &&
-      /role="group" aria-label="Bundle type"/.test(lb) && /grid grid-cols-6 gap-2 sm:grid-cols-5/.test(lb) && /i < 3 \? "col-span-2" : "col-span-3"/.test(lb) && /min-h-12/.test(lb) && /min-h-14/.test(lb) &&
+    check("board controls (UI, owner's Draft 3): a slim rounded price switch with a sliding thumb (one shared element, layout transform; instant under reduced motion; 'Up to GH¢20' on phones) and all five types in one row (icon tiles on phones, rounded pills from lg; the chosen one green), every option ≥ 44px with aria-pressed; opens on Small buys + Any time",
+      /role="group" aria-label="Price"/.test(lb) && /grid w-full grid-cols-2 rounded-full/.test(lb) && /\{on && <motion\.span layoutId=\{`board-price-thumb-/.test(lb) && /data-hl aria-hidden/.test(lb) &&/transition=\{reduce \? \{ duration: 0 \}/.test(lb) &&
+      /<span className="sm:hidden">Up to GH¢\{SMALL_MAX\}<\/span>/.test(lb) && /min-h-11 items-center justify-center rounded-full/.test(lb) &&
+      /role="group" aria-label="Bundle type"/.test(lb) && /grid grid-cols-5 gap-1\.5/.test(lb) && /min-h-\[4\.75rem\]/.test(lb) && /lg:min-h-12 lg:flex-row/.test(lb) && /lg:rounded-full/.test(lb) && /border-emerald-500 bg-emerald-400\/15/.test(lb) &&
       (lb.match(/aria-pressed=\{on\}/g) ?? []).length === 2 && /useState<PriceFilter>\("small"\)/.test(lb) && /useState<string>\("allday"\)/.test(lb) && !/<TabsList|w-max|overflow-x-auto/.test(lb));
   }
 
@@ -3692,8 +3693,10 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     fp.filterSentence({ night: true, noExpiryOnly: true, minDays: 0 }) === "Showing all-day and night data that never expires." &&
     fp.filterSentence({ night: false, noExpiryOnly: false, minDays: 30 }) === "Showing all-day data that lasts 30+ days." &&
     fp.filterSentence({ night: true, noExpiryOnly: false, minDays: 7 }) === "Showing all-day and night data that lasts 7+ days.");
-  check("phone finder: the length button cycles Any length -> 7+ days -> 30+ days -> Any length",
-    fp.nextLength(0) === 7 && fp.nextLength(7) === 30 && fp.nextLength(30) === 0 && [0, 7, 30].map(fp.lengthLabel).join("|") === "Any length|7+ days|30+ days");
+  check("phone finder: the length button shows 'Any length ▾' and opens a list (Any length / 7 days or more / 30 days or more, the chosen one ticked; a tap outside or Escape closes it)",
+    fp.LENGTHS.join() === "0,7,30" && [0, 7, 30].map(fp.lengthLabel).join("|") === "Any length|7+ days|30+ days" && [0, 7, 30].map(fp.lengthChoice).join("|") === "Any length|7 days or more|30 days or more" &&
+    /aria-haspopup="menu" aria-expanded=\{open\}/.test(ph) && /role="menuitemradio" aria-checked=\{on\}/.test(ph) && /onClick=\{\(\) => \{ setMinDays\(d\); close\(\); \}\}/.test(ph) &&
+    /e\.key === "Escape" && open/.test(ph) && /document\.addEventListener\("pointerdown", away\)/.test(ph) && /<ChevronDown/.test(ph) && !/nextLength/.test(ph));
   // The keypad keeps the amount box's rules (normaliseAmountText).
   const run = (keys: string[], start = { text: "5", fresh: true }) => keys.reduce((s, k) => fp.keypadPress(s, k, INPUT_MAX), { ...start, value: 0, clamped: false });
   const k1 = run(["2", "0"]), k2 = run(["2", ".", "5", "5", "5"]), k3 = run(["del"]), k4 = run(["."]), k5 = run(["0", "0", "7"]), k6 = run(["9", "9", "9", "9"]), k7 = run([".", "."]);
@@ -3715,7 +3718,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const fh = html(React.createElement(BudgetFinder, { model: m, initialAmount: 5 }));
   check("phone finder: one amount button ('Amount GH¢5, tap to change'), three labelled filter buttons and the sentence (aria-live), phones only; the old controls are kept from 640px",
     /<div class="sm:hidden" data-testid="bf-phone">/.test(fh) && /aria-haspopup="dialog"[^>]*aria-label="Amount GH¢5, tap to change"/.test(fh) &&
-    /data-testid="bf-f-noexp"[^>]*>.*?Never expires<\/button>/.test(fh) && /data-testid="bf-f-night"[^>]*>.*?Night deals<\/button>/.test(fh) && /aria-label="Any length, tap to change how long it lasts"[^>]*data-testid="bf-f-lasts"/.test(fh) &&
+    /data-testid="bf-f-noexp"[^>]*>.*?Never expires<\/button>/.test(fh) && /data-testid="bf-f-night"[^>]*>.*?Night deals<\/button>/.test(fh) && /aria-haspopup="menu" aria-expanded="false" aria-label="How long it lasts: Any length. Tap to choose"[^>]*data-testid="bf-f-lasts"/.test(fh) && !/data-testid="bf-lasts-menu"/.test(fh) &&
     /aria-live="polite" data-testid="bf-sentence">Showing all-day data of any length\.</.test(fh) && /<div class="max-sm:hidden" data-testid="bf-desktop-controls">/.test(fh) &&
     fh.indexOf('data-testid="bf-desktop-controls"') < fh.indexOf('role="group" aria-label="Quick amounts"') && !/role="dialog"/.test(fh), fh.slice(fh.indexOf("bf-phone"), fh.indexOf("bf-phone") + 400));
   check("phone sheet: a dialog (aria-modal, labelled) in a portal above the cookie bar; Escape, ✕ and a tap outside close it; Tab stays inside; focus goes back to the amount button; the page does not scroll behind it",

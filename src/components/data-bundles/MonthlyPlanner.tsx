@@ -185,11 +185,15 @@ export function MonthlyPlanner({ model }: { model: BundleModel }) {
 
         <div className="mt-4 rounded-xl border border-border bg-background/60 p-3">
           <p id={capId} className="flex items-center gap-2 text-sm font-semibold"><ShoppingCart className="h-4 w-4 shrink-0" aria-hidden /> How often will you buy data this month?</p>
-          {/* 1 to 12 on a slider; the bubble over the thumb says it in words. */}
+          {/* 1 to 12 on a slider with - and + either side (as the GB row); the bubble over the thumb says it in words. */}
           {/* The bubble sits ABOVE the thumb (bottom: 100% of the slider box; the thumb is 4px
               below its top), centred on the thumb and clamped inside the slider at both ends. */}
+          <div className="mt-10 flex items-center gap-3">
+          <button type="button" className={step} onClick={() => setCap((c) => Math.max(1, c - 1))} disabled={cap === 1} aria-label="Buy less often" data-testid="cap-less">
+            <Minus className="h-5 w-5" aria-hidden />
+          </button>
           <SliderPrimitive.Root
-            className="relative mt-10 flex w-full touch-none select-none items-center py-4"
+            className="relative flex w-full min-w-0 flex-1 touch-none select-none items-center py-4"
             min={1}
             max={MAX_PURCHASES}
             step={1}
@@ -217,7 +221,11 @@ export function MonthlyPlanner({ model }: { model: BundleModel }) {
               {capLabel(cap)}
             </span>
           </SliderPrimitive.Root>
-          <div className="flex justify-between text-[11px] text-muted-foreground" aria-hidden>
+          <button type="button" className={step} onClick={() => setCap((c) => Math.min(MAX_PURCHASES, c + 1))} disabled={cap === MAX_PURCHASES} aria-label="Buy more often" data-testid="cap-more">
+            <Plus className="h-5 w-5" aria-hidden />
+          </button>
+          </div>
+          <div className="flex justify-between px-14 text-[11px] text-muted-foreground" aria-hidden>
             <span>Once</span><span>12 times</span>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">Buying more often can be cheaper. Buying once is simpler.</p>
