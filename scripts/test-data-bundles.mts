@@ -2874,10 +2874,17 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
         ans("mtn-regular", 0.2) === "Data starts at GH¢0.31" && ans("mtn-regular", 400) === "Data goes up to GH¢399" && ans("mtn-midnight", 5) === "Midnight goes up to GH¢3" && /MTN gives no figure for GH¢99\.95/.test(String(ans("mtn-regular", 99.95))));
       check("flexi calculator: spend-less warning inside a cliff (GH¢6: GH¢5 gives 521.03 MB) and a little-more tip near a jump (GH¢295: add GH¢5 for 92.75 GB); none at GH¢5",
         bs.flexiAnswer(m, by("mtn-regular"), 6).tip === "Spend less: GH¢5 gives 521.03 MB, more than GH¢6 gives." && bs.flexiAnswer(m, by("mtn-regular"), 295).tip === "Add GH¢5: GH¢300 gives 92.75 GB." && bs.flexiAnswer(m, by("mtn-regular"), 5).tip === null);
+      // Owner, 29 Oct 2026: the range as MTN's Flexi cards show it, and only MTN's own fixed bundles below.
+      const rg = (id: string) => { const t = by(id); return `${m.fmtData(t.mbAt(t.rangeMin)!, "mtn")} – ${m.fmtData(t.mbAt(t.rangeMax)!, "mtn")} | ${m.money(t.rangeMin)} – ${m.money(t.rangeMax)}`; };
+      check("flexi calculator: ranges match the myMTN Flexi cards (Social 2.48 MB – 32.17 GB for GH¢0.03 – GH¢399, Video 4.74 MB – 154.35 GB to GH¢1,000, Midnight 61.78 MB – 6.01 GB for GH¢0.03 – GH¢2.99; Data from our lowest rate, GH¢0.31)",
+        rg("mtn-social") === "2.48 MB – 32.17 GB | GH¢0.03 – GH¢399" && rg("mtn-video") === "4.74 MB – 154.35 GB | GH¢0.03 – GH¢1,000" &&
+        rg("mtn-midnight") === "61.78 MB – 6.01 GB | GH¢0.03 – GH¢2.99" && rg("mtn-regular") === "12.85 MB – 217.34 GB | GH¢0.31 – GH¢399", ["mtn-regular", "mtn-social", "mtn-video", "mtn-midnight"].map(rg).join(" / "));
+      check("flexi calculator: fixed bundles are the app's own (Data GH¢0.50, 1, 3, 10, 350, 399; Social and Video GH¢1, 5, 10; Midnight GH¢3 only)",
+        JSON.stringify(ft.map((t) => t.fixed)) === "[[0.5,1,3,10,350,399],[1,5,10],[1,5,10],[3]]", JSON.stringify(ft.map((t) => t.fixed)));
       const fc = html(React.createElement(FlexiCalc, { model: m, network: "mtn" }));
       const sheetSkip = html(React.createElement(ns.BundleSheet, { model: m, network: "mtn", skip: ft.map((t) => t.id) }));
       check("flexi calculator (HTML): yellow card, 4 tabs, amount box, ready amounts; the table then drops Data and Midnight rows and points to the calculator",
-        /data-testid="flexi-calc"/.test(fc) && (fc.match(/data-id="mtn-/g) ?? []).length === 4 && /id="flexi-amount"/.test(fc) && /data-testid="flexi-fixed"/.test(fc) && /bg-\[#ffcb05\]/.test(fc) &&
+        /data-testid="flexi-calc"/.test(fc) && (fc.match(/data-id="mtn-/g) ?? []).length === 4 && /id="flexi-amount"/.test(fc) && /data-testid="flexi-fixed"/.test(fc) && /bg-\[#ffcb05\]/.test(fc) && /data-testid="flexi-range"/.test(fc) && /\(enter amount\)/.test(fc) && !/flexi-chips/.test(fc) &&
         !/data-tab="never"[^>]*>[\s\S]{0,400}?>Regular</.test(sheetSkip) && /data-testid="sheet-flexi-note"/.test(sheetSkip) && /Pulse \(Mashup\)/.test(sheetSkip) &&
         !sheetSkip.includes(">Midnight<") && !html(React.createElement(ns.BundleSheet, { model: m, network: "mtn" })).includes("sheet-flexi-note")); }
     { const dt = await import("../src/components/data-bundles/DialTip");

@@ -56,7 +56,6 @@ export function FlexiCalculator({ model, network }: { model: BundleModel; networ
     setId(next);
     if (!flexiAnswer(model, t, Number(raw)).mb) setRaw(String(t.chips.includes(5) ? 5 : t.chips[1] ?? t.chips[0]));
   };
-  const chip = "rounded-full border-[1.5px] border-current px-3 py-2 font-mono text-[13px] font-bold opacity-85 transition hover:-translate-y-px hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#16130a]";
 
   return (
     <section aria-labelledby="flexi-h" className="relative grid min-w-0 gap-3.5 overflow-hidden rounded-[26px] bg-[#ffcb05] p-4 text-[#16130a] shadow-lg sm:p-5" data-testid="flexi-calc">
@@ -80,11 +79,23 @@ export function FlexiCalculator({ model, network }: { model: BundleModel; networ
           <input id="flexi-amount" inputMode="decimal" autoComplete="off" value={raw} data-testid="flexi-input"
             onChange={(e) => setRaw(e.target.value.replace(/[^0-9.]/g, ""))}
             className="min-w-0 flex-1 bg-transparent py-2 text-[30px] font-black tabular-nums outline-none" />
+          {/* A faint hint that this is where you type (owner, 29 Oct 2026). */}
+          <span className="shrink-0 text-sm font-semibold text-[#16130a]/45" aria-hidden>(enter amount)</span>
         </div>
       </div>
-      <div className="flex flex-wrap gap-1.5" data-testid="flexi-chips">
-        {tab.chips.map((a) => <button key={a} type="button" className={chip} onClick={() => setRaw(String(a))}>{model.money(a)}</button>)}
-      </div>
+      {/* The Flexi range, as MTN's own Flexi card shows it: data at each end, and the cost range. */}
+      {(() => {
+        const lo = tab.mbAt(tab.rangeMin), hi = tab.mbAt(tab.rangeMax);
+        if (!lo || !hi) return null;
+        return (
+          <dl className="flex flex-wrap justify-between gap-x-3 gap-y-1 rounded-2xl bg-black/[.08] px-3.5 py-2.5" data-testid="flexi-range">
+            <div className="min-w-0"><dt className="font-mono text-[11px] font-bold uppercase tracking-widest opacity-75">Data</dt>
+              <dd className="whitespace-nowrap text-sm font-black tabular-nums min-[400px]:text-[15px]">{model.fmtData(lo, "mtn")} – {model.fmtData(hi, "mtn")}</dd></div>
+            <div className="ml-auto text-right"><dt className="font-mono text-[11px] font-bold uppercase tracking-widest opacity-75">Cost</dt>
+              <dd className="whitespace-nowrap text-sm font-black tabular-nums min-[400px]:text-[15px]">{model.money(tab.rangeMin)} – {model.money(tab.rangeMax)}</dd></div>
+          </dl>
+        );
+      })()}
       <div className="grid min-h-[120px] place-items-center rounded-[20px] bg-[#16130a] px-2.5 py-4 text-center text-[#ffcb05] shadow-[inset_0_0_0_3px_#2b2614]" aria-live="polite" data-testid="flexi-out">
         {text ? (
           <div>
@@ -103,7 +114,7 @@ export function FlexiCalculator({ model, network }: { model: BundleModel; networ
         {tab.buy && <p className="font-bold" data-testid="flexi-buy">How to buy: {tab.buy.replace(/\.$/, "")}.</p>}
       </div>
       <div className="grid gap-1.5">
-        <p className="flex justify-between font-mono text-[11px] font-bold uppercase tracking-widest opacity-75"><span>Ready amounts</span><span>tap one</span></p>
+        <p className="flex justify-between font-mono text-[11px] font-bold uppercase tracking-widest opacity-75"><span>{tab.fixed.length === 1 ? "Fixed bundle" : "Fixed bundles"}</span><span>tap one</span></p>
         <ul className="grid grid-cols-[repeat(auto-fill,minmax(92px,1fr))] gap-1.5" data-testid="flexi-fixed">
           {tab.fixed.map((a) => {
             const mb = tab.mbAt(a);

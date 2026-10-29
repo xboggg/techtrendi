@@ -120,8 +120,10 @@ export interface FlexiTab {
   /** MB for exactly this spend, or null (outside the range, or an amount MTN gives no rate for). */
   mbAt: (amount: number) => number | null;
   use: string; buy: string | null; chips: number[];
-  /** The amounts listed under the calculator (the table's sample amounts, or the app's fixed ones). */
+  /** The amounts listed under the calculator (the app's fixed ones, else the table's sample amounts). */
   fixed: number[];
+  /** The Flexi range the card shows ("Cost GH¢0.03 – GH¢399", with the data at each end). */
+  rangeMin: number; rangeMax: number;
   /** Spend-less warnings (model.materialCliffsOf) and amounts where a little more buys much more. */
   cliffs: SpendCliff[]; steps: number[];
 }
@@ -144,6 +146,7 @@ export function flexiTabs(model: BundleModel, network: string): FlexiTab[] {
     if (!s) return;
     const [lo, hi] = tableRange(s.table);
     const probe = model.sourceBundle(s, lo);
+    const sec = appSection(model, id.replace(/^mtn-/, ""));
     const steps = [...new Set(s.table.filter((b) => !isUnpublishedBand(b)).map((b) => (b.exactly ?? bandLow(b))).map((a) => Math.round(a * 100) / 100))].filter((a) => a >= lo).sort((a, b) => a - b);
     out.push({
       id, label, min: lo, max: hi,
@@ -151,7 +154,16 @@ export function flexiTabs(model: BundleModel, network: string): FlexiTab[] {
       use: probe ? model.shortValidity(probe) : "",
       buy: buyCode ?? (s.buy ? s.buy.replace(/\s*\(as the app showed it[^)]*\)/, "") : null),
       chips: quick.filter((a) => a >= lo && a <= hi).length >= 3 ? quick.filter((a) => a >= lo && a <= hi) : sampleRows(model, s).map((b) => b.price),
-      fixed: sampleRows(model, s).map((b) => b.price),
+      // The boxes under the calculator (owner, 29 Oct 2026): only the fixed prices the myMTN app lists
+      // for this type (Data: GH¢0.50, 1, 3, 10, 350, 399; Midnight: GH¢3 for 8.48 GB), else the table's samples.
+      fixed: (() => {
+        const app = ((sec?.fixed ?? []) as { price: number }[]).map((f) => f.price).filter((a) => a >= lo && a <= hi);
+        return app.length ? app : sampleRows(model, s).map((b) => b.price);
+      })(),
+      // The Flexi range shown instead of quick buttons, as the app's Flexi card: the app's range where it
+      // is narrower (Midnight GH¢0.03 to GH¢2.99), never wider than the rates we have (Data from GH¢0.31).
+      rangeMin: Math.max(lo, (sec?.flexi as { from?: number } | undefined)?.from ?? lo),
+      rangeMax: Math.min(hi, (sec?.flexi as { to?: number } | undefined)?.to ?? hi),
       cliffs: model.materialCliffsOf(s.table), steps,
     });
   };
@@ -169,7 +181,7 @@ export function flexiTabs(model: BundleModel, network: string): FlexiTab[] {
       mbAt: (a) => (a >= min - 1e-9 && a <= max + 1e-9 ? a / rate : null),
       use: apps ? `Only for ${apps.replace(/,\s*([^,]+)$/, " and $1")}` : `${label} apps only`,
       buy: `In the myMTN app: “${String(sec.title)}”`,
-      chips: quick, fixed: ((sec.fixed ?? []) as { price: number }[]).map((f) => f.price), cliffs: [], steps: [],
+      chips: quick, fixed: ((sec.fixed ?? []) as { price: number }[]).map((f) => f.price), cliffs: [], steps: [], rangeMin: min, rangeMax: max,
     });
   }
   fromSource("mtn-midnight", "Midnight", null);
