@@ -6,8 +6,8 @@
 // The page's parts (src/components/data-bundles/NetworkSimple.tsx) draw these; shared.tsx
 // re-exports trustOf, fromAppOnly and dialCodes for the other parts.
 import {
-  TABLE_SECTIONS, conditionalReason, hasConflict, hasVolume, isConditional, isPending, isUnconfirmed, neverExpires,
-  tableRange, tableSection, type Bundle, type BundleModel, type RateSource,
+  TABLE_SECTIONS, bandLow, conditionalReason, hasConflict, hasVolume, isConditional, isPending, isUnconfirmed, isUnpublishedBand, neverExpires,
+  tableRange, tableSection, type Bundle, type BundleModel, type RateSource, type SpendCliff,
 } from "./dataBundles";
 
 /** The dial codes in a text: "Dial *111# then option 4, or *111*4#" -> ["*111#", "*111*4#"]. */
@@ -112,6 +112,84 @@ export function sheetGroups(model: BundleModel, network: string): SheetGroup[] {
   }
   if (unranked.length) groups.push({ id: "check", name: "Check first", note: "Not ranked: details not clear, or not for everyone", tab: "check", rows: unranked, best: null, anyAmount: false });
   return groups;
+}
+
+/** One tab of the Flexi calculator (owner, 29 Oct 2026: "you type amount, you see data equivalent"). */
+export interface FlexiTab {
+  id: string; label: string; min: number; max: number;
+  /** MB for exactly this spend, or null (outside the range, or an amount MTN gives no rate for). */
+  mbAt: (amount: number) => number | null;
+  use: string; buy: string | null; chips: number[];
+  /** The amounts listed under the calculator (the table's sample amounts, or the app's fixed ones). */
+  fixed: number[];
+  /** Spend-less warnings (model.materialCliffsOf) and amounts where a little more buys much more. */
+  cliffs: SpendCliff[]; steps: number[];
+}
+
+/** The app section that sells a rate table or a flat rate (mtnRates.app.sections, the owner's screenshots). */
+const appSection = (model: BundleModel, rates: string): Record<string, unknown> | null => {
+  const secs = (model.doc.mtnRates?.app as { sections?: Record<string, unknown>[] } | undefined)?.sections ?? [];
+  return secs.find((s) => s.rates === rates) ?? null;
+};
+
+/** MTN's pay-any-amount data as calculator tabs: Data (regular), Social, Video, Midnight. Pulse is left
+ *  out (its own group and Mashup list sit in the table). Every figure is the model's: the same rates,
+ *  gaps and minimums as the table. Empty for networks without MTN-style app rates. */
+export function flexiTabs(model: BundleModel, network: string): FlexiTab[] {
+  if (network !== "mtn" || !model.rates) return [];
+  const out: FlexiTab[] = [];
+  const quick = [1, 5, 10, 20, 50, 100];
+  const fromSource = (id: string, label: string, buyCode: string | null) => {
+    const s = model.sources.find((x) => x.id === id);
+    if (!s) return;
+    const [lo, hi] = tableRange(s.table);
+    const probe = model.sourceBundle(s, lo);
+    const steps = [...new Set(s.table.filter((b) => !isUnpublishedBand(b)).map((b) => (b.exactly ?? bandLow(b))).map((a) => Math.round(a * 100) / 100))].filter((a) => a >= lo).sort((a, b) => a - b);
+    out.push({
+      id, label, min: lo, max: hi,
+      mbAt: (a) => { const b = model.sourceBundle(s, a); return b && hasVolume(b) ? b.mb : null; },
+      use: probe ? model.shortValidity(probe) : "",
+      buy: buyCode ?? (s.buy ? s.buy.replace(/\s*\(as the app showed it[^)]*\)/, "") : null),
+      chips: quick.filter((a) => a >= lo && a <= hi).length >= 3 ? quick.filter((a) => a >= lo && a <= hi) : sampleRows(model, s).map((b) => b.price),
+      fixed: sampleRows(model, s).map((b) => b.price),
+      cliffs: model.materialCliffsOf(s.table), steps,
+    });
+  };
+  const route = buyRoute(model, network);
+  fromSource("mtn-regular", "Data", route ? `Dial ${route.steps}, then type the amount` : null);
+  for (const [key, label] of [["social", "Social"], ["video", "Video"]] as const) {
+    const sec = appSection(model, key);
+    const fl = (sec?.flexi ?? null) as { from?: number; to?: number } | null;
+    const rate = model.rates[key];
+    if (!sec || !fl || typeof rate !== "number" || !(rate > 0)) continue;
+    const min = fl.from ?? 0.03, max = fl.to ?? 0;
+    const apps = typeof sec.apps === "string" ? sec.apps : "";
+    out.push({
+      id: `mtn-${key}`, label, min, max,
+      mbAt: (a) => (a >= min - 1e-9 && a <= max + 1e-9 ? a / rate : null),
+      use: apps ? `Only for ${apps.replace(/,\s*([^,]+)$/, " and $1")}` : `${label} apps only`,
+      buy: `In the myMTN app: “${String(sec.title)}”`,
+      chips: quick, fixed: ((sec.fixed ?? []) as { price: number }[]).map((f) => f.price), cliffs: [], steps: [],
+    });
+  }
+  fromSource("mtn-midnight", "Midnight", null);
+  return out;
+}
+
+/** What the calculator shows for an amount on a tab: data, or why there is none, plus one tip. */
+export function flexiAnswer(model: BundleModel, tab: FlexiTab, amount: number): { mb: number | null; msg: string | null; tip: string | null } {
+  const a = Math.round(amount * 100) / 100;
+  if (!(a > 0)) return { mb: null, msg: "Type an amount", tip: null };
+  if (a < tab.min - 1e-9) return { mb: null, msg: `${tab.label} starts at ${model.money(tab.min)}`, tip: null };
+  if (a > tab.max + 1e-9) return { mb: null, msg: `${tab.label} goes up to ${model.money(tab.max)}`, tip: null };
+  const mb = tab.mbAt(a);
+  if (!mb) return { mb: null, msg: `MTN gives no figure for ${model.money(a)}. Try a few pesewas less or more.`, tip: null };
+  const show = (x: number) => model.fmtData(x, "mtn");
+  const cl = tab.cliffs.find((c) => a >= c.from - 1e-9 && a <= c.to + 1e-9);
+  if (cl) return { mb, msg: null, tip: `Spend less: ${model.money(cl.better)} gives ${show(cl.betterMb)}, more than ${model.money(a)} gives.` };
+  const up = tab.steps.find((s) => s > a + 1e-9 && s <= a * 1.12 + 0.01 && (tab.mbAt(s) ?? 0) >= mb * 1.3);
+  if (up) return { mb, msg: null, tip: `Add ${model.money(Math.round((up - a) * 100) / 100)}: ${model.money(up)} gives ${show(tab.mbAt(up)!)}.` };
+  return { mb, msg: null, tip: null };
 }
 
 /** What the buy card says, from the data only (null: no clear route, no card):

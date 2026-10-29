@@ -2796,9 +2796,12 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   {
     // The simple network page (owner, 29 Oct 2026; MTN first).
     const ns = await import("../src/components/data-bundles/NetworkSimple");
+    const bs = await import("../src/lib/bundleSheet");
+    const { FlexiCalculator: FlexiCalc } = await import("../src/components/data-bundles/FlexiCalculator");
     check("simple page: MTN, Telecel and AT; one answer (finder + other types + spend tip), one dial card, one table, folded extras, sources",
       /export const SIMPLE_NETWORKS = \["mtn", "telecel", "at"\];/.test(page) && /extra=\{simple \? \(a\) => <><OtherTypes model=\{model\} network=\{network\} amount=\{a\} \/><CliffTip/.test(page) &&
-      /<BuyCard model=\{model\} network=\{network\} \/>\s*<BundleSheet model=\{model\} network=\{network\} \/>\s*<GoodToKnow model=\{model\} network=\{network\} simple \/>/.test(page) &&
+      /<BuyCard model=\{model\} network=\{network\} \/>\s*\{flexiIds\.length > 0 \?/.test(page) && /<FlexiCalculator model=\{model\} network=\{network\} \/>/.test(page) &&
+      /<BundleSheet model=\{model\} network=\{network\} skip=\{flexiIds\} \/>/.test(page) && /: <BundleSheet model=\{model\} network=\{network\} \/>\}\s*<GoodToKnow model=\{model\} network=\{network\} simple \/>/.test(page) &&
       /<Faq model=\{model\} only=\{network\} bare \/>/.test(page) && /<Advice model=\{model\} only=\{network\} bare \/>/.test(page));
     const groups = ns.sheetGroups(m, "mtn");
     const reg = groups.find((g) => g.id === "mtn-regular")!;
@@ -2852,6 +2855,25 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     check("other types at GH¢10: Regular 837.55 MB, Pulse (Mashup) 602.39 MB, Midnight at its GH¢3 top (said so), Social 825.7MB and Video 1.54GB (app-only, said so); facts, not a ranking",
       /Other MTN types for GH¢10/.test(ot) && /Regular<\/span><span[^>]*>837\.55 MB</.test(ot) && /Pulse \(Mashup\)<\/span><span[^>]*>602\.39 MB</.test(ot) &&
       /Midnight<\/span><span[^>]*>8\.48 GB<\/span><\/span><span[^>]*>[^<]*for GH¢3, the most it takes/.test(ot) && /Video apps only/.test(ot) && /Some apps only/.test(ot) && /facts, not a ranking/.test(ot), ot.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").slice(0, 600));
+    { const ft = bs.flexiTabs(m, "mtn"), by = (id: string) => ft.find((t) => t.id === id)!;
+      const ans = (id: string, a: number) => { const r = bs.flexiAnswer(m, by(id), a); return r.mb ? m.fmtData(r.mb, "mtn") : r.msg; };
+      check("flexi calculator: MTN tabs Data, Social, Video, Midnight (no Pulse); Telecel and AT have none",
+        JSON.stringify(ft.map((t) => t.label)) === '["Data","Social","Video","Midnight"]' && bs.flexiTabs(m, "telecel").length === 0 && bs.flexiTabs(m, "at").length === 0, ft.map((t) => t.label).join());
+      // The owner's myMTN checks (29 Oct 2026): Flexi data, Midnight, Social and Video figures.
+      check("flexi calculator: the myMTN app's figures (Data GH¢2 99.32 MB, GH¢6 426.75 MB, GH¢200 30.87 GB, GH¢399 217.34 GB; Midnight GH¢0.5 1.01 GB, GH¢3 8.48 GB; Social GH¢399 32.17 GB; Video GH¢1000 154.35 GB)",
+        ans("mtn-regular", 2) === "99.32 MB" && ans("mtn-regular", 6) === "426.75 MB" && ans("mtn-regular", 200) === "30.87 GB" && ans("mtn-regular", 399) === "217.34 GB" &&
+        ans("mtn-midnight", 0.5) === "1.01 GB" && ans("mtn-midnight", 3) === "8.48 GB" && ans("mtn-social", 399) === "32.17 GB" && ans("mtn-video", 1000) === "154.35 GB",
+        [2, 6, 200, 399].map((a) => ans("mtn-regular", a)).join(" "));
+      check("flexi calculator: limits and gaps say why (Data from GH¢0.31 to GH¢399, Midnight to GH¢3, no figure in MTN's GH¢99.91-99.99 gap)",
+        ans("mtn-regular", 0.2) === "Data starts at GH¢0.31" && ans("mtn-regular", 400) === "Data goes up to GH¢399" && ans("mtn-midnight", 5) === "Midnight goes up to GH¢3" && /MTN gives no figure for GH¢99\.95/.test(String(ans("mtn-regular", 99.95))));
+      check("flexi calculator: spend-less warning inside a cliff (GH¢6: GH¢5 gives 521.03 MB) and a little-more tip near a jump (GH¢295: add GH¢5 for 92.75 GB); none at GH¢5",
+        bs.flexiAnswer(m, by("mtn-regular"), 6).tip === "Spend less: GH¢5 gives 521.03 MB, more than GH¢6 gives." && bs.flexiAnswer(m, by("mtn-regular"), 295).tip === "Add GH¢5: GH¢300 gives 92.75 GB." && bs.flexiAnswer(m, by("mtn-regular"), 5).tip === null);
+      const fc = html(React.createElement(FlexiCalc, { model: m, network: "mtn" }));
+      const sheetSkip = html(React.createElement(ns.BundleSheet, { model: m, network: "mtn", skip: ft.map((t) => t.id) }));
+      check("flexi calculator (HTML): yellow card, 4 tabs, amount box, ready amounts; the table then drops Data and Midnight rows and points to the calculator",
+        /data-testid="flexi-calc"/.test(fc) && (fc.match(/data-id="mtn-/g) ?? []).length === 4 && /id="flexi-amount"/.test(fc) && /data-testid="flexi-fixed"/.test(fc) && /bg-\[#ffcb05\]/.test(fc) &&
+        !/data-tab="never"[^>]*>[\s\S]{0,400}?>Regular</.test(sheetSkip) && /data-testid="sheet-flexi-note"/.test(sheetSkip) && /Pulse \(Mashup\)/.test(sheetSkip) &&
+        !sheetSkip.includes(">Midnight<") && !html(React.createElement(ns.BundleSheet, { model: m, network: "mtn" })).includes("sheet-flexi-note")); }
     const tip = (a: number) => html(React.createElement(ns.CliffTip, { model: m, network: "mtn", amount: a }));
     check("spend tip: shown inside a spend cliff (GH¢10.50: GH¢10 gives 837.55 MB, more), not outside one (GH¢10, GH¢20)",
       /GH¢10 gives 837\.55 MB, more than GH¢10\.50/.test(tip(10.5)) && tip(10) === "" && tip(20) === "", tip(10.5));

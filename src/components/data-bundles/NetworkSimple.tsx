@@ -31,9 +31,11 @@ export const TAB_INFO: Record<SheetTab, { label: string; icon: typeof Clock; chi
 /** How to buy, short: the dial line, else the app route. */
 const buyText = (model: BundleModel, b: Bundle) => ussdText(b) ?? model.buyShort(b) ?? null;
 
-export function BundleSheet({ model, network }: { model: BundleModel; network: string }) {
+/** skip: pay-any-amount groups the Flexi calculator shows instead (owner, 29 Oct 2026: Flexi is a
+ *  calculator, not table rows); the table then points to the calculator once. */
+export function BundleSheet({ model, network, skip = [] }: { model: BundleModel; network: string; skip?: string[] }) {
   const info = model.networkInfo(network);
-  const groups = useMemo(() => sheetGroups(model, network), [model, network]);
+  const groups = useMemo(() => sheetGroups(model, network).filter((g) => !skip.includes(g.id)), [model, network, skip.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
   const tabs = TAB_ORDER.filter((t) => groups.some((g) => g.tab === t));
   const [tab, setTab] = useState<SheetTab | "all">("all");
   const [asc, setAsc] = useState(true);
@@ -50,6 +52,7 @@ export function BundleSheet({ model, network }: { model: BundleModel; network: s
         </h2>
         <p className="text-sm text-muted-foreground">{count} bundles{groups.some((g) => g.anyAmount) && ", plus pay-any-amount data"}</p>
       </div>
+      {skip.length > 0 && <p className="mb-2 text-sm font-semibold" data-testid="sheet-flexi-note">Flexi data (any amount you choose) is in the <a href="#flexi-h" className="underline underline-offset-2">Flexi calculator</a>.</p>}
 
       {/* Tabs: one row that scrolls sideways on small phones; each type has its own colour. */}
       <div role="group" aria-label="Show" className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-testid="sheet-tabs">

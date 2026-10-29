@@ -16,6 +16,8 @@ import { usePageDefaultTheme } from "@/contexts/ThemeContext";
 import { MotionConfig } from "framer-motion";
 import { AlertOctagon, ArrowLeft, ArrowRight, HandCoins, HelpCircle, Info, Lightbulb, Percent } from "lucide-react";
 import { BundleSheet, BuyCard, CliffTip, Fold, OtherTypes } from "@/components/data-bundles/NetworkSimple";
+import { FlexiCalculator } from "@/components/data-bundles/FlexiCalculator";
+import { flexiTabs } from "@/lib/bundleSheet";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import NotFound from "@/pages/NotFound";
@@ -64,6 +66,8 @@ export default function DataBundlesNetwork() {
   // The simple page (one answer, one dial card, one table, folded extras): MTN first, owner 29 Oct 2026.
   const simple = SIMPLE_NETWORKS.includes(network);
   const hasFlexi = network === "telecel" && !!model.flexi;
+  // MTN's pay-any-amount data (Data, Social, Video, Midnight) is the Flexi calculator, not table rows (owner, 29 Oct 2026).
+  const flexiIds = simple ? flexiTabs(model, network).map((t) => t.id) : [];
   // The same counts as the comparison page (model.bundleCounts / familyCounts), folded under "What we list".
   const { verified, pending, unconfirmed, notRechecked, notRecheckedSources } = model.bundleCounts(network);
   const fc = model.familyCounts(network);
@@ -163,7 +167,13 @@ export default function DataBundlesNetwork() {
             {simple ? (
               <>
                 <BuyCard model={model} network={network} />
-                <BundleSheet model={model} network={network} />
+                {flexiIds.length > 0 ? (
+                  // Flexi calculator above the table on phones, beside it (and staying in view) on wide screens.
+                  <div className="grid gap-10 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:items-start lg:gap-8">
+                    <div className="min-w-0 lg:sticky lg:top-24"><FlexiCalculator model={model} network={network} /></div>
+                    <div className="min-w-0"><BundleSheet model={model} network={network} skip={flexiIds} /></div>
+                  </div>
+                ) : <BundleSheet model={model} network={network} />}
                 <GoodToKnow model={model} network={network} simple />
               </>
             ) : (

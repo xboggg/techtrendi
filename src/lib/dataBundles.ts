@@ -399,7 +399,7 @@ export function mbFromTable(amount: number, table: RateBand[], ok: BandTest = an
   return b && ok(b) ? amount / b.ghsPerMb : 0;
 }
 
-const bandLow = (b: RateBand) => b.exactly ?? (b.fromExclusive ? roundCents((b.from ?? 0) + 0.01) : b.from ?? 0);
+export const bandLow = (b: RateBand) => b.exactly ?? (b.fromExclusive ? roundCents((b.from ?? 0) + 0.01) : b.from ?? 0);
 const bandHigh = (b: RateBand) => b.exactly ?? b.to ?? bandLow(b);
 
 /** The lowest and highest spend a table accepts. */
