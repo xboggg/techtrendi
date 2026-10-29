@@ -39,8 +39,8 @@ import { DisplayMenu, ThemePill } from "@/components/data-bundles/ThemePill";
 import { DataBundlesChrome, Details, NetPill, SectionHeading, TextSizeToggle, fmtDate, glass, textSafeFill, QueryLink, useFocusTitleOnNavigate, CodesIn } from "@/components/data-bundles/shared";
 import { cn } from "@/lib/utils";
 
-/** Network pages on the simple layout (owner, 29 Oct 2026: MTN first; Telecel and AT after he checks it). */
-export const SIMPLE_NETWORKS = ["mtn"];
+/** Network pages on the simple layout (owner, 29 Oct 2026: MTN first, then Telecel and AT the same day). */
+export const SIMPLE_NETWORKS = ["mtn", "telecel", "at"];
 
 export default function DataBundlesNetwork() {
   const { country = "ghana", network = "" } = useParams();

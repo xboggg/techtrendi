@@ -2778,8 +2778,8 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   {
     // The simple network page (owner, 29 Oct 2026; MTN first).
     const ns = await import("../src/components/data-bundles/NetworkSimple");
-    check("simple page: MTN only for now; one answer (finder + other types + spend tip), one dial card, one table, folded extras, sources",
-      /export const SIMPLE_NETWORKS = \["mtn"\];/.test(page) && /extra=\{simple \? \(a\) => <><OtherTypes model=\{model\} network=\{network\} amount=\{a\} \/><CliffTip/.test(page) &&
+    check("simple page: MTN, Telecel and AT; one answer (finder + other types + spend tip), one dial card, one table, folded extras, sources",
+      /export const SIMPLE_NETWORKS = \["mtn", "telecel", "at"\];/.test(page) && /extra=\{simple \? \(a\) => <><OtherTypes model=\{model\} network=\{network\} amount=\{a\} \/><CliffTip/.test(page) &&
       /<BuyCard model=\{model\} network=\{network\} \/>\s*<BundleSheet model=\{model\} network=\{network\} \/>\s*<GoodToKnow model=\{model\} network=\{network\} simple \/>/.test(page) &&
       /<Faq model=\{model\} only=\{network\} bare \/>/.test(page) && /<Advice model=\{model\} only=\{network\} bare \/>/.test(page));
     const groups = ns.sheetGroups(m, "mtn");
@@ -2808,8 +2808,22 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
       (sheet.match(/data-testid="sheet-group"/g) ?? []).length === groups.length && (sheet.match(/data-testid="sheet-row"/g) ?? []).length === groups.reduce((n, g) => n + g.rows.length, 0) &&
       /role="button" aria-expanded="false"/.test(sheet) && ["all", "never", "time", "apps", "check"].every((t) => sheet.includes(`data-id="${t}"`)));
     const buy = html(React.createElement(ns.BuyCard, { model: m, network: "mtn" }));
-    check("simple buy card: 'To buy MTN data, dial' *138# → 1 → 1 with Dial / Copy for *138#, in MTN's colour; none for a network without a stated route",
-      /To buy MTN data, dial/.test(buy) && /data-testid="buy-steps">\*138# → 1 → 1</.test(buy) && /data-code="\*138#"/.test(buy) && html(React.createElement(ns.BuyCard, { model: m, network: "at" })) === "", buy.slice(0, 300));
+    check("simple buy card: 'To buy MTN data, dial' *138# → 1 → 1 with Dial / Copy for *138#, in MTN's colour",
+      /To buy MTN data, dial/.test(buy) && /data-testid="buy-steps">\*138# → 1 → 1</.test(buy) && /data-code="\*138#"/.test(buy) && /Then type your amount\. Any amount from GH¢0\.31 to GH¢399\./.test(buy) && !/buy-also/.test(buy), buy.slice(0, 300));
+    const buyT = html(React.createElement(ns.BuyCard, { model: m, network: "telecel" })), buyA = html(React.createElement(ns.BuyCard, { model: m, network: "at" }));
+    check("simple buy card: Telecel *700# (or *110#, or the Telecel Play app; any amount, no expiry or with expiry), from Telecel's Flexi terms; AT *111*1# (BigTime Data, GH¢1 to GH¢400, never expires)",
+      /To buy Telecel data, dial/.test(buyT) && /data-testid="buy-steps">\*700#</.test(buyT) && /data-code="\*700#"/.test(buyT) && /data-testid="buy-also">Or \*110#, or use the Telecel Play app\.</.test(buyT) &&
+      /Then type any amount from GH¢0\.02 to GH¢999\.99, and choose no expiry or with expiry\./.test(buyT) &&
+      /To buy AT data, dial/.test(buyA) && /data-testid="buy-steps">\*111\*1#</.test(buyA) && /data-code="\*111\*1#"/.test(buyA) && /Then pick a BigTime Data bundle, GH¢1 to GH¢400\. They never expire\./.test(buyA),
+      buyT.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ") + " || " + buyA.replace(/<[^>]+>/g, " ").replace(/\s+/g, " "));
+    const tg = ns.sheetGroups(m, "telecel"), ag = ns.sheetGroups(m, "at");
+    check("simple table, Telecel and AT: the two Flexi tables are named apart ('Flexi, no expiry' / 'Flexi, with expiry'); 'Never expires' groups only hold bundles that never expire (mixed families go to Other); mixed lengths say so; AT has no pay-any-amount line",
+      tg[0].name === "Flexi, no expiry" && tg[1].name === "Flexi, with expiry" && tg[0].anyAmount && tg[1].anyAmount &&
+      [...tg, ...ag, ...groups].filter((g) => g.tab === "never").every((g) => g.rows.every((b) => ns.tabOf(b) === "never")) &&
+      tg.find((g) => g.name === "Voice & Data Combo")?.tab === "other" && tg.find((g) => g.name === "Daily")?.note === "Different lengths, see each row" &&
+      !ag.some((g) => g.anyAmount) && ag[0].name === "BigTime Data" &&
+      !/pay-any-amount/.test(html(React.createElement(ns.BundleSheet, { model: m, network: "at" }))) && /pay-any-amount/.test(html(React.createElement(ns.BundleSheet, { model: m, network: "telecel" }))),
+      tg.map((g) => `${g.name}[${g.tab}]`).join(", ") + " | " + ag.map((g) => `${g.name}[${g.tab}]`).join(", "));
     const ot = html(React.createElement(ns.OtherTypes, { model: m, network: "mtn", amount: 10 }));
     check("other types at GH¢10: Regular 837.55 MB, Pulse 602.39 MB, Midnight at its GH¢3 top (said so), Social 825.7MB and Video 1.54GB (app-only, said so); facts, not a ranking",
       /Other MTN types for GH¢10/.test(ot) && /Regular<\/span><span[^>]*>837\.55 MB</.test(ot) && /Pulse<\/span><span[^>]*>602\.39 MB</.test(ot) &&
