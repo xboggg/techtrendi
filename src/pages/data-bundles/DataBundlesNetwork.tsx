@@ -14,7 +14,8 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { usePageDefaultTheme } from "@/contexts/ThemeContext";
 import { MotionConfig } from "framer-motion";
-import { AlertOctagon, ArrowLeft, ArrowRight, HandCoins, Info } from "lucide-react";
+import { AlertOctagon, ArrowLeft, ArrowRight, HandCoins, HelpCircle, Info, Lightbulb, Percent } from "lucide-react";
+import { BundleSheet, BuyCard, CliffTip, Fold, OtherTypes } from "@/components/data-bundles/NetworkSimple";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import NotFound from "@/pages/NotFound";
@@ -35,8 +36,11 @@ import { WhatChanged } from "@/components/data-bundles/WhatChanged";
 import { DialTipCard } from "@/components/data-bundles/DialTip";
 import { xtra4uTip } from "@/lib/bundleTips";
 import { DisplayMenu, ThemePill } from "@/components/data-bundles/ThemePill";
-import { DataBundlesChrome, Details, NetPill, SectionHeading, TextSizeToggle, fmtDate, textSafeFill, QueryLink, useFocusTitleOnNavigate, CodesIn } from "@/components/data-bundles/shared";
+import { DataBundlesChrome, Details, NetPill, SectionHeading, TextSizeToggle, fmtDate, glass, textSafeFill, QueryLink, useFocusTitleOnNavigate, CodesIn } from "@/components/data-bundles/shared";
 import { cn } from "@/lib/utils";
+
+/** Network pages on the simple layout (owner, 29 Oct 2026: MTN first; Telecel and AT after he checks it). */
+export const SIMPLE_NETWORKS = ["mtn"];
 
 export default function DataBundlesNetwork() {
   const { country = "ghana", network = "" } = useParams();
@@ -57,6 +61,8 @@ export default function DataBundlesNetwork() {
   const info = model.networkInfo(network);
   const basePath = `${DATA_BUNDLES_BASE}/${data.country.id}`;
   const isMtn = network === "mtn" && !!model.rates;
+  // The simple page (one answer, one dial card, one table, folded extras): MTN first, owner 29 Oct 2026.
+  const simple = SIMPLE_NETWORKS.includes(network);
   const hasFlexi = network === "telecel" && !!model.flexi;
   // The same counts as the comparison page (model.bundleCounts / familyCounts), folded under "What we list".
   const { verified, pending, unconfirmed, notRechecked, notRecheckedSources } = model.bundleCounts(network);
@@ -142,7 +148,8 @@ export default function DataBundlesNetwork() {
 
               <div className="mt-3 [@media(max-height:820px)_and_(max-width:639px)]:mt-2 sm:mt-4">
                 {/* Keyed by network: the finder starts fresh on each network page (reads ?amount= again). */}
-                <BudgetFinder key={network} model={model} only={network} />
+                <BudgetFinder key={network} model={model} only={network}
+                  extra={simple ? (a) => <><OtherTypes model={model} network={network} amount={a} /><CliffTip model={model} network={network} amount={a} /></> : undefined} />
                 {/* Short phones: the strip sits under the finder, so the answer stays on the first screen. */}
                 <WhatChanged model={model} country={data.country.id} network={network} placement="below-finder" className="mt-3" />
               </div>
@@ -152,15 +159,25 @@ export default function DataBundlesNetwork() {
 
           {/* Keyed by network: every section below (list filters, rankings, calculators) starts
               fresh on each network page, so no state from the previous network can carry over. */}
-          <div key={network} className="container relative mx-auto max-w-6xl space-y-12 px-4 pb-28 pt-6 md:space-y-16 md:pt-10">
-            <NetworkBest model={model} network={network} />
-            {isMtn && <MtnCalculators model={model} />}
-            {hasFlexi && <TelecelFlexiCalculator model={model} />}
-            <BundleTable model={model} network={network} family={family} onFamily={setFamily} />
-            <Leaderboards model={model} network={network} />
-            <GoodToKnow model={model} network={network} />
-            <Faq model={model} only={network} />
-            <Advice model={model} only={network} />
+          <div key={network} className={cn("container relative mx-auto max-w-6xl px-4 pb-28 pt-6 md:pt-10", simple ? "space-y-10 md:space-y-12" : "space-y-12 md:space-y-16")}>
+            {simple ? (
+              <>
+                <BuyCard model={model} network={network} />
+                <BundleSheet model={model} network={network} />
+                <GoodToKnow model={model} network={network} simple />
+              </>
+            ) : (
+              <>
+                <NetworkBest model={model} network={network} />
+                {isMtn && <MtnCalculators model={model} />}
+                {hasFlexi && <TelecelFlexiCalculator model={model} />}
+                <BundleTable model={model} network={network} family={family} onFamily={setFamily} />
+                <Leaderboards model={model} network={network} />
+                <GoodToKnow model={model} network={network} />
+                <Faq model={model} only={network} />
+                <Advice model={model} only={network} />
+              </>
+            )}
             <SourcesAndDisclaimer data={data} only={network} />
             <nav aria-label="Other networks" className="flex flex-wrap items-center gap-2" data-testid="other-networks">
               {others.map((n) => (
@@ -178,22 +195,20 @@ export default function DataBundlesNetwork() {
   );
 }
 
-/** Facts, never ranked: browsing without a bundle, and borrowed data. Short plain cards. */
-function GoodToKnow({ model, network }: { model: BundleModel; network: string }) {
+/** Facts, never ranked: browsing without a bundle, and borrowed data. Short plain cards.
+ *  `simple` (the simple network page): the no-bundle warning stays in view; borrowed data, the
+ *  dial tip, the questions and the tips each fold into one tap-to-open line. */
+function GoodToKnow({ model, network, simple }: { model: BundleModel; network: string; simple?: boolean }) {
   const o = model.outOfBundle(network);
   const borrowed = model.borrowed(network);
   const tip = network === "mtn" ? xtra4uTip(model.doc) : null;
-  if (!o && !borrowed.length && !tip) return null;
+  if (!simple && !o && !borrowed.length && !tip) return null;
   const name = model.networkInfo(network).name;
   const best = model.bestForBudget(network, 1);
   // A help-centre link named by its article title (from the cited sources), never "help centre 1".
   const cited = model.sourcesFor(network).cited;
   const helpLabel = (u: string) => cited.find((c) => c.url === u)?.label.replace(/^MTN help centre, /, `${name} help centre: `) ?? `${name} help centre`;
-  return (
-    <section aria-labelledby="know-h" id="good-to-know" className="scroll-mt-24">
-      <SectionHeading id="know-h" eyebrow="Good to know" title={`Before you browse on ${name}`} icon={<Info className="h-4 w-4" aria-hidden />} />
-      <div className="grid gap-3 md:grid-cols-2">
-        {o && (
+  const oob = o && (
           <div role="note" className="rounded-2xl border border-red-500/40 bg-red-50 p-4 text-red-950 dark:bg-red-500/10 dark:text-red-100" data-testid="oob-card">
             <p className="flex items-center gap-2 font-bold"><AlertOctagon className="h-5 w-5 shrink-0" aria-hidden /> No bundle? Data costs much more</p>
             <p className="mt-1 text-sm">
@@ -202,10 +217,8 @@ function GoodToKnow({ model, network }: { model: BundleModel; network: string })
             </p>
             {o.note && <Details className="mt-2" testId="oob-note"><p>{o.note}</p></Details>}
           </div>
-        )}
-        {/* A dial-code tip (MTN *203#, Xtra4U): never ranked, "! Check first". */}
-        {tip && <DialTipCard model={model} />}
-        {borrowed.map(({ key, title, block: v }) => {
+  );
+  const borrowedCards = borrowed.map(({ key, title, block: v }) => {
           const rows = Array.isArray(v.rows) ? v.rows.filter((r) => r && typeof r.price === "number") : [];
           const help = Array.isArray(v.helpSources) ? v.helpSources.filter((u) => typeof u === "string" && /^https:\/\//.test(u)) : [];
           return (
@@ -245,7 +258,33 @@ function GoodToKnow({ model, network }: { model: BundleModel; network: string })
               </div>
             </section>
           );
-        })}
+  });
+
+  if (simple) {
+    // The simple page: the warning in view, the rest one tap away each (owner, 29 Oct 2026).
+    return (
+      <section aria-labelledby="know-h" id="good-to-know" className="scroll-mt-24 space-y-3">
+        <h2 id="know-h" className="flex items-center gap-2 text-2xl font-black tracking-tight sm:text-3xl"><Info className="h-6 w-6 text-sky-600 dark:text-sky-400" aria-hidden /> Good to know</h2>
+        {oob}
+        <div className={cn(glass, "overflow-hidden p-0")} data-testid="know-folds">
+          {borrowed.map((x, i) => (
+            <Fold key={x.key} title={`Borrow data (${x.title})`} icon={<HandCoins className="h-4 w-4" />} tone="bg-amber-500 text-slate-950 dark:bg-amber-400" testId="fold-borrowed">{borrowedCards[i]}</Fold>
+          ))}
+          {tip && <Fold title={`${name} offers on ${tip.ussd}`} icon={<Percent className="h-4 w-4" />} tone="bg-fuchsia-600 text-white dark:bg-fuchsia-400 dark:text-slate-950" testId="fold-tip"><DialTipCard model={model} /></Fold>}
+          <Fold title="Common questions" icon={<HelpCircle className="h-4 w-4" />} tone="bg-sky-600 text-white dark:bg-sky-400 dark:text-slate-950" testId="fold-faq"><Faq model={model} only={network} bare /></Fold>
+          <Fold title="Tips to pay less" icon={<Lightbulb className="h-4 w-4" />} tone="bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950" testId="fold-advice"><Advice model={model} only={network} bare /></Fold>
+        </div>
+      </section>
+    );
+  }
+  return (
+    <section aria-labelledby="know-h" id="good-to-know" className="scroll-mt-24">
+      <SectionHeading id="know-h" eyebrow="Good to know" title={`Before you browse on ${name}`} icon={<Info className="h-4 w-4" aria-hidden />} />
+      <div className="grid gap-3 md:grid-cols-2">
+        {oob}
+        {/* A dial-code tip (MTN *203#, Xtra4U): never ranked, "! Check first". */}
+        {tip && <DialTipCard model={model} />}
+        {borrowedCards}
       </div>
     </section>
   );

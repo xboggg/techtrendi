@@ -81,7 +81,8 @@ export function FinderPhoneControls({ model, only, budget, setBudget, chips, max
       >
         <span className="whitespace-nowrap text-[2.4rem] font-black leading-none tabular-nums tracking-tight">{shown}</span>
         <span className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-muted-foreground">
-          <Pencil className="h-4 w-4" aria-hidden /> tap to change
+          {/* The 4-inch phones with A+: the pencil alone (the button's label still says "tap to change"). */}
+          <Pencil className="h-4 w-4" aria-hidden /> <span className="max-[359px]:hidden">tap to change</span>
         </span>
       </button>
       <div className="mt-2 grid grid-cols-3 gap-1.5 [@media(max-height:820px)]:mt-1.5" role="group" aria-label="Filters">

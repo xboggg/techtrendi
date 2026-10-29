@@ -2,7 +2,7 @@
 // for that money (model.bestForBudget: the finder's maths lives in the model only).
 // Night-only bundles, when switched on, are shown and compared SEPARATELY:
 // a night-only amount is never weighed against an all-day amount.
-import { useEffect, useId, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useId, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { DEFAULT_STATE, clearQueryKeys, parseState, writeState } from "@/lib/dataBundlesUrl";
 import { ShareLink, ShareWhatsApp } from "./meta";
@@ -36,7 +36,10 @@ const leaders = (model: BundleModel, picks: Pick[]): Set<string> => model.mostDa
 /** `only`: a network's own page. The same finder, for that network alone: no meter and no
  *  "Most data" badge (one network has nothing to compare against; the card is the answer),
  *  the share text names the network, and the "smallest buy" hint is that network's. */
-export function BudgetFinder({ model, only, initialAmount = DEFAULT_STATE.amount }: { model: BundleModel; only?: string; /** The amount before the URL is read (server HTML, tests). Default GH¢5. */ initialAmount?: number }) {
+export function BudgetFinder({ model, only, initialAmount = DEFAULT_STATE.amount, extra }: {
+  model: BundleModel; only?: string; /** The amount before the URL is read (server HTML, tests). Default GH¢5. */ initialAmount?: number;
+  /** Shown under the answer for the current amount (the simple network page: other types, spend tip). */ extra?: (amount: number) => ReactNode;
+}) {
   // The starting amount (DEFAULT_STATE.amount, GH¢5) also in the server HTML, before the URL is read.
   const [budget, setBudget] = useState(initialAmount);
   const [allowNight, setAllowNight] = useState(false);
@@ -219,6 +222,8 @@ export function BudgetFinder({ model, only, initialAmount = DEFAULT_STATE.amount
               {nightTie && <p className="mt-2 text-sm text-muted-foreground">Tied: most night data.</p>}
             </>
           )}
+
+          {extra && !noAmount && extra(budget)}
 
           {shareText && (
             <div className="mt-4 flex flex-wrap items-center gap-2" data-testid="bf-share" data-text={shareText}>

@@ -326,14 +326,15 @@ export function buildTips(model: BundleModel, only?: string): Tip[] {
   return tips;
 }
 
-export function Advice({ model, only }: { model: BundleModel; only?: string }) {
+/** `bare`: no heading (the simple network page shows it inside its own "Tips to pay less" fold). */
+export function Advice({ model, only, bare }: { model: BundleModel; only?: string; bare?: boolean }) {
   const tips = buildTips(model, only);
   if (!tips.length) return null;
   return (
-    <section aria-labelledby="advice-h" id="advice" className="scroll-mt-24">
-      <SectionHeading id="advice-h" eyebrow="Advice" title="Tips to pay less" icon={<Lightbulb className="h-4 w-4" aria-hidden />}>
+    <section aria-labelledby={bare ? undefined : "advice-h"} aria-label={bare ? "Tips to pay less" : undefined} id="advice" className="scroll-mt-24">
+      {!bare && <SectionHeading id="advice-h" eyebrow="Advice" title="Tips to pay less" icon={<Lightbulb className="h-4 w-4" aria-hidden />}>
         All numbers come from the networks' own prices. Tap a tip to see them.
-      </SectionHeading>
+      </SectionHeading>}
       <div className="grid gap-3 md:grid-cols-2">
         {/* Visible at once (owner, 22 Oct 2026): no fade-in, so a tip never looks faded while scrolling. */}
         {tips.map((t) => (

@@ -9,14 +9,15 @@ import { cn } from "@/lib/utils";
 const host = (url: string) => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return url; } };
 
 /** `only`: a network's own page: that network's answers only (a question it has no answer to is left out). */
-export function Faq({ model, only }: { model: BundleModel; only?: string }) {
+/** `bare`: no heading (the simple network page shows it inside its own "Common questions" fold). */
+export function Faq({ model, only, bare }: { model: BundleModel; only?: string; bare?: boolean }) {
   const items = model.faqItems().map((f) => (only ? { ...f, lines: f.lines.filter((l) => l.network === only) } : f)).filter((f) => f.lines.length > 0);
   if (!items.length) return null;
   return (
-    <section aria-labelledby="faq-h" id="faq" className="scroll-mt-24">
-      <SectionHeading id="faq-h" eyebrow="Questions" title="Common questions" icon={<HelpCircle className="h-4 w-4" aria-hidden />}>
+    <section aria-labelledby={bare ? undefined : "faq-h"} aria-label={bare ? "Common questions" : undefined} id="faq" className="scroll-mt-24">
+      {!bare && <SectionHeading id="faq-h" eyebrow="Questions" title="Common questions" icon={<HelpCircle className="h-4 w-4" aria-hidden />}>
         {only ? `Answers from ${model.networkInfo(only).name}'s own pages.` : "Answers from the networks' own pages."}
-      </SectionHeading>
+      </SectionHeading>}
       <div className={cn(glass, "divide-y divide-border p-0")}>
         {items.map((f) => (
           <details key={f.question} className="group px-4 sm:px-6" data-testid="faq-item">

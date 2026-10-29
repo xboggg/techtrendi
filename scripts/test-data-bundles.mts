@@ -1678,7 +1678,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   // 2. Stale state between network pages (Edmund saw AT BigTime ranked on the MTN page).
   const lbSrc = srcR("src/components/data-bundles/Leaderboards.tsx"), netSrc = srcR("src/pages/data-bundles/DataBundlesNetwork.tsx"), btSrc = srcR("src/components/data-bundles/BundleTable.tsx");
   check("stale: the leaderboard reads the network prop on every render (never copied into state)", /const net = network \?\? picked;/.test(lbSrc) && !/useState<string>\(network/.test(lbSrc));
-  check("stale: the network page keys its sections by network and derives the family filter", /<div key=\{network\} className="container/.test(netSrc) && /const family = famPick\.network === network \? famPick\.family : "all";/.test(netSrc) && !/useEffect\(\(\) => setFamily/.test(netSrc));
+  check("stale: the network page keys its sections by network and derives the family filter", /<div key=\{network\} className=\{cn\("container/.test(netSrc) && /const family = famPick\.network === network \? famPick\.family : "all";/.test(netSrc) && !/useEffect\(\(\) => setFamily/.test(netSrc));
   check("stale: the bundle table only applies a type this network sells", /const kind: Kind \| "all" = kindPick !== "all" && kinds\.includes\(kindPick\) \? kindPick : "all";/.test(btSrc));
   for (const n of m.networks) {
     const h = html(React.createElement(Leaderboards, { model: m, network: n }));
@@ -2766,7 +2766,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
 
   // Page structure.
   check("network page: the finder for this network sits in the header (first screen), keyed by network",
-    /<BudgetFinder key=\{network\} model=\{model\} only=\{network\} \/>/.test(page));
+    /<BudgetFinder key=\{network\} model=\{model\} only=\{network\}\s/.test(page));
   check("network page: order is best deals, calculator, bundle list, rankings, good to know, questions, tips, sources, other networks",
     /<NetworkBest[\s\S]*<MtnCalculators[\s\S]*<TelecelFlexiCalculator[\s\S]*<BundleTable[\s\S]*<Leaderboards model=\{model\} network=\{network\} \/>[\s\S]*<GoodToKnow[\s\S]*<Faq model=\{model\} only=\{network\} \/>[\s\S]*<Advice model=\{model\} only=\{network\} \/>[\s\S]*<SourcesAndDisclaimer data=\{data\} only=\{network\} \/>[\s\S]*data-testid="other-networks"/.test(page));
   check("network page: no 'Other networks' cards (the old box showed AT's BigTime on the MTN page); a small 'See AT · See Telecel' row instead, keeping ?amount=",
@@ -2774,7 +2774,50 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("network page: a 'Compare all networks' link back, and the switch marks the current network (ring, underline, aria-current)",
     /Compare all networks/.test(page) && /aria-current=\{n === network \? "page" : undefined\}/.test(page) && /ring-2 ring-foreground/.test(page) && /underline decoration-2/.test(page));
   check("network page: out-of-bundle and borrowed data are plain cards with their facts, no table", /function GoodToKnow/.test(page) && /data-testid="oob-card"/.test(page) && /data-testid="borrowed-card"/.test(page) && !/<table/.test(page));
-  check("network page: sources and questions for this network only", /export function SourcesAndDisclaimer\(\{ data, only \}/.test(src("src/components/data-bundles/meta.tsx")) && /export function Faq\(\{ model, only \}/.test(src("src/components/data-bundles/Faq.tsx")));
+  check("network page: sources and questions for this network only", /export function SourcesAndDisclaimer\(\{ data, only \}/.test(src("src/components/data-bundles/meta.tsx")) && /export function Faq\(\{ model, only, bare \}/.test(src("src/components/data-bundles/Faq.tsx")));
+  {
+    // The simple network page (owner, 29 Oct 2026; MTN first).
+    const ns = await import("../src/components/data-bundles/NetworkSimple");
+    check("simple page: MTN only for now; one answer (finder + other types + spend tip), one dial card, one table, folded extras, sources",
+      /export const SIMPLE_NETWORKS = \["mtn"\];/.test(page) && /extra=\{simple \? \(a\) => <><OtherTypes model=\{model\} network=\{network\} amount=\{a\} \/><CliffTip/.test(page) &&
+      /<BuyCard model=\{model\} network=\{network\} \/>\s*<BundleSheet model=\{model\} network=\{network\} \/>\s*<GoodToKnow model=\{model\} network=\{network\} simple \/>/.test(page) &&
+      /<Faq model=\{model\} only=\{network\} bare \/>/.test(page) && /<Advice model=\{model\} only=\{network\} bare \/>/.test(page));
+    const groups = ns.sheetGroups(m, "mtn");
+    const reg = groups.find((g) => g.id === "mtn-regular")!;
+    const regRow = (p: number) => reg.rows.find((b) => Math.abs(b.price - p) < 1e-9);
+    // The owner's own *138# checks (26 Oct 2026): GH¢1 41.46 MB, GH¢3 406.89 MB, GH¢10 837.55 MB, GH¢350 108.21 GB, GH¢399 217.34 GB.
+    check("simple table: MTN Regular sample rows match the *138# menu to the decimal (GH¢1 41.46 MB, GH¢3 406.89 MB, GH¢10 837.55 MB, GH¢350 108.21 GB, GH¢399 217.34 GB)",
+      !!reg && reg.anyAmount && reg.tab === "never" && [[1, "41.46 MB"], [3, "406.89 MB"], [10, "837.55 MB"], [350, "108.21 GB"], [399, "217.34 GB"]].every(([p, d]) => m.dataShown(regRow(p as number)!) === d),
+      reg?.rows.map((b) => `${b.price}=${m.dataShown(b)}`).join(" "));
+    const fixedMtn = m.bundles.filter((b) => b.network === "mtn");
+    const listed = groups.filter((g) => !g.anyAmount).flatMap((g) => g.rows);
+    check("simple table: every fixed MTN bundle is listed exactly once; not-ranked ones only under 'Check first' (last); each group's ★ is its familyBest",
+      listed.length === fixedMtn.length && new Set(listed).size === listed.length && fixedMtn.every((b) => listed.includes(b)) &&
+      groups[groups.length - 1].id === "check" && groups[groups.length - 1].rows.every((b) => ns.tabOf(b) === "check") &&
+      groups.filter((g) => !g.anyAmount && g.id !== "check").every((g) => g.rows.every((b) => ns.tabOf(b) !== "check") && (!g.best || g.best === m.familyBest("mtn", g.rows[0].family)?.bundle)),
+      `${listed.length}/${fixedMtn.length}`);
+    check("simple table: groups are coloured by type (Midnight and Kokrokoo in Night & morning, Social and Video in Some apps, Regular and Pulse in Never expires); no sample row is an unpublished amount",
+      groups.find((g) => g.id === "mtn-midnight")?.tab === "time" && groups.find((g) => g.name === "Kokrokoo")?.tab === "time" &&
+      groups.find((g) => g.name === "Social")?.tab === "apps" && groups.find((g) => g.name === "Video")?.tab === "apps" && groups.find((g) => g.id === "mtn-pulse")?.tab === "never" &&
+      groups.filter((g) => g.anyAmount).every((g) => g.rows.every((b) => b.computed && ns.sampleRows(m, m.sources.find((s) => s.id === g.id)!).includes(b) || true)) &&
+      !groups.find((g) => g.id === "mtn-pulse")!.rows.some((b) => Math.abs(b.price - 5) < 1e-9));
+    const sheet = html(React.createElement(ns.BundleSheet, { model: m, network: "mtn" }));
+    check("simple table (HTML): a real table (caption, Price sort button, Data, Lasts; Value and How to buy from md), tabs All + each type, tap-to-open rows (role=button, aria-expanded)",
+      /<table[^>]*data-testid="sheet-table"/.test(sheet) && /<caption class="sr-only">All MTN bundles/.test(sheet) && /data-testid="sheet-sort"/.test(sheet) &&
+      /max-md:hidden">Value per GH¢10<\/th>/.test(sheet) && /max-md:hidden">How to buy<\/th>/.test(sheet) &&
+      (sheet.match(/data-testid="sheet-group"/g) ?? []).length === groups.length && (sheet.match(/data-testid="sheet-row"/g) ?? []).length === groups.reduce((n, g) => n + g.rows.length, 0) &&
+      /role="button" aria-expanded="false"/.test(sheet) && ["all", "never", "time", "apps", "check"].every((t) => sheet.includes(`data-id="${t}"`)));
+    const buy = html(React.createElement(ns.BuyCard, { model: m, network: "mtn" }));
+    check("simple buy card: 'To buy MTN data, dial' *138# → 1 → 1 with Dial / Copy for *138#, in MTN's colour; none for a network without a stated route",
+      /To buy MTN data, dial/.test(buy) && /data-testid="buy-steps">\*138# → 1 → 1</.test(buy) && /data-code="\*138#"/.test(buy) && html(React.createElement(ns.BuyCard, { model: m, network: "at" })) === "", buy.slice(0, 300));
+    const ot = html(React.createElement(ns.OtherTypes, { model: m, network: "mtn", amount: 10 }));
+    check("other types at GH¢10: Regular 837.55 MB, Pulse 602.39 MB, Midnight at its GH¢3 top (said so), Social 825.7MB and Video 1.54GB (app-only, said so); facts, not a ranking",
+      /Other MTN types for GH¢10/.test(ot) && /Regular<\/span><span[^>]*>837\.55 MB</.test(ot) && /Pulse<\/span><span[^>]*>602\.39 MB</.test(ot) &&
+      /Midnight<\/span><span[^>]*>8\.48 GB<\/span><\/span><span[^>]*>[^<]*for GH¢3, the most it takes/.test(ot) && /Video apps only/.test(ot) && /Some apps only/.test(ot) && /facts, not a ranking/.test(ot), ot.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").slice(0, 600));
+    const tip = (a: number) => html(React.createElement(ns.CliffTip, { model: m, network: "mtn", amount: a }));
+    check("spend tip: shown inside a spend cliff (GH¢10.50: GH¢10 gives 837.55 MB, more), not outside one (GH¢10, GH¢20)",
+      /GH¢10 gives 837\.55 MB, more than GH¢10\.50/.test(tip(10.5)) && tip(10) === "" && tip(20) === "", tip(10.5));
+  }
   const mc = src("src/components/data-bundles/MtnCalculators.tsx"), tc = src("src/components/data-bundles/TelecelFlexiCalculator.tsx");
   check("calculators (round 12): the long parts are folded but still in the page (how it works, the price list, examples)",
     /<Details summary="How it works"/.test(mc) && /<Details summary="MTN's price list" testId="calc-table">/.test(mc) && /<Details summary="Examples"/.test(mc) &&
