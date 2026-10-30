@@ -188,7 +188,7 @@ function MashupRow({ model, open, onToggle, asc }: { model: BundleModel; open: b
             <span className="flex min-w-0 items-center gap-2">
               <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-amber-400 text-slate-950" aria-hidden><Phone className="h-4 w-4" /></span>
               <span className="min-w-0">
-                <span className="block text-[15px] font-black leading-tight">Data + calls mixes</span>
+                <span className="block text-[15px] font-black leading-tight">Data + calls mixes ({mx.name})</span>
                 <span className="block text-xs font-semibold text-muted-foreground">Pick a mix for each amount, as the MTN app shows them</span>
               </span>
             </span>

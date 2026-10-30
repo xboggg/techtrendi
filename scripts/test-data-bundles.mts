@@ -2837,7 +2837,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     check("simple table (HTML): the 'Check first' group's heading has no extra '! Check first' badge (owner, 30 Oct 2026)",
       groups.some((g) => g.id === "check") && /data-tab="check"/.test(sheet) && !/data-testid="group-check"/.test((sheet.match(/data-tab="check"[\s\S]*?<\/th>/) ?? [""])[0]) && /allCheck && g\.id !== "check"/.test(src("src/components/data-bundles/NetworkSimple.tsx")));
     check("simple table (HTML): one closed 'Data + calls mixes' row under Pulse (Mashup), 12 mixes; Telecel and AT have none",
-      (sheet.match(/data-testid="mashup-row"/g) ?? []).length === 1 && /Data \+ calls mixes/.test(sheet) && /Pick a mix for each amount, as the MTN app shows them/.test(sheet) && !/mashup-table/.test(sheet) &&
+      (sheet.match(/data-testid="mashup-row"/g) ?? []).length === 1 && /Data \+ calls mixes(<!-- -->)? \((<!-- -->)?Mashup(<!-- -->)?\)/.test(sheet.replace(/&amp;/g, "&")) && /Pick a mix for each amount, as the MTN app shows them/.test(sheet) && !/mashup-table/.test(sheet) &&
       !/mashup-row/.test(html(React.createElement(ns.BundleSheet, { model: m, network: "telecel" }))) && !/mashup-row/.test(html(React.createElement(ns.BundleSheet, { model: m, network: "at" }))));
     const nsSrc = src("src/components/data-bundles/NetworkSimple.tsx");
     check("mashup list: every option's Price / Data / Calls (a faint dash read as 'no calls' when no minutes, owner 30 Oct 2026), buy line and lasts from Pulse's data, never ranked, source shown",
