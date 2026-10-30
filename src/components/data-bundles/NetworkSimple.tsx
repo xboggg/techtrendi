@@ -103,7 +103,8 @@ export function BundleSheet({ model, network, skip = [] }: { model: BundleModel;
                         <span className="min-w-0">
                           <span className="flex items-center gap-1.5 text-[15px] font-black leading-tight">
                             {g.name}
-                            {allCheck && <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-[11px] font-black text-slate-950" data-testid="group-check">! Check first</span>}
+                            {/* Not on the "Check first" group itself: its name already says it (owner, 30 Oct 2026). */}
+                            {allCheck && g.id !== "check" && <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-[11px] font-black text-slate-950" data-testid="group-check">! Check first</span>}
                           </span>
                           <span className="block text-xs font-semibold normal-case tracking-normal text-muted-foreground">{g.note}</span>
                         </span>
