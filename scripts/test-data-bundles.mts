@@ -2835,11 +2835,11 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
       (sheet.match(/data-testid="sheet-group"/g) ?? []).length === groups.length && (sheet.match(/data-testid="sheet-row"/g) ?? []).length === groups.reduce((n, g) => n + g.rows.length, 0) &&
       /role="button" aria-expanded="false"/.test(sheet) && ["all", "never", "time", "apps", "check"].every((t) => sheet.includes(`data-id="${t}"`)));
     check("simple table (HTML): one closed 'Data + calls mixes' row under Pulse (Mashup), 12 mixes; Telecel and AT have none",
-      (sheet.match(/data-testid="mashup-row"/g) ?? []).length === 1 && /Data \+ calls mixes/.test(sheet) && /12 more ways to spend the same money/.test(sheet) && !/mashup-table/.test(sheet) &&
+      (sheet.match(/data-testid="mashup-row"/g) ?? []).length === 1 && /Data \+ calls mixes/.test(sheet) && /Pick a mix for each amount, as the MTN app shows them/.test(sheet) && !/mashup-table/.test(sheet) &&
       !/mashup-row/.test(html(React.createElement(ns.BundleSheet, { model: m, network: "telecel" }))) && !/mashup-row/.test(html(React.createElement(ns.BundleSheet, { model: m, network: "at" }))));
     const nsSrc = src("src/components/data-bundles/NetworkSimple.tsx");
-    check("mashup list: every option's Price / Data / Calls ('Data only' when no minutes), buy line and lasts from Pulse's data, never ranked, source shown",
-      /function MashupRow/.test(nsSrc) && /o\.mins > 0 \? `\$\{o\.mins\.toFixed\(2\)\} mins` : <span[^>]*>Data only<\/span>/.test(nsSrc) && /model\.rates\?\.pulse\?\.ussd/.test(nsSrc) && /Not ranked: in a mix, part of the money buys call minutes\./.test(nsSrc) && /<SourceRef source=\{mx\.source\} \/>/.test(nsSrc));
+    check("mashup list: every option's Price / Data / Calls (a faint dash read as 'no calls' when no minutes, owner 30 Oct 2026), buy line and lasts from Pulse's data, never ranked, source shown",
+      /function MashupRow/.test(nsSrc) && /o\.mins > 0 \? `\$\{o\.mins\.toFixed\(2\)\} mins` : <span[^>]*aria-label="no calls">—<\/span>/.test(nsSrc) && !/Data only/.test(nsSrc) && /model\.rates\?\.pulse\?\.ussd/.test(nsSrc) && /Not ranked: in a mix, part of the money buys call minutes\./.test(nsSrc) && /<SourceRef source=\{mx\.source\} \/>/.test(nsSrc));
     const buy = html(React.createElement(ns.BuyCard, { model: m, network: "mtn" }));
     check("simple buy card: 'To buy MTN data, dial' *138# → 1 → 1 with Dial / Copy for *138#, in MTN's colour",
       /To buy MTN data, dial/.test(buy) && /data-testid="buy-steps">\*138# → 1 → 1</.test(buy) && /data-code="\*138#"/.test(buy) && /Then type your amount\. Any amount from GH¢0\.31 to GH¢399\./.test(buy) && !/buy-also/.test(buy), buy.slice(0, 300));

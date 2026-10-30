@@ -171,7 +171,6 @@ export function BundleSheet({ model, network, skip = [] }: { model: BundleModel;
  *  One tap-to-open row under the Pulse group; facts, never ranked. */
 function MashupRow({ model, open, onToggle, asc }: { model: BundleModel; open: boolean; onToggle: () => void; asc: boolean }) {
   const mx = model.mashup!;
-  const mixes = mx.options.filter((o) => o.mins > 0).length;
   // Per amount: data only first, then the mixes from most data to most minutes.
   const rows = [...mx.options].sort((a, b) => (asc ? a.price - b.price : b.price - a.price) || Number(a.mins > 0) - Number(b.mins > 0) || b.mb - a.mb);
   // How to buy and how long it lasts: Pulse's own data (mtnRates.pulse.ussd and validity).
@@ -189,7 +188,7 @@ function MashupRow({ model, open, onToggle, asc }: { model: BundleModel; open: b
               <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-amber-400 text-slate-950" aria-hidden><Phone className="h-4 w-4" /></span>
               <span className="min-w-0">
                 <span className="block text-[15px] font-black leading-tight">Data + calls mixes</span>
-                <span className="block text-xs font-semibold text-muted-foreground">{mixes} more ways to spend the same money, as the MTN app shows them</span>
+                <span className="block text-xs font-semibold text-muted-foreground">Pick a mix for each amount, as the MTN app shows them</span>
               </span>
             </span>
             <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform motion-reduce:transition-none", open && "rotate-180")} aria-hidden />
@@ -213,7 +212,7 @@ function MashupRow({ model, open, onToggle, asc }: { model: BundleModel; open: b
                   <tr key={`${o.price}-${i}`} className={cn("border-t border-border/70", i > 0 && rows[i - 1].price !== o.price && "border-t-2 border-border")} data-testid="mashup-option">
                     <td className="whitespace-nowrap py-2 pr-2 font-extrabold">{model.money(o.price)}</td>
                     <td className="whitespace-nowrap py-2 pr-2 font-black">{o.data}</td>
-                    <td className="whitespace-nowrap py-2">{o.mins > 0 ? `${o.mins.toFixed(2)} mins` : <span className="text-muted-foreground">Data only</span>}</td>
+                    <td className="whitespace-nowrap py-2">{o.mins > 0 ? `${o.mins.toFixed(2)} mins` : <span className="text-muted-foreground" aria-label="no calls">—</span>}</td>
                   </tr>
                 ))}
               </tbody>
