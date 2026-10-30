@@ -12,6 +12,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import staticNews from "@/data/news.json";
+import { SortSelect, TopicPicker } from "@/components/blog/TopicPicker";
+
+const SORT_OPTIONS = [["latest", "Latest"], ["oldest", "Oldest"]] as const;
 
 const NEWS_PER_PAGE = 12;
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
@@ -208,78 +211,23 @@ export default function News() {
         subtitle="The latest from Ghana and across Africa — AI, cybersecurity, Big Tech and gadgets."
       />
       <div className="container py-12 md:py-20">
-        {/* Search and Filters */}
-        <div className="max-w-4xl mx-auto mb-12">
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search news..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+        {/* Search, topic and sort, as on the blog page (owner, 30 Oct 2026: the 17 category pills
+            wrapped to many lines on a phone; one Topic button now opens them all). */}
+        <div className="max-w-4xl mx-auto mb-10 grid gap-3 md:grid-cols-[minmax(0,1fr)_260px_auto]">
+          <div className="relative min-w-0">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search news..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-11 rounded-xl"
+            />
+          </div>
+          <div className="flex gap-3 min-w-0 md:contents">
+            <div className="min-w-0 flex-1">
+              <TopicPicker options={newsCategories} value={selectedCategory} onChange={setSelectedCategory} />
             </div>
-          </div>
-
-          {/* Category Pills - Animated with unique colors and icons */}
-          <div className="flex flex-wrap justify-center gap-2 md:gap-3">
-            {newsCategories.map((category) => {
-              const isSelected = selectedCategory === category.name;
-              const Icon = category.icon;
-              return (
-                <button
-                  key={category.name}
-                  onClick={() => setSelectedCategory(category.name)}
-                  className={`
-                    group relative inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold
-                    transition-all duration-300 ease-out
-                    transform hover:scale-105 hover:-translate-y-1
-                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background
-                    ${isSelected
-                      ? `bg-gradient-to-r ${category.gradient} text-white shadow-xl ${category.shadowColor}`
-                      : `bg-card border-2 border-border/50 ${category.textColor} hover:border-transparent hover:shadow-xl`
-                    }
-                  `}
-                >
-                  <span
-                    className={`
-                      absolute inset-0 rounded-full transition-all duration-300 ease-out
-                      bg-gradient-to-r ${category.gradient}
-                      ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
-                    `}
-                  />
-                  <Icon className={`
-                    relative z-10 w-4 h-4 transition-all duration-300
-                    ${isSelected ? 'text-white' : `${category.iconColor} group-hover:text-white`}
-                  `} />
-                  <span className={`
-                    relative z-10 transition-colors duration-300
-                    ${isSelected ? 'text-white' : 'group-hover:text-white'}
-                  `}>
-                    {category.name}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Sort controls */}
-          <div className="flex items-center justify-end gap-2 mt-4">
-            <span className="text-sm text-muted-foreground mr-1">Sort:</span>
-            {(["latest", "oldest"] as const).map((s) => (
-              <button
-                key={s}
-                onClick={() => setSortBy(s)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                  sortBy === s
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-background text-muted-foreground border-border hover:border-primary hover:text-primary"
-                }`}
-              >
-                {s === "latest" ? "Latest First" : "Oldest First"}
-              </button>
-            ))}
+            <SortSelect value={sortBy} onChange={(v) => setSortBy(v)} options={SORT_OPTIONS} className="w-[132px] md:w-auto" />
           </div>
         </div>
 
