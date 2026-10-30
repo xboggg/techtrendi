@@ -1214,6 +1214,15 @@ export default function Index() {
                   </Link>
                 ))}
               </div>
+
+              {/* Phones: the header's "View All Articles" button is desktop-only, so the
+                  same link sits under the cards, where a phone reader finishes the list (owner, 30 Oct 2026). */}
+              <Button variant="outline" asChild className="md:hidden w-full rounded-xl h-12">
+                <Link to="/blog" className="flex items-center justify-center gap-2 font-semibold">
+                  View All Articles
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </Button>
             </div>
           ) : (
             <div className="text-center py-12">
