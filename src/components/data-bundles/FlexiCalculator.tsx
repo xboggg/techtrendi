@@ -88,12 +88,14 @@ export function FlexiCalculator({ model, network }: { model: BundleModel; networ
       {(() => {
         const lo = tab.mbAt(tab.rangeMin), hi = tab.mbAt(tab.rangeMax);
         if (!lo || !hi) return null;
+        // "¢0.31 – ¢399", without the "GH", so Data and Cost fit on one line (owner, 30 Oct 2026).
+        const cedi = (v: number) => model.money(v).replace(/^GH(?=¢)/, "");
         return (
           <dl className="flex flex-wrap justify-between gap-x-3 gap-y-1 rounded-2xl bg-black/[.08] px-3.5 py-2.5" data-testid="flexi-range">
             <div className="min-w-0"><dt className="font-mono text-[11px] font-bold uppercase tracking-widest opacity-75">Data</dt>
               <dd className="whitespace-nowrap text-sm font-black tabular-nums min-[400px]:text-[15px]">{model.fmtData(lo, "mtn")} – {model.fmtData(hi, "mtn")}</dd></div>
             <div className="ml-auto text-right"><dt className="font-mono text-[11px] font-bold uppercase tracking-widest opacity-75">Cost</dt>
-              <dd className="whitespace-nowrap text-sm font-black tabular-nums min-[400px]:text-[15px]">{model.money(tab.rangeMin)} – {model.money(tab.rangeMax)}</dd></div>
+              <dd className="whitespace-nowrap text-sm font-black tabular-nums min-[400px]:text-[15px]">{cedi(tab.rangeMin)} – {cedi(tab.rangeMax)}</dd></div>
           </dl>
         );
       })()}

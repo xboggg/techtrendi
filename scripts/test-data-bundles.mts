@@ -2884,7 +2884,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
       const fc = html(React.createElement(FlexiCalc, { model: m, network: "mtn" }));
       const sheetSkip = html(React.createElement(ns.BundleSheet, { model: m, network: "mtn", skip: ft.map((t) => t.id) }));
       check("flexi calculator (HTML): yellow card, 4 tabs, amount box, ready amounts; the table then drops Data and Midnight rows and points to the calculator",
-        /data-testid="flexi-calc"/.test(fc) && (fc.match(/data-id="mtn-/g) ?? []).length === 4 && /id="flexi-amount"/.test(fc) && /data-testid="flexi-fixed"/.test(fc) && /bg-\[#ffcb05\]/.test(fc) && /data-testid="flexi-range"/.test(fc) && /\(enter amount\)/.test(fc) && !/flexi-chips/.test(fc) &&
+        /data-testid="flexi-calc"/.test(fc) && (fc.match(/data-id="mtn-/g) ?? []).length === 4 && /id="flexi-amount"/.test(fc) && /data-testid="flexi-fixed"/.test(fc) && /bg-\[#ffcb05\]/.test(fc) && /data-testid="flexi-range"/.test(fc) && (() => { const r = (fc.match(/data-testid="flexi-range"[\s\S]*?<\/dl>/) ?? [""])[0]; if (!r) console.log("  flexi-range missing"); else if (!r.includes("¢0.31") || r.includes("GH¢")) console.log("  flexi-range:", r.replace(/<[^>]+>/g, " ")); return !!r && r.includes("¢0.31") && r.includes("¢399") && !r.includes("GH¢"); })() && /\(enter amount\)/.test(fc) && !/flexi-chips/.test(fc) &&
         !/data-tab="never"[^>]*>[\s\S]{0,400}?>Regular</.test(sheetSkip) && /data-testid="sheet-flexi-note"/.test(sheetSkip) && /Pulse \(Mashup\)/.test(sheetSkip) &&
         !sheetSkip.includes(">Midnight<") && !html(React.createElement(ns.BundleSheet, { model: m, network: "mtn" })).includes("sheet-flexi-note")); }
     { const dt = await import("../src/components/data-bundles/DialTip");
