@@ -10,6 +10,7 @@ import { Loader2, ChevronLeft, ChevronRight, Eye, Share2, Search, ShieldCheck } 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CardModal } from "@/components/ui/card-modal";
+import { TopicPicker, type TopicOption } from "@/components/blog/TopicPicker";
 
 interface CyberPost {
   id: string;
@@ -23,6 +24,7 @@ interface CyberPost {
 }
 
 const POSTS_PER_PAGE = 12;
+const TOPIC_GRADIENT = "from-green-500 to-blue-600";
 
 const categoryColors: Record<string, { glow: string; badge: string; text: string }> = {
   "Real-Life Scam Teardowns": { glow: "rgba(239, 68, 68, 0.15)", badge: "bg-red-500/20 text-red-400 border-red-500/30", text: "text-red-400" },
@@ -80,7 +82,10 @@ export default function CyberAwareness() {
     })();
   }, []);
 
-  const categories = activeCategories;
+  const topicOptions: TopicOption[] = [
+    { name: "All", emoji: "✨", gradient: TOPIC_GRADIENT, iconColor: "" },
+    ...activeCategories.map((c) => ({ name: c, emoji: categoryEmojis[c], gradient: TOPIC_GRADIENT, iconColor: "" })),
+  ];
 
   useEffect(() => {
     fetchPosts();
@@ -186,38 +191,20 @@ export default function CyberAwareness() {
             </p>
           </motion.div>
 
-          {/* Category filter pills */}
+          {/* Topic button (owner, 31 Oct 2026: same picker as the blog and news pages; the 13
+              wrapping pills filled a phone screen before any post showed). */}
           <motion.div
-            className="flex flex-wrap justify-center gap-2 mt-8"
+            className="mt-8 max-w-md mx-auto"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <button
-              onClick={() => { setSelectedCategory(null); setPage(1); }}
-              className={cn(
-                "px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200",
-                !selectedCategory
-                  ? "bg-primary/10 text-primary border-primary/30"
-                  : "bg-transparent text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
-              )}
-            >
-              All ({totalCount || "..."})
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => { setSelectedCategory(cat === selectedCategory ? null : cat); setPage(1); }}
-                className={cn(
-                  "px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200",
-                  selectedCategory === cat
-                    ? categoryColors[cat].badge
-                    : "bg-transparent text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
-                )}
-              >
-                {categoryEmojis[cat]} {cat}
-              </button>
-            ))}
+            <TopicPicker
+              options={topicOptions}
+              value={selectedCategory ?? "All"}
+              onChange={(n) => { setSelectedCategory(n === "All" ? null : n); setPage(1); }}
+              hint="Show only the posts you want."
+            />
           </motion.div>
 
           {/* Search */}

@@ -11,11 +11,19 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/
 
 export interface TopicOption {
   name: string;
-  icon: React.ElementType;
+  icon?: React.ElementType;
+  /** Shown instead of an icon (Creepy Tech and Cyber Awareness topics are emojis). */
+  emoji?: string;
   /** Tailwind gradient stops, e.g. "from-amber-500 to-orange-600" (the chosen topic's square). */
   gradient: string;
   /** Tailwind text colour for the icon when not chosen, e.g. "text-amber-500". */
   iconColor: string;
+}
+
+function TopicMark({ option, className }: { option: TopicOption; className: string }) {
+  if (option.emoji) return <span className="text-base leading-none" aria-hidden>{option.emoji}</span>;
+  const Icon = option.icon ?? Check;
+  return <Icon className={className} />;
 }
 
 function TopicList({ options, value, onPick, cols }: { options: TopicOption[]; value: string; onPick: (n: string) => void; cols: string }) {
@@ -23,7 +31,6 @@ function TopicList({ options, value, onPick, cols }: { options: TopicOption[]; v
     <div role="listbox" aria-label="Topics" className={cn("grid gap-2", cols)}>
       {options.map((o) => {
         const on = o.name === value;
-        const Icon = o.icon;
         return (
           <button
             key={o.name}
@@ -37,9 +44,9 @@ function TopicList({ options, value, onPick, cols }: { options: TopicOption[]; v
             )}
           >
             <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-lg", on ? `bg-gradient-to-br ${o.gradient} text-white` : `bg-muted ${o.iconColor}`)}>
-              <Icon className="h-4 w-4" />
+              <TopicMark option={o} className="h-4 w-4" />
             </span>
-            <span className="min-w-0 flex-1 truncate">{o.name}</span>
+            <span className="min-w-0 flex-1 line-clamp-2 break-words leading-snug">{o.name}</span>
             {on && <Check className="h-4 w-4 shrink-0 text-primary" aria-hidden />}
           </button>
         );
@@ -48,18 +55,19 @@ function TopicList({ options, value, onPick, cols }: { options: TopicOption[]; v
   );
 }
 
-export function TopicPicker({ options, value, onChange, allName = "All", allLabel = "All topics" }: {
+export function TopicPicker({ options, value, onChange, allName = "All", allLabel = "All topics", hint = "Show only the guides you want." }: {
   options: TopicOption[];
   value: string;
   onChange: (name: string) => void;
   /** The option that means "no filter", shown on the button as allLabel. */
   allName?: string;
   allLabel?: string;
+  /** The line under "Pick a topic" in the phone panel. */
+  hint?: string;
 }) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
   const current = options.find((o) => o.name === value) ?? options[0];
-  const Icon = current.icon;
   const pick = (n: string) => { onChange(n); setOpen(false); };
 
   const trigger = (
@@ -72,7 +80,7 @@ export function TopicPicker({ options, value, onChange, allName = "All", allLabe
       data-testid="topic-picker"
     >
       <span className={cn("grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-gradient-to-br text-white", current.gradient)}>
-        <Icon className="h-3.5 w-3.5" />
+        <TopicMark option={current} className="h-3.5 w-3.5" />
       </span>
       <span className="min-w-0 flex-1 truncate text-left">
         <span className="sr-only">Topic: </span>{current.name === allName ? allLabel : current.name}
@@ -89,7 +97,7 @@ export function TopicPicker({ options, value, onChange, allName = "All", allLabe
           <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-3xl px-4 pb-6 pt-3">
             <div className="mx-auto mb-3 h-1.5 w-11 rounded-full bg-muted" aria-hidden />
             <SheetTitle className="mb-1 text-lg">Pick a topic</SheetTitle>
-            <SheetDescription className="mb-4">Show only the guides you want.</SheetDescription>
+            <SheetDescription className="mb-4">{hint}</SheetDescription>
             <TopicList options={options} value={value} onPick={pick} cols="grid-cols-2" />
           </SheetContent>
         </Sheet>

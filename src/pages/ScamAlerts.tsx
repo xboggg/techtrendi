@@ -324,15 +324,15 @@ export default function ScamAlerts() {
           </Button>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2 mb-6">
-          <Filter className="w-4 h-4 text-muted-foreground mr-1" />
+        {/* Filters: one row that slides sideways on a phone instead of wrapping (owner, 31 Oct 2026). */}
+        <div className="flex items-center gap-2 mb-6 -mx-4 px-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex-wrap md:overflow-visible">
+          <Filter className="w-4 h-4 shrink-0 text-muted-foreground mr-1" />
           {scamTypeFilters.map((filter) => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
               className={cn(
-                "px-3 py-1.5 rounded-full text-sm font-medium transition-all border",
+                "shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-sm font-medium transition-all border",
                 activeFilter === filter
                   ? "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400"
                   : "bg-muted/50 border-border text-muted-foreground hover:text-foreground hover:border-border"
