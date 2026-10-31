@@ -1,0 +1,16 @@
+[
+ {
+  "image_url": "/images/hero/hero-ghana-v2.jpg",
+  "phone_image_url": null,
+  "alt": "Woman using her phone on a busy Accra street",
+  "focus_x": 75,
+  "focus_y": 50
+ },
+ {
+  "image_url": "/images/hero/hero-ghana-dev2.jpg",
+  "phone_image_url": null,
+  "alt": "Man working on a laptop in a tech co-working space",
+  "focus_x": 75,
+  "focus_y": 50
+ }
+]

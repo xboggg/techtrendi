@@ -8,6 +8,8 @@ interface OptimizeOptions {
   maxHeight?: number;
   quality?: number;
   format?: "webp" | "jpeg";
+  /** If set, lower the quality step by step (not below 0.5) until the file fits. */
+  maxBytes?: number;
 }
 
 const DEFAULT_OPTIONS: OptimizeOptions = {
@@ -47,18 +49,30 @@ export async function optimizeImage(
       }
 
       const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-
       const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(img, 0, 0, width, height);
+      const draw = (w: number, h: number) => {
+        canvas.width = w;
+        canvas.height = h;
+        ctx.drawImage(img, 0, 0, w, h);
+      };
+      draw(width, height);
 
       const mimeType = opts.format === "webp" ? "image/webp" : "image/jpeg";
-      canvas.toBlob(
+      const encode = (quality: number) => canvas.toBlob(
         (blob) => {
           if (!blob) {
             reject(new Error("Failed to optimize image"));
             return;
+          }
+          if (opts.maxBytes && blob.size > opts.maxBytes) {
+            // Too big: lower the quality first; at the 0.5 floor, make the picture
+            // 15% smaller and start again (not below 640px wide).
+            if (quality > 0.5) { encode(Math.round((quality - 0.08) * 100) / 100); return; }
+            if (canvas.width > 640) {
+              draw(Math.round(canvas.width * 0.85), Math.round(canvas.height * 0.85));
+              encode(opts.quality!);
+              return;
+            }
           }
 
           const ext = opts.format === "webp" ? "webp" : "jpg";
@@ -68,8 +82,9 @@ export async function optimizeImage(
           resolve({ blob, fileName });
         },
         mimeType,
-        opts.quality
+        quality
       );
+      encode(opts.quality!);
     };
 
     img.onerror = () => {

@@ -23,6 +23,8 @@ import { CarouselItem } from "@/components/ui/carousel";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
 import { HeroSearch } from "@/components/home/HeroSearch";
+import bakedHeroSlides from "@/data/heroSlides.json";
+import { cleanHeroSlides, FALLBACK_HERO_SLIDES, HERO_SELECT, sameHeroSlides, type HeroSlide } from "@/lib/heroSlides";
 
 interface TrendingArticle {
   id: string;
@@ -93,12 +95,12 @@ interface TickerSettings {
   speed_secs: number;
 }
 
-// Hero background images (rotate with a crossfade). Fresh filenames so a
-// Cloudflare-cached 404 can't break them. Both ~16:9, subject on the right.
-const HERO_IMAGES = [
-  "/images/hero/hero-ghana-v2.jpg",    // woman on phone, Accra street
-  "/images/hero/hero-ghana-dev2.jpg",  // Edmund at laptop, tech co-working (owner)
-];
+// Hero background pictures (rotate with a crossfade). Managed in /admin/hero-images
+// (owner, 31 Oct 2026); the build bakes the list in, the page re-reads it on load.
+const BAKED_HERO_SLIDES = (() => {
+  const s = cleanHeroSlides(bakedHeroSlides);
+  return s.length ? s : FALLBACK_HERO_SLIDES;
+})();
 
 const categoryLabels: Record<string, string> = {
   phones: "Phones",
@@ -401,6 +403,7 @@ export default function Index() {
   const [tickerSettings, setTickerSettings] = useState<TickerSettings | null>(null);
   // Hero: crossfade between two images (keeps the breathing-zoom effect).
   const [heroIndex, setHeroIndex] = useState(0);
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(BAKED_HERO_SLIDES);
 
   useEffect(() => {
     // Removed fetchTrendingArticles — was fetched but never rendered (dead code)
@@ -409,16 +412,30 @@ export default function Index() {
     fetchLatestNews();
     fetchInternationalNews();
     fetchTicker();
+    fetchHeroSlides();
   }, []);
 
-  // Rotate the two hero images every 7s (crossfade via CSS). Respects
-  // reduced-motion: if set, stay on the first image (no rotation).
+  // Rotate the hero pictures every 7s (crossfade via CSS). Respects
+  // reduced-motion: if set, stay on the first picture (no rotation).
   useEffect(() => {
+    if (heroSlides.length < 2) return;
     if (typeof window !== "undefined" &&
         window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-    const id = setInterval(() => setHeroIndex((i) => (i + 1) % HERO_IMAGES.length), 7000);
+    const id = setInterval(() => setHeroIndex((i) => (i + 1) % heroSlides.length), 7000);
     return () => clearInterval(id);
-  }, []);
+  }, [heroSlides.length]);
+
+  // Newest list from admin; only swaps if it differs from the baked one.
+  const fetchHeroSlides = async () => {
+    try {
+      const { data } = await supabase.from("hero_slides").select(HERO_SELECT)
+        .eq("is_active", true).order("sort_order", { ascending: true });
+      const fresh = cleanHeroSlides(data);
+      if (!fresh.length || sameHeroSlides(fresh, BAKED_HERO_SLIDES)) return;
+      setHeroIndex(0);
+      setHeroSlides(fresh);
+    } catch { /* silent — the baked pictures stay */ }
+  };
 
   const fetchTicker = async () => {
     try {
@@ -662,12 +679,18 @@ export default function Index() {
       <section className="relative overflow-hidden min-h-[100svh] flex items-center border-b border-border/50">
         {/* Rotating background images — each crossfades in/out and keeps the
             slow breathing zoom (animate-hero-zoom). */}
-        {HERO_IMAGES.map((src, i) => (
+        {heroSlides.map((s, i) => (
           <div
-            key={src}
-            aria-hidden="true"
+            key={`${s.image_url}-${i}`}
+            {...(i === heroIndex && s.alt ? { role: "img", "aria-label": s.alt } : { "aria-hidden": true })}
             className={`hero-layer animate-hero-zoom absolute inset-0 bg-cover bg-no-repeat ${i === heroIndex ? "is-active" : ""}`}
-            style={{ backgroundImage: `url('${src}')`, backgroundPosition: "75% center" }}
+            // The phone copy below 768px, the big copy above (index.css .hero-layer);
+            // the position keeps the face the admin tapped in view.
+            style={{
+              "--hero-img": `url('${s.image_url}')`,
+              "--hero-img-phone": `url('${s.phone_image_url ?? s.image_url}')`,
+              backgroundPosition: `${s.focus_x}% ${s.focus_y}%`,
+            } as React.CSSProperties}
           />
         ))}
         {/* Soft, slow-pulsing accent glow over the dark-left area — subtle life

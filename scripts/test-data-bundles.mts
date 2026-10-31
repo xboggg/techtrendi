@@ -3624,7 +3624,30 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     check("strip (build): the prebuild keeps the committed changes file unless the new one passes the checks (version, dates, nothing in the future), and never fails the build",
       fb.okChanges(good, Date.parse(good.generatedAt)) && !fb.okChanges({ ...good, v: 2 }, Date.parse(good.generatedAt)) && !fb.okChanges({ ...good, generatedAt: "2099-01-01T00:00:00Z" }, Date.parse(good.generatedAt)) &&
       !fb.okChanges({ ...good, changes: [{ ...good.changes[0] ?? {}, date: "2099-01-01" }] }, Date.parse(good.generatedAt)) && !fb.okChanges(null) &&
-      /"build": "node scripts\/fetch-data-bundles\.mjs && node scripts\/fetch-bundle-changes\.mjs && vite-react-ssg build/.test(src("package.json")) && !/process\.exit\(/.test(src("scripts/fetch-bundle-changes.mjs")));
+      /"build": "node scripts\/fetch-data-bundles\.mjs && node scripts\/fetch-bundle-changes\.mjs && (node scripts\/fetch-hero-slides\.mjs && )?vite-react-ssg build/.test(src("package.json")) && !/process\.exit\(/.test(src("scripts/fetch-bundle-changes.mjs")));
+  }
+  {
+    // Homepage hero pictures from /admin/hero-images (owner, 31 Oct 2026).
+    const hs = await import("../src/lib/heroSlides.ts");
+    const kept = hs.cleanHeroSlides([
+      { image_url: "/images/hero/a.webp", phone_image_url: "/images/hero/a-phone.webp", alt: "A", focus_x: 140, focus_y: -3 },
+      { image_url: "javascript:alert(1)", alt: "bad" },
+      { image_url: "/images/hero/x.jpg') ; background:red", alt: "breaks the css url" },
+      { image_url: "https://techtrendi.com/images/hero/b.jpg", phone_image_url: "data:x", alt: 5, focus_x: "30" },
+    ]);
+    check("hero: only safe picture paths are kept, focus is clamped to 0-100, a bad phone copy falls back to the big one",
+      kept.length === 2 && kept[0].focus_x === 100 && kept[0].focus_y === 0 && kept[0].phone_image_url === "/images/hero/a-phone.webp" &&
+      kept[1].phone_image_url === null && kept[1].alt === "" && kept[1].focus_x === 30 && hs.cleanHeroSlides(null).length === 0);
+    const baked = hs.cleanHeroSlides(JSON.parse(src("src/data/heroSlides.json")));
+    const home = src("src/pages/Index.tsx");
+    check("hero: the homepage starts from the baked pictures (never empty), re-reads the table, and crops on the tapped face",
+      baked.length > 0 && hs.FALLBACK_HERO_SLIDES.length > 0 && /cleanHeroSlides\(bakedHeroSlides\)/.test(home) && /from\("hero_slides"\)/.test(home) &&
+      /backgroundPosition: `\$\{s\.focus_x\}% \$\{s\.focus_y\}%`/.test(home) && !/HERO_IMAGES/.test(home) &&
+      /\.hero-layer \{[^}]*var\(--hero-img-phone/.test(src("src/index.css")) && /@media \(min-width: 768px\) \{ \.hero-layer \{ background-image: var\(--hero-img\); \} \}/.test(src("src/index.css")));
+    check("hero: admin page is routed and in the menu; the build bakes the list and never fails",
+      /path: "admin\/hero-images"/.test(src("src/ssg/routes.tsx")) && /href: "\/admin\/hero-images"/.test(src("src/pages/admin/AdminLayout.tsx")) &&
+      /finally\(\(\) => process\.exit\(0\)\)/.test(src("scripts/fetch-hero-slides.mjs")) && /is_active=eq\.true/.test(src("scripts/fetch-hero-slides.mjs")) &&
+      /maxBytes: 300 \* 1024/.test(src("src/pages/admin/AdminHeroImages.tsx")) && /Keep at least one picture showing/.test(src("src/pages/admin/AdminHeroImages.tsx")));
   }
   const dash = src("src/pages/data-bundles/DataBundlesDashboard.tsx"), net = src("src/pages/data-bundles/DataBundlesNetwork.tsx");
   check("strip (UI): under the source line on both pages (a network page filters to its network); on short phones it moves under the finder, so the answer stays on the first screen",
