@@ -69,6 +69,8 @@ export function TopicPicker({ options, value, onChange, allName = "All", allLabe
   const isMobile = useIsMobile();
   const current = options.find((o) => o.name === value) ?? options[0];
   const pick = (n: string) => { onChange(n); setOpen(false); };
+  // Long names ("Online Shopping & Marketplace Scams") were cut off in two narrow columns.
+  const longNames = options.some((o) => o.name.length > 22);
 
   const trigger = (
     <button
@@ -98,7 +100,7 @@ export function TopicPicker({ options, value, onChange, allName = "All", allLabe
             <div className="mx-auto mb-3 h-1.5 w-11 rounded-full bg-muted" aria-hidden />
             <SheetTitle className="mb-1 text-lg">Pick a topic</SheetTitle>
             <SheetDescription className="mb-4">{hint}</SheetDescription>
-            <TopicList options={options} value={value} onPick={pick} cols="grid-cols-2" />
+            <TopicList options={options} value={value} onPick={pick} cols={longNames ? "grid-cols-1" : "grid-cols-2"} />
           </SheetContent>
         </Sheet>
       </>
@@ -108,7 +110,7 @@ export function TopicPicker({ options, value, onChange, allName = "All", allLabe
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent align="start" sideOffset={8} className="w-[min(560px,calc(100vw-2rem))] rounded-2xl p-3">
-        <TopicList options={options} value={value} onPick={pick} cols="grid-cols-2 lg:grid-cols-3" />
+        <TopicList options={options} value={value} onPick={pick} cols={longNames ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-3"} />
       </PopoverContent>
     </Popover>
   );
