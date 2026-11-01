@@ -436,7 +436,7 @@ python3 /opt/tech-news/generate_article_on_demand.py "Topic Here" "Category"
 |---------|-------|
 | **Script** | `/opt/tech-news/article_bot.py` |
 | **Service** | `techtrendi-article-bot.service` (systemd) |
-| **Bot Token** | `8726661150:AAEOQpA2L0kLLMUllFUmxHOErvcYHg1pw9w` |
+| **Bot Token** | `<in /etc/telegram-bots.env — never write it here>` |
 | **Chat ID** | `-1003595231315` |
 
 **Commands:**
@@ -631,7 +631,7 @@ This is done by making a minimal API call and checking the response headers/bill
 
 | Setting | Value |
 |---------|-------|
-| **Bot Token** | `8726661150:AAEOQpA2L0kLLMUllFUmxHOErvcYHg1pw9w` |
+| **Bot Token** | `<in /etc/telegram-bots.env — never write it here>` |
 | **Chat ID** | `-1003595231315` (group chat) |
 | **Library** | `python-telegram-bot` (in `article_bot.py`), `urllib.request` (in other scripts) |
 | **Mode** | Polling (long-poll for commands) |
@@ -1090,7 +1090,7 @@ All automation scripts load from `/opt/tech-news/.env` via `python-dotenv`.
 | Variable | Purpose | Used By |
 |----------|---------|---------|
 | `ANTHROPIC_API_KEY` | Claude API authentication (`sk-ant-api03-...`) | All generation scripts |
-| `TELEGRAM_BOT_TOKEN` | Telegram Bot API token (`8726661150:AAE...`) | Bot + all notification scripts |
+| `TELEGRAM_BOT_TOKEN` | Telegram Bot API token (`<in /etc/telegram-bots.env — never write it here>`) | Bot + all notification scripts |
 | `TELEGRAM_CHAT_ID` | Target Telegram group (`-1003595231315`) | Bot + all notification scripts |
 | `SUPABASE_URL` | Supabase REST API base URL (`https://db.techtrendi.com`) | News generator, APIs |
 | `SUPABASE_SERVICE_KEY` | Supabase service_role JWT (bypasses RLS) | APIs (Bearer auth), news generator |
@@ -1475,7 +1475,7 @@ Both `ghana_tech_news.py` and `tech_news_generator.py`:
 
 - **Removed:** video script messages, trending topics notifications
 - **Kept:** article published notifications, social media post text
-- **Bot token:** `8726661150:AAEOQpA2L0kLLMUllFUmxHOErvcYHg1pw9w`
+- **Bot token:** `<in /etc/telegram-bots.env — never write it here>`
 - **Chat ID:** `-1003595231315`
 
 ### 20.12 DigiStore Products
