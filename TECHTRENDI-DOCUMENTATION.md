@@ -1,7 +1,6 @@
 # TechTrendi Platform — Complete Technical Documentation
 
-**Version:** 1.0
-**Date:** March 12, 2026
+**Version:** 1.0 (written March 12, 2026; latest changes section added 1 Nov 2026)
 **Platform:** https://techtrendi.com
 **Stack:** React + Vite + TypeScript + Tailwind CSS + Supabase (self-hosted)
 
@@ -28,6 +27,45 @@
 17. [Environment Variables & Secrets](#17-environment-variables--secrets)
 18. [Free Tools System — Life Progress Bar](#18-free-tools-system--life-progress-bar)
 19. [Troubleshooting](#19-troubleshooting)
+
+---
+
+## ⭐ LATEST CHANGES — 31 October – 1 November 2026 (READ THIS)
+
+### Website (repo `xboggg/techtrendi`)
+- **Hero Images admin** — `/admin/hero-images` (menu: *Hero Images*, above Ticker; `src/pages/admin/AdminHeroImages.tsx`).
+  Upload, reorder (↑↓), show/hide (the last showing picture can't be hidden), tap the face so phones crop
+  around it (`focus_x`/`focus_y`), short description (alt text). **Every change saves by itself.** Uploads are
+  shrunk in the browser (`src/lib/image-optimize.ts`, `maxBytes`): computer copy under 300 KB (1920px),
+  phone copy under 180 KB (1280px), sent to `/api/upload` folder `hero`. "Remove" deletes the row only;
+  the file stays on the server.
+  - Table `techtrendi.hero_slides` (migration `supabase/migrations/20261031_hero_slides.sql`): RLS public read
+    of `is_active` rows, writes only for `techtrendi.is_admin()`.
+  - Homepage (`src/pages/Index.tsx`): prebuild `scripts/fetch-hero-slides.mjs` bakes `src/data/heroSlides.json`
+    (Google sees real pictures), then the page re-reads the table in the browser, so visitors see admin
+    changes straight away. Phone copy via CSS variable `--hero-img-phone` (`src/index.css`).
+  - Tested end to end by Edmund (31 Oct 2026).
+- **Topic button** (`src/components/blog/TopicPicker.tsx`) now on `/blog`, `/news`, `/creepy-tech` and
+  `/cyber-awareness` (emoji topics; one column on phones when names are long). `/scam-alerts` filters are one
+  row that slides sideways on phones. Note: the `scrollbar-hide` class used in older code is defined nowhere
+  (does nothing) — use `[scrollbar-width:none] [&::-webkit-scrollbar]:hidden`.
+- **Old `/guides/<topic>` links** now redirect (301) in nginx on 144 to `/blog?category=<Topic>`; any other
+  `/guides/...` → `/blog`. (They showed a blank page before.) In that nginx file a new redirect needs `=` or
+  `^~`, or the big content regex wins. Copy in `xboggg/server-ops` `srv144/nginx/techtrendi.com`.
+
+### Security
+- **Picture uploads are admin-only** (`/opt/tech-news/image_upload_api.py`, also `/api/purge-og-cache`): the
+  sign-in token must belong to a user with `role = 'admin'` in `techtrendi.user_roles` (looked up through the
+  local gateway `http://127.0.0.1:8000`, cached 60 s). Before, any signed-in user could upload.
+
+### News automation (repo `xboggg/tech-news`, server 144 `/opt/tech-news`) — details in `NEWS_SERVICES_DOCUMENTATION.md` §1
+- 8 of 17 news sources had died quietly → fixed, 6 Ghana sources added, Citinewsroom read from its news sitemap.
+- **Daily source health check** `feed_health.py` (07:15 Ghana time) → Telegram alert when a source breaks or no news went out.
+- **Second daily run** at 17:30 Ghana time (up to 3 stories each run).
+- One article per news event (Claude), never written from a headline alone, `--link` to publish a chosen story.
+- **Cover pictures** `cover_picker.py`: free Cloudflare Workers AI picture checked by Claude → stock photo
+  chosen by Claude looking at thumbnails → old keyword search last.
+- **Telegram "🔄 Change picture / ✅ Keep" buttons** under each news message (handled by `article_bot.py`).
 
 ---
 
@@ -151,6 +189,8 @@ const res = await fetch(`${SUPABASE_URL}/rest/v1/articles?id=eq.${id}`, {
 
 ## 4. Guides System
 
+> **Retired (April 2026, commit 2c752a8):** Guides were merged into Articles. `/guides` is no longer a page; old `/guides/<topic>` links redirect to `/blog?category=<Topic>` (nginx, 31 Oct 2026). `AdminGuides.tsx`, `AdminGuideEdit.tsx` and `Guides.tsx` are leftover files with no route. The text below is history.
+
 Guides are **not a separate table** — they are rows in the `articles` table with `content_type = 'guide'`.
 
 ### How Guides Differ from Articles
@@ -270,20 +310,24 @@ The `/guides` page displays 8 guide categories with icons:
 
 ### Sidebar Navigation (in order)
 
+Current menu (checked 1 Nov 2026 in `src/pages/admin/AdminLayout.tsx`):
+
 1. **Dashboard** — Site overview with live counters, traffic chart, recent content, device/geo breakdown
-2. **Analytics** — 7-tab deep analytics (Overview, Content, Performance, Engagement, Growth, Audience, Acquisition)
+2. **Analytics** — 7-tab deep analytics
 3. **News** — CRUD for news articles
-4. **Articles** — CRUD for articles and guides (with AI generate)
-5. **Guides** — Read-only list with homepage toggle and filters
-6. **Reviews** — CRUD for product reviews (with AI generate)
-7. **Products** — DigiStore product management
-8. **Comments** — Comment moderation
-9. **Users** — User management
-10. **Tool Feedback** — User feedback on tools
-11. **Creepy Tech** — Creepy tech content management
-12. **Cyber Awareness** — Cyber awareness content management
-13. **Messages** — Contact form messages
-14. **WhatsApp Queue** — Auto-generated WhatsApp post queue for Channel & Group broadcasting (see Section 11)
+4. **Articles** — CRUD for articles (with AI generate)
+5. **WhatsApp Queue** — Auto-generated WhatsApp post queue (see Section 11)
+6. **Data Deal Posts** — data bundle deal posts
+7. **Reviews** — CRUD for product reviews
+8. **Products** — DigiStore product management
+9. **Comments** — Comment moderation
+10. **Users** — User management
+11. **Messages** — Contact form messages
+12. **Creepy Tech** · 13. **Cyber Awareness** · 14. **Scam Alerts** · 15. **Daily Tips**
+16. **Hero Images** — homepage pictures: upload, order, show/hide, phone crop (added 31 Oct 2026)
+17. **Ticker** · 18. **Threat Level** · 19. **Scam Reports** · 20. **Scam Stories** · 21. **Tool Feedback**
+
+(The old **Guides** menu item is gone — guides were merged into Articles in April 2026.)
 
 ### Auto-Refresh
 
