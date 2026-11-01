@@ -92,8 +92,10 @@ export function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-0.5 group">
             <img
-              src="/logo-t.png"
+              src="/logo-t-sm.png"
               alt=""
+              width={146}
+              height={144}
               className="h-12 w-auto group-hover:scale-105 transition-transform duration-300"
             />
             <div className="flex flex-col leading-tight">

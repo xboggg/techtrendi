@@ -2630,7 +2630,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   // 3. Site-wide accessibility (minimal).
   const footer = src("src/components/layout/Footer.tsx"), header = src("src/components/layout/Header.tsx");
   check("site a11y (round 10): footer column titles are h2 (no skipped level), the footer logo has empty alt (the word sits beside it), the header logo link is named by its visible words (no aria-label; decorative logo image)",
-    !/<h4/.test(footer) && (footer.match(/<h2 className="footer-head">/g) ?? []).length === 3 && /src="\/logo-t\.png"\s*\r?\n\s*alt=""/.test(footer) && /<Link to="\/" className="flex items-center gap-0\.5 group">/.test(header) && /src="\/logo-t\.png"\s*\r?\n\s*alt=""/.test(header));
+    !/<h4/.test(footer) && (footer.match(/<h2 className="footer-head">/g) ?? []).length === 3 && /src="\/logo-t-sm\.png"\s*\r?\n\s*alt=""/.test(footer) && /<Link to="\/" className="flex items-center gap-0\.5 group">/.test(header) && /src="\/logo-t-sm\.png"\s*\r?\n\s*alt=""/.test(header));
 
   // 4. Social image.
   check("og image (round 10): the pages use /storage/data-bundles/og-ghana.jpg?v=YYYYMMDDHH of the checked time, with alt text",

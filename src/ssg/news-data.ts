@@ -145,14 +145,23 @@ export async function blogLoader({ params }: { params: { slug?: string } }) {
 // previously 100% client-fetched via useEffect, so crawlers saw an empty
 // shell). Client-side fetch still runs after hydration for freshness; this
 // only fixes what ships in the prerendered HTML.
+//
+// List pages only show cards, so they get every field EXCEPT the full article
+// text. Shipping `content` made /blog 5 MB and /news 4 MB of hidden page data
+// (1 Nov 2026) and no list page reads it. The article pages' own loaders above
+// still get the full rows.
+function withoutContent({ content: _content, ...card }: Row): Row {
+  return card;
+}
+
 export async function blogListLoader() {
   if (!import.meta.env.SSR) return null;
-  return [...(await getBlogMap()).values()];
+  return [...(await getBlogMap()).values()].map(withoutContent);
 }
 
 export async function newsListLoader() {
   if (!import.meta.env.SSR) return null;
-  return [...(await getNewsMap()).values()];
+  return [...(await getNewsMap()).values()].map(withoutContent);
 }
 
 // Same fix for /store — DigiStore.tsx fetched products entirely client-side
@@ -197,7 +206,7 @@ export async function securityPageLoader() {
   return {
     alerts,
     threat: threatRows[0] ?? null,
-    articles: articles.slice(0, 6),
+    articles: articles.slice(0, 6).map(withoutContent),
     articleCount: articles.length,
   };
 }

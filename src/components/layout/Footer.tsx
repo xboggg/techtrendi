@@ -192,8 +192,10 @@ export function Footer() {
             <div className="col-span-2 md:col-span-1">
               <Link to="/" className="inline-flex items-center gap-2 mb-2.5 group">
                 <img
-                  src="/logo-t.png"
+                  src="/logo-t-sm.png"
                   alt=""
+                  width={146}
+                  height={144}
                   className="h-9 w-auto transition-transform duration-300 group-hover:scale-110"
                 />
                 <span className="text-xl font-bold leading-none">
