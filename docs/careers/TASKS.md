@@ -37,4 +37,4 @@ Updated: 2026-11-02 after Phase 1 code written and tested locally (Claude; owner
 | T-104 | Source registry tables + "disabled by default" enforcement test. | Claude | done (local) | migrations/002, tests/test_rights_gate.py |
 | T-105 | Staging environment defined. Default proposed: same VPS, separate `careers_staging` database, own port, basic-auth nginx block. | Eddie decides | todo | PHASE1_PLAN.md §1 |
 | T-106 | Migration apply + rollback rehearsal in staging; existing TechTrendi smoke test still passes. | Claude | partial: rehearsed on local PG16 (tests/test_migrations.py); deploy-guard self-test passed; STAGING rehearsal pending T-017/T-105 | evidence/phase1-tests-2026-11-02.txt |
-| T-107 | Owner reviews and merges PR `careers/phase-1`. Merging triggers a routine frontend deploy (no frontend files changed). | Eddie | todo | PR link in PROJECT_MEMORY |
+| T-107 | Owner reviews and merges PR #1 (`careers/phase-1`). Merging triggers a routine frontend deploy (no frontend files changed). | Eddie | todo | https://github.com/xboggg/techtrendi/pull/1 |

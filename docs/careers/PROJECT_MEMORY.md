@@ -10,7 +10,7 @@ Last updated: 2026-11-02 by Claude (draft). No secrets, no personal data, no pro
 - No automatic applications, no fabricated CV content, private CVs, tested tenant isolation, never break existing TechTrendi services.
 
 ## Current phase
-Phase 1 — Foundation, code complete locally; awaiting owner review (PR on branch `careers/phase-1`) and staging. Phase 0 server audit still outstanding (T-002). No server, production schema or source changes have been made.
+Phase 1 — Foundation, code complete locally; awaiting owner review (PR #1: https://github.com/xboggg/techtrendi/pull/1, commit 17c3932) and staging. Phase 0 server audit still outstanding (T-002). No server, production schema or source changes have been made.
 
 ## Verified environment
 Repository (github.com/xboggg/techtrendi, PUBLIC, commit 33f00eb, audited 2026-11-02): React 18 + Vite + TS + shadcn + Tailwind, vite-react-ssg static build, 209 routes in src/App.tsx, Supabase anon-key client on schema `techtrendi`, email/password auth in AuthContext. GitHub Actions deploy via ForceCommand-locked root SSH, rsync --delete to /var/www/techtrendi. Migrations create tables in BOTH public.* and techtrendi.*; RLS widely used. Existing Python services use http.server (no framework) under systemd. Existing scam-report flow and career tools exist. Backups: daily rclone to Google Drive (reported in DOCS). Full report: AUDIT_REPO_2026-11-02.md.
