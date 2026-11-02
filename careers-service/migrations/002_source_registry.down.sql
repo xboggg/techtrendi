@@ -1,0 +1,10 @@
+BEGIN;
+DROP TABLE IF EXISTS careers.source_runs;
+DROP TRIGGER IF EXISTS source_rights_deactivate ON careers.source_rights;
+DROP FUNCTION IF EXISTS careers.deactivate_on_rights_change();
+DROP TRIGGER IF EXISTS sources_activation_gate ON careers.sources;
+DROP FUNCTION IF EXISTS careers.enforce_source_activation();
+DROP FUNCTION IF EXISTS careers.source_permits(uuid, text);
+DROP TABLE IF EXISTS careers.source_rights;
+DROP TABLE IF EXISTS careers.sources;
+COMMIT;
