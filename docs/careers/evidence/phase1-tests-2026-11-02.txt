@@ -1,0 +1,46 @@
+# Phase 1 test run — Mon Nov  2 17:53:34 UTC 2026 UTC
+# Environment: Claude workspace sandbox, PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) (production reported as 15), Python 3.13.18
+# Command: python -m pytest -v  (CAREERS_TEST_ADMIN_URL -> local throwaway cluster, no production access)
+
+============================= test session starts ==============================
+platform linux -- Python 3.13.18, pytest-9.2.0, pluggy-1.7.0 -- /home/claude/techtrendi/careers-service/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/claude/techtrendi/careers-service
+plugins: anyio-4.16.0
+collecting ... collected 33 items
+
+tests/test_api.py::test_health_has_no_secrets PASSED                     [  3%]
+tests/test_api.py::test_ready_hits_database_with_api_role PASSED         [  6%]
+tests/test_api.py::test_jobs_empty_page_shape PASSED                     [  9%]
+tests/test_api.py::test_jobs_rejects_bad_filters_with_standard_error_body PASSED [ 12%]
+tests/test_api.py::test_me_requires_valid_token PASSED                   [ 15%]
+tests/test_api.py::test_me_returns_only_id_and_role PASSED               [ 18%]
+tests/test_api.py::test_unknown_route_uses_standard_error_body PASSED    [ 21%]
+tests/test_migrations.py::test_up_then_partial_down_then_up PASSED       [ 24%]
+tests/test_migrations.py::test_up_to_target_stops_there PASSED           [ 27%]
+tests/test_migrations.py::test_edited_applied_migration_is_refused PASSED [ 30%]
+tests/test_migrations.py::test_sql_is_postgres15_compatible_syntax PASSED [ 33%]
+tests/test_queue.py::test_enqueue_dedupes_on_key PASSED                  [ 36%]
+tests/test_queue.py::test_claim_complete_roundtrip PASSED                [ 39%]
+tests/test_queue.py::test_concurrent_workers_never_share_an_item PASSED  [ 42%]
+tests/test_queue.py::test_expired_lease_is_reclaimable_and_renew_extends PASSED [ 45%]
+tests/test_queue.py::test_failures_retry_with_backoff_then_dead_letter PASSED [ 48%]
+tests/test_queue.py::test_unknown_kind_fails_safely PASSED               [ 51%]
+tests/test_queue.py::test_claim_bounds_are_enforced PASSED               [ 54%]
+tests/test_queue.py::test_api_role_can_enqueue_but_not_claim PASSED      [ 57%]
+tests/test_rights_gate.py::test_new_source_defaults_to_disabled_with_no_permissions PASSED [ 60%]
+tests/test_rights_gate.py::test_cannot_activate_without_rights PASSED    [ 63%]
+tests/test_rights_gate.py::test_pending_rights_do_not_unlock PASSED      [ 66%]
+tests/test_rights_gate.py::test_approved_rights_require_review_evidence PASSED [ 69%]
+tests/test_rights_gate.py::test_approved_fetch_right_allows_activation_and_other_permissions_stay_off PASSED [ 72%]
+tests/test_rights_gate.py::test_expired_rights_block_activation PASSED   [ 75%]
+tests/test_rights_gate.py::test_revoking_rights_deactivates_active_source PASSED [ 78%]
+tests/test_rights_gate.py::test_worker_can_pause_but_not_activate_without_rights PASSED [ 81%]
+tests/test_roles.py::test_roles_cannot_bypass_rls_or_be_superusers PASSED [ 84%]
+tests/test_roles.py::test_api_role_cannot_see_other_schemas PASSED       [ 87%]
+tests/test_roles.py::test_api_role_cannot_write_source_rights PASSED     [ 90%]
+tests/test_roles.py::test_readonly_cannot_write_anything PASSED          [ 93%]
+tests/test_roles.py::test_rls_enabled_on_every_careers_table PASSED      [ 96%]
+tests/test_roles.py::test_audit_events_are_append_only PASSED            [100%]
+
+============================== 33 passed in 3.40s ==============================
