@@ -10,7 +10,7 @@ Last updated: 2026-11-02 by Claude (draft). No secrets, no personal data, no pro
 - No automatic applications, no fabricated CV content, private CVs, tested tenant isolation, never break existing TechTrendi services.
 
 ## Current phase
-Phase 1 — Foundation, code complete locally; awaiting owner review (PR #1: https://github.com/xboggg/techtrendi/pull/1, commit 17c3932) and staging. Phase 0 server audit still outstanding (T-002). No server, production schema or source changes have been made.
+Phase 1 — Foundation merged to main (PR #1, merge 5c5eccd, 2026-11-02; deploy run 41521900465 green, site unchanged). Staging not yet created; server setup kit drafted in deploy/careers/ (PR #2). Phase 0 server audit still outstanding (T-002). No server, production schema or source changes have been made.
 
 ## Verified environment
 Repository (github.com/xboggg/techtrendi, PUBLIC, commit 33f00eb, audited 2026-11-02): React 18 + Vite + TS + shadcn + Tailwind, vite-react-ssg static build, 209 routes in src/App.tsx, Supabase anon-key client on schema `techtrendi`, email/password auth in AuthContext. GitHub Actions deploy via ForceCommand-locked root SSH, rsync --delete to /var/www/techtrendi. Migrations create tables in BOTH public.* and techtrendi.*; RLS widely used. Existing Python services use http.server (no framework) under systemd. Existing scam-report flow and career tools exist. Backups: daily rclone to Google Drive (reported in DOCS). Full report: AUDIT_REPO_2026-11-02.md.
@@ -32,9 +32,9 @@ D-001, D-002 approved via blueprint. D-003 to D-019 proposed, awaiting owner res
 - Owner has deferred secret rotation (T-000); exposure continues until done.
 
 ## Next three actions
-1. Owner reviews and merges PR `careers/phase-1` (T-107); rotates secrets when ready (T-000).
-2. Owner runs the server audit script (T-002) so staging placement and free port are confirmed.
-3. Owner creates staging DB + migrator role from SQL Claude supplies (T-017); Claude runs the migration rehearsal on staging and starts Phase 2 (first approved source slice).
+1. Owner runs the server audit script (T-002) — confirms Python version, free port, Postgres access path for staging.
+2. Owner runs deploy/careers/staging_setup.sql and creates the env files (T-017); Claude then migrates staging and starts the API unit with owner's go-ahead.
+3. Owner emails Remotive (T-018); Claude curates the employer-board shortlist and begins Phase 2 adapter code against fixtures (no source enabled).
 
 ## Production change authorization
 None.

@@ -1,0 +1,67 @@
+# nginx server block for staging.techtrendi.com   (EXAMPLE — review before use; never auto-installed)
+#
+# Prerequisites the owner does: DNS A record staging.techtrendi.com -> server (Cloudflare proxied is
+# fine here because no Let's Encrypt HTTP-01 is needed if you use a Cloudflare origin cert; with
+# certbot --nginx keep it DNS-only first, then proxy). Basic auth file:
+#   sudo apt-get install -y apache2-utils   (if htpasswd is missing)
+#   sudo htpasswd -c /etc/nginx/.careers-staging-htpasswd eddie
+# Then: nginx -t && systemctl reload nginx   (reload, never restart — shared host).
+#
+# <PORT> = the free loopback port chosen after the server audit (not 5111–5118).
+
+server {
+    listen 80;
+    server_name staging.techtrendi.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name staging.techtrendi.com;
+
+    # ssl_certificate / ssl_certificate_key: added by certbot or Cloudflare origin cert
+
+    # Whole staging site is private
+    auth_basic "TechTrendi Careers staging";
+    auth_basic_user_file /etc/nginx/.careers-staging-htpasswd;
+
+    # Never let search engines or caches touch staging
+    add_header X-Robots-Tag "noindex, nofollow, noarchive" always;
+    add_header Cache-Control "no-store" always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options DENY always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+
+    client_max_body_size 2m;            # raised deliberately later for CV uploads (Phase 4)
+
+    # Careers API -> FastAPI on loopback
+    location /api/careers/v1/ {
+        proxy_pass         http://127.0.0.1:<PORT>/api/careers/v1/;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_set_header   X-Request-ID      $request_id;
+        proxy_read_timeout 15s;
+        proxy_connect_timeout 3s;
+        # Basic rate limit for staging; production gets per-route limits
+        limit_req zone=careers_api burst=20 nodelay;
+    }
+
+    # Health endpoint reachable without basic auth so uptime checks work
+    location = /api/careers/v1/health {
+        auth_basic off;
+        proxy_pass http://127.0.0.1:<PORT>/api/careers/v1/health;
+    }
+
+    # Staging frontend build (a separate dist; production stays at /var/www/techtrendi)
+    root /var/www/techtrendi-staging;
+    index index.html;
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+
+# Put this in the http {} context (e.g. /etc/nginx/conf.d/careers-limits.conf):
+# limit_req_zone $binary_remote_addr zone=careers_api:10m rate=10r/s;
