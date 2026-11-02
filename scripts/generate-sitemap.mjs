@@ -17,7 +17,8 @@ const DIST = "dist";
 // Pages that exist as .html but should NOT be advertised to crawlers.
 // "data-bundles": the bare address is a 301 to /data-bundles/ghana, never a page of its own.
 const EXCLUDE_EXACT = new Set(["404", "200", "offline", "design-demo", "reading-list", "tools-preview", "rundown-preview", "data-bundles"]);
-const EXCLUDE_PREFIX = ["admin", "auth", "profile", "dashboard", "arcade", "tools-preview"];
+// "sponsored": paid ad pages (src/data/sponsors.ts) are noindex, so never listed.
+const EXCLUDE_PREFIX = ["admin", "auth", "profile", "dashboard", "arcade", "sponsored", "tools-preview"];
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {

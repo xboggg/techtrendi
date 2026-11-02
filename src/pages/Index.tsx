@@ -23,6 +23,7 @@ import { CarouselItem } from "@/components/ui/carousel";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
 import { HeroSearch } from "@/components/home/HeroSearch";
+import { SponsoredCard } from "@/components/sponsored/SponsoredCard";
 import bakedHeroSlides from "@/data/heroSlides.json";
 import { cleanHeroSlides, FALLBACK_HERO_SLIDES, HERO_SELECT, sameHeroSlides, type HeroSlide } from "@/lib/heroSlides";
 
@@ -912,6 +913,9 @@ export default function Index() {
 
       {/* World Tech in Brief — slim international-news strip (secondary to pillars) */}
       {internationalNews.length > 0 && <IntlNewsScroller news={internationalNews} formatTimeAgo={formatTimeAgo} />}
+
+      {/* Paid "Sponsored" card (src/data/sponsors.ts) — after the news, before Online Safety */}
+      <SponsoredCard className="py-8" />
 
 
 

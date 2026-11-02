@@ -10,6 +10,7 @@ import { ToolComments } from "@/components/tools/ToolComments";
 import { useIsToolPage } from "@/components/tools/ToolPageContext";
 import { ToolJsonLd } from "@/components/seo/ToolJsonLd";
 import { trackEvents } from "@/lib/gtag";
+import { SponsoredCard } from "@/components/sponsored/SponsoredCard";
 
 interface LayoutProps {
   children: ReactNode;
@@ -73,6 +74,9 @@ export function Layout({ children }: LayoutProps) {
         )}
         {tool && <ToolJsonLd tool={tool} />}
         {children}
+        {/* Paid "Sponsored" card on the pages listed in src/data/sponsors.ts.
+            The homepage places its own, higher up (Index.tsx). */}
+        {!isHomepage && <SponsoredCard className="my-8" />}
         {tool && ToolContentSection && <ToolContentSection toolId={tool.id} />}
         {/* Comments belong inside the page, above the footer — not bolted
             on after it. Client-only (not prerendered) to keep tool pages'

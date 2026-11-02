@@ -127,6 +127,10 @@ export const trackEvents = {
   affiliateClick: (partner: string, productId?: string) =>
     event({ action: 'affiliate_click', category: 'affiliate', label: partner, product_id: productId }),
 
+  // Paid sponsors (src/data/sponsors.ts): card opens, WhatsApp/Call taps
+  sponsorClick: (sponsor: string, action: "card" | "whatsapp" | "call", page: string) =>
+    event({ action: 'sponsor_click', category: 'sponsored', label: sponsor, click_type: action, page_path: page }),
+
   // Errors
   error: (description: string, fatal: boolean = false) =>
     event({ action: 'exception', category: 'error', description, fatal }),

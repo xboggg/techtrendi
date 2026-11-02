@@ -7,6 +7,7 @@ import Tools from "../pages/Tools";
 import NotFound from "../pages/NotFound";
 import { Navigate } from "react-router-dom";
 import { DATA_BUNDLES_ROUTE } from "@/data/dataBundlesRoute";
+import { SPONSORS } from "@/data/sponsors";
 import { newsLoader, newsStaticPaths, blogLoader, blogStaticPaths, blogListLoader, newsListLoader, productsListLoader, securityPageLoader } from "./news-data";
 
 // Adapt our default-export pages to vite-react-ssg's lazy ({ Component }).
@@ -133,6 +134,11 @@ export const routes: RouteRecord[] = [
       { path: "store", lazy: d(() => import("../pages/DigiStore")), loader: productsListLoader },
       { path: "books/think-before-you-click", lazy: d(() => import("../pages/books/ThinkBeforeYouClick")) },
       { path: "design-demo", lazy: d(() => import("../pages/DesignDemo")) },
+      // Paid sponsors: one prerendered page each (noindex, not in the sitemap).
+      ...SPONSORS.filter((s) => s.active).map((s) => ({
+        path: `sponsored/${s.slug}`,
+        lazy: d(() => import("../pages/sponsored/SponsorPage")),
+      })),
       {
         element: <ToolPageLayout />,
         entry: "src/components/tools/ToolPageLayout.tsx",
