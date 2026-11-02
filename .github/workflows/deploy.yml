@@ -71,8 +71,8 @@ jobs:
           VITE_SUPABASE_URL:            ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_GA_MEASUREMENT_ID:       ${{ secrets.VITE_GA_MEASUREMENT_ID }}
-          VITE_GROQ_API_KEY:            ${{ secrets.VITE_GROQ_API_KEY }}
-          VITE_GROQ_CHAT_API_KEY:       ${{ secrets.VITE_GROQ_CHAT_API_KEY }}
+          # No Groq key here on purpose: anything VITE_* ends up in the public JS.
+          # AI tools/chat call /api/ai/* and nginx on the web server adds the key.
         run: npm run build
 
       - name: Configure SSH
