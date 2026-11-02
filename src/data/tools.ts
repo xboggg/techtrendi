@@ -3,7 +3,7 @@ import {
   Shield, QrCode, Image, Smartphone, FileText, Lock, Braces, Binary,
   Palette, Scale, Type, Gauge, Eye, Globe, Hash, Link2, AlignJustify, DollarSign,
   Calculator, Mail, Clock, CreditCard, CheckSquare, Briefcase, LinkIcon, Crown,
-  Receipt, Users, Calendar, Zap, Building, PenTool, Share2,
+  Receipt, Users, Zap, Building, PenTool, Share2,
   BarChart3, Megaphone, GraduationCap, Code, Timer, KeyRound, FileCode, Paintbrush,
   Keyboard, TrendingUp, Lightbulb, Disc3, Wallet, ImageIcon, Tags, ScrollText,
   AtSign, Monitor, CircleDollarSign, PieChart, MessageSquare,
@@ -184,8 +184,11 @@ export const allTools: Tool[] = [
   // Batch 4 - Cybersecurity tools
   { id: "phishing-quiz", icon: Target, title: "Phishing or Real? Quiz", description: "10-question Ghana quiz — can you spot which messages are scams?", href: "/tools/phishing-quiz", tier: "free", category: "Security & Privacy", categoryId: "security", isNew: true, gradient: "from-orange-500 to-amber-600", keywords: ["phishing", "quiz", "ghana", "scam", "test", "awareness", "game"] },
 
+  { id: "ghana-scam-checker", icon: Shield, title: "Ghana Scam Pattern Checker", description: "Paste a message, upload a screenshot, or enter a number to check for known Ghana scam patterns", href: "/tools/ghana-scam-checker", tier: "free", category: "Security & Privacy", categoryId: "security", isNew: true, gradient: "from-red-500 to-orange-600", keywords: ["scam", "checker", "ghana", "momo", "fraud", "sms", "whatsapp", "screenshot"] },
+
   // Batch 5 - Missing route entries
-  { id: "age-calculator", icon: Calendar, title: "Age Calculator", description: "Calculate your exact age in years, months, days with zodiac sign, generation, and fun life stats", href: "/tools/age-calculator", tier: "free", category: "Lifestyle & Fun", categoryId: "other", isNew: true, gradient: "from-violet-500 to-fuchsia-600", keywords: ["age", "calculator", "birthday", "zodiac", "generation", "years", "days"] },
+  // age-calculator removed 2026-11-02: its page was deleted on 2026-04-04 (82b7856);
+  // nginx 301s /tools/age-calculator to /tools/life-progress-bar.
   { id: "life-progress-bar", icon: Clock, title: "Life Progress Bar", description: "See how much of your life you've lived, days remaining, and fascinating stats about your existence", href: "/tools/life-progress-bar", tier: "free", category: "Lifestyle & Fun", categoryId: "other", isNew: true, gradient: "from-purple-600 to-pink-500", keywords: ["life", "progress", "bar", "expectancy", "days", "remaining", "years"] },
   { id: "life-calculators", icon: Timer, title: "Life & Time Calculators", description: "A growing hub of life and time calculators — birthday countdown, life in weeks, retirement countdown, and more", href: "/tools/life-calculators", tier: "free", category: "Lifestyle & Fun", categoryId: "other", isNew: true, gradient: "from-indigo-500 to-purple-600", keywords: ["life", "time", "calculators", "hub", "countdown", "retirement", "weeks"] },
   { id: "compatibility-calculator", icon: Heart, title: "Love & Compatibility Calculator", description: "Calculate love compatibility with name matching, zodiac analysis, and friendship scores", href: "/tools/compatibility-calculator", tier: "free", category: "Lifestyle & Fun", categoryId: "other", isNew: true, gradient: "from-pink-500 to-red-600", keywords: ["love", "compatibility", "calculator", "zodiac", "relationship", "fun"] },

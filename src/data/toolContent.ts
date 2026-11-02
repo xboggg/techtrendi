@@ -48,6 +48,26 @@ export const toolContentData: Record<string, ToolContent> = {
     ],
   },
 
+  'ghana-scam-checker': {
+    intro:
+      'Got a message that feels off? Paste it here, or upload a screenshot of it, and this checker looks for the tricks scammers in Ghana use again and again: MoMo "sent by mistake" reversals, fake food vendors like "Pizzaman", pay-before-delivery sellers, fake delivery fees, prize and lottery claims, OTP requests, free data giveaways and more. You get a simple verdict and a plain explanation of every red flag it found. The check runs right in your browser — we do not keep your messages.',
+    howTo: [
+      'Choose "Check a Message" to test a text, WhatsApp or SMS message, or "Check a Number" to look at a phone number',
+      'Paste the message, tap "Upload screenshot", or paste a screenshot straight into the box (Ctrl+V)',
+      'Tap "Check for Scam Patterns"',
+      'Read the verdict and each red flag it lists, then decide what to do before you reply, click or pay',
+    ],
+    whyNeedIt:
+      'Scammers count on you acting fast, before you have had time to think. A quick second look catches the warning signs that are easy to miss in the moment — urgency, requests to pay first, links, and codes. If even one of those shows up, slow down and check with the person or company through a number you already trust.',
+    faqs: [
+      { q: 'Does a "No Obvious Red Flags" result mean the message is safe?', a: 'No. It only means none of the scam patterns we know about were found. New tricks appear all the time, so always confirm through a trusted channel before you send money or share any code.' },
+      { q: 'Can it tell me if a phone number belongs to a scammer?', a: 'No. The number check only tells you which network or country a number is from, for example MTN Ghana or a UK number. It does not have a list of scammers\' numbers. Judge the message itself, not just the number.' },
+      { q: 'Do you keep the messages or screenshots I check?', a: 'No. Reading the screenshot and checking the text both happen in your own browser. We do not keep your messages.' },
+      { q: 'Someone sent me MoMo "by mistake" and wants it back. What should I do?', a: 'Do not send anything back yourself. This is a common trick: the first transfer is often reversed later, so you lose your own money. Ask them to contact their network to reverse it, and check your actual MoMo balance by dialling your network\'s menu, not by trusting an SMS.' },
+      { q: 'Where do I report a scam in Ghana?', a: 'Call the Ghana Police Cybercrime Unit on 18555, or the CRTF on 0800-900-111.' },
+    ],
+  },
+
   'invoice-generator': {
     intro:
       'Create clean, professional invoices in seconds without touching a spreadsheet. Includes payment tracking and follow-up reminders so you can chase overdue invoices without the awkward email drafting. I built this because most invoice tools either cost money or make you sign up for an account just to send a bill. Whether you freelance on the side or run a small shop, this gets the job done fast.',

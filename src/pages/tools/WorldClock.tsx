@@ -49,8 +49,11 @@ const ALL_TIMEZONES: string[] = (() => {
 })();
 
 // ── Default Timezones ───────────────────────────────────────────────
-const DEFAULT_TIMEZONES = [
-  Intl.DateTimeFormat().resolvedOptions().timeZone,
+// The prerendered page and the browser's first render must match exactly,
+// so they both show this fixed list with no times ("--:--"). The visitor's
+// own timezone, saved list and the live time only appear after mount —
+// otherwise React finds build-time text and redraws the whole page (#418/#423).
+const FIXED_TIMEZONES = [
   "UTC",
   "America/New_York",
   "Europe/London",
@@ -58,6 +61,11 @@ const DEFAULT_TIMEZONES = [
   "Africa/Accra",
   "Africa/Lagos",
   "Asia/Dubai",
+];
+// Visitor's own timezone first; Set drops it if it is already in the list
+// (e.g. a visitor in Ghana used to get two Accra cards).
+const DEFAULT_TIMEZONES = [
+  ...new Set([Intl.DateTimeFormat().resolvedOptions().timeZone, ...FIXED_TIMEZONES]),
 ];
 
 // ── Favorite sets storage key ───────────────────────────────────────
@@ -216,16 +224,16 @@ function TimezoneCard({
   canRemove,
 }: {
   tz: string;
-  now: Date;
+  now: Date | null; // null until mounted (see FIXED_TIMEZONES)
   showAnalog: boolean;
   onRemove: () => void;
   canRemove: boolean;
 }) {
-  const info = getTimeInTimezone(tz, now);
-  const offset = getUtcOffset(tz);
+  const info = now ? getTimeInTimezone(tz, now) : null;
+  const offset = now ? getUtcOffset(tz) : "";
   const city = getCityName(tz);
-  const dark = !isDaytime(info.hour24);
-  const isLocal = tz === Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const dark = info ? !isDaytime(info.hour24) : false;
+  const isLocal = now !== null && tz === Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (
     <motion.div
@@ -279,7 +287,7 @@ function TimezoneCard({
             )}
           </div>
 
-          {showAnalog && (
+          {showAnalog && info && (
             <div className="mb-3">
               <AnalogClock
                 hour24={info.hour24}
@@ -296,19 +304,19 @@ function TimezoneCard({
               "text-2xl font-bold font-mono tabular-nums",
               dark ? "text-white" : "text-foreground"
             )}>
-              {info.hour}:{info.minute}:{info.second}
+              {info ? `${info.hour}:${info.minute}:${info.second}` : "--:--:--"}
               <span className={cn(
                 "text-xs ml-1 font-normal",
                 dark ? "text-indigo-300" : "text-amber-600 dark:text-amber-400"
               )}>
-                {info.ampm}
+                {info?.ampm}
               </span>
             </div>
             <div className={cn(
               "text-xs mt-1",
               dark ? "text-indigo-300" : "text-amber-700 dark:text-amber-400"
             )}>
-              {info.weekday}, {info.month} {info.day}
+              {info ? `${info.weekday}, ${info.month} ${info.day}` : " "}
             </div>
             <div className={cn(
               "text-[10px] mt-0.5",
@@ -633,24 +641,31 @@ function saveSelectedTimezones(tzs: string[]) {
 
 // ── Main Component ──────────────────────────────────────────────────
 export default function WorldClock() {
-  const [timezones, setTimezones] = useState<string[]>(loadSelectedTimezones);
-  const [now, setNow] = useState(new Date());
+  // Same first render on the server and in the browser (see FIXED_TIMEZONES);
+  // the visitor's saved list, saved sets and the live time load after mount.
+  const [timezones, setTimezones] = useState<string[]>(FIXED_TIMEZONES);
+  const [now, setNow] = useState<Date | null>(null);
   const [showAnalog, setShowAnalog] = useState(false);
   const [activeTab, setActiveTab] = useState<"clocks" | "converter" | "meeting">("clocks");
-  const [favorites, setFavorites] = useState<FavoriteSet[]>(loadFavorites);
+  const [favorites, setFavorites] = useState<FavoriteSet[]>([]);
   const [saveName, setSaveName] = useState("");
   const [showSaveInput, setShowSaveInput] = useState(false);
 
-  // Tick every second
+  // After mount: load the visitor's list and saved sets, then tick every second
   useEffect(() => {
+    setTimezones(loadSelectedTimezones());
+    setFavorites(loadFavorites());
+    setNow(new Date());
     const interval = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Persist selected timezones
+  // Persist selected timezones — only once the visitor's own list has loaded,
+  // so the fixed first-render list never overwrites what they saved.
+  const loaded = now !== null;
   useEffect(() => {
-    saveSelectedTimezones(timezones);
-  }, [timezones]);
+    if (loaded) saveSelectedTimezones(timezones);
+  }, [timezones, loaded]);
 
   const addTimezone = useCallback((tz: string) => {
     if (!timezones.includes(tz)) {
@@ -831,14 +846,14 @@ export default function WorldClock() {
               <CardContent>
                 <div className="space-y-1 max-h-[300px] overflow-y-auto">
                   {timezones.map((tz) => {
-                    const info = getTimeInTimezone(tz, now);
+                    const info = now ? getTimeInTimezone(tz, now) : null;
                     return (
                       <div
                         key={tz}
                         className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-muted/50 group"
                       >
                         <div className="flex items-center gap-2 min-w-0">
-                          {isDaytime(info.hour24) ? (
+                          {!info || isDaytime(info.hour24) ? (
                             <Sun className="w-3 h-3 text-amber-500 shrink-0" />
                           ) : (
                             <Moon className="w-3 h-3 text-indigo-400 shrink-0" />
@@ -847,7 +862,7 @@ export default function WorldClock() {
                         </div>
                         <div className="flex items-center gap-1">
                           <span className="text-xs font-mono text-muted-foreground">
-                            {info.hour}:{info.minute}
+                            {info ? `${info.hour}:${info.minute}` : "--:--"}
                           </span>
                           <Button
                             variant="ghost"
