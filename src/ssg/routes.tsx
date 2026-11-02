@@ -263,9 +263,10 @@ export const routes: RouteRecord[] = [
           { path: "tools/statistics-visualizer", lazy: t(() => import("../pages/tools/StatisticsVisualizer")) },
           { path: "tools/phishing-quiz", lazy: t(() => import("../pages/tools/PhishingQuiz")) },
           { path: "tools/whatsapp-audit", lazy: t(() => import("../pages/tools/WhatsAppAudit")) },
-          { path: "tools/scam-analyzer", lazy: t(() => import("../pages/tools/ScamAnalyzer")) },
+          // scam-analyzer + password-strength merged 2026-11-02 (duplicates of
+          // ghana-scam-checker / password-checker); nginx 301s the old URLs.
+          // Page files kept (ScamAnalyzer.tsx, PasswordStrength.tsx) so this can be undone.
           { path: "tools/incident-response", lazy: t(() => import("../pages/tools/IncidentResponse")) },
-          { path: "tools/password-strength", lazy: t(() => import("../pages/tools/PasswordStrength")) },
           { path: "tools/wifi-qr-generator", lazy: t(() => import("../pages/tools/WifiQrGenerator")) },
           { path: "tools/this-day-in-history", lazy: t(() => import("../pages/tools/ThisDayInHistory")) },
           { path: "tools/life-progress-bar", lazy: t(() => import("../pages/tools/LifeProgressBar")) },
@@ -276,7 +277,8 @@ export const routes: RouteRecord[] = [
           // (orphan, never in catalog). Superseded by /tools/ecg-bill-estimator
           // (PURC-verified). nginx 301s the old URL to the new one.
           { path: "tools/ghana-scam-checker", lazy: t(() => import("../pages/tools/GhanaScamChecker")) },
-          { path: "tools/ghs-exchange-rate", lazy: t(() => import("../pages/tools/GhsExchangeRate")) },
+          // ghs-exchange-rate merged 2026-11-02 into currency-converter (nginx 301);
+          // GhsExchangeRate.tsx kept.
         ],
       },
       { path: "*", element: <NotFound /> },
