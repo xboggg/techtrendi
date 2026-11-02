@@ -5,7 +5,7 @@ import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { getToolByHref } from "@/data/tools";
 import { ChevronLeft } from "lucide-react";
-import { ToolContentSection } from "@/components/tools/ToolContentSection";
+import { getToolContentSection } from "@/components/tools/toolContentLoader";
 import { ToolComments } from "@/components/tools/ToolComments";
 import { useIsToolPage } from "@/components/tools/ToolPageContext";
 import { ToolJsonLd } from "@/components/seo/ToolJsonLd";
@@ -30,6 +30,9 @@ export function Layout({ children }: LayoutProps) {
   // (/tools/life-progress-bar) apart from a category listing page
   // (/tools/business) since both share the exact same /tools/:x shape.
   const isIndividualToolPage = useIsToolPage();
+
+  // Already loaded by the tool page's route (routes.tsx t()), see toolContentLoader.ts.
+  const ToolContentSection = getToolContentSection();
 
   // GA4 tool_use event — fires once per tool page visit. Complements the
   // page_view GA4 already sends automatically; without this, GA4 has no
@@ -70,7 +73,7 @@ export function Layout({ children }: LayoutProps) {
         )}
         {tool && <ToolJsonLd tool={tool} />}
         {children}
-        {tool && <ToolContentSection toolId={tool.id} />}
+        {tool && ToolContentSection && <ToolContentSection toolId={tool.id} />}
         {/* Comments belong inside the page, above the footer — not bolted
             on after it. Client-only (not prerendered) to keep tool pages'
             static HTML clean and avoid an SSR fetch, same as before. */}
