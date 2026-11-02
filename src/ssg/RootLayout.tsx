@@ -1,3 +1,4 @@
+import { lazy, Suspense, type ComponentType } from "react";
 import { Outlet } from "react-router-dom";
 import { ClientOnly } from "vite-react-ssg";
 import { Toaster } from "@/components/ui/toaster";
@@ -12,16 +13,25 @@ import { CartProvider } from "@/contexts/CartContext";
 import { BookmarkProvider } from "@/components/ui/bookmark-system";
 import { ReadingHistoryProvider } from "@/components/ui/reading-history";
 import { ToolsProvider } from "@/contexts/ToolsContext";
-import { AIChatInterface } from "@/components/ai";
 import { CookieConsent } from "@/components/ui/cookie-consent";
-import { OnboardingTour } from "@/components/ui/onboarding-tour";
-import { CartDrawer } from "@/components/store/CartDrawer";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { PageViewTracker } from "@/components/analytics/PageViewTracker";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { NavigationProgress } from "@/components/ui/NavigationProgress";
 import { PrerenderReady } from "@/components/PrerenderReady";
+
+// Browser-only pop-ups that are not needed to show the page: each loads in its own
+// file after the page starts, instead of being part of every page's main script
+// (2 Nov 2026). If a file fails to load (e.g. an old tab after a deploy) the
+// pop-up is skipped; the page itself keeps working.
+// CookieConsent stays a normal import ON PURPOSE: on load it re-sends a returning
+// visitor's saved choice to Google (updateConsent), so it must not start late.
+const quietLazy = (load: () => Promise<{ default: ComponentType }>) =>
+  lazy(() => load().catch(() => ({ default: () => null })));
+const AIChatInterface = quietLazy(() => import("@/components/ai/AIChatInterface"));
+const CartDrawer = quietLazy(() => import("@/components/store/CartDrawer").then((m) => ({ default: m.CartDrawer })));
+const OnboardingTour = quietLazy(() => import("@/components/ui/onboarding-tour"));
 
 // QueryClient config copied verbatim from App.tsx (single source for the SSG entry).
 const queryClient = new QueryClient({
@@ -84,10 +94,10 @@ export default function RootLayout() {
 
                         <Outlet />
 
-                        <ClientOnly>{() => <AIChatInterface />}</ClientOnly>
-                        <ClientOnly>{() => <CartDrawer />}</ClientOnly>
+                        <ClientOnly>{() => <Suspense fallback={null}><AIChatInterface /></Suspense>}</ClientOnly>
+                        <ClientOnly>{() => <Suspense fallback={null}><CartDrawer /></Suspense>}</ClientOnly>
                         <ClientOnly>{() => <CookieConsent />}</ClientOnly>
-                        <ClientOnly>{() => <OnboardingTour />}</ClientOnly>
+                        <ClientOnly>{() => <Suspense fallback={null}><OnboardingTour /></Suspense>}</ClientOnly>
                       </ToolsProvider>
                     </ReadingHistoryProvider>
                   </BookmarkProvider>
