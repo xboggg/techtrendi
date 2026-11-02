@@ -1,15 +1,25 @@
-import { ReactNode, useEffect, useMemo } from "react";
+import { ReactNode, Suspense, lazy, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ClientOnly } from "vite-react-ssg";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { getToolByHref } from "@/data/tools";
 import { ChevronLeft } from "lucide-react";
-import { ToolContentSection } from "@/components/tools/ToolContentSection";
 import { ToolComments } from "@/components/tools/ToolComments";
 import { useIsToolPage } from "@/components/tools/ToolPageContext";
 import { ToolJsonLd } from "@/components/seo/ToolJsonLd";
 import { trackEvents } from "@/lib/gtag";
+
+// The tool explanations (toolContent.ts, ~156 KB for all tools) load in their
+// own file instead of the main bundle that every page downloads. The prerender
+// waits for it (onAllReady), so each tool page's HTML still contains the text;
+// in the browser the server HTML stays on screen until the file arrives.
+// A failed load skips the section instead of reaching the page's ErrorBoundary.
+const ToolContentSection = lazy(() =>
+  import("@/components/tools/ToolContentSection")
+    .then((m) => ({ default: m.ToolContentSection }))
+    .catch(() => ({ default: () => null }))
+);
 
 interface LayoutProps {
   children: ReactNode;
@@ -70,7 +80,11 @@ export function Layout({ children }: LayoutProps) {
         )}
         {tool && <ToolJsonLd tool={tool} />}
         {children}
-        {tool && <ToolContentSection toolId={tool.id} />}
+        {tool && (
+          <Suspense fallback={null}>
+            <ToolContentSection toolId={tool.id} />
+          </Suspense>
+        )}
         {/* Comments belong inside the page, above the footer — not bolted
             on after it. Client-only (not prerendered) to keep tool pages'
             static HTML clean and avoid an SSR fetch, same as before. */}
