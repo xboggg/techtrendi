@@ -15,10 +15,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, Copy, Check, Youtube, Image, Sparkles } from "lucide-react";
+import { AI_TOOLS_URL, AI_MODEL, AI_REASONING_EFFORT } from "@/lib/aiProxy";
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_API_URL = AI_TOOLS_URL;
+const GROQ_MODEL = AI_MODEL;
 
 interface TitleItem {
   title: string;
@@ -113,10 +113,10 @@ Generate exactly 10 titles ranked from highest to lowest CTR potential. Use prov
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${GROQ_API_KEY}`,
         },
         body: JSON.stringify({
           model: GROQ_MODEL,
+          reasoning_effort: AI_REASONING_EFFORT,
           messages: [{ role: "user", content: prompt }],
           max_tokens: 1200,
           temperature: 0.7,

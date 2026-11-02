@@ -19,6 +19,7 @@ import {
   Flame,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AI_TOOLS_URL, AI_MODEL, AI_REASONING_EFFORT } from "@/lib/aiProxy";
 
 interface TriviaQuestion {
   question: string;
@@ -50,7 +51,6 @@ const categories = [
   "General Knowledge",
 ];
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
 export default function TechTriviaGenerator() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Programming");
@@ -117,14 +117,14 @@ export default function TechTriviaGenerator() {
     setTimerActive(false);
 
     try {
-      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const response = await fetch(AI_TOOLS_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
+          model: AI_MODEL,
+          reasoning_effort: AI_REASONING_EFFORT,
           messages: [
             {
               role: "system",

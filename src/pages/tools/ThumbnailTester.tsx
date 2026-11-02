@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { AI_TOOLS_URL, AI_MODEL, AI_REASONING_EFFORT } from "@/lib/aiProxy";
 
 interface ThumbnailData {
   id: "A" | "B";
@@ -37,8 +38,7 @@ interface AIAnalysis {
   reasoning: string;
 }
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_API_URL = AI_TOOLS_URL;
 
 const popularStyles = [
   {
@@ -194,10 +194,10 @@ export default function ThumbnailTester() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
+          model: AI_MODEL,
+          reasoning_effort: AI_REASONING_EFFORT,
           messages: [
             {
               role: "system",

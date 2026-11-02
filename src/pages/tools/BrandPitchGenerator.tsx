@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import {
   Mail, Copy, Check, Loader2, Sparkles, Lightbulb, Handshake,
 } from "lucide-react";
+import { AI_TOOLS_URL, AI_MODEL, AI_REASONING_EFFORT } from "@/lib/aiProxy";
 
 const collabTypes = [
   { id: "sponsored", label: "Sponsored Post" },
@@ -33,8 +34,7 @@ interface PitchResult {
   email_body: string;
 }
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_MODEL = AI_MODEL;
 
 export default function BrandPitchGenerator() {
   const [creatorName, setCreatorName] = useState("");
@@ -88,14 +88,14 @@ Return ONLY valid JSON with two keys:
 No markdown, no code fences, no extra text.`;
 
     try {
-      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const response = await fetch(AI_TOOLS_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${GROQ_API_KEY}`,
         },
         body: JSON.stringify({
           model: GROQ_MODEL,
+          reasoning_effort: AI_REASONING_EFFORT,
           messages: [
             {
               role: "system",

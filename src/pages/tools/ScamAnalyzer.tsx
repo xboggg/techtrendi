@@ -23,10 +23,10 @@ import {
   Info,
   ArrowRight,
 } from "lucide-react";
+import { AI_TOOLS_URL, AI_MODEL, AI_REASONING_EFFORT } from "@/lib/aiProxy";
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_API_URL = AI_TOOLS_URL;
+const GROQ_MODEL = AI_MODEL;
 
 interface ScamFlag {
   indicator: string;
@@ -118,11 +118,6 @@ export default function ScamAnalyzer() {
       return;
     }
 
-    if (!GROQ_API_KEY) {
-      toast.error("API key not configured");
-      return;
-    }
-
     setAnalyzing(true);
     setResult(null);
 
@@ -130,11 +125,11 @@ export default function ScamAnalyzer() {
       const response = await fetch(GROQ_API_URL, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${GROQ_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           model: GROQ_MODEL,
+          reasoning_effort: AI_REASONING_EFFORT,
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             {

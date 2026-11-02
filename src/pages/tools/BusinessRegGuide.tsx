@@ -21,9 +21,9 @@ import {
   Lightbulb, AlertTriangle, CheckCircle2, Copy, ChevronDown,
   ChevronUp, Globe
 } from "lucide-react";
+import { AI_TOOLS_URL, AI_MODEL, AI_REASONING_EFFORT } from "@/lib/aiProxy";
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_MODEL = AI_MODEL;
 
 const countries = [
   "Ghana",
@@ -122,15 +122,15 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
 
     try {
       const response = await fetch(
-        "https://api.groq.com/openai/v1/chat/completions",
+        AI_TOOLS_URL,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${GROQ_API_KEY}`,
           },
           body: JSON.stringify({
             model: GROQ_MODEL,
+            reasoning_effort: AI_REASONING_EFFORT,
             messages: [
               {
                 role: "system",

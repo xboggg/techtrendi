@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { AI_CHAT_URL, AI_MODEL, AI_REASONING_EFFORT } from "@/lib/aiProxy";
 
 interface Message {
   id: string;
@@ -42,8 +43,7 @@ const suggestedQuestions: SuggestedQuestion[] = [
   { text: 'How to start a tech career?', icon: '🚀' },
 ];
 
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_CHAT_API_KEY;
+const GROQ_API_URL = AI_CHAT_URL;
 
 const SYSTEM_PROMPT = `You are TechTrendi AI, a friendly and knowledgeable tech assistant for the TechTrendi website (techtrendi.com). You help users with:
 - Smartphone reviews, comparisons and buying advice
@@ -72,10 +72,10 @@ async function callGroqAI(message: string, history: Message[]): Promise<string> 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: AI_MODEL,
+        reasoning_effort: AI_REASONING_EFFORT,
         messages,
         temperature: 0.7,
         max_tokens: 1024,

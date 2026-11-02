@@ -13,6 +13,7 @@ import {
   Lightbulb, Copy, RefreshCw, Sparkles, TrendingUp,
   Check, Loader2, Clipboard
 } from "lucide-react";
+import { AI_TOOLS_URL, AI_MODEL, AI_REASONING_EFFORT } from "@/lib/aiProxy";
 
 const platforms = [
   { id: "blog", label: "Blog" },
@@ -39,8 +40,7 @@ interface ContentIdea {
   format: string;
 }
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_MODEL = AI_MODEL;
 
 export default function AIContentIdeaGenerator() {
   const [niche, setNiche] = useState("");
@@ -78,14 +78,14 @@ For each idea, provide:
 Return ONLY valid JSON — an array of 10 objects with keys: title, description, engagement, format. No markdown, no code fences, no extra text.`;
 
     try {
-      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const response = await fetch(AI_TOOLS_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${GROQ_API_KEY}`,
         },
         body: JSON.stringify({
           model: GROQ_MODEL,
+          reasoning_effort: AI_REASONING_EFFORT,
           messages: [
             { role: "system", content: "You are a content strategist. Always respond with valid JSON arrays only. No markdown, no explanation." },
             { role: "user", content: prompt },

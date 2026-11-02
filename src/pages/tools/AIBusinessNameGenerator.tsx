@@ -23,10 +23,10 @@ import {
   Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AI_TOOLS_URL, AI_MODEL, AI_REASONING_EFFORT } from "@/lib/aiProxy";
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_API_URL = AI_TOOLS_URL;
+const GROQ_MODEL = AI_MODEL;
 
 interface NameResult {
   name: string;
@@ -127,11 +127,6 @@ export default function AIBusinessNameGenerator() {
       toast.error("Please select a brand tone.");
       return;
     }
-    if (!GROQ_API_KEY) {
-      toast.error("Groq API key not configured.");
-      return;
-    }
-
     setLoading(true);
     setResult(null);
 
@@ -171,10 +166,10 @@ Generate exactly 20 unique names and 5 taglines. Names should be memorable, bran
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${GROQ_API_KEY}`,
         },
         body: JSON.stringify({
           model: GROQ_MODEL,
+          reasoning_effort: AI_REASONING_EFFORT,
           messages: [{ role: "user", content: prompt }],
           max_tokens: 1500,
           temperature: 0.7,

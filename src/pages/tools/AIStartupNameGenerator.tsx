@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import {
   Rocket, Copy, RefreshCw, Heart, Sparkles, Globe, Loader2, Check,
 } from "lucide-react";
+import { AI_TOOLS_URL, AI_MODEL, AI_REASONING_EFFORT } from "@/lib/aiProxy";
 
 const industries = [
   "Tech",
@@ -45,8 +46,7 @@ interface GeneratedName {
   saved: boolean;
 }
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_MODEL = AI_MODEL;
 
 export default function AIStartupNameGenerator() {
   const [description, setDescription] = useState("");
@@ -86,14 +86,14 @@ Respond ONLY with valid JSON in this exact format, no markdown:
   }
 ]`;
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const response = await fetch(AI_TOOLS_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${GROQ_API_KEY}`,
       },
       body: JSON.stringify({
         model: GROQ_MODEL,
+        reasoning_effort: AI_REASONING_EFFORT,
         messages: [
           { role: "system", content: "You are a startup naming expert. Always respond with valid JSON only, no markdown fences." },
           { role: "user", content: prompt },

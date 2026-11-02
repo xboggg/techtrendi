@@ -14,6 +14,7 @@ import {
   Sparkles, Copy, Check, RefreshCw, Loader2, Zap, Heart, Star,
   Youtube, Instagram, Twitter, Linkedin, Video, MessageSquare
 } from "lucide-react";
+import { AI_TOOLS_URL, AI_MODEL, AI_REASONING_EFFORT } from "@/lib/aiProxy";
 
 const platforms = [
   { id: "youtube", label: "YouTube", icon: Youtube, maxLength: 100 },
@@ -46,8 +47,7 @@ interface Hook {
   isFavorite: boolean;
 }
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_MODEL = AI_MODEL;
 
 export default function HookGenerator() {
   const [topic, setTopic] = useState("");
@@ -91,14 +91,14 @@ Guidelines:
 Return ONLY valid JSON - an array of ${count} strings (the hooks only). No markdown, no code fences, no extra text. Example format: ["Hook 1", "Hook 2", ...]`;
 
     try {
-      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const response = await fetch(AI_TOOLS_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${GROQ_API_KEY}`,
         },
         body: JSON.stringify({
           model: GROQ_MODEL,
+          reasoning_effort: AI_REASONING_EFFORT,
           messages: [
             { role: "system", content: "You are a viral content strategist. Always respond with valid JSON arrays of strings only. No markdown, no explanation, no code fences." },
             { role: "user", content: prompt },

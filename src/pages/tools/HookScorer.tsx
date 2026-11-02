@@ -12,6 +12,7 @@ import {
   Target, Loader2, Sparkles, Lightbulb, Zap, Eye, Heart,
   RefreshCw, Copy, Check,
 } from "lucide-react";
+import { AI_TOOLS_URL, AI_MODEL, AI_REASONING_EFFORT } from "@/lib/aiProxy";
 
 const contentTypes = [
   { id: "social", label: "Social Post" },
@@ -32,8 +33,7 @@ interface HookResult {
   rewrite: string;
 }
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_MODEL = AI_MODEL;
 
 export default function HookScorer() {
   const [hook, setHook] = useState("");
@@ -70,14 +70,14 @@ Analyze it and return a JSON object with these exact keys:
 Be honest and critical. A score of 80+ should be genuinely excellent. Return ONLY valid JSON, no markdown, no code fences, no extra text.`;
 
     try {
-      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const response = await fetch(AI_TOOLS_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${GROQ_API_KEY}`,
         },
         body: JSON.stringify({
           model: GROQ_MODEL,
+          reasoning_effort: AI_REASONING_EFFORT,
           messages: [
             {
               role: "system",
