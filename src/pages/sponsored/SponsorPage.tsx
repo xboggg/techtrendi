@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -6,7 +7,7 @@ import {
   Globe2, Wrench, BadgeCheck, MessagesSquare, ChevronDown, ArrowRight,
 } from "lucide-react";
 import { trackEvents } from "@/lib/gtag";
-import { getSponsorBySlug, type Sponsor } from "@/data/sponsors";
+import { fetchLiveSponsor, getSponsorBySlug, type Sponsor } from "@/data/sponsors";
 import NotFound from "../NotFound";
 
 const SERVICE_ICONS = [Smartphone, Unlock, Zap, Signal];
@@ -15,9 +16,21 @@ const REASON_ICONS = [Wrench, Smartphone, ShieldCheck, MessagesSquare];
 // Landing page for a paid sponsor (src/data/sponsors.ts). Labelled "Sponsored",
 // noindex (kept out of Google results and the sitemap), outside links marked
 // rel="sponsored". One route per sponsor is generated in routes.tsx.
+// First paint = the copy baked at build (same on server and browser, so hydration
+// matches); then the live row replaces it, so the owner's edits show at once.
 export default function SponsorPage() {
   const { pathname } = useLocation();
-  const sponsor = getSponsorBySlug(pathname.replace(/^\/sponsored\//, "").replace(/\/$/, ""));
+  const slug = pathname.replace(/^\/sponsored\//, "").replace(/\/$/, "");
+  const [sponsor, setSponsor] = useState<Sponsor | null | undefined>(() => getSponsorBySlug(slug));
+
+  useEffect(() => {
+    let alive = true;
+    fetchLiveSponsor(slug).then((live) => {
+      if (alive && live !== undefined) setSponsor(live); // undefined = couldn't check: keep the baked copy
+    });
+    return () => { alive = false; };
+  }, [slug]);
+
   if (!sponsor) return <NotFound />;
   const s = sponsor;
 
@@ -27,7 +40,7 @@ export default function SponsorPage() {
         title={`${s.name} (Sponsored)`}
         description={`${s.name}: ${s.cardText} Contact on WhatsApp or call ${s.phoneDisplay}.`}
         canonical={pathname}
-        image={`/sponsored/${s.slug}.jpg`}
+        image={s.shareImage || s.heroImage}
         imageAlt={`${s.name} — ${s.tagline}`}
         noindex
       />
@@ -36,7 +49,7 @@ export default function SponsorPage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-indigo-950 via-violet-950 to-slate-950 text-white">
         <div aria-hidden className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-blue-600/30 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-fuchsia-600/25 blur-3xl" />
-        <div className="container relative grid items-center gap-10 py-10 md:py-16 lg:grid-cols-2">
+        <div className={`container relative grid items-center gap-10 py-10 md:py-16 ${s.heroImage ? "lg:grid-cols-2" : "max-w-3xl"}`}>
           <div>
             <span className="inline-block rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-violet-200">
               Sponsored · {s.name}
@@ -45,30 +58,34 @@ export default function SponsorPage() {
               {s.headline}
             </h1>
             <p className="mt-5 text-lg leading-relaxed text-slate-200 md:text-xl">{s.intro}</p>
-            <ul className="mt-6 flex flex-wrap gap-2">
-              {s.highlights.map((h) => (
-                <li key={h} className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-slate-100">
-                  <Check className="h-4 w-4 text-emerald-300" /> {h}
-                </li>
-              ))}
-            </ul>
+            {s.highlights?.length > 0 && (
+              <ul className="mt-6 flex flex-wrap gap-2">
+                {s.highlights.map((h) => (
+                  <li key={h} className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-slate-100">
+                    <Check className="h-4 w-4 text-emerald-300" /> {h}
+                  </li>
+                ))}
+              </ul>
+            )}
             <ContactButtons s={s} pathname={pathname} className="mt-8" />
           </div>
-          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-            <div aria-hidden className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-violet-500/40 to-blue-500/40 blur-2xl" />
-            <img
-              src={s.heroImage}
-              alt={s.heroImageAlt}
-              width={560}
-              height={520}
-              className="relative w-full rounded-3xl border border-white/15 object-cover shadow-2xl"
-            />
-          </div>
+          {s.heroImage && (
+            <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+              <div aria-hidden className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-violet-500/40 to-blue-500/40 blur-2xl" />
+              <img
+                src={s.heroImage}
+                alt={s.heroImageAlt}
+                width={560}
+                height={520}
+                className="relative w-full rounded-3xl border border-white/15 object-cover shadow-2xl"
+              />
+            </div>
+          )}
         </div>
       </section>
 
       {/* Who it's for */}
-      {s.audience && (
+      {(s.audience?.title || s.audience?.text) && (
         <section className="bg-slate-950 text-white">
           <div className="container py-10">
             <div className="flex flex-col gap-4 rounded-2xl border border-blue-400/25 bg-gradient-to-r from-blue-500/15 to-violet-500/15 p-6 md:flex-row md:items-center md:p-8">
@@ -76,8 +93,8 @@ export default function SponsorPage() {
                 <Globe2 className="h-7 w-7 text-blue-300" />
               </div>
               <div>
-                <h2 className="text-xl font-bold md:text-2xl">{s.audience.title}</h2>
-                <p className="mt-2 leading-relaxed text-slate-300">{s.audience.text}</p>
+                <h2 className="text-xl font-bold md:text-2xl">{s.audience?.title}</h2>
+                <p className="mt-2 leading-relaxed text-slate-300">{s.audience?.text}</p>
               </div>
             </div>
           </div>
@@ -85,9 +102,10 @@ export default function SponsorPage() {
       )}
 
       {/* Services */}
+      {s.services?.length > 0 && (
       <section className="bg-background">
         <div className="container py-14 md:py-20">
-          <p className="text-sm font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">What they unlock</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">What they offer</p>
           <h2 className="mt-2 text-3xl font-bold text-foreground md:text-4xl">Services</h2>
           <div className="mt-8 grid gap-5 sm:grid-cols-2">
             {s.services.map((svc, i) => {
@@ -106,8 +124,10 @@ export default function SponsorPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* How it works */}
+      {s.steps?.length > 0 && (
       <section className="bg-muted/40">
         <div className="container py-14 md:py-20">
           <p className="text-sm font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">Simple steps</p>
@@ -123,8 +143,10 @@ export default function SponsorPage() {
           </ol>
         </div>
       </section>
+      )}
 
       {/* Why choose */}
+      {s.reasons?.length > 0 && (
       <section className="bg-background">
         <div className="container py-14 md:py-20">
           <p className="text-sm font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">Why {s.name}</p>
@@ -143,8 +165,10 @@ export default function SponsorPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* FAQ */}
+      {s.faqs?.length > 0 && (
       <section className="bg-muted/40">
         <div className="container max-w-3xl py-14 md:py-20">
           <h2 className="text-3xl font-bold text-foreground md:text-4xl">Questions people ask</h2>
@@ -161,15 +185,17 @@ export default function SponsorPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Final call to action */}
       <section className="relative overflow-hidden bg-gradient-to-br from-violet-700 via-indigo-800 to-slate-950 text-white">
         <div aria-hidden className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-fuchsia-500/30 blur-3xl" />
         <div className="container relative py-14 text-center md:py-20">
           <BadgeCheck className="mx-auto h-10 w-10 text-emerald-300" />
-          <h2 className="mt-4 text-3xl font-extrabold md:text-4xl">Ready to unlock your phone?</h2>
+          <h2 className="mt-4 text-3xl font-extrabold md:text-4xl">{s.ctaTitle || `Get in touch with ${s.name}`}</h2>
           <p className="mx-auto mt-3 max-w-xl text-lg text-violet-100">
-            Message {s.name} on WhatsApp with your phone model and network. {s.promise.title}.
+            {s.ctaText || "Message them on WhatsApp or give them a call."}
+            {s.promise?.title ? ` ${s.promise.title}.` : ""}
           </p>
           <ContactButtons s={s} pathname={pathname} className="mx-auto mt-8 max-w-2xl" />
           {s.socialHandle && (

@@ -1,0 +1,119 @@
+[
+ {
+  "slug": "cyclopx-unlox",
+  "active": true,
+  "show_on": [
+   "/",
+   "/phones",
+   "/tools/phone-comparison",
+   "/tools/upgrade-calculator"
+  ],
+  "content": {
+   "faqs": [
+    {
+     "a": "A locked phone only works with SIM cards from the network that sold it. Unlocking removes that limit, so your phone accepts a SIM card from any network.",
+     "q": "What does unlocking a phone mean?"
+    },
+    {
+     "a": "Yes. Once it's unlocked it can use MTN, Telecel or AT SIM cards. Most modern phones support Ghana's networks — if you're unsure about your model, ask on WhatsApp.",
+     "q": "Will an unlocked phone from the US work in Ghana?"
+    },
+    {
+     "a": "It depends on your phone model and the network it's locked to. Send those details on WhatsApp and you'll get a quote.",
+     "q": "How much does it cost and how long does it take?"
+    },
+    {
+     "a": "Your phone's brand and model, the network it's locked to, and its IMEI number. To see the IMEI, dial *#06# on the phone.",
+     "q": "What details do I need to send?"
+    },
+    {
+     "a": "This service is only for phones that you own. Lost or stolen phones are not unlocked.",
+     "q": "Can any phone be unlocked?"
+    }
+   ],
+   "name": "CyclopX Unlox",
+   "intro": "Stuck with a phone that only works on one network? CyclopX Unlox removes the network lock from your own phone, so it accepts the SIM card you choose. Any brand, any model, done with professional unlocking tools.",
+   "phone": "233546616401",
+   "steps": [
+    {
+     "title": "Message on WhatsApp",
+     "detail": "Send your phone's brand and model, and the network it's locked to."
+    },
+    {
+     "title": "Get your quote",
+     "detail": "You'll be told the price and how long it takes for your phone."
+    },
+    {
+     "title": "Use any network",
+     "detail": "Once it's unlocked, put in the SIM card you want and you're connected."
+    }
+   ],
+   "ctaText": "Message CyclopX Unlox on WhatsApp with your phone model and network.",
+   "promise": {
+    "title": "Fast, secure, reliable",
+    "detail": "Professional service"
+   },
+   "reasons": [
+    {
+     "title": "Professional tools",
+     "detail": "Unlocks are done with paid, professional unlocking services."
+    },
+    {
+     "title": "Any brand, any model",
+     "detail": "iPhone, Samsung, Google, LG, Motorola and more."
+    },
+    {
+     "title": "Fast, secure, reliable",
+     "detail": "A professional service from start to finish."
+    },
+    {
+     "title": "A real person to talk to",
+     "detail": "Ask your questions on WhatsApp before you pay anything."
+    }
+   ],
+   "tagline": "Unlock Your World",
+   "audience": {
+    "text": "Many phones bought or sent from the US are locked to one American network, so a Ghana SIM won't work in them. Once the phone is unlocked, you can use your MTN, Telecel or AT SIM like any other phone.",
+    "title": "Got a phone from abroad?"
+   },
+   "cardText": "Phone and carrier unlocking for your own phone. Any brand, any network.",
+   "ctaTitle": "Ready to unlock your phone?",
+   "headline": "Unlock your phone. Use any network.",
+   "services": [
+    {
+     "title": "All phone unlocks",
+     "detail": "Any brand, any model",
+     "description": "Whatever phone you have, if it's locked to one network, CyclopX Unlox can unlock it so it works with SIM cards from other networks."
+    },
+    {
+     "title": "iPhone network unlock",
+     "detail": "Use your iPhone on the network you choose",
+     "description": "iPhone stuck on one carrier? The network (carrier) lock is removed, so your iPhone accepts SIM cards from any network."
+    },
+    {
+     "title": "Android unlocks",
+     "detail": "Samsung, Google, LG, Motorola and more",
+     "description": "Carrier-locked Samsung Galaxy, Google Pixel, LG, Motorola and other Android phones unlocked to work on other networks."
+    },
+    {
+     "title": "Carrier unlock",
+     "detail": "AT&T, T-Mobile, Verizon, Xfinity, Boost, MetroPCS and all networks",
+     "description": "Phones locked to AT&T, T-Mobile, Verizon, Xfinity, Boost, MetroPCS, Cricket and other networks, unlocked so you can use them anywhere — including here in Ghana."
+    }
+   ],
+   "heroImage": "/sponsored/cyclopx-unlox-hero.jpg",
+   "highlights": [
+    "Any brand, any model",
+    "All major networks",
+    "Professional unlocking tools",
+    "Fast, secure, reliable"
+   ],
+   "shareImage": "/sponsored/cyclopx-unlox.jpg",
+   "heroImageAlt": "CyclopX Unlox — Unlock Your World. Phone, iPhone, Android and carrier unlock solutions.",
+   "phoneDisplay": "+233 546 616 401",
+   "socialHandle": "@CyclopXunlox",
+   "socialNetworks": "TikTok, Instagram and Facebook",
+   "whatsappMessage": "Hi CyclopX Unlox, I saw your ad on TechTrendi. I'd like to unlock my phone."
+  }
+ }
+]

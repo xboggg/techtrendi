@@ -96,7 +96,7 @@ export default defineConfig(({ mode }) => ({
       // They were never written to dist/, so Google could not index them at all.
       // Every route being excluded here is a top-level segment (auth, profile,
       // dashboard, admin and its children), so segment matching is exact and safe.
-      const skip = ["admin", "arcade", "auth", "profile", "dashboard", "design-demo", "tools-preview", "rundown-preview"];
+      const skip = ["admin", "arcade", "auth", "profile", "dashboard", "design-demo", "tools-preview", "rundown-preview", "my-ad"];
       // Data bundle pages: their routes have :country/:network params, so the concrete pages are
       // added here, only once DATA_BUNDLES_LAUNCHED is true (src/data/dataBundlesRoute.ts).
       return paths.filter((p) => {

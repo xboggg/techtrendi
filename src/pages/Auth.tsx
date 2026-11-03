@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,12 +39,17 @@ export default function Auth() {
   const { toast } = useToast();
   const { user, signIn, signUp } = useAuth();
   const navigate = useNavigate();
+  // ?next=/my-ad sends the person back after signing in. Only paths on this site
+  // ("/x", never "//host" or "https://...") so it can't be used to send people elsewhere.
+  const [searchParams] = useSearchParams();
+  const nextParam = searchParams.get("next") || "";
+  const afterAuth = /^\/(?![/\\])/.test(nextParam) ? nextParam : "/";
 
   useEffect(() => {
     if (user) {
-      navigate("/");
+      navigate(afterAuth);
     }
-  }, [user, navigate]);
+  }, [user, navigate, afterAuth]);
 
   const signInForm = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
@@ -76,7 +81,7 @@ export default function Auth() {
       title: "Welcome back!",
       description: "You've successfully signed in.",
     });
-    navigate("/");
+    navigate(afterAuth);
   };
 
   const handleSignUp = async (data: SignUpFormData) => {
@@ -101,7 +106,7 @@ export default function Auth() {
       title: "Account created!",
       description: "Welcome to TechTrendi. You're now signed in.",
     });
-    navigate("/");
+    navigate(afterAuth);
   };
 
   return (

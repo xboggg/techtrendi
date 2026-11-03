@@ -107,6 +107,9 @@ export const routes: RouteRecord[] = [
       { path: "admin/daily-tips", lazy: d(() => import("../pages/admin/AdminDailyTips")) },
       { path: "admin/ticker", lazy: d(() => import("../pages/admin/AdminTicker")) },
       { path: "admin/hero-images", lazy: d(() => import("../pages/admin/AdminHeroImages")) },
+      { path: "admin/sponsors", lazy: d(() => import("../pages/admin/AdminSponsors")) },
+      // A sponsor's owner edits their own ad (not prerendered: vite.config skip).
+      { path: "my-ad", lazy: d(() => import("../pages/MyAd")) },
       { path: "admin/threat-level", lazy: d(() => import("../pages/admin/AdminThreatLevel")) },
       { path: "admin/scam-reports", lazy: d(() => import("../pages/admin/AdminScamReports")) },
       { path: "admin/scam-stories", lazy: d(() => import("../pages/admin/AdminScamStories")) },
