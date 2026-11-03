@@ -18,6 +18,7 @@ export function SponsoredCard({ className }: { className?: string }) {
         <Link
           key={s.slug}
           to={sponsorPath(s)}
+          reloadDocument // full page load: sponsor pages are ad-free HTML (see AdsenseRestore)
           onClick={() => trackEvents.sponsorClick(s.slug, "card", pathname)}
           className="group relative block overflow-hidden rounded-2xl border border-violet-500/30 bg-gradient-to-br from-indigo-950 via-violet-950 to-slate-950 p-5 sm:p-6 text-white shadow-lg transition-shadow hover:shadow-violet-500/20"
         >

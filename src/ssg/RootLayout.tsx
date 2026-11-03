@@ -16,6 +16,7 @@ import { ToolsProvider } from "@/contexts/ToolsContext";
 import { CookieConsent } from "@/components/ui/cookie-consent";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { PageViewTracker } from "@/components/analytics/PageViewTracker";
+import { AdsenseRestore } from "@/components/ads/AdsenseRestore";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { NavigationProgress } from "@/components/ui/NavigationProgress";
@@ -90,6 +91,7 @@ export default function RootLayout() {
                         <ScrollToTop />
                         <ClientOnly>{() => <GoogleAnalytics />}</ClientOnly>
                         <ClientOnly>{() => <PageViewTracker />}</ClientOnly>
+                        <ClientOnly>{() => <AdsenseRestore />}</ClientOnly>
                         <PrerenderReady />
 
                         <Outlet />
