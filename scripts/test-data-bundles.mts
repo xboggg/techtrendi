@@ -3624,7 +3624,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     check("strip (build): the prebuild keeps the committed changes file unless the new one passes the checks (version, dates, nothing in the future), and never fails the build",
       fb.okChanges(good, Date.parse(good.generatedAt)) && !fb.okChanges({ ...good, v: 2 }, Date.parse(good.generatedAt)) && !fb.okChanges({ ...good, generatedAt: "2099-01-01T00:00:00Z" }, Date.parse(good.generatedAt)) &&
       !fb.okChanges({ ...good, changes: [{ ...good.changes[0] ?? {}, date: "2099-01-01" }] }, Date.parse(good.generatedAt)) && !fb.okChanges(null) &&
-      /"build": "node scripts\/fetch-data-bundles\.mjs && node scripts\/fetch-bundle-changes\.mjs && (node scripts\/fetch-hero-slides\.mjs && )?(node scripts\/fetch-sponsors\.mjs && )?vite-react-ssg build/.test(src("package.json")) && !/process\.exit\(/.test(src("scripts/fetch-bundle-changes.mjs")));
+      /"build": "node scripts\/fetch-data-bundles\.mjs && node scripts\/fetch-bundle-changes\.mjs && (node scripts\/fetch-hero-slides\.mjs && )?(node scripts\/fetch-sponsors\.mjs && )?(node scripts\/fetch-featured-guides\.mjs && )?vite-react-ssg build/.test(src("package.json")) && !/process\.exit\(/.test(src("scripts/fetch-bundle-changes.mjs")));
   }
   {
     // Homepage hero pictures from /admin/hero-images (owner, 31 Oct 2026).

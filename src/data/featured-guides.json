@@ -1,6 +1,74 @@
-[{"id":"6b066dd5-61f4-42ca-be19-70bbdb20b066","title":"Complete Guide to Organizing Your Digital Life: Files, Photos, Passwords, and Notes","slug":"organize-digital-life-files-photos-passwords-notes","excerpt":"Transform your chaotic digital existence into an organized, secure, and efficient system. This comprehensive guide covers proven strategies for managing files, photos, passwords, and notes across all your devices.","category":"Productivity","cover_image":"https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?w=800&h=400&fit=crop","read_time_minutes":12}, 
- {"id":"9b5eab0f-edf1-4ca3-ba92-349b4bc8ad20","title":"AI-Powered Productivity: Complete Guide to Automating Email, Scheduling, and Note-Taking","slug":"ai-powered-productivity-automate-email-scheduling-notes","excerpt":"I used to waste 2.5 hours daily on email sorting, scheduling conflicts, and hunting through messy notes. After testing dozens of AI tools, I found the ones that actually work without requiring a computer science degree to set up.","category":"AI Tech","cover_image":"https://db2.techtrendi.com/storage/v1/object/public/images/articles/1773868343026-ChatGPT%20Image%20Mar%2018,%202026,%2009_40_17%20PM.webp","read_time_minutes":12}, 
- {"id":"28789d3c-b429-4bfd-84d3-6ce46960fdbe","title":"The Complete Guide to Setting Up Two-Factor Authentication on Everything That Matters","slug":"complete-two-factor-authentication-setup-guide","excerpt":"Learn how to secure your digital life by setting up two-factor authentication on all your important accounts. This comprehensive guide covers everything from basic concepts to advanced security keys, with step-by-step instructions for 20+ popular services.","category":"Security","cover_image":"https://db2.techtrendi.com/storage/v1/object/public/images/articles/1773869234273-ChatGPT%20Image%20Mar%2018,%202026,%2010_16_52%20PM.webp","read_time_minutes":12}, 
- {"id":"82882dc9-1653-4f9c-83c5-bd03932ea3b0","title":"Parent's Guide to WhatsApp, Snapchat & TikTok Safety in 2026","slug":"parents-guide-whatsapp-snapchat-tiktok-safety","excerpt":"Your teenager just asked for TikTok and you're spiraling. Here's how I set up bulletproof safety controls on the apps they're actually using – from someone who tested every feature so you don't have to.","category":"Security","cover_image":"https://db2.techtrendi.com/storage/v1/object/public/images/articles/1773868948642-ChatGPT%20Image%20Mar%2018,%202026,%2010_21_44%20PM.webp","read_time_minutes":12}, 
- {"id":"9ba497a4-20bd-4b3a-80b6-03a358f1a5e5","title":"Escape Your 9-to-5: Start Freelancing Today (Complete Guide)","slug":"start-freelancing-replace-9-to-5-income-guide","excerpt":"42% of US workers will freelance by 2026, and I've helped dozens make the jump successfully. Here's exactly how to replace your day job income while keeping that steady paycheck.","category":"Career in Tech","cover_image":"https://db2.techtrendi.com/storage/v1/object/public/images/articles/1773869166842-ChatGPT%20Image%20Mar%2018,%202026,%2010_25_33%20PM.webp","read_time_minutes":12}, 
- {"id":"1cada497-4615-43d2-901c-abe5e81e03fd","title":"Your Brain on Screens: What 5 Hours Daily Actually Does to You","slug":"screen-time-brain-research-what-happens","excerpt":"I calculated how much time I spend staring at screens daily, and honestly, the number shocked me. New brain scans show what 5+ hours of daily screen time is actually doing to your brain — and it's not just about blue light.","category":"Health Tech","cover_image":"https://images.pexels.com/photos/6010927/pexels-photo-6010927.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940","read_time_minutes":11}]
+[
+ {
+  "id": "8b59aa27-b927-4cb0-887f-96318ea67b47",
+  "title": "Which Home Appliances Use the Most Electricity in Ghana (And What You Can Actually Do About It)",
+  "slug": "home-appliances-that-use-most-electricity-ghana",
+  "excerpt": "Your ECG bill jumped again and you're not sure why. The answer is almost always sitting in your living room or bedroom — and a few of those appliances are quietly running up your costs every single hour of every day.",
+  "category": "Green Tech",
+  "cover_image": "https://images.pexels.com/photos/17377424/pexels-photo-17377424.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  "read_time_minutes": 9
+ },
+ {
+  "id": "1abe8006-1cfe-442d-9e5c-9d5514ce4a40",
+  "title": "Backup Internet for Remote Workers in Ghana: You Need a Plan B",
+  "slug": "backup-internet-remote-workers-ghana-plan-b",
+  "excerpt": "Your primary connection drops right as a client call starts — it happens more than anyone admits. If you're working remotely in Ghana without a backup internet plan, you're one bad outage away from a professional disaster. Here's how to build a proper safety net.",
+  "category": "Remote Work",
+  "cover_image": "https://images.pexels.com/photos/3027515/pexels-photo-3027515.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  "read_time_minutes": 9
+ },
+ {
+  "id": "6071a02a-cf5d-458c-8e7b-33206301fbe0",
+  "title": "How to Check Your NHIS Status and Renew Online in 2026 (Without Joining Any Queue)",
+  "slug": "how-to-check-nhis-status-renew-online-ghana-2026",
+  "excerpt": "Your NHIS card expires every year, and most people don't realise it until they're already at the hospital. Here's exactly how to check your status and renew it from your phone — no district office, no queue, no stress.",
+  "category": "Health Tech",
+  "cover_image": "https://images.pexels.com/photos/11756843/pexels-photo-11756843.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  "read_time_minutes": 8
+ },
+ {
+  "id": "9f6f912b-860c-4213-952d-69e81d82c5e8",
+  "title": "Mobile Gaming on a Budget in Ghana: How to Save Data While You Play",
+  "slug": "mobile-gaming-budget-ghana-save-data",
+  "excerpt": "Data in Ghana isn't cheap, and nothing drains a bundle faster than gaming without a plan. Here's how to actually stretch your cedis — by knowing which games eat data, which don't, and how to set your phone up so it's not quietly burning through your GBs in the background.",
+  "category": "Gaming",
+  "cover_image": "/images/articles/1793018748-1793018746389-1001505997.webp",
+  "read_time_minutes": 9
+ },
+ {
+  "id": "a02b37a5-f247-4eb3-bd4b-f9b88900d156",
+  "title": "Your Child Is Online Right Now — Do You Know What They're Seeing?",
+  "slug": "teaching-children-to-stay-safe-online-ghana-2026",
+  "excerpt": "Ghana's cyberbullying reports doubled in 2026, and online grooming is a real, growing problem — not just a foreign one. Here's what Ghanaian parents actually need to know and do to keep their kids safer on the internet.",
+  "category": "Security",
+  "cover_image": "/images/articles/1792959519-1792959517770-Mother_and_Daughters_Cozy_Screen_Time.webp",
+  "read_time_minutes": 9
+ },
+ {
+  "id": "4b782538-e04c-4e09-83f0-eb677b3c7a2d",
+  "title": "5 Ways to Actually Plan Around Accra Traffic Using Your Phone",
+  "slug": "plan-around-accra-traffic-with-your-phone",
+  "excerpt": "Accra traffic isn't going to fix itself anytime soon — that much is clear. But your phone, used the right way, can take a lot of the pain out of it. Here's what actually works.",
+  "category": "Productivity",
+  "cover_image": "/images/articles/1792584597-1792584595894-Navigating_Accra_Traffic.webp",
+  "read_time_minutes": 9
+ },
+ {
+  "id": "70c6a35c-110f-485f-9d34-e799e74861ce",
+  "title": "How to Link Your Ghana Card to Your Bank and MoMo Accounts (2026 Guide)",
+  "slug": "how-to-link-ghana-card-to-bank-and-momo-accounts",
+  "excerpt": "If you still haven't linked your Ghana Card to your bank or MoMo wallet, your account access could get restricted — and it's easier to sort out than you think. Here's exactly how to do it for the major banks and all three networks.",
+  "category": "How-To",
+  "cover_image": "/images/articles/1792960258-1792960257139-At-Home_Mobile_Identity_Verification.webp",
+  "read_time_minutes": 8
+ },
+ {
+  "id": "84fb5763-5d76-488f-bad4-cd9501d86c90",
+  "title": "Electric Motorbikes and Cars in Ghana: What's Actually Available Right Now",
+  "slug": "electric-motorbikes-cars-ghana-whats-available-2026",
+  "excerpt": "Electric vehicles in Ghana aren't just a rumour anymore — there are actual bikes and cars you can buy or rent today. But the market is still young, the charging infrastructure is patchy, and there's a lot of noise to cut through. Here's what's genuinely out there.",
+  "category": "Green Tech",
+  "cover_image": "https://images.pexels.com/photos/39128403/pexels-photo-39128403.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  "read_time_minutes": 9
+ }
+]
