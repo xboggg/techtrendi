@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useLocation } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -12,6 +12,8 @@ import NotFound from "../NotFound";
 
 const SERVICE_ICONS = [Smartphone, Unlock, Zap, Signal];
 const REASON_ICONS = [Wrench, Smartphone, ShieldCheck, MessagesSquare];
+// Stagger index for the sp-in / sp-pop / data-reveal animations (index.css).
+const delay = (i: number) => ({ "--d": i }) as CSSProperties;
 
 // Landing page for a paid sponsor (src/data/sponsors.ts). Labelled "Sponsored",
 // noindex (kept out of Google results and the sitemap), outside links marked
@@ -31,11 +33,29 @@ export default function SponsorPage() {
     return () => { alive = false; };
   }, [slug]);
 
+  // Scroll reveal: [data-reveal] blocks glide in as they come into view. Classes
+  // are added straight to the DOM after hydration, so server and browser HTML match
+  // and the page still shows everything if JS or IntersectionObserver is missing.
+  const pageRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = pageRef.current;
+    if (!root || !("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    root.classList.add("sp-anim");
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) { e.target.classList.add("is-in"); io.unobserve(e.target); }
+      }
+    }, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
+    root.querySelectorAll("[data-reveal]:not(.is-in)").forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [sponsor]);
+
   if (!sponsor) return <NotFound />;
   const s = sponsor;
 
   return (
     <Layout>
+      <div ref={pageRef}>
       <SEOHead
         title={`${s.name} (Sponsored)`}
         description={`${s.name}: ${s.cardText} Contact on WhatsApp or call ${s.phoneDisplay}.`}
@@ -47,38 +67,42 @@ export default function SponsorPage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-indigo-950 via-violet-950 to-slate-950 text-white">
-        <div aria-hidden className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-blue-600/30 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-fuchsia-600/25 blur-3xl" />
+        <div aria-hidden className="sp-blob pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-blue-600/30 blur-3xl" />
+        <div aria-hidden className="sp-blob pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-fuchsia-600/25 blur-3xl" style={{ animationDelay: "-9s" }} />
         <div className={`container relative grid items-center gap-10 py-10 md:py-16 ${s.heroImage ? "lg:grid-cols-2" : "max-w-3xl"}`}>
           <div>
-            <span className="inline-block rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-violet-200">
+            <span className="sp-in inline-block rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-violet-200" style={delay(0)}>
               Sponsored · {s.name}
             </span>
-            <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight md:text-6xl">
+            <h1 className="sp-in mt-5 text-4xl font-extrabold leading-tight tracking-tight md:text-6xl" style={delay(1)}>
               {s.headline}
             </h1>
-            <p className="mt-5 text-lg leading-relaxed text-slate-200 md:text-xl">{s.intro}</p>
+            <p className="sp-in mt-5 text-lg leading-relaxed text-slate-200 md:text-xl" style={delay(2)}>{s.intro}</p>
             {s.highlights?.length > 0 && (
               <ul className="mt-6 flex flex-wrap gap-2">
-                {s.highlights.map((h) => (
-                  <li key={h} className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-slate-100">
+                {s.highlights.map((h, i) => (
+                  <li key={h} className="sp-pop inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-slate-100" style={delay(i)}>
                     <Check className="h-4 w-4 text-emerald-300" /> {h}
                   </li>
                 ))}
               </ul>
             )}
-            <ContactButtons s={s} pathname={pathname} className="mt-8" />
+            <div className="sp-in" style={delay(4)}>
+              <ContactButtons s={s} pathname={pathname} className="mt-8" />
+            </div>
           </div>
           {s.heroImage && (
-            <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-              <div aria-hidden className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-violet-500/40 to-blue-500/40 blur-2xl" />
-              <img
-                src={s.heroImage}
-                alt={s.heroImageAlt}
-                width={560}
-                height={520}
-                className="relative w-full rounded-3xl border border-white/15 object-cover shadow-2xl"
-              />
+            <div className="sp-in relative mx-auto w-full max-w-md lg:max-w-none" style={delay(2)}>
+              <div aria-hidden className="animate-hero-glow absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-violet-500/40 to-blue-500/40 blur-2xl" />
+              <div className="animate-hero-float">
+                <img
+                  src={s.heroImage}
+                  alt={s.heroImageAlt}
+                  width={560}
+                  height={520}
+                  className="relative w-full rounded-3xl border border-white/15 object-cover shadow-2xl"
+                />
+              </div>
             </div>
           )}
         </div>
@@ -88,7 +112,7 @@ export default function SponsorPage() {
       {(s.audience?.title || s.audience?.text) && (
         <section className="bg-slate-950 text-white">
           <div className="container py-10">
-            <div className="flex flex-col gap-4 rounded-2xl border border-blue-400/25 bg-gradient-to-r from-blue-500/15 to-violet-500/15 p-6 md:flex-row md:items-center md:p-8">
+            <div data-reveal className="flex flex-col gap-4 rounded-2xl border border-blue-400/25 bg-gradient-to-r from-blue-500/15 to-violet-500/15 p-6 md:flex-row md:items-center md:p-8">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-500/20">
                 <Globe2 className="h-7 w-7 text-blue-300" />
               </div>
@@ -105,23 +129,11 @@ export default function SponsorPage() {
       {s.services?.length > 0 && (
       <section className="bg-background">
         <div className="container py-14 md:py-20">
-          <p className="text-sm font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">What they offer</p>
-          <h2 className="mt-2 text-3xl font-bold text-foreground md:text-4xl">Services</h2>
-          <div className="mt-8 grid gap-5 sm:grid-cols-2">
-            {s.services.map((svc, i) => {
-              const Icon = SERVICE_ICONS[i % SERVICE_ICONS.length];
-              return (
-                <div key={svc.title} className="group rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-blue-500 text-white">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="mt-4 text-lg font-bold text-foreground">{svc.title}</h3>
-                  <p className="text-sm font-medium text-violet-600 dark:text-violet-400">{svc.detail}</p>
-                  <p className="mt-3 leading-relaxed text-muted-foreground">{svc.description}</p>
-                </div>
-              );
-            })}
+          <div data-reveal>
+            <p className="text-sm font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">What they offer</p>
+            <h2 className="mt-2 text-3xl font-bold text-foreground md:text-4xl">Services</h2>
           </div>
+          <ServiceSlider services={s.services} />
         </div>
       </section>
       )}
@@ -130,11 +142,13 @@ export default function SponsorPage() {
       {s.steps?.length > 0 && (
       <section className="bg-muted/40">
         <div className="container py-14 md:py-20">
-          <p className="text-sm font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">Simple steps</p>
-          <h2 className="mt-2 text-3xl font-bold text-foreground md:text-4xl">How it works</h2>
+          <div data-reveal>
+            <p className="text-sm font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">Simple steps</p>
+            <h2 className="mt-2 text-3xl font-bold text-foreground md:text-4xl">How it works</h2>
+          </div>
           <ol className="mt-8 grid gap-5 md:grid-cols-3">
             {s.steps.map((step, i) => (
-              <li key={step.title} className="relative rounded-2xl border border-border bg-card p-6">
+              <li key={step.title} data-reveal style={delay(i)} className="relative rounded-2xl border border-border bg-card p-6">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-600 text-lg font-bold text-white">{i + 1}</span>
                 <h3 className="mt-4 text-lg font-bold text-foreground">{step.title}</h3>
                 <p className="mt-2 leading-relaxed text-muted-foreground">{step.detail}</p>
@@ -149,14 +163,16 @@ export default function SponsorPage() {
       {s.reasons?.length > 0 && (
       <section className="bg-background">
         <div className="container py-14 md:py-20">
-          <p className="text-sm font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">Why {s.name}</p>
-          <h2 className="mt-2 text-3xl font-bold text-foreground md:text-4xl">Why people choose them</h2>
+          <div data-reveal>
+            <p className="text-sm font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">Why {s.name}</p>
+            <h2 className="mt-2 text-3xl font-bold text-foreground md:text-4xl">Why people choose them</h2>
+          </div>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {s.reasons.map((r, i) => {
               const Icon = REASON_ICONS[i % REASON_ICONS.length];
               return (
-                <div key={r.title} className="rounded-2xl border border-border bg-card p-6">
-                  <Icon className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+                <div key={r.title} data-reveal style={delay(i)} className="group rounded-2xl border border-border bg-card p-6 transition hover:-translate-y-1 hover:border-emerald-400/50 hover:shadow-lg">
+                  <Icon className="sp-wiggle h-7 w-7 text-emerald-600 dark:text-emerald-400" />
                   <h3 className="mt-3 font-bold text-foreground">{r.title}</h3>
                   <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{r.detail}</p>
                 </div>
@@ -171,10 +187,10 @@ export default function SponsorPage() {
       {s.faqs?.length > 0 && (
       <section className="bg-muted/40">
         <div className="container max-w-3xl py-14 md:py-20">
-          <h2 className="text-3xl font-bold text-foreground md:text-4xl">Questions people ask</h2>
+          <h2 data-reveal className="text-3xl font-bold text-foreground md:text-4xl">Questions people ask</h2>
           <div className="mt-8 space-y-3">
-            {s.faqs.map((f) => (
-              <details key={f.q} className="group rounded-xl border border-border bg-card p-5 [&_summary::-webkit-details-marker]:hidden">
+            {s.faqs.map((f, i) => (
+              <details key={f.q} data-reveal style={delay(i)} className="group rounded-xl border border-border bg-card p-5 [&_summary::-webkit-details-marker]:hidden">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-foreground">
                   {f.q}
                   <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
@@ -188,9 +204,9 @@ export default function SponsorPage() {
       )}
 
       {/* Final call to action */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-violet-700 via-indigo-800 to-slate-950 text-white">
-        <div aria-hidden className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-fuchsia-500/30 blur-3xl" />
-        <div className="container relative py-14 text-center md:py-20">
+      <section className="sp-flow relative overflow-hidden bg-gradient-to-br from-violet-700 via-indigo-800 to-slate-950 text-white">
+        <div aria-hidden className="sp-blob pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-fuchsia-500/30 blur-3xl" />
+        <div data-reveal className="container relative py-14 text-center md:py-20">
           <BadgeCheck className="mx-auto h-10 w-10 text-emerald-300" />
           <h2 className="mt-4 text-3xl font-extrabold md:text-4xl">{s.ctaTitle || `Get in touch with ${s.name}`}</h2>
           <p className="mx-auto mt-3 max-w-xl text-lg text-violet-100">
@@ -218,7 +234,81 @@ export default function SponsorPage() {
           </p>
         </div>
       </div>
+      </div>
     </Layout>
+  );
+}
+
+// Phones: one full-width card at a time (no peek of the next), swipe with snap,
+// dots + "Swipe" hint. sm and up: the usual 2-column grid.
+function ServiceSlider({ services }: { services: Sponsor["services"] }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  const onScroll = () => {
+    const t = trackRef.current;
+    if (!t) return;
+    let best = 0;
+    Array.from(t.children).forEach((c, i) => {
+      const d = Math.abs((c as HTMLElement).offsetLeft - t.scrollLeft);
+      if (d < Math.abs((t.children[best] as HTMLElement).offsetLeft - t.scrollLeft)) best = i;
+    });
+    setActive(best);
+  };
+  const goTo = (i: number) => {
+    const t = trackRef.current;
+    const card = t?.children[i] as HTMLElement | undefined;
+    if (t && card) t.scrollTo({ left: card.offsetLeft, behavior: "smooth" });
+  };
+
+  return (
+    <div data-reveal className="mt-8">
+      <div
+        ref={trackRef}
+        onScroll={onScroll}
+        className="sp-noscroll relative flex snap-x snap-mandatory gap-4 overflow-x-auto sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible"
+      >
+        {services.map((svc, i) => {
+          const Icon = SERVICE_ICONS[i % SERVICE_ICONS.length];
+          return (
+            <div
+              key={svc.title}
+              className="group relative w-full shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition duration-300 [scroll-snap-stop:always] hover:-translate-y-1 hover:border-violet-400/60 hover:shadow-xl hover:shadow-violet-500/10 sm:w-auto"
+            >
+              <div aria-hidden className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-violet-500 to-blue-500 transition-transform duration-500 group-hover:scale-x-100" />
+              <div className="flex items-start justify-between">
+                <div className="sp-wiggle flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-blue-500 text-white shadow-lg shadow-violet-500/30">
+                  <Icon className="h-6 w-6" />
+                </div>
+                <span className="text-3xl font-extrabold text-violet-500/15">{String(i + 1).padStart(2, "0")}</span>
+              </div>
+              <h3 className="mt-4 text-lg font-bold text-foreground">{svc.title}</h3>
+              <p className="text-sm font-medium text-violet-600 dark:text-violet-400">{svc.detail}</p>
+              <p className="mt-3 leading-relaxed text-muted-foreground">{svc.description}</p>
+            </div>
+          );
+        })}
+      </div>
+      {services.length > 1 && (
+        <div className="mt-5 flex flex-col items-center gap-2 sm:hidden">
+          <div className="flex gap-2">
+            {services.map((svc, i) => (
+              <button
+                key={svc.title}
+                type="button"
+                onClick={() => goTo(i)}
+                aria-label={`Show service ${i + 1}`}
+                aria-current={i === active}
+                className={`h-2.5 rounded-full transition-all duration-300 ${i === active ? "w-7 bg-violet-600" : "w-2.5 bg-violet-300 dark:bg-violet-800"}`}
+              />
+            ))}
+          </div>
+          <p className="flex items-center gap-1 text-sm font-medium text-muted-foreground">
+            {active + 1} of {services.length} · Swipe <ArrowRight className="sp-nudge h-4 w-4" />
+          </p>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -231,7 +321,7 @@ function ContactButtons({ s, pathname, className = "" }: { s: Sponsor; pathname:
         target="_blank"
         rel="sponsored nofollow noopener noreferrer"
         onClick={() => trackEvents.sponsorClick(s.slug, "whatsapp", pathname)}
-        className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 text-lg font-bold text-white shadow-lg shadow-emerald-900/30 transition hover:brightness-110 sm:w-auto sm:flex-1"
+        className="cta-sheen sp-ring inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 text-lg font-bold text-white shadow-lg shadow-emerald-900/30 transition hover:brightness-110 sm:w-auto sm:flex-1"
       >
         <MessageCircle className="h-6 w-6" /> Chat on WhatsApp <ArrowRight className="h-5 w-5" />
       </a>
