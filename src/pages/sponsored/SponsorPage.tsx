@@ -12,6 +12,17 @@ import NotFound from "../NotFound";
 
 const SERVICE_ICONS = [Smartphone, Unlock, Zap, Signal];
 const REASON_ICONS = [Wrench, Smartphone, ShieldCheck, MessagesSquare];
+const NEON_NUMBER = [
+  "text-cyan-400 [text-shadow:0_0_14px_#22d3ee]",
+  "text-purple-400 [text-shadow:0_0_14px_#a855f7]",
+  "text-blue-400 [text-shadow:0_0_14px_#3b82f6]",
+];
+const REASON_TONES = [
+  { tile: "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10", icon: "bg-emerald-500" },
+  { tile: "border-blue-200 bg-blue-50 dark:border-blue-500/30 dark:bg-blue-500/10", icon: "bg-blue-500" },
+  { tile: "border-violet-200 bg-violet-50 dark:border-violet-500/30 dark:bg-violet-500/10", icon: "bg-violet-600" },
+  { tile: "border-orange-200 bg-orange-50 dark:border-orange-500/30 dark:bg-orange-500/10", icon: "bg-orange-500" },
+];
 // Stagger index for the sp-in / sp-pop / data-reveal animations (index.css).
 const delay = (i: number) => ({ "--d": i }) as CSSProperties;
 
@@ -32,6 +43,18 @@ export default function SponsorPage() {
     });
     return () => { alive = false; };
   }, [slug]);
+
+  // Orbitron for the neon "How it works" heading + step numbers, sponsor pages only
+  // (text= keeps the file tiny). Added by hand: a <Head> link is dropped by the
+  // head manager when the page hydrates.
+  useEffect(() => {
+    if (document.getElementById("sp-orbitron")) return;
+    const link = document.createElement("link");
+    link.id = "sp-orbitron";
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap&text=How%20it%20works0123456789";
+    document.head.appendChild(link);
+  }, []);
 
   // Scroll reveal: [data-reveal] blocks glide in as they come into view. Classes
   // are added straight to the DOM after hydration, so server and browser HTML match
@@ -138,20 +161,30 @@ export default function SponsorPage() {
       </section>
       )}
 
-      {/* How it works */}
+      {/* How it works (neon, matches the poster) */}
       {s.steps?.length > 0 && (
-      <section className="bg-muted/40">
-        <div className="container py-14 md:py-20">
+      <section className="relative overflow-hidden bg-[radial-gradient(120%_60%_at_50%_0%,#1e1b4b_0%,#070b1f_55%,#030512_100%)] text-slate-200">
+        <div aria-hidden className="sp-scan pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-transparent via-cyan-400/10 to-transparent" />
+        <div className="container relative py-14 md:py-20">
           <div data-reveal>
-            <p className="text-sm font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">Simple steps</p>
-            <h2 className="mt-2 text-3xl font-bold text-foreground md:text-4xl">How it works</h2>
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">Simple steps</p>
+            <h2 className="mt-2 sp-orb text-3xl font-black text-white [text-shadow:0_0_18px_rgba(168,85,247,0.6)] md:text-4xl">How it works</h2>
           </div>
-          <ol className="mt-8 grid gap-5 md:grid-cols-3">
+          <ol className="mt-8 grid gap-4 md:grid-cols-3 md:gap-5">
             {s.steps.map((step, i) => (
-              <li key={step.title} data-reveal style={delay(i)} className="relative rounded-2xl border border-border bg-card p-6">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-600 text-lg font-bold text-white">{i + 1}</span>
-                <h3 className="mt-4 text-lg font-bold text-foreground">{step.title}</h3>
-                <p className="mt-2 leading-relaxed text-muted-foreground">{step.detail}</p>
+              <li key={step.title} data-reveal style={delay(i)} className="sp-neon">
+                <div className="relative flex h-full items-start gap-4 rounded-[1.2rem] bg-[#0b1029] p-5 md:flex-col md:p-6">
+                  <span
+                    className={`sp-glow sp-orb text-3xl font-black leading-none ${NEON_NUMBER[i % NEON_NUMBER.length]}`}
+                    style={{ animationDelay: `${i * 0.4}s` }}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">{step.title}</h3>
+                    <p className="mt-1.5 leading-relaxed text-slate-300">{step.detail}</p>
+                  </div>
+                </div>
               </li>
             ))}
           </ol>
@@ -167,14 +200,17 @@ export default function SponsorPage() {
             <p className="text-sm font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">Why {s.name}</p>
             <h2 className="mt-2 text-3xl font-bold text-foreground md:text-4xl">Why people choose them</h2>
           </div>
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-3 md:gap-5 lg:grid-cols-4">
             {s.reasons.map((r, i) => {
               const Icon = REASON_ICONS[i % REASON_ICONS.length];
+              const tone = REASON_TONES[i % REASON_TONES.length];
               return (
-                <div key={r.title} data-reveal style={delay(i)} className="group rounded-2xl border border-border bg-card p-6 transition hover:-translate-y-1 hover:border-emerald-400/50 hover:shadow-lg">
-                  <Icon className="sp-wiggle h-7 w-7 text-emerald-600 dark:text-emerald-400" />
-                  <h3 className="mt-3 font-bold text-foreground">{r.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{r.detail}</p>
+                <div key={r.title} data-reveal style={delay(i)} className={`group rounded-2xl border p-4 transition hover:-translate-y-1 hover:shadow-lg md:p-6 ${tone.tile}`}>
+                  <div className={`sp-wiggle flex h-10 w-10 items-center justify-center rounded-xl text-white md:h-12 md:w-12 ${tone.icon}`}>
+                    <Icon className="h-5 w-5 md:h-6 md:w-6" />
+                  </div>
+                  <h3 className="mt-3 text-[15px] font-bold leading-snug text-foreground md:text-base">{r.title}</h3>
+                  <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground md:text-sm">{r.detail}</p>
                 </div>
               );
             })}
@@ -187,18 +223,11 @@ export default function SponsorPage() {
       {s.faqs?.length > 0 && (
       <section className="bg-muted/40">
         <div className="container max-w-3xl py-14 md:py-20">
-          <h2 data-reveal className="text-3xl font-bold text-foreground md:text-4xl">Questions people ask</h2>
-          <div className="mt-8 space-y-3">
-            {s.faqs.map((f, i) => (
-              <details key={f.q} data-reveal style={delay(i)} className="group rounded-xl border border-border bg-card p-5 [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-foreground">
-                  {f.q}
-                  <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
-                </summary>
-                <p className="mt-3 leading-relaxed text-muted-foreground">{f.a}</p>
-              </details>
-            ))}
+          <div data-reveal>
+            <h2 className="text-3xl font-bold text-foreground md:text-4xl">Questions people ask</h2>
+            <p className="mt-2 text-muted-foreground">Tap a question to see the answer.</p>
           </div>
+          <FaqChat faqs={s.faqs} />
         </div>
       </section>
       )}
@@ -236,6 +265,41 @@ export default function SponsorPage() {
       </div>
       </div>
     </Layout>
+  );
+}
+
+// Questions as a WhatsApp-style chat: the question is the visitor's green bubble
+// (a button), the answer comes back as a white bubble. First one open on load.
+function FaqChat({ faqs }: { faqs: Sponsor["faqs"] }) {
+  const [open, setOpen] = useState(0);
+  return (
+    <div className="mt-8 space-y-3">
+      {faqs.map((f, i) => {
+        const isOpen = open === i;
+        return (
+          <div key={f.q} data-reveal style={delay(i)} className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => setOpen(isOpen ? -1 : i)}
+              aria-expanded={isOpen}
+              aria-controls={`faq-answer-${i}`}
+              className={`flex min-h-12 max-w-[88%] items-center gap-3 self-end rounded-2xl rounded-br-md px-4 py-3 text-left font-semibold shadow-sm transition-colors duration-300 ${
+                isOpen ? "bg-[#075e54] text-white" : "bg-[#dcf8c6] text-[#064e3b] hover:bg-[#c9f2ad]"
+              }`}
+            >
+              <span>{f.q}</span>
+              <ChevronDown className={`h-4 w-4 shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+            </button>
+            {isOpen && (
+              <div id={`faq-answer-${i}`} className="sp-bubble flex max-w-[88%] items-end gap-2 self-start">
+                <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-blue-600 text-[11px] font-extrabold text-white">CX</span>
+                <p className="rounded-2xl rounded-bl-md border border-border bg-card px-4 py-3 leading-relaxed text-foreground shadow-sm">{f.a}</p>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

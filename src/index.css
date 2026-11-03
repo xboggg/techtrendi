@@ -987,6 +987,15 @@ body {
 @keyframes spFlow { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 @keyframes spRing { 0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.55); } 70%, 100% { box-shadow: 0 0 0 16px rgba(37, 211, 102, 0); } }
 @keyframes spNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+@keyframes spSpin { to { transform: rotate(360deg); } }
+@keyframes spGlow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+@keyframes spScan { from { transform: translateY(-100%); } to { transform: translateY(900%); } }
+@keyframes spBubble { from { opacity: 0; transform: translateY(10px) scale(0.96); } to { opacity: 1; transform: none; } }
+/* Orbitron is loaded only on sponsor pages (SponsorPage <Head>, digits + "How it works"). */
+.sp-orb { font-family: "Orbitron", "Inter", sans-serif; }
+/* Neon card: a spinning colour wheel behind the card shows as a 1.5px moving border. */
+.sp-neon { position: relative; overflow: hidden; border-radius: 1.25rem; padding: 1.5px; }
+.sp-neon::before { content: ""; position: absolute; inset: -60%; background: conic-gradient(from 0deg, #22d3ee, #a855f7, #3b82f6, #22d3ee); }
 @keyframes spWiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-10deg) scale(1.08); } 75% { transform: rotate(8deg) scale(1.08); } }
 @media (prefers-reduced-motion: no-preference) {
   .sp-in { animation: spUp 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) backwards; animation-delay: calc(var(--d, 0) * 120ms); }
@@ -996,6 +1005,10 @@ body {
   .sp-ring { animation: spRing 2.4s ease-out infinite; }
   .sp-nudge { animation: spNudge 1.4s ease-in-out infinite; }
   .group:hover .sp-wiggle { animation: spWiggle 0.6s ease-in-out; }
+  .sp-neon::before { animation: spSpin 6s linear infinite; }
+  .sp-glow { animation: spGlow 2.6s ease-in-out infinite; }
+  .sp-scan { animation: spScan 6s linear infinite; }
+  .sp-bubble { animation: spBubble 0.45s cubic-bezier(0.2, 0.7, 0.2, 1.2) both; }
   .sp-anim [data-reveal]:not(.is-in) { opacity: 0; }
   .sp-anim [data-reveal].is-in { animation: spUp 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) backwards; animation-delay: calc(var(--d, 0) * 110ms); }
 }
