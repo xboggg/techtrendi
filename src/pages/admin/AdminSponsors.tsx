@@ -12,11 +12,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Check, ExternalLink, Loader2, Megaphone, Plus, Save, UserRound, X } from "lucide-react";
+import { ArrowLeft, BarChart3, Check, ExternalLink, Loader2, Megaphone, Plus, Save, UserRound, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { SponsorEditor } from "@/components/sponsored/SponsorEditor";
-import { SPONSOR_PAGES, emptySponsorContent, findBannedWords, type SponsorContent, type SponsorRow } from "@/data/sponsors";
+import {
+  SPONSOR_PAGES, emptySponsorContent, fetchSponsorStats, findBannedWords,
+  type SponsorContent, type SponsorRow, type SponsorStat,
+} from "@/data/sponsors";
 import { cleanSponsorContent } from "@/components/sponsored/cleanSponsorContent";
+import { SponsorStats } from "@/components/sponsored/SponsorStats";
 
 type Row = SponsorRow & { id: string };
 
@@ -30,14 +34,20 @@ export default function AdminSponsors() {
   const [newSlug, setNewSlug] = useState("");
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
+  const [stats, setStats] = useState<SponsorStat[] | null>(null);
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("sponsors" as never).select("*").order("sort_order").order("slug");
+    const [{ data, error }, st] = await Promise.all([
+      supabase.from("sponsors" as never).select("*").order("sort_order").order("slug"),
+      fetchSponsorStats(),
+    ]);
     if (error) toast.error("Could not load the ads");
     setRows(((data as unknown) as Row[]) || []);
+    setStats(st);
     setLoading(false);
   };
+  const statsFor = (slug: string) => (stats || []).filter((s) => s.slug === slug);
   useEffect(() => { load(); }, []);
 
   const editing = rows.find((r) => r.id === editId) || null;
@@ -56,7 +66,7 @@ export default function AdminSponsors() {
     const content = cleanSponsorContent(draft);
     const bad = findBannedWords(content);
     if (bad) { toast.error(`Not allowed on TechTrendi: "${bad}". Please remove it.`); return; }
-    if (!/^[0-9]{8,15}$/.test(content.phone)) { toast.error("Phone number: digits only, with country code (e.g. 233546616401)."); return; }
+    if (!/^[0-9]{8,15}$/.test(content.phone)) { toast.error("Phone number: digits only, with country code (e.g. 233536616401)."); return; }
     setSaving(true);
     const ok = await update(editing.id, { content }, "Saved. The ad page shows it now.");
     setSaving(false);
@@ -89,7 +99,7 @@ export default function AdminSponsors() {
     const slug = newSlug.trim().toLowerCase();
     if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) { toast.error("Address: small letters, numbers and dashes only, e.g. kofi-phones"); return; }
     if (!newName.trim()) { toast.error("Please type the business name."); return; }
-    if (!/^[0-9]{8,15}$/.test(newPhone)) { toast.error("Phone number: digits only, with country code (e.g. 233546616401)."); return; }
+    if (!/^[0-9]{8,15}$/.test(newPhone)) { toast.error("Phone number: digits only, with country code (e.g. 233536616401)."); return; }
     const content = { ...emptySponsorContent(), name: newName.trim(), phone: newPhone, phoneDisplay: `+${newPhone}` };
     const { error } = await supabase.from("sponsors" as never).insert({ slug, active: false, content } as never);
     if (error) { toast.error(error.message.includes("duplicate") ? "That address is already used." : error.message); return; }
@@ -110,6 +120,11 @@ export default function AdminSponsors() {
               View page <ExternalLink className="h-4 w-4" />
             </a>
           </div>
+
+          <section className="rounded-2xl border border-border bg-card p-5 md:p-6 space-y-4">
+            <h2 className="flex items-center gap-2 text-lg font-bold"><BarChart3 className="h-5 w-5" /> Visits and taps</h2>
+            {stats ? <SponsorStats stats={statsFor(editing.slug)} /> : <p className="text-sm text-muted-foreground">Could not load the numbers. Refresh the page to try again.</p>}
+          </section>
 
           <section className="rounded-2xl border border-border bg-card p-5 md:p-6 space-y-4">
             <h2 className="text-lg font-bold">Settings (admin only)</h2>
@@ -142,7 +157,7 @@ export default function AdminSponsors() {
             </div>
             {editing.content.pendingHeroImage && (
               <div className="rounded-xl border-2 border-amber-400 p-4">
-                <p className="font-semibold">The owner sent a new picture. Check it has no "iCloud"/"bypass" words and no company logos.</p>
+                <p className="font-semibold">The owner sent a new picture. Check it has no "iCloud"/"bypass"/"hack" words and no company logos.</p>
                 <img src={editing.content.pendingHeroImage} alt="" className="mt-3 max-h-72 rounded-lg border border-border" />
                 <div className="mt-3 flex gap-2">
                   <Button onClick={() => approvePicture(editing, true)}><Check className="mr-1 h-4 w-4" /> Approve</Button>
@@ -188,6 +203,14 @@ export default function AdminSponsors() {
                   <p className="text-sm text-muted-foreground">
                     {r.active ? "On" : "Off"} · {r.show_on.length} page{r.show_on.length === 1 ? "" : "s"} · {r.owner_email ? `owner: ${r.owner_email}` : "no owner login"}
                   </p>
+                  {(() => {
+                    const m = statsFor(r.slug).find((s) => s.period === "7d");
+                    return m && (
+                      <p className="text-sm font-medium text-foreground">
+                        Last 7 days: {m.visits} visits · {m.whatsapp} WhatsApp · {m.call} calls · {m.card} card taps
+                      </p>
+                    );
+                  })()}
                   {r.content.pendingHeroImage && <p className="text-sm font-semibold text-amber-600">New picture waiting for approval</p>}
                 </div>
                 <Button variant="outline" onClick={() => open(r)}>Edit</Button>

@@ -118,8 +118,8 @@ export function SponsorEditor({
       <div className="flex gap-3 rounded-2xl border border-amber-400/40 bg-amber-50 p-4 text-sm text-amber-900 dark:bg-amber-500/10 dark:text-amber-200">
         <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
         <p>
-          <strong>TechTrendi rules for ads:</strong> don't mention iCloud, Activation Lock, FRP or "bypass" (in text or in
-          pictures), and don't use other companies' logos. These would put the site's Google ads at risk, so the system
+          <strong>TechTrendi rules for ads:</strong> don't mention iCloud, Activation Lock, FRP, "bypass", hacking,
+          cracking, jailbreak, blacklist removal, changing IMEI or removing passwords/screen locks (in text or in pictures), and don't use other companies' logos. These would put the site's Google ads at risk, so the system
           won't save them. Only promise what you really offer.
         </p>
       </div>
@@ -164,10 +164,10 @@ export function SponsorEditor({
       </Section>
 
       <Section title="Contact">
-        <Field label="Phone number (for the buttons)" hint="Digits only, with country code, no + or spaces. Example: 233546616401">
+        <Field label="Phone number (for the buttons)" hint="Digits only, with country code, no + or spaces. Example: 233536616401">
           <Input inputMode="numeric" value={c.phone} onChange={(e) => set("phone", e.target.value.replace(/\D/g, ""))} />
         </Field>
-        <Field label="Phone number as people see it" hint="Example: +233 546 616 401"><Input value={c.phoneDisplay} onChange={(e) => set("phoneDisplay", e.target.value)} /></Field>
+        <Field label="Phone number as people see it" hint="Example: +233 536 616 401"><Input value={c.phoneDisplay} onChange={(e) => set("phoneDisplay", e.target.value)} /></Field>
         <Field label="WhatsApp starting message" hint="Already typed for the customer when they tap Chat on WhatsApp.">
           <Textarea rows={2} value={c.whatsappMessage} onChange={(e) => set("whatsappMessage", e.target.value)} />
         </Field>

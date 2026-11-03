@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { ArrowRight, Unlock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trackEvents } from "@/lib/gtag";
-import { getSponsorsForPage, sponsorPath } from "@/data/sponsors";
+import { getSponsorsForPage, noteCardTap, sponsorPath } from "@/data/sponsors";
 
 // "Sponsored" strip linking to a sponsor's full page. Shows only the sponsors
 // whose `showOn` lists the current page (src/data/sponsors.ts); renders nothing
@@ -19,7 +19,7 @@ export function SponsoredCard({ className }: { className?: string }) {
           key={s.slug}
           to={sponsorPath(s)}
           reloadDocument // full page load: sponsor pages are ad-free HTML (see AdsenseRestore)
-          onClick={() => trackEvents.sponsorClick(s.slug, "card", pathname)}
+          onClick={() => { trackEvents.sponsorClick(s.slug, "card", pathname); noteCardTap(s.slug, pathname); }}
           className="group relative block overflow-hidden rounded-2xl border border-violet-500/30 bg-gradient-to-br from-indigo-950 via-violet-950 to-slate-950 p-5 sm:p-6 text-white shadow-lg transition-shadow hover:shadow-violet-500/20"
         >
           <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-violet-500/25 blur-3xl" />

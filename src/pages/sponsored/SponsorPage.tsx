@@ -7,7 +7,7 @@ import {
   Globe2, Wrench, BadgeCheck, MessagesSquare, ChevronDown, ArrowRight,
 } from "lucide-react";
 import { trackEvents } from "@/lib/gtag";
-import { fetchLiveSponsor, getSponsorBySlug, type Sponsor } from "@/data/sponsors";
+import { fetchLiveSponsor, getSponsorBySlug, recordSponsorClick, takeCardTap, type Sponsor } from "@/data/sponsors";
 import NotFound from "../NotFound";
 
 const SERVICE_ICONS = [Smartphone, Unlock, Zap, Signal];
@@ -42,6 +42,12 @@ export default function SponsorPage() {
       if (alive && live !== undefined) setSponsor(live); // undefined = couldn't check: keep the baked copy
     });
     return () => { alive = false; };
+  }, [slug]);
+
+  // Opened by tapping a "Sponsored" card: count that tap now (see noteCardTap).
+  useEffect(() => {
+    const from = takeCardTap(slug);
+    if (from) recordSponsorClick(slug, "card", from);
   }, [slug]);
 
   // Orbitron for the neon "How it works" heading + step numbers, sponsor pages only
@@ -384,7 +390,7 @@ function ContactButtons({ s, pathname, className = "" }: { s: Sponsor; pathname:
         href={whatsapp}
         target="_blank"
         rel="sponsored nofollow noopener noreferrer"
-        onClick={() => trackEvents.sponsorClick(s.slug, "whatsapp", pathname)}
+        onClick={() => { trackEvents.sponsorClick(s.slug, "whatsapp", pathname); recordSponsorClick(s.slug, "whatsapp", pathname); }}
         className="cta-sheen sp-ring inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 text-lg font-bold text-white shadow-lg shadow-emerald-900/30 transition hover:brightness-110 sm:w-auto sm:flex-1"
       >
         <MessageCircle className="h-6 w-6" /> Chat on WhatsApp <ArrowRight className="h-5 w-5" />
@@ -392,7 +398,7 @@ function ContactButtons({ s, pathname, className = "" }: { s: Sponsor; pathname:
       <a
         href={`tel:+${s.phone}`}
         rel="sponsored nofollow"
-        onClick={() => trackEvents.sponsorClick(s.slug, "call", pathname)}
+        onClick={() => { trackEvents.sponsorClick(s.slug, "call", pathname); recordSponsorClick(s.slug, "call", pathname); }}
         className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 text-lg font-bold text-white transition hover:bg-white/20 sm:w-auto sm:flex-1"
       >
         <Phone className="h-6 w-6" /> Call {s.phoneDisplay}

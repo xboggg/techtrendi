@@ -47,7 +47,7 @@ export default function MyAd() {
     const content = cleanSponsorContent(draft);
     const bad = findBannedWords(content);
     if (bad) { toast.error(`"${bad}" is not allowed on TechTrendi. Please remove it and save again.`); return; }
-    if (!/^[0-9]{8,15}$/.test(content.phone)) { toast.error("Phone number: digits only, with country code (e.g. 233546616401)."); return; }
+    if (!/^[0-9]{8,15}$/.test(content.phone)) { toast.error("Phone number: digits only, with country code (e.g. 233536616401)."); return; }
     setSaving(true);
     const { error } = await supabase.from("sponsors" as never).update({ content } as never).eq("id", current.id);
     setSaving(false);

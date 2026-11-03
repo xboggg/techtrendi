@@ -8,11 +8,13 @@
 //
 // Google rules for an AdSense site: always label as Sponsored, mark outside links
 // rel="sponsored", and never promote getting around security protections
-// (iCloud / Activation Lock removal, bypass, FRP) or use other companies' logos.
+// (iCloud / Activation Lock removal, bypass, FRP, hacking, IMEI change, removing
+// passwords) or use other companies' logos.
 // The database refuses those words for everyone; BANNED below mirrors it for a
 // friendly message before saving. Don't invent prices, timings or guarantees.
 import baked from "./sponsors.json";
 import { supabase } from "@/integrations/supabase/client";
+import { isBotTraffic } from "@/lib/isBotTraffic";
 
 export interface SponsorService {
   title: string;
@@ -101,8 +103,10 @@ export const SPONSOR_PAGES: { path: string; label: string }[] = [
   { path: "/data-bundles/ghana", label: "Data bundles (Ghana)" },
 ];
 
-/** Same words the database refuses (techtrendi.sponsor_banned_words). */
-const BANNED = /\bi[ -]?cloud|activation[ -]*lock|\bby[ -]?pass|\bfrp\b|\bmdm[ -]*remov|find[ -]*my[ -]*(iphone|device)[ -]*(off|remov)/i;
+/** Same words the database refuses (techtrendi.sponsor_banned_words, latest:
+ *  supabase/migrations/20261103_sponsor_banned_words_more.sql). "Cracked screen",
+ *  "check your IMEI" and "network unlock" stay allowed. */
+const BANNED = /\bi[ -]?cloud|activation[ -]*lock|\bby[ -]?pass|\bfrp\b|\bmdm[ -]*remov|find[ -]*my[ -]*(iphone|device)[ -]*(off|remov)|\bhack|\bcrack(s|ing|er|ers)?\b|jail[ -]?break|black[ -]?list[a-z]*[ -]*(remov|clean|clear)|(remov|clean|clear)[a-z]*[ -]+(the[ -]+|your[ -]+)?black[ -]?list|\bimei[ -]*(chang|repair|edit|rewrit)|(chang|repair|edit|rewrit)[a-z]*[ -]+(the[ -]+|your[ -]+|an[ -]+)?imei|(remov|reset|bypass|unlock)[a-z]*[ -]+(the[ -]+|your[ -]+|a[ -]+)?(forgotten[ -]+)?(password|passcode|screen[ -]?lock|pattern[ -]?lock|pin[ -]?lock)|(password|passcode|screen[ -]?lock|pattern[ -]?lock)[ -]*remov/i;
 
 /** Returns the first banned phrase found in the content, or null. */
 export function findBannedWords(content: unknown): string | null {
@@ -135,6 +139,60 @@ export async function fetchLiveSponsor(slug: string): Promise<Sponsor | null | u
   const row = data as unknown as SponsorRow | null;
   if (!row || !row.content || typeof row.content.name !== "string") return null;
   return rowToSponsor(row);
+}
+
+// ---- Tap counts for /admin/sponsors (techtrendi.sponsor_clicks,
+// supabase/migrations/20261103_sponsor_clicks.sql). Bots are skipped; the database
+// skips admins and the same tap twice within 5 seconds. Never throws.
+export type SponsorClickKind = "card" | "whatsapp" | "call";
+const CARD_TAP_KEY = "tt-sponsor-card-tap";
+
+export function recordSponsorClick(slug: string, kind: SponsorClickKind, page: string) {
+  if (isBotTraffic()) return;
+  let sid: string | null = null;
+  try { sid = sessionStorage.getItem("tt_sid"); } catch { /* storage blocked */ }
+  const device = window.innerWidth < 768 ? "mobile" : window.innerWidth < 1024 ? "tablet" : "desktop";
+  supabase
+    .rpc("track_sponsor_click" as never, { p: { slug, kind, page_path: page, session_id: sid, device_type: device } } as never)
+    .then(() => {}, () => {});
+}
+
+/** The card opens the ad page with a full page load, which would cancel a request
+ *  sent on tap, so the tap is noted here and the ad page records it (takeCardTap). */
+export function noteCardTap(slug: string, page: string) {
+  try { sessionStorage.setItem(CARD_TAP_KEY, JSON.stringify({ slug, page, at: Date.now() })); } catch { /* storage blocked */ }
+}
+
+/** The page the card was tapped on, if this ad page was opened by a card tap in the last minute. */
+export function takeCardTap(slug: string): string | null {
+  try {
+    const raw = sessionStorage.getItem(CARD_TAP_KEY);
+    if (!raw) return null;
+    sessionStorage.removeItem(CARD_TAP_KEY);
+    const tap = JSON.parse(raw) as { slug?: string; page?: string; at?: number };
+    return tap.slug === slug && typeof tap.page === "string" && Date.now() - (tap.at ?? 0) < 60_000 ? tap.page : null;
+  } catch {
+    return null;
+  }
+}
+
+export interface SponsorStat {
+  slug: string;
+  period: "today" | "7d" | "30d" | "all";
+  visits: number;
+  visitors: number;
+  card: number;
+  whatsapp: number;
+  call: number;
+}
+
+/** Visits + taps per ad (admins only). null = could not load. */
+export async function fetchSponsorStats(): Promise<SponsorStat[] | null> {
+  const { data, error } = await supabase.rpc("sponsor_stats" as never);
+  if (error) return null;
+  return ((data as unknown as SponsorStat[]) || []).map((r) => ({
+    ...r, visits: Number(r.visits), visitors: Number(r.visitors), card: Number(r.card), whatsapp: Number(r.whatsapp), call: Number(r.call),
+  }));
 }
 
 /** Blank wording for a new ad (admin "New ad"). */
