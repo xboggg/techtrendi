@@ -58,13 +58,27 @@ function dataBundlesSw() {
   };
 }
 
+// AdSense only on the live site. index.html keeps the tag (Google checks it there), and only
+// the deploy workflow sets TECHTRENDI_LIVE=1. Every other build or dev server (Lovable
+// previews, local runs) drops the tag, so previews stop sending page views to AdSense.
+// deploy.yml checks the tag is still in the built pages before it deploys.
+const ADSENSE_TAG = /<script\b[^>]*\bsrc="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js[^"]*"[^>]*><\/script>\s*/g;
+function adsenseOnlyOnLive() {
+  return {
+    name: "adsense-only-on-live",
+    transformIndexHtml(html: string) {
+      return process.env.TECHTRENDI_LIVE === "1" ? html : html.replace(ADSENSE_TAG, "");
+    },
+  };
+}
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
   },
-  plugins: [react(), mode === "development" && componentTagger(), dataBundlesSw()].filter(Boolean),
+  plugins: [react(), mode === "development" && componentTagger(), adsenseOnlyOnLive(), dataBundlesSw()].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

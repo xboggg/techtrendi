@@ -18,6 +18,7 @@ export function AdsenseRestore() {
 
   useEffect(() => {
     if (!import.meta.env.PROD) return; // dev serves index.html (with the tag) on every route
+    if (location.hostname !== "techtrendi.com") return; // previews never load AdSense (see vite.config.ts)
     const tag = document.querySelector(`script[src^="${ADSENSE_SRC.split("?")[0]}"]`);
 
     if (isAdFreePath(pathname)) {
