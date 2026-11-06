@@ -1,7 +1,5 @@
-# /etc/systemd/system/techtrendi-careers-api.service   (TEMPLATE — not installed by any script)
+# /etc/systemd/system/techtrendi-careers-api@.service  (installed on server 144, 6 Nov 2026; instance = env file name, e.g. @staging)
 # FastAPI API for TechTrendi Careers. Loopback only; nginx proxies /api/careers/v1 to it.
-# Instance naming: copy to techtrendi-careers-api-staging.service with the staging env file
-# for staging, keep this name for production later.
 [Unit]
 Description=TechTrendi Careers API (%i)
 After=network-online.target docker.service

@@ -1,11 +1,12 @@
 -- TechTrendi Careers — STAGING database bootstrap (run ONCE by the owner, as a Postgres superuser)
 -- ----------------------------------------------------------------------------------------------
--- Where to run: psql against the self-hosted Supabase cluster, e.g.
---   docker exec -it supabase-db psql -U postgres
--- or the SQL editor in Supabase Studio. Nothing here touches existing databases or schemas.
+-- Where to run (verified 6 Nov 2026): as supabase_admin, because the Supabase "postgres" role is not a
+-- superuser and cannot create a database owned by another role:
+--   docker exec -i supabase-db psql -U supabase_admin -d postgres
+-- (Done once on 6 Nov 2026 by Claude with generated passwords; see deploy/careers/README.md.) Nothing here touches existing databases or schemas.
 --
 -- Before running: replace the four <GENERATE-...> placeholders with long random passwords.
--- On Linux/macOS: openssl rand -base64 32   (run it four times). Keep them in a password
+-- On Linux: openssl rand -hex 24   (four times; hex, because base64 / and + break connection URLs). Keep them in a password
 -- manager; afterwards they go ONLY into /etc/techtrendi-careers/staging.env on the server.
 -- Do not paste them into chat, GitHub, or this file after running.
 --

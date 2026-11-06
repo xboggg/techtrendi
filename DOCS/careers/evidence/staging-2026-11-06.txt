@@ -1,0 +1,45 @@
+TechTrendi Careers staging evidence, server 144, 2026-11-06T17:51:06Z
+
+## units
+active
+active
+
+## endpoints (127.0.0.1:5121)
+GET /api/careers/v1/health -> {"status":"ok","version":"0.1.0-phase1","env":"staging"}
+GET /api/careers/v1/ready -> {"status":"ready","database":"ok"}
+GET /api/careers/v1/jobs -> {"items":[],"next_cursor":null,"freshness_note":"No approved sources are active yet. Listings will show their source and last-verified time."}
+
+## migrations
+001 schema_and_roles             applied
+002 source_registry              applied
+003 work_queue                   applied
+004 audit_events                 applied
+
+## roles (all must be f f)
+careers_api|f|f
+careers_readonly|f|f
+careers_staging_api|f|f
+careers_staging_migrator|f|f
+careers_staging_readonly|f|f
+careers_staging_worker|f|f
+careers_worker|f|f
+tables with RLS off: 0
+
+## listening
+LISTEN 0      2048       127.0.0.1:5121  0.0.0.0:*
+
+## resource limits
+CPUQuotaPerSecUSec=1s
+MemoryMax=536870912
+CPUQuotaPerSecUSec=500ms
+MemoryMax=402653184
+
+## isolation check (run 2026-11-06 as supabase_admin with SET ROLE careers_staging_api, database "postgres")
+SELECT count(*) FROM techtrendi.articles;  -> ERROR: permission denied for schema techtrendi
+Connecting the staging API login to database "postgres" through the pooler -> refused (authentication)
+
+## test suite on the server (throwaway postgres:15-alpine container, removed afterwards)
+33 passed, 2 warnings in 12.52s   (warning = short HMAC key inside a test fixture only)
+
+## website after setup
+https://techtrendi.com/ -> 200
