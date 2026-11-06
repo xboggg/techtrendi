@@ -1,0 +1,38 @@
+# /etc/systemd/system/techtrendi-careers-worker@.service   (TEMPLATE — not installed by any script)
+# One instance per work kind group, e.g.
+#   systemctl enable --now techtrendi-careers-worker@staging-ingest
+#   systemctl enable --now techtrendi-careers-worker@staging-alerts
+# The instance name selects /etc/techtrendi-careers/worker-<instance>.env, which sets
+# CAREERS_WORKER_DATABASE_URL and CAREERS_WORKER_KINDS (e.g. "source_fetch" or "alert_dispatch").
+[Unit]
+Description=TechTrendi Careers worker (%i)
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=techtrendi-careers
+Group=techtrendi-careers
+WorkingDirectory=/opt/techtrendi-careers/current/careers-service
+EnvironmentFile=/etc/techtrendi-careers/worker-%i.env
+ExecStart=/opt/techtrendi-careers/venv/bin/python -m workers.worker --kinds ${CAREERS_WORKER_KINDS} --lease 120 --poll 5
+Restart=always
+RestartSec=10
+# SIGTERM lets the loop finish the current item and release cleanly; leases expire anyway if it does not
+KillSignal=SIGTERM
+TimeoutStopSec=150
+# Ingestion is the part most likely to misbehave; keep it on a short leash
+MemoryMax=384M
+CPUQuota=50%
+TasksMax=64
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/techtrendi-careers
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+StandardOutput=append:/var/log/techtrendi-careers/worker-%i.log
+StandardError=inherit
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,40 @@
+# /etc/systemd/system/techtrendi-careers-api@.service  (installed on server 144, 6 Nov 2026; instance = env file name, e.g. @staging)
+# FastAPI API for TechTrendi Careers. Loopback only; nginx proxies /api/careers/v1 to it.
+[Unit]
+Description=TechTrendi Careers API (%i)
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=techtrendi-careers
+Group=techtrendi-careers
+WorkingDirectory=/opt/techtrendi-careers/current/careers-service
+# Env file holds CAREERS_* variables incl. the API DB password. Mode 600, owned by root.
+EnvironmentFile=/etc/techtrendi-careers/%i.env
+ExecStart=/opt/techtrendi-careers/venv/bin/uvicorn app.main:app \
+  --host ${CAREERS_BIND_HOST} --port ${CAREERS_BIND_PORT} \
+  --workers 2 --proxy-headers --forwarded-allow-ips 127.0.0.1 \
+  --timeout-keep-alive 15 --log-level info --no-server-header
+Restart=on-failure
+RestartSec=5
+# Resource budget (Blueprint §14): the news platform must survive a Careers bug
+MemoryMax=512M
+CPUQuota=100%
+TasksMax=128
+LimitNOFILE=4096
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/techtrendi-careers
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+StandardOutput=append:/var/log/techtrendi-careers/api-%i.log
+StandardError=inherit
+
+[Install]
+WantedBy=multi-user.target
