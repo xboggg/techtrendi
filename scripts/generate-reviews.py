@@ -35,10 +35,13 @@ if not ANTHROPIC_API_KEY:
 CLAUDE_URL = "https://api.anthropic.com/v1/messages"
 CLAUDE_MODEL = "claude-sonnet-4-20250514"
 
-TELEGRAM_TOKEN = "8726661150:AAEOQpA2L0kLLMUllFUmxHOErvcYHg1pw9w"
+# The bot key comes from the environment (never write it here: this repo is public).
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT = "-1003595231315"
 
 def send_telegram(msg: str):
+    if not TELEGRAM_TOKEN:
+        return
     try:
         requests.post(
             f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
