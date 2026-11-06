@@ -73,8 +73,8 @@ jobs:
           VITE_GA_MEASUREMENT_ID:       ${{ secrets.VITE_GA_MEASUREMENT_ID }}
           # No Groq key here on purpose: anything VITE_* ends up in the public JS.
           # AI tools/chat call /api/ai/* and nginx on the web server adds the key.
-          # Keeps the AdSense tag in the pages. Without it the tag is dropped
-          # (Lovable previews, local builds); see vite.config.ts.
+          # Keeps the AdSense backup loader in the pages. Without it the loader is
+          # dropped (Lovable previews, local builds); see vite.config.ts.
           TECHTRENDI_LIVE: '1'
         run: npm run build
 

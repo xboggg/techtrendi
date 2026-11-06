@@ -1,16 +1,17 @@
 // Paid sponsor pages (/sponsored/*) must not carry Google ads: another business's
 // ad page is not ours to monetise, and it keeps AdSense away from its pictures/claims.
-// After the build, remove the AdSense <script> tag from dist/sponsored/*.html only.
-// Every other page keeps the tag from index.html untouched. In the browser,
-// src/components/ads/AdsenseRestore.tsx adds the tag back when a visitor moves on
-// to a normal page, and reloads a sponsor page reached while the tag was loaded.
+// After the build, remove the AdSense backup loader (index.html <script data-adsense-loader>)
+// from dist/sponsored/*.html only. Every other page keeps it untouched. In the browser,
+// src/components/ads/AdsenseRestore.tsx adds the AdSense script on normal pages only
+// (once the page has started), and reloads a sponsor page reached while it was loaded.
 // Wired via package.json "build" (last step). Never fails the build: it logs instead.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const DIR = join("dist", "sponsored");
-// The build may print `async` or `async=""`; match the AdSense loader tag either way.
-const TAG = /<script\b[^>]*\bsrc="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js[^"]*"[^>]*><\/script>/g;
+// The build may print `data-adsense-loader` or `data-adsense-loader=""`; match either way.
+// Also matches an old-style <script src=".../adsbygoogle.js"> tag, should one come back.
+const TAG = /<script\b[^>]*\bdata-adsense-loader\b[^>]*>[\s\S]*?<\/script>|<script\b[^>]*\bsrc="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js[^"]*"[^>]*><\/script>/g;
 
 try {
   if (!existsSync(DIR)) {

@@ -3161,9 +3161,13 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
 
   // H1: the inline theme script, run against fake pages.
   const m1 = html.match(/<script>\s*(\(function \(\) \{[\s\S]*?techtrendi-theme[\s\S]*?\}\)\(\);)\s*<\/script>/);
-  check("theme H1: index.html carries the inline theme script before the AdSense tag, and the AdSense tag is unchanged",
+  // 5 Nov 2026: the AdSense script starts after the page starts (AdsenseRestore.tsx); index.html
+  // carries Google's site-ownership meta tag and a backup loader instead of a <script src> tag.
+  check("theme H1: index.html carries the inline theme script before the AdSense loader, and the AdSense meta tag + loader are in place",
     !!m1 && html.indexOf("techtrendi-theme") < html.indexOf("adsbygoogle.js") &&
-    html.includes('<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3437377907350211" crossorigin="anonymous"></script>'));
+    html.includes('<meta name="google-adsense-account" content="ca-pub-3437377907350211" />') &&
+    /<script data-adsense-loader>[\s\S]*?"https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-3437377907350211"[\s\S]*?<\/script>/.test(html) &&
+    !/<script\b[^>]*\bsrc="https:\/\/pagead2\.googlesyndication\.com/.test(html));
   const runTheme = (path: string, stored: string | null, prefersDark = false, throws = false) => {
     const cls = new Set<string>();
     const win: any = {

@@ -64,8 +64,28 @@
     <link rel="dns-prefetch" href="https://www.google-analytics.com" />
     <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
 
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3437377907350211" crossorigin="anonymous"></script>
+    <!-- Google AdSense (5 Nov 2026). The AdSense script starts AFTER the page has started
+         (src/components/ads/AdsenseRestore.tsx). Loaded here in the <head>, Auto ads put an ad
+         inside the article before the page started; React then rebuilt the page and threw that
+         ad away (React error #418). The meta tag is Google's site-ownership check
+         (support.google.com/adsense/answer/12169212), together with /ads.txt.
+         Backup below: if the page has not started after 10 seconds, load AdSense anyway.
+         Never on previews (other addresses) or on paid sponsor pages. -->
+    <meta name="google-adsense-account" content="ca-pub-3437377907350211" />
+    <script data-adsense-loader>
+      setTimeout(function () {
+        try {
+          var src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3437377907350211";
+          if (window.location.hostname !== "techtrendi.com" || /^\/sponsored\//.test(window.location.pathname)) return;
+          if (document.querySelector('script[src^="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]')) return;
+          var s = document.createElement("script");
+          s.async = true;
+          s.src = src;
+          s.crossOrigin = "anonymous";
+          document.head.appendChild(s);
+        } catch (e) {}
+      }, 10000);
+    </script>
   </head>
 
   <body>

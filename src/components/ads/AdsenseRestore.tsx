@@ -1,16 +1,17 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-// Same tag as index.html (keep in sync).
+// Same address as the backup loader in index.html (keep in sync).
 const ADSENSE_SRC = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3437377907350211";
 const RELOADED_KEY = "tt-adfree-reload";
 
-/** Paid sponsor pages: no Google ads (their HTML has no AdSense tag, see scripts/strip-ads-sponsored.mjs). */
+/** Paid sponsor pages: no Google ads (their HTML has no AdSense loader, see scripts/strip-ads-sponsored.mjs). */
 const isAdFreePath =(path: string) => path.startsWith("/sponsored/");
 
-// Keeps Google Auto ads off sponsor pages without touching any other page:
-// - leaving a sponsor page for a normal page inside the site: add the AdSense tag
-//   back (that page's HTML had it, but this tab started on the ad-free page);
+// Starts Google AdSense once the page has started (this runs only after hydration,
+// inside <ClientOnly>), and keeps Auto ads off sponsor pages:
+// - a normal page: add the AdSense tag (5 Nov 2026: no longer in the HTML, because
+//   Auto ads placed an ad inside the article before hydration and React threw it away);
 // - reaching a sponsor page inside the site while the tag is already running:
 //   reload it once, so the browser gets the ad-free HTML.
 export function AdsenseRestore() {

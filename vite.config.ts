@@ -58,11 +58,11 @@ function dataBundlesSw() {
   };
 }
 
-// AdSense only on the live site. index.html keeps the tag (Google checks it there), and only
-// the deploy workflow sets TECHTRENDI_LIVE=1. Every other build or dev server (Lovable
-// previews, local runs) drops the tag, so previews stop sending page views to AdSense.
-// deploy.yml checks the tag is still in the built pages before it deploys.
-const ADSENSE_TAG = /<script\b[^>]*\bsrc="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js[^"]*"[^>]*><\/script>\s*/g;
+// AdSense only on the live site. Only the deploy workflow sets TECHTRENDI_LIVE=1. Every other
+// build or dev server (Lovable previews, local runs) drops the AdSense backup loader from
+// index.html, so previews stop sending page views to AdSense (AdsenseRestore.tsx also skips
+// any address but techtrendi.com). deploy.yml checks the loader is still in the built pages.
+const ADSENSE_TAG = /<script\b[^>]*\bdata-adsense-loader\b[^>]*>[\s\S]*?<\/script>\s*/g;
 function adsenseOnlyOnLive() {
   return {
     name: "adsense-only-on-live",
