@@ -1,0 +1,4 @@
+# Careers server files keep Unix line endings on every checkout (also on Windows):
+# migrate.py fingerprints each migration's exact bytes, and the shell scripts run on Linux.
+careers-service/** text=auto eol=lf
+deploy/careers/** text=auto eol=lf

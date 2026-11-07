@@ -1,0 +1,49 @@
+TechTrendi Careers - automatic collector on staging, 7 Nov 2026 (Claude, owner session; owner approval "1 and 2 first")
+
+TESTS (server 144, throwaway postgres:15-alpine on 127.0.0.1:55432, tmpfs, removed after each run)
+  81 passed (was 33 on 6 Nov). New: tests/test_collect_rules.py (eligibility, scam signs, adapter parsing),
+  tests/test_jobs.py (rights gates, statuses, owner decisions, expiry, withdrawal, scheduler), migration 005/006 rollback.
+
+STAGING CHANGES (careers_staging only; techtrendi.com untouched)
+  Backups before each step: /root/backups/careers/careers_staging-<stamp>.dump (pg_dump -Fc)
+  Migrations 005 jobs + 006 scheduler_dedupe applied; 001-006 all "applied", no checksum drift.
+  deploy/careers/sources_group_a.sql: 12 sources active, rights approved (fetch/display/alert/analytics/cache; ai off),
+  auto_publish = false on all 12.
+  New unit techtrendi-careers-worker@staging-collect (kind source_fetch), env /etc/techtrendi-careers/worker-staging-collect.env (640).
+  API ready: {"status":"ready","database":"ok"}; api, noop worker, collector all active.
+
+FIRST PASS (07:04-07:11 CET, old rules)            fetched  kept  requests  seconds
+  himalayas (GH + NG search)                          2181  2176       207      388
+  all 11 others succeeded, 1 request each; 0 errors, 0 dead work items.
+
+AFTER STRICTER RULES (07:20 CET re-run, himalayas waits for its daily run)
+  source                  fetched  open to GH/NG (pending)  hidden as no_longer_open
+  ashby:m-kopa                 53   30                       0
+  greenhouse:flyzipline       347   13                       0
+  greenhouse:jumia             25   16                       0
+  greenhouse:moniepoint       142   70                       0
+  jobicy                       52   24                      25
+  lever:weloglobal            445   39                      76
+  remoteok                     99    4                       0
+  remotive                     12    8                       0
+  weworkremotely              100   65                       2
+  workable:fairmoney           23   21                       0   (widget listed 54 rows = 23 jobs, one row per city; merged)
+  workable:kuda                 9    8                       0
+  himalayas                  2181  2131 pending + 45 review (scam_signs 10, eligibility_conflict 35)
+  careers.public_jobs (what the site could show): 0 - nothing is published while auto_publish is off.
+
+BUGS FOUND ON STAGING AND FIXED THE SAME DAY
+  1. "systemctl enable --now" does not restart a running collector -> setup script now restarts all three units.
+  2. Scheduler slot key swallowed a hand-reset "run now" -> migration 006 (key = due time) + test.
+  3. Welo/Jobicy "Worldwide/Anywhere" labels contradicted by the job's own "Based in:" line -> rule + tests.
+  4. M-KOPA anti-scam notice read as a fee demand -> warning sentences ignored + tests.
+  5. Workable widget repeats jobs per city -> merged in the adapter + test.
+  6. Older, latent: staging's ledger held CRLF fingerprints for 001-004 (Windows `git archive` converts line endings),
+     git holds LF, so a setup from git would have been refused. migrate.py now ignores line endings (+ test),
+     .gitattributes keeps careers files LF; staging rows 001-004 updated only after each file's content was proven
+     identical to git (backup careers_staging-*-before-ledger.dump). Re-deploy from the git tree: 001-006 applied, no drift.
+  Final suite: 82 passed (from the git tree content).
+
+ROLLBACK
+  ln -sfn <previous release> /opt/techtrendi-careers/current; systemctl disable --now techtrendi-careers-worker@staging-collect;
+  restart api + noop worker; migrate.py down 005 (removes jobs tables) or pg_restore the dump.

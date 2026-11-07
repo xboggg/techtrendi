@@ -45,7 +45,9 @@ def discover() -> dict[str, dict]:
 
 
 def checksum(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    # Line endings are not content: a Windows checkout (CRLF) and git/Linux (LF) must agree.
+    # Found 7 Nov 2026: staging had recorded CRLF fingerprints for 001-004, git holds LF.
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def ledger(conn) -> dict[str, dict]:

@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Generic worker loop. Phase 1 ships only the `noop` handler.
+"""Generic worker loop with the `noop` and `source_fetch` handlers.
 
   python -m workers.worker --kinds noop --once        # process available items and exit
   python -m workers.worker --kinds source_fetch       # run until SIGTERM
+
+A worker that handles `source_fetch` is also the scheduler: about once a
+minute it asks the database to queue every active source that is due
+(careers.enqueue_due_sources) and to expire jobs past their closing date.
 
 Guarantees (tested in tests/test_queue.py):
   * an item is claimed by at most one worker at a time;
@@ -22,13 +26,27 @@ import time
 from typing import Callable
 
 from . import queue as q
+from .collect.runner import run_source
 
 log = logging.getLogger("careers.worker")
 
-Handler = Callable[[q.WorkItem], None]
+
+class Context:
+    """What a handler may use: the worker's connection and a lease heartbeat."""
+
+    def __init__(self, worker: "Worker", item: q.WorkItem):
+        self.conn = worker.conn
+        self._worker = worker
+        self._item = item
+
+    def heartbeat(self) -> bool:
+        return q.renew(self.conn, self._item.id, self._worker.worker_id, self._worker.lease_seconds)
 
 
-def handle_noop(item: q.WorkItem) -> None:
+Handler = Callable[[q.WorkItem, Context], None]
+
+
+def handle_noop(item: q.WorkItem, ctx: Context) -> None:
     """Test handler: fails when payload has {"fail": true}, sleeps for payload["sleep"] seconds."""
     if item.payload.get("sleep"):
         time.sleep(float(item.payload["sleep"]))
@@ -36,11 +54,17 @@ def handle_noop(item: q.WorkItem) -> None:
         raise RuntimeError("noop asked to fail")
 
 
+def handle_source_fetch(item: q.WorkItem, ctx: Context) -> None:
+    run_source(ctx.conn, item.payload["source_id"], heartbeat=ctx.heartbeat)
+
+
 HANDLERS: dict[str, Handler] = {
     "noop": handle_noop,
-    # "source_fetch": ...   Phase 2
+    "source_fetch": handle_source_fetch,
     # "alert_dispatch": ... Phase 3
 }
+
+SCHEDULE_EVERY_SECONDS = 60
 
 
 class Worker:
@@ -53,17 +77,31 @@ class Worker:
         self.batch = batch
         self.conn = q.connect(database_url, application_name=f"techtrendi-careers-worker:{','.join(kinds)}")
         self._stop = False
+        self._last_schedule = 0.0
 
     def stop(self, *_):
         self._stop = True
+
+    def schedule(self) -> None:
+        """Queue due sources and expire dated jobs; only for source_fetch workers, at most once a minute."""
+        if "source_fetch" not in self.kinds or time.monotonic() - self._last_schedule < SCHEDULE_EVERY_SECONDS:
+            return
+        self._last_schedule = time.monotonic()
+        with self.conn.cursor() as cur:
+            cur.execute("SELECT careers.enqueue_due_sources() AS queued, careers.expire_past_jobs() AS expired")
+            r = cur.fetchone()
+        self.conn.commit()
+        if r["queued"] or r["expired"]:
+            log.info("scheduler queued %s source(s), expired %s dated job(s)", r["queued"], r["expired"])
 
     def process_one(self, item: q.WorkItem) -> str:
         handler = HANDLERS.get(item.kind)
         if handler is None:
             return q.fail(self.conn, item.id, self.worker_id, f"no handler for kind {item.kind}")
         try:
-            handler(item)
+            handler(item, Context(self, item))
         except Exception as exc:  # noqa: BLE001 — any handler failure is a retryable work failure
+            self.conn.rollback()
             state = q.fail(self.conn, item.id, self.worker_id, f"{type(exc).__name__}: {exc}")
             log.warning("item %s kind=%s attempt=%s/%s -> %s", item.id, item.kind, item.attempts, item.max_attempts, state)
             return state
@@ -71,6 +109,7 @@ class Worker:
         return "done" if ok else "lease_lost"
 
     def run_once(self) -> int:
+        self.schedule()
         items = q.claim(self.conn, self.worker_id, self.kinds, self.lease_seconds, self.batch)
         for item in items:
             self.process_one(item)
