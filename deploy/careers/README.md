@@ -12,10 +12,12 @@ Done by Claude over SSH with the owner's go-ahead ("yes to all", 6 Nov 2026). Ev
 | Code (release folders, `current` symlink) | `/opt/techtrendi-careers/releases/<stamp>/careers-service`, `/opt/techtrendi-careers/current` |
 | Python 3.12 venv | `/opt/techtrendi-careers/venv` |
 | System user | `techtrendi-careers` (no shell, no home) |
-| Env files (passwords only here) | `/etc/techtrendi-careers/{staging,worker-staging-noop,migrator-staging,readonly-staging}.env` |
-| Database | `careers_staging` in the Supabase cluster (supabase-db, PG 15.8), schema `careers`, migrations 001–004 |
+| Env files (passwords only here) | `/etc/techtrendi-careers/{staging,worker-staging-noop,worker-staging-collect,migrator-staging,readonly-staging}.env` |
+| Database | `careers_staging` in the Supabase cluster (supabase-db, PG 15.8), schema `careers`, migrations 001–006 |
 | API | `techtrendi-careers-api@staging` on **127.0.0.1:5121** (no nginx, no DNS: reach it with `ssh -L 5121:127.0.0.1:5121`) |
-| Worker | `techtrendi-careers-worker@staging-noop` (kind `noop` only) |
+| Workers | `techtrendi-careers-worker@staging-noop` (kind `noop`) and, since 7 Nov 2026, `@staging-collect` (kind `source_fetch`; also the scheduler) |
+| Job sources | `sources_group_a.sql` (12 sources, owner-approved; `auto_publish` off). Register: `docs/careers/SOURCES.md` |
+| Backups before each change | `/root/backups/careers/careers_staging-<stamp>.dump` |
 | Logs | `/var/log/techtrendi-careers/` |
 | Port reserved for production API | 127.0.0.1:5120 |
 
@@ -37,6 +39,23 @@ Done by Claude over SSH with the owner's go-ahead ("yes to all", 6 Nov 2026). Ev
 4. The API unit is a template: `techtrendi-careers-api@.service`, instance = env file name (`@staging`).
 
 ## Update the staging code
+Preferred since 7 Nov 2026: `staging_update.sh` (backup, new release, migrations, Group A sources, **restart all three
+units**: `enable --now` alone does not restart a running worker, so new code would silently not load).
+```bash
+# on the laptop, from techtrendi/ (core.autocrlf=false: on Windows `git archive` otherwise exports CRLF)
+git -c core.autocrlf=false archive --format=tar -o careers-service.tar origin/main:careers-service
+scp careers-service.tar root@144.91.71.106:/tmp/careers-test-src.tar
+scp deploy/careers/sources_group_a.sql deploy/careers/staging_update.sh root@144.91.71.106:/tmp/
+# on the server
+bash /tmp/staging_update.sh
+```
+Line endings (fixed 7 Nov 2026): `migrate.py` now fingerprints files with CRLF read as LF, and `.gitattributes`
+keeps careers files LF. Staging's ledger for 001–004 had recorded CRLF fingerprints from a Windows `git archive`;
+after proving the content identical to git, those four rows were updated (backup `*-before-ledger.dump`).
+Run a source again now: `docker exec supabase-db psql -U supabase_admin -d careers_staging -c "update careers.sources set next_due_at = now() where key = '<key>'"`
+(Himalayas: at most once a day, about 207 requests.)
+
+Manual way (older):
 ```bash
 # on the laptop
 git archive --format=tar -o careers-service.tar origin/main careers-service
@@ -54,7 +73,7 @@ Rollback of a code update: point `current` back at the previous release folder a
 
 ## Remove staging completely
 ```bash
-systemctl disable --now techtrendi-careers-api@staging techtrendi-careers-worker@staging-noop
+systemctl disable --now techtrendi-careers-api@staging techtrendi-careers-worker@staging-noop techtrendi-careers-worker@staging-collect
 docker exec -i supabase-db psql -U supabase_admin -d postgres -c "DROP DATABASE careers_staging;"
 docker exec -i supabase-db psql -U supabase_admin -d postgres -c "DROP ROLE careers_staging_api, careers_staging_worker, careers_staging_readonly, careers_staging_migrator;"
 # only while no production Careers exists:

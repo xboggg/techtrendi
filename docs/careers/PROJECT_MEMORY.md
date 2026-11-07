@@ -1,6 +1,6 @@
 # TechTrendi Careers — Project Memory (reviewed state summary)
 
-Last updated: 2026-11-06 by Claude (Claude Code, owner session). No secrets, no personal data, no production credentials here.
+Last updated: 2026-11-07 by Claude (Claude Code, owner session). No secrets, no personal data, no production credentials here.
 
 ## Fixed rules (from blueprint, owner-approved)
 - Extension of techtrendi.com at /careers, not a replacement. Keep React/Vite/TS, self-hosted Supabase PG15, Python, Contabo, nginx, Cloudflare, GitHub delivery.
@@ -11,7 +11,9 @@ Last updated: 2026-11-06 by Claude (Claude Code, owner session). No secrets, no 
 - No automatic applications, no fabricated CV content, no CV storage in the pilot (D-028), never break existing TechTrendi services.
 
 ## Current phase
-Step 0 done (6 Nov 2026). Staging is live on server 144, loopback only (D-019). Next: pilot step 1, the jobs board (D-024, tasks T-201–T-205).
+Step 0 done (6 Nov 2026). 7 Nov: automatic collector running on staging (D-029, T-201, T-206): 12 Group A sources,
+~2,400 jobs open to Ghana/Nigeria, all waiting (auto_publish off, D-030). Nothing on techtrendi.com yet.
+Next: owner decides auto vs tap (T-208); Group B permissions (T-207); then T-203 /careers pages with the AdSense/SEO check.
 
 ## Verified environment (6 Nov 2026)
 - Server 144.91.71.106: 6 vCPU, 11 GiB RAM (7.4 free), 147 GB disk free, load ~1.4, Python 3.12.3. Shared with cyberabofra, trendicars, learn, ops tools.
@@ -22,16 +24,18 @@ Step 0 done (6 Nov 2026). Staging is live on server 144, loopback only (D-019). 
 - Repo audit (2 Nov): see AUDIT_REPO_2026-11-02.md.
 
 ## Staging
-API `techtrendi-careers-api@staging` 127.0.0.1:5121, worker `techtrendi-careers-worker@staging-noop`, database `careers_staging`, migrations 001–004. Code in /opt/techtrendi-careers/current, env in /etc/techtrendi-careers/. How to update/remove: deploy/careers/README.md. Production API port reserved: 127.0.0.1:5120.
+API `techtrendi-careers-api@staging` 127.0.0.1:5121, workers `techtrendi-careers-worker@staging-noop` and `@staging-collect` (source_fetch + scheduler), database `careers_staging`, migrations 001–006. Code in /opt/techtrendi-careers/current, env in /etc/techtrendi-careers/. How to update/remove: deploy/careers/README.md. Production API port reserved: 127.0.0.1:5120.
 
 ## Approved sources
-None. Pilot supply comes first from the Jobs Desk and employer posts (D-024). Remotive pending its email (T-018).
+Group A (owner, 7 Nov 2026), see SOURCES.md: Himalayas, Jobicy, We Work Remotely, Remote OK, Remotive, and the employer
+boards of Moniepoint, Zipline, Jumia, FairMoney, Kuda, M-KOPA, Welo Global. Group B awaiting the sources' permission (T-207).
+Feed jobs: noindex cards, credit + link, NO JobPosting markup (Himalayas/Remotive forbid it).
 
 ## Latest decisions
-D-019 and D-023–D-028 approved 6 Nov 2026. D-003–D-018, D-020–D-022 still proposed (D-016 superseded by D-026, D-003 scope replaced by D-024).
+D-029–D-033 (7 Nov 2026: Group A, auto_publish off, latest-feed expiry, live-data eligibility rules, scheduler key). D-019 and D-023–D-028 approved 6 Nov 2026. D-003–D-018, D-020–D-022 still proposed (D-016 superseded by D-026, D-003 scope replaced by D-024).
 
 ## Latest tests
-2026-11-06 on server 144: 33 passed (throwaway postgres:15-alpine container; NEVER run pytest against the Supabase cluster: conftest drops the cluster-wide careers_* group roles). Staging health/ready/jobs OK; roles not superuser/BYPASSRLS; RLS on all tables; staging login cannot read techtrendi.* . Evidence: evidence/staging-2026-11-06.txt.
+2026-11-07 on server 144: 81 passed (evidence/collector-2026-11-07.txt). 2026-11-06: 33 passed (throwaway postgres:15-alpine container; NEVER run pytest against the Supabase cluster: conftest drops the cluster-wide careers_* group roles). Staging health/ready/jobs OK; roles not superuser/BYPASSRLS; RLS on all tables; staging login cannot read techtrendi.* . Evidence: evidence/staging-2026-11-06.txt.
 
 ## Known blockers / open items
 - T-019 open database ports (needs owner yes; shared infra).
@@ -39,9 +43,9 @@ D-019 and D-023–D-028 approved 6 Nov 2026. D-003–D-018, D-020–D-022 still 
 - Owner to delete the old Groq key at Groq (new one installed 2 Nov).
 
 ## Next three actions
-1. T-201 migration 005 (jobs tables, trimmed to the pilot) + tests, applied to staging.
-2. T-202 Jobs Desk on Telegram (draft → Publish), writing to staging first.
-3. T-203 /careers pages in the site build, with an AdSense/SEO before-and-after check before anything goes live.
+1. T-208 owner: automatic publishing or tap-to-approve, per source. T-207 owner: send the Group B requests.
+2. T-203 /careers pages in the site build (feed jobs as noindex cards), with an AdSense/SEO before-and-after check before anything goes live.
+3. T-202 Jobs Desk on Telegram for local jobs the feeds do not have (Ghana is thin: ~60 local jobs from employer boards).
 
 ## Production change authorization
 None for Careers production yet (staging only).
