@@ -49,7 +49,8 @@ Updated: 2026-11-06 after Step 0 (server check, leaked-token fix, staging built)
 | T-201 | Migration 005: jobs + job_eligibility, rights gates, scheduler, expiry, `public_jobs` view (organisations and job_locations folded into jobs for the pilot; job_reports moves to T-203 with the report button) + tests | Claude | done 2026-11-07: applied to careers_staging; 75 tests passed (throwaway PG15) | evidence/collector-2026-11-07.txt |
 | T-206 | Automatic collector (D-029): adapters for Himalayas, Jobicy, We Work Remotely, Remote OK, Remotive, Greenhouse, Lever, Ashby, Workable; eligibility + scam checks; worker `techtrendi-careers-worker@staging-collect` | Claude | done 2026-11-07 on staging (auto_publish off) | evidence/collector-2026-11-07.txt |
 | T-207 | Group B permissions: ReliefWeb appname form, Jobweb Ghana, MyJobMag, OpenTrain AI, Jobberman, Careerjet publisher sign-up | Eddie (drafts from Claude) | in progress — drafts handed over 7 Nov | SOURCES.md |
-| T-208 | Owner chooses per source: automatic publishing or tap-to-approve (D-030) | Eddie | todo | — |
+| T-208 | Owner chooses per source: automatic publishing or tap-to-approve (D-030) | Eddie | done 2026-11-07: automatic for all (D-034) | DECISIONS.md |
+| T-209 | AI scout: daily search for new employers hiring in Ghana/Nigeria (~$3–9/month) | Claude | later (owner, 7 Nov) | — |
 | T-202 | Jobs Desk on Telegram (forward link/flyer → draft in own words + original link → Publish/Change/Bin), modelled on the TechTrendi Story Desk | Claude | todo | — |
 | T-203 | /careers list + job pages in the SSG build with JobPosting data; AdSense/SEO diff check before live (D-023, D-026) | Claude | todo | — |
 | T-204 | Employer "Post a job" form → pending queue → owner approval | Claude | todo | — |

@@ -12,8 +12,8 @@ Last updated: 2026-11-07 by Claude (Claude Code, owner session). No secrets, no 
 
 ## Current phase
 Step 0 done (6 Nov 2026). 7 Nov: automatic collector running on staging (D-029, T-201, T-206): 12 Group A sources,
-~2,400 jobs open to Ghana/Nigeria, all waiting (auto_publish off, D-030). Nothing on techtrendi.com yet.
-Next: owner decides auto vs tap (T-208); Group B permissions (T-207); then T-203 /careers pages with the AdSense/SEO check.
+2,431 jobs published automatically (owner: "go live by itself", D-034), 45 waiting for review. Nothing on techtrendi.com yet.
+Next: T-203 /careers pages with the AdSense/SEO check; Group B permissions (T-207); AI scout later (T-209).
 
 ## Verified environment (6 Nov 2026)
 - Server 144.91.71.106: 6 vCPU, 11 GiB RAM (7.4 free), 147 GB disk free, load ~1.4, Python 3.12.3. Shared with cyberabofra, trendicars, learn, ops tools.
@@ -43,7 +43,7 @@ D-029–D-033 (7 Nov 2026: Group A, auto_publish off, latest-feed expiry, live-d
 - Owner to delete the old Groq key at Groq (new one installed 2 Nov).
 
 ## Next three actions
-1. T-208 owner: automatic publishing or tap-to-approve, per source. T-207 owner: send the Group B requests.
+1. T-207 owner: send the Group B requests.
 2. T-203 /careers pages in the site build (feed jobs as noindex cards), with an AdSense/SEO before-and-after check before anything goes live.
 3. T-202 Jobs Desk on Telegram for local jobs the feeds do not have (Ghana is thin: ~60 local jobs from employer boards).
 
