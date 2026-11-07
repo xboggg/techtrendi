@@ -13,10 +13,15 @@ export const initGA = () => {
   // Don't initialize if already done
   if ((window as any).gtagInitialized) return;
 
-  // Create gtag function
+  // Create gtag function. It must push the `arguments` object itself, exactly as Google's
+  // snippet does: gtag.js ignores plain arrays. With `push(args)` (an array) GA4 sent no
+  // page views at all and the consent defaults below never applied (found 8 Nov 2026:
+  // 0 hits as-is, page_view sent with arguments, same page and browser).
   (window as any).dataLayer = (window as any).dataLayer || [];
-  function gtag(...args: any[]) {
-    (window as any).dataLayer.push(args);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  function gtag(..._args: any[]) {
+    // eslint-disable-next-line prefer-rest-params
+    (window as any).dataLayer.push(arguments);
   }
   (window as any).gtag = gtag;
 
