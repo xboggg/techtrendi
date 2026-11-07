@@ -7,6 +7,7 @@ import Tools from "../pages/Tools";
 import NotFound from "../pages/NotFound";
 import { Navigate } from "react-router-dom";
 import { DATA_BUNDLES_ROUTE } from "@/data/dataBundlesRoute";
+import { CAREERS_ROUTE } from "@/lib/careers";
 import { SPONSORS } from "@/data/sponsors";
 import { newsLoader, newsStaticPaths, blogLoader, blogStaticPaths, blogListLoader, newsListLoader, productsListLoader, securityPageLoader } from "./news-data";
 
@@ -64,6 +65,9 @@ export const routes: RouteRecord[] = [
       { path: "security", lazy: d(() => import("../pages/categories/Security")), loader: securityPageLoader },
       { path: "scam-alerts", lazy: d(() => import("../pages/ScamAlerts")) },
       { path: "tools-preview", lazy: d(() => import("../pages/ToolsPreview")) },
+      // Careers jobs board. Preview (src/lib/careers.ts CAREERS_LAUNCHED = false): "tools-preview/careers",
+      // noindex, not prerendered and not in the sitemap (the tools-preview segment is skipped by both).
+      { path: CAREERS_ROUTE, lazy: d(() => import("../pages/careers/CareersBoard")) },
       // Data bundle pages. Preview: noindex, not prerendered, not in the sitemap. Launch: prerendered
       // (vite.config.ts includedRoutes adds DATA_BUNDLES_PRERENDER) and listed in the sitemap.
       // Countries come from src/data/dataBundleCountries.ts, so adding one is data only.

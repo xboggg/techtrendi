@@ -1,0 +1,37 @@
+TechTrendi Careers - jobs board preview (T-203), 7 Nov 2026. Built and tested; NOT deployed (needs owner yes).
+
+API (careers-service, staging 127.0.0.1:5121)
+  GET /api/careers/v1/jobs: published jobs only (careers.public_jobs), newest first, keyset cursor,
+  filters country (open to), work_mode, located (job's own location in GH/NG, not remote), q (LIKE-escaped).
+  Headers: Cache-Control public, max-age=300; X-Robots-Tag noindex.
+  Real data: total 2,431; open to GH 2,089, NG 2,362; located in GH 28, in NG 109; 20 jobs = 20.9 KB in 0.16 s.
+  Server tests (throwaway PostgreSQL 15): 85 passed.
+
+SITE (src/lib/careers.ts, src/pages/careers/CareersBoard.tsx, one route in src/ssg/routes.tsx)
+  Preview address /tools-preview/careers: noindex, not prerendered, not in the sitemap, not linked.
+  npx tsx scripts/test-careers.mts: 24 checks passed (requests per tab, helpers, https-only links, SEO isolation).
+  tsc: no errors in new files (2 pre-existing errors in src/components/home/FeaturedGuidesBackup.tsx).
+
+BUILD DIFF (two local `npm run build`, without and with the change, same data)
+  1,191 HTML pages each; none added or removed; sitemap.xml (1,188 URLs), robots.txt, ads.txt identical;
+  <head> SEO tags identical on all 1,191 pages; AdSense meta present on both.
+  Body differences only: build stamp (__VITE_REACT_SSG_HASH__), route index numbers after the inserted route
+  ("0-75" -> "0-76"), and values random on every build (decorations, sample invoice/passwords, clock, lorem).
+  No careers page in the output; the board is a lazy chunk (assets/CareersBoard-*.js) only.
+
+BROWSER (Chromium 1248, built site served locally, API answered with real staging data)
+  390x844 light + dark, 1280x900: 20 cards, "2,089 jobs", 0 px horizontal overflow, Apply -> source page (https).
+  Tab "In Ghana" -> 28 jobs; choosing Nigeria -> heading "Jobs you can get from Nigeria".
+  React #418/#423 on load: the preview is not prerendered, so the app shell hydrates into another page's HTML
+  (same as /auth today; known). Launch must prerender the page shell.
+
+LIVE CHECK - existing site-wide issue found (not caused by this work)
+  https://techtrendi.com/about and /blog/10-ai-tools-everyone-should-use-2026 in a real browser:
+  on load robots + canonical present; after 3 s and 15 s both GONE from the DOM. Raw HTML correct
+  (<meta data-rh="true" name="robots"...>, <link data-rh="true" rel="canonical"...>). Logged as T-210.
+
+PREVIEW HOSTING (exists since the data-bundles preview, 18 Oct 2026)
+  nginx `location ^~ /tools-preview/` (basic auth, user edmund) serves /var/www/techtrendi-preview/index.html;
+  `^~ /pv-assets/` serves its files. Live answer for /tools-preview/careers today: 401 (password).
+  Needed with owner yes: refresh that folder from a `--assetsDir pv-assets` build, and
+  `location = /api/careers/v1/jobs` -> 127.0.0.1:5121 (GET only).
