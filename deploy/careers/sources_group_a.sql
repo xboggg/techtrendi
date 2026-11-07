@@ -2,7 +2,8 @@
 -- Run as the database owner side, never by a service:
 --   docker exec -i supabase-db psql -U supabase_admin -d careers_staging -v ON_ERROR_STOP=1 < sources_group_a.sql
 -- Safe to run twice: existing sources and approved rights are left as they are.
--- auto_publish stays OFF: every collected job waits as 'pending' until the owner decides.
+-- auto_publish ON (owner, 7 Nov 2026: "go live by itself", D-034): clean jobs publish themselves;
+-- jobs with scam signs or conflicting eligibility still wait as 'review'.
 
 BEGIN;
 
@@ -51,6 +52,8 @@ SELECT s.id, seed.terms_url, 'docs/careers/SOURCES.md#group-a', 'approved', now(
 
 UPDATE careers.sources SET status = 'active', disabled_reason = NULL
  WHERE key IN (SELECT key FROM seed) AND status IN ('disabled', 'pending_rights');
+
+UPDATE careers.sources SET auto_publish = true WHERE key IN (SELECT key FROM seed) AND NOT auto_publish;
 
 SELECT key, status, auto_publish, fetch_interval_minutes AS every_min, request_quota_per_run AS quota,
        careers.source_permits(id, 'fetch') AS fetch, careers.source_permits(id, 'display') AS display

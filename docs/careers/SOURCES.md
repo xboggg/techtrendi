@@ -28,7 +28,8 @@ Rules for every Group A source (D-007, D-025):
 - Only a short summary is stored, never the full description.
 - These jobs appear as short cards with the source credit and link, **noindex**, out of the sitemap, and **without
   JobPosting structured data** (Himalayas and Remotive forbid it; we apply it to all feeds).
-- Nothing goes live by itself yet: `auto_publish` is off for every source until the owner says otherwise.
+- Jobs that pass every check go live by themselves (`auto_publish` on, owner 7 Nov 2026); jobs with scam signs or
+  conflicting eligibility wait for the owner.
 - "Latest jobs" feeds (Jobicy, We Work Remotely, Remote OK, Remotive) show only recent jobs, so a job leaving the
   feed is not treated as closed; those jobs close on their own date (or 30 days after posting).
 
