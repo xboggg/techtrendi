@@ -425,7 +425,9 @@ export default function CareersBoard() {
       </div>
 
       <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
-        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl px-4 pb-0 pt-5" data-testid="filters-panel">
+        {/* Phone: a panel from the bottom, full width. Wider screens (owner, 8 Nov 2026: full width
+            "looks terrible" on a computer): a centred box, 640px wide, lifted off the bottom edge. */}
+        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl px-4 pb-0 pt-5 sm:bottom-6 sm:mx-auto sm:max-h-[80vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:px-6" data-testid="filters-panel">
           <SheetHeader className="text-left">
             <SheetTitle>Filters</SheetTitle>
             <SheetDescription>Pick as many as you like. The list updates as you tap.</SheetDescription>
@@ -456,7 +458,7 @@ export default function CareersBoard() {
               ))}
             </FilterGroup>
           </div>
-          <div className="sticky bottom-0 -mx-4 flex gap-2 border-t border-border bg-background px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))]">
+          <div className="sticky bottom-0 -mx-4 flex gap-2 border-t border-border bg-background px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:-mx-6 sm:px-6 sm:pb-4">
             <Button variant="outline" className="min-h-[48px]" onClick={clearFilters} disabled={!nFilters}>Clear all</Button>
             <Button className="min-h-[48px] flex-1" onClick={() => setFiltersOpen(false)} data-testid="filters-done">
               {busy ? "Updating…" : total === null ? "Show jobs" : `Show ${total.toLocaleString("en-GB")} ${total === 1 ? "job" : "jobs"}`}
