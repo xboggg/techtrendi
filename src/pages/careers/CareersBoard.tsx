@@ -285,7 +285,8 @@ export default function CareersBoard() {
     if (shownPage === undefined || lastPage.current === shownPage) return;
     lastPage.current = shownPage;
     const top = listTop.current?.getBoundingClientRect().top;
-    if (top !== undefined && top < 96) window.scrollTo({ top: Math.max(0, window.scrollY + top - 96), behavior: "auto" });
+    // "instant": the site's CSS sets smooth scrolling, which would glide through ~6,000px of jobs.
+    if (top !== undefined && top < 96) window.scrollTo({ top: Math.max(0, window.scrollY + top - 96), behavior: "instant" as ScrollBehavior });
   }, [shownPage]);
 
   const name = COUNTRY_NAME[country];
