@@ -16,6 +16,9 @@ interface SEOHeadProps {
   imageAlt?: string;
   type?: 'website' | 'article' | 'product';
   noindex?: boolean;
+  /** With `noindex`: still let crawlers follow the page's links ("noindex, follow"). The jobs
+   *  board needs it: Remote OK's terms ask for normal, followed links back to its jobs. */
+  noindexFollow?: boolean;
   keywords?: string[];
   /** Use `keywords` as given, without the site's default words (data bundle pages). */
   keywordsOnly?: boolean;
@@ -51,6 +54,7 @@ export function SEOHead({
   imageAlt,
   type = 'website',
   noindex = false,
+  noindexFollow = false,
   keywords = [],
   keywordsOnly = false,
   author = 'TechTrendi Team',
@@ -69,6 +73,7 @@ export function SEOHead({
   // never emit "... | TechTrendi | TechTrendi".
   const baseTitle = title.replace(/\s*\|\s*TechTrendi\s*$/i, '').trim();
   const fullTitle = `${baseTitle} | ${SITE_NAME}`;
+  const noindexValue = noindexFollow ? 'noindex, follow' : 'noindex, nofollow';
   const canonicalPath = canonical || canonicalUrl;
   const fullUrl = canonicalPath
     ? (canonicalPath.startsWith('http') ? canonicalPath : `${SITE_URL}${canonicalPath.startsWith('/') ? canonicalPath : `/${canonicalPath}`}`)
@@ -174,9 +179,9 @@ export function SEOHead({
       <meta name="description" content={description} />
       {allKeywords && <meta name="keywords" content={allKeywords} />}
       <meta name="author" content={author} />
-      <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
-      <meta name="googlebot" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
-      <meta name="bingbot" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+      <meta name="robots" content={noindex ? noindexValue : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
+      <meta name="googlebot" content={noindex ? noindexValue : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
+      <meta name="bingbot" content={noindex ? noindexValue : 'index, follow'} />
 
       {/* Canonical URL */}
       {(canonical || canonicalUrl) && <link rel="canonical" href={fullUrl} />}

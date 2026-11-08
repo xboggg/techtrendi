@@ -1,5 +1,5 @@
-// TechTrendi Careers jobs board: <CAREERS_BASE> (preview: /tools-preview/careers).
-// Preview: noindex, not prerendered, not in the sitemap, not linked (src/lib/careers.ts).
+// TechTrendi Careers jobs board: <CAREERS_BASE> (/careers since 8 Nov 2026).
+// Prerendered as a shell; noindex and out of the sitemap until CAREERS_INDEXED (src/lib/careers.ts).
 // Every job comes from an approved source and links back to it; "Apply" opens the source's own
 // page. Jobs load in the browser from the Careers API, so none of them is part of the page's HTML.
 // The reader's choices (tab, search, filters, page number) live in the page address, so the
@@ -17,7 +17,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { useAssistantOutOfWay } from "@/components/careers/useAssistantOutOfWay";
 import { cn } from "@/lib/utils";
 import {
-  CAREERS_BASE, CAREERS_NOINDEX, COUNTRY_NAME, FIELDS, JOB_TYPES, LEVELS, POSTED,
+  CAREERS_BASE, CAREERS_NOINDEX, COUNTRY_NAME, EMPTY_STATE, FIELDS, JOB_TYPES, LEVELS, POSTED,
   evidenceText, fieldLabel, filterCount, jobTypeLabel, jobsUrl, levelLabel, pageItems, postedAgo, readState, safeLink,
   shortDate, workModeLabel, writeState,
   type BoardState, type Country, type Field, type Job, type JobKind, type JobPage, type JobType, type Level, type Posted,
@@ -225,9 +225,14 @@ function FilterGroup({ title, children }: { title: string; children: React.React
 
 export default function CareersBoard() {
   const [params, setParams] = useSearchParams();
-  const state = useMemo(() => readState(params), [params]);
+  // The prerendered shell is built with no address choices, so the first render in the browser
+  // must match it (else React #418 and a full re-render, which wipes any ad already placed);
+  // the address is read once mounted.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  const state = useMemo(() => (mounted ? readState(params) : EMPTY_STATE), [mounted, params]);
   const [country, setCountry] = useState<Country>("GH");
-  const [typed, setTyped] = useState(state.q);
+  const [typed, setTyped] = useState("");
   const [data, setData] = useState<JobPage | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -275,7 +280,12 @@ export default function CareersBoard() {
     }
   }, [url]);
 
-  useEffect(() => { load(); return () => request.current?.abort(); }, [load]);
+  // First request once the address and remembered country are known (no wasted first fetch).
+  useEffect(() => {
+    if (!mounted) return;
+    load();
+    return () => request.current?.abort();
+  }, [load, mounted]);
 
   // A new page of jobs has arrived: back to the top of the list (only when the reader is below
   // it, e.g. at the page buttons; never pulled down from the filters at the top). Done after the new jobs are on
@@ -312,6 +322,7 @@ export default function CareersBoard() {
         description="Remote and local jobs you can apply for from Ghana or Nigeria, from trusted job sites and company career pages. Every job links to where you apply."
         canonical={CAREERS_BASE}
         noindex={CAREERS_NOINDEX}
+        noindexFollow
       />
       <div className="container mx-auto max-w-5xl px-4 pb-16 pt-6 md:pt-10">
         <header>

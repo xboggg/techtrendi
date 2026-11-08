@@ -3,14 +3,17 @@
 // jobs, each with its source's credit line. Apply links always go to the source's own page.
 //
 // PREVIEW (CAREERS_LAUNCHED = false): /tools-preview/careers, noindex, not prerendered, not in
-// the sitemap (the "tools-preview" segment is skipped by vite.config.ts and generate-sitemap.mjs),
-// no link from anywhere on the site. Launch is a separate step with the owner's go-ahead and an
-// AdSense/SEO before-and-after check (docs/careers/DECISIONS.md D-023, D-025).
-export const CAREERS_LAUNCHED = false;
+// the sitemap (the "tools-preview" segment is skipped by vite.config.ts and generate-sitemap.mjs).
+// LAUNCHED (owner, 8 Nov 2026: "Put it online"): /careers, prerendered as an empty shell (jobs
+// still load in the browser), still noindex and still out of the sitemap: the page's content is
+// copied feed jobs, which never become indexable (D-023, D-025). Indexing waits until the board
+// has TechTrendi-written jobs (Jobs Desk) and is a separate owner decision: CAREERS_INDEXED.
+export const CAREERS_LAUNCHED = true;
+export const CAREERS_INDEXED = false;
 export const CAREERS_PREVIEW_BASE = "/tools-preview/careers";
-export const CAREERS_BASE = CAREERS_PREVIEW_BASE;
+export const CAREERS_BASE = CAREERS_LAUNCHED ? "/careers" : CAREERS_PREVIEW_BASE;
 export const CAREERS_ROUTE = CAREERS_BASE.replace(/^\//, "");
-export const CAREERS_NOINDEX = !CAREERS_LAUNCHED;
+export const CAREERS_NOINDEX = !(CAREERS_LAUNCHED && CAREERS_INDEXED);
 export const CAREERS_API = "/api/careers/v1";
 export const PAGE_SIZE = 20;
 

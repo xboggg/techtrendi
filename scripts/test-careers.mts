@@ -4,7 +4,7 @@
 // Run: npx tsx scripts/test-careers.mts
 import { readdirSync, readFileSync } from "node:fs";
 import {
-  CAREERS_BASE, CAREERS_LAUNCHED, CAREERS_NOINDEX, CAREERS_ROUTE, EMPTY_STATE, evidenceText, filterCount, jobTypeLabel, jobsUrl,
+  CAREERS_BASE, CAREERS_INDEXED, CAREERS_LAUNCHED, CAREERS_NOINDEX, CAREERS_ROUTE, EMPTY_STATE, evidenceText, filterCount, jobTypeLabel, jobsUrl,
   openToText, pageItems, postedAgo, readState, safeLink, shortDate, workModeLabel, writeState, type BoardState,
 } from "../src/lib/careers";
 import { ASSISTANT_SELECTOR } from "../src/components/careers/useAssistantOutOfWay";
@@ -72,6 +72,20 @@ ok(safeLink("http://jobs.example/1") === null && safeLink("javascript:alert(1)")
 // --- the assistant button rule points at the real button
 ok(readFileSync("src/components/ai/AIChatInterface.tsx", "utf8").includes(`aria-label="Open AI Chat"`)
   && ASSISTANT_SELECTOR === 'button[aria-label="Open AI Chat"]', "assistant button selector matches AIChatInterface");
+
+// --- SEO isolation of the launched board (D-023, D-025): /careers, noindex, not in the sitemap
+if (CAREERS_LAUNCHED) {
+  ok(CAREERS_BASE === "/careers" && CAREERS_ROUTE === "careers", "board lives at /careers");
+  ok(CAREERS_NOINDEX === (CAREERS_INDEXED ? false : true), "noindex until the owner decides to index it");
+  const sitemap = readFileSync("scripts/generate-sitemap.mjs", "utf8");
+  if (!CAREERS_INDEXED) ok(/EXCLUDE_PREFIX = \[[^\]]*"careers"/.test(sitemap), "sitemap skips careers while it is noindex");
+  ok(/EXCLUDE_PREFIX = \[[^\]]*"tools-preview"\]/.test(sitemap), "tools-preview stays last in EXCLUDE_PREFIX");
+  const vite = readFileSync("vite.config.ts", "utf8");
+  ok(!/const skip = \[[^\]]*"careers"/.test(vite), "careers is prerendered (no #418 shell)");
+  const board = readFileSync("src/pages/careers/CareersBoard.tsx", "utf8");
+  ok(/mounted \? readState\(params\) : EMPTY_STATE/.test(board), "first render ignores the address (matches the prerendered shell)");
+  ok(/noindexFollow/.test(board), "links stay followed (Remote OK terms): noindex, follow");
+}
 
 // --- SEO isolation of the preview (D-023, D-025)
 if (!CAREERS_LAUNCHED) {
