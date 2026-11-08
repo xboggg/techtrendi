@@ -18,7 +18,9 @@ const DIST = "dist";
 // "data-bundles": the bare address is a 301 to /data-bundles/ghana, never a page of its own.
 const EXCLUDE_EXACT = new Set(["404", "200", "offline", "design-demo", "reading-list", "tools-preview", "rundown-preview", "data-bundles"]);
 // "sponsored": paid ad pages (src/data/sponsors.ts) are noindex, so never listed.
-const EXCLUDE_PREFIX = ["admin", "auth", "profile", "dashboard", "arcade", "sponsored", "tools-preview"];
+// "careers": the jobs board is noindex until CAREERS_INDEXED (src/lib/careers.ts; D-025).
+// Keep "tools-preview" last (checked by the data bundles launch test L4).
+const EXCLUDE_PREFIX = ["admin", "auth", "profile", "dashboard", "arcade", "sponsored", "careers", "tools-preview"];
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {

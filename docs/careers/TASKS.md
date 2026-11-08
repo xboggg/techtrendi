@@ -52,6 +52,7 @@ Updated: 2026-11-06 after Step 0 (server check, leaked-token fix, staging built)
 | T-208 | Owner chooses per source: automatic publishing or tap-to-approve (D-030) | Eddie | done 2026-11-07: automatic for all (D-034) | DECISIONS.md |
 | T-209 | AI scout: daily search for new employers hiring in Ghana/Nigeria (~$3–9/month) | Claude | later (owner, 7 Nov) | — |
 | T-202 | Jobs Desk on Telegram (forward link/flyer → draft in own words + original link → Publish/Change/Bin), modelled on the TechTrendi Story Desk | Claude | todo | — |
-| T-203 | /careers list + job pages in the SSG build with JobPosting data; AdSense/SEO diff check before live (D-023, D-026) | Claude | todo | — |
+| T-203 | /careers jobs board (feed jobs: no JobPosting data, D-025/D-035); AdSense/SEO diff check before live (D-023) | Claude | done 2026-11-08: live at /careers (noindex, follow; not in sitemap), board v2 with filters and numbered pages, 136 server tests + site checks pass, build diff clean (D-036) | evidence/board-preview-2026-11-07.txt |
+| T-210 | Site-wide: robots + canonical tags vanish from the page ~3 s after load (seen live on /about and a blog post, 7 Nov 2026); raw HTML is correct. Investigate the head manager (vite-react-ssg Head / react-helmet-async) | Claude | done 2026-11-08: live (PR #6); GA4 page views fixed too (PR #7) | evidence/board-preview-2026-11-07.txt |
 | T-204 | Employer "Post a job" form → pending queue → owner approval | Claude | todo | — |
 | T-205 | TechTrendi Jobs Telegram channel daily post (D-027); owner creates the channel and adds the bot as admin | Eddie + Claude | todo | — |

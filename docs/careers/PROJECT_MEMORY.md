@@ -48,4 +48,4 @@ D-029–D-033 (7 Nov 2026: Group A, auto_publish off, latest-feed expiry, live-d
 3. T-202 Jobs Desk on Telegram for local jobs the feeds do not have (Ghana is thin: ~60 local jobs from employer boards).
 
 ## Production change authorization
-None for Careers production yet (staging only).
+Jobs board page live at /careers since 8 Nov 2026 (owner: "Put it online"); its job list is served by the staging Careers service. No separate production Careers service yet.
