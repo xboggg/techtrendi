@@ -214,11 +214,12 @@ function Pager({ page, pages, onPage }: { page: number; pages: number; onPage: (
 }
 
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  const id = `filter-${title.replace(/\W+/g, "-").toLowerCase()}`;
   return (
-    <fieldset className="border-t border-border pt-4 first:border-t-0 first:pt-0">
-      <legend className="mb-2 text-sm font-bold text-foreground">{title}</legend>
+    <div role="group" aria-labelledby={id} className="border-t border-border pt-4 first:border-t-0 first:pt-0">
+      <h3 id={id} className="mb-2 text-sm font-bold text-foreground">{title}</h3>
       <div className="flex flex-wrap gap-2">{children}</div>
-    </fieldset>
+    </div>
   );
 }
 
@@ -276,13 +277,16 @@ export default function CareersBoard() {
 
   useEffect(() => { load(); return () => request.current?.abort(); }, [load]);
 
-  // A new page number: back to the top of the list.
+  // A new page of jobs has arrived: back to the top of the list (only when the reader is below
+  // it, e.g. at the page buttons; never pulled down from the filters at the top). Done after the new jobs are on
+  // screen, so the browser's scroll anchoring cannot move the reader again as the list changes.
+  const shownPage = data?.page;
   useEffect(() => {
-    if (lastPage.current === state.page) return;
-    lastPage.current = state.page;
+    if (shownPage === undefined || lastPage.current === shownPage) return;
+    lastPage.current = shownPage;
     const top = listTop.current?.getBoundingClientRect().top;
-    if (top !== undefined) window.scrollTo({ top: Math.max(0, window.scrollY + top - 96), behavior: "auto" });
-  }, [state.page]);
+    if (top !== undefined && top < 96) window.scrollTo({ top: Math.max(0, window.scrollY + top - 96), behavior: "auto" });
+  }, [shownPage]);
 
   const name = COUNTRY_NAME[country];
   const pickCountry = (c: Country) => { setCountry(c); saveCountry(c); update({}); };
@@ -393,7 +397,7 @@ export default function CareersBoard() {
           </div>
         )}
 
-        <div className={cn("mt-3 grid grid-cols-1 gap-3 transition-opacity md:grid-cols-2", busy && jobs.length > 0 && "opacity-50")} data-testid="job-list" aria-busy={busy}>
+        <div className={cn("mt-3 grid grid-cols-1 gap-3 transition-opacity [overflow-anchor:none] md:grid-cols-2", busy && jobs.length > 0 && "opacity-50")} data-testid="job-list" aria-busy={busy}>
           {jobs.map((j) => <JobCard key={j.id} job={j} country={country} onToggle={() => setOpened((n) => n + 1)} />)}
           {busy && jobs.length === 0 && Array.from({ length: 4 }, (_, i) => (
             <div key={i} aria-hidden className="h-56 animate-pulse rounded-2xl border border-border bg-muted/50" />

@@ -31,6 +31,7 @@ export const FIELDS = {
   hr: "HR & recruiting",
   ops: "Operations & logistics",
   writing: "Writing & languages",
+  education: "Education & training",
   other: "Other",
 } as const;
 export type Field = keyof typeof FIELDS;

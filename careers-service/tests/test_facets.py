@@ -26,6 +26,10 @@ FIELDS = [
     ("Collections Agent", [], "finance"),
     ("Junior Dispatcher (Remote) | USA Trucking", [], "ops"),
     ("Business Relationship Manager (Bauchi)", [], "sales"),
+    ("Anything", ["Education & E-learning"], "education"),
+    ("Corporate English Trainer", [], "education"),
+    ("Early Childhood Teacher", [], "education"),
+    ("Polish Voice Actor - AI Trainer", [], "writing"),          # AI-trainer gigs are not teaching
     ("Family Medicine Hospitalist", [], "other"),
 ]
 

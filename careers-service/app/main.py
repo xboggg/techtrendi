@@ -80,7 +80,7 @@ class JobPage(BaseModel):
 FRESHNESS = "Every job shows where it came from. Apply on the source's own page. Lists are re-checked several times a day."
 
 # Filter values, as computed by careers.job_field / job_type / job_level (migration 007).
-FIELDS = ("tech", "data", "sales", "marketing", "support", "design", "finance", "hr", "ops", "writing", "other")
+FIELDS = ("tech", "data", "sales", "marketing", "support", "design", "finance", "hr", "ops", "writing", "education", "other")
 JOB_TYPES = ("full_time", "part_time", "contract", "internship")
 LEVELS = ("entry", "mid", "senior")
 POSTED = {"day": "1 day", "week": "7 days", "month": "30 days"}

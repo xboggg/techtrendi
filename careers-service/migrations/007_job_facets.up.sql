@@ -18,6 +18,7 @@ AS $$
     WHEN t ~* '(design|\mux\M|\mui\M|graphic|visual|video|photo|animat|illustrat|\msound\M)' THEN 'design'
     WHEN t ~* '(human resources|\mhr\M|people|recruit|talent|culture|workforce|organi[sz]ational development)' THEN 'hr'
     WHEN t ~* '(financ|fintech|accounting|accountant|\mtax\M|audit|\mrisk\M|credit|payment|treasury|fraud|compliance|insurance|banking|collections|\mtrad(er|ing)\M)' THEN 'finance'
+    WHEN t ~* '(teach|tutor|educat|e-learning|\mtrainer|training|instructor|curriculum|lecturer|school)' THEN 'education'
     WHEN t ~* '(marketing|growth|social media|\mseo\M|\mbrand|communication|martech|community)' THEN 'marketing'
     WHEN t ~* '(develop|programm|software|engineer|devops|sysadmin|\mqa\M|testing|tester|hardware|docker|\mgit\M|\mtech|security|reliability|cloud|infrastructure|\mit\M|product|agile|scrum|smartphone)' THEN 'tech'
     WHEN t ~* '(operation|logistic|warehouse|supply chain|inventory|\mstock|retail|program manag|project manag|admin|office|procure|packag|dispatch|freight|management)' THEN 'ops'
