@@ -4,8 +4,10 @@
 // Run: npx tsx scripts/test-careers.mts
 import { readdirSync, readFileSync } from "node:fs";
 import {
-  CAREERS_BASE, CAREERS_LAUNCHED, CAREERS_NOINDEX, CAREERS_ROUTE, jobsUrl, openToText, postedAgo, safeLink, workModeLabel,
+  CAREERS_BASE, CAREERS_LAUNCHED, CAREERS_NOINDEX, CAREERS_ROUTE, EMPTY_STATE, evidenceText, filterCount, jobTypeLabel, jobsUrl,
+  openToText, pageItems, postedAgo, readState, safeLink, shortDate, workModeLabel, writeState, type BoardState,
 } from "../src/lib/careers";
+import { ASSISTANT_SELECTOR } from "../src/components/careers/useAssistantOutOfWay";
 
 let failed = 0;
 const ok = (cond: unknown, what: string) => {
@@ -14,16 +16,40 @@ const ok = (cond: unknown, what: string) => {
 };
 const params = (url: string) => Object.fromEntries(new URL(url, "https://techtrendi.com").searchParams);
 
-// --- requests: what each tab asks the API for
-ok(JSON.stringify(params(jobsUrl({ country: "GH", kind: "all" }))) === JSON.stringify({ country: "GH", limit: "20" }), "All jobs = open to the reader's country");
-ok(params(jobsUrl({ country: "NG", kind: "remote" })).work_mode === "remote" && params(jobsUrl({ country: "NG", kind: "remote" })).country === "NG", "Work from home = remote + open to the country");
-const local = params(jobsUrl({ country: "GH", kind: "local" }));
+// --- requests: what each tab and filter asks the API for
+const S = (p: Partial<BoardState>): BoardState => ({ ...EMPTY_STATE, ...p });
+ok(JSON.stringify(params(jobsUrl("GH", S({})))) === JSON.stringify({ country: "GH", limit: "20" }), "All jobs = open to the reader's country");
+const remote = params(jobsUrl("NG", S({ kind: "remote" })));
+ok(remote.work_mode === "remote" && remote.country === "NG", "Work from home = remote + open to the country");
+const local = params(jobsUrl("GH", S({ kind: "local" })));
 ok(local.located === "GH" && !("country" in local), "In Ghana = located in Ghana");
-ok(params(jobsUrl({ country: "GH", kind: "all", q: "  data & AI  " })).q === "data & AI", "search words trimmed and encoded");
-ok(!("q" in params(jobsUrl({ country: "GH", kind: "all", q: "   " }))), "blank search sends no q");
-ok(params(jobsUrl({ country: "GH", kind: "all", q: "x".repeat(300) })).q.length === 200, "search capped at 200 characters (API limit)");
-ok(params(jobsUrl({ country: "GH", kind: "all", cursor: "abc" })).cursor === "abc", "next page sends the cursor");
-ok(jobsUrl({ country: "GH", kind: "all" }).startsWith("/api/careers/v1/jobs?"), "same-site API address");
+ok(params(jobsUrl("GH", S({ q: "  data & AI  " }))).q === "data & AI", "search words trimmed and encoded");
+ok(!("q" in params(jobsUrl("GH", S({ q: "   " })))), "blank search sends no q");
+ok(params(jobsUrl("GH", S({ q: "x".repeat(300) }))).q.length === 200, "search capped at 200 characters (API limit)");
+const filtered = params(jobsUrl("GH", S({ fields: ["tech", "data"], types: ["contract"], levels: ["entry"], pay: true, posted: "week", page: 3 })));
+ok(filtered.field === "tech,data" && filtered.job_type === "contract" && filtered.level === "entry" && filtered.pay === "true"
+  && filtered.posted === "week" && filtered.page === "3", "filters and page number go to the API");
+ok(!("page" in params(jobsUrl("GH", S({ page: 1 })))), "page 1 sends no page");
+ok(jobsUrl("GH", S({})).startsWith("/api/careers/v1/jobs?"), "same-site API address");
+
+// --- the page address keeps the reader's choices (Back button, shared links)
+const round = S({ kind: "remote", q: "nurse", fields: ["support"], types: ["part_time"], levels: ["senior"], pay: true, posted: "day", page: 4 });
+ok(JSON.stringify(readState(writeState(round))) === JSON.stringify(round), "address round-trips every choice");
+ok(writeState(EMPTY_STATE).toString() === "", "no choices = plain address");
+const junk = readState(new URLSearchParams("kind=evil&field=tech,plumbing,tech&type=gig&level=senior&posted=year&page=-2&pay=yes"));
+ok(junk.kind === "all" && JSON.stringify(junk.fields) === '["tech"]' && junk.types.length === 0 && junk.levels[0] === "senior"
+  && junk.posted === null && junk.page === 1 && junk.pay === false, "unknown address values are dropped");
+ok(readState(new URLSearchParams("page=999")).page === 1, "page beyond the API limit falls back to 1");
+ok(filterCount(round) === 5 && filterCount(EMPTY_STATE) === 0, "filter count for the Filters button");
+
+// --- page buttons fit a phone (at most 7)
+const items = (c: number, n: number) => pageItems(c, n).join(" ");
+ok(items(1, 5) === "1 2 3 4 5", "few pages: all shown");
+ok(items(1, 45) === "1 2 3 4 … 45", "first page");
+ok(items(10, 45) === "1 … 9 10 11 … 45", "middle page");
+ok(items(45, 45) === "1 … 42 43 44 45", "last page");
+ok(items(4, 45) === "1 … 3 4 5 … 45" && items(3, 45) === "1 2 3 4 … 45", "near the start");
+ok([1, 2, 3, 10, 43, 44, 45].every((c) => pageItems(c, 45).length <= 7), "never more than 7 buttons");
 
 // --- display helpers
 const now = new Date("2026-11-07T12:00:00Z");
@@ -34,9 +60,18 @@ ok(postedAgo("2026-10-17T12:00:00Z", now) === "3 weeks ago", "posted 3 weeks ago
 ok(postedAgo("2026-09-01T12:00:00Z", now) === "2 months ago", "posted 2 months ago");
 ok(postedAgo(null, now) === "" && postedAgo("nonsense", now) === "", "unknown date shows nothing");
 ok(openToText(["GH", "NG"]) === "Ghana and Nigeria" && openToText(["NG"]) === "Nigeria" && openToText(["KE"]) === "", "open-to text");
-ok(workModeLabel("onsite") === "On-site" && workModeLabel("unknown") === null, "work mode words");
+ok(workModeLabel("remote") === "Work from home" && workModeLabel("onsite") === "At the office" && workModeLabel("unknown") === null, "work mode words");
+ok(jobTypeLabel({ job_type: "full_time", employment_type: "FullTime" }) === "Full-time", "job type in plain words");
+ok(jobTypeLabel({ job_type: null, employment_type: "Seasonal" }) === "Seasonal" && jobTypeLabel({ job_type: null, employment_type: "Remote" }) === null, "unknown job type: source's words, never 'Remote'");
+ok(evidenceText("listed: Ghana") === "The job says: “Ghana”." && evidenceText("source: open worldwide") === "The job site marks it as open worldwide."
+  && evidenceText(undefined) === null, "why it is open, in plain words");
+ok(shortDate("2027-01-07T00:00:00Z") === "7 Jan 2027" && shortDate(null) === "", "short date");
 ok(safeLink("https://jobs.example/1") === "https://jobs.example/1", "https link kept");
 ok(safeLink("http://jobs.example/1") === null && safeLink("javascript:alert(1)") === null && safeLink(null) === null, "non-https links refused");
+
+// --- the assistant button rule points at the real button
+ok(readFileSync("src/components/ai/AIChatInterface.tsx", "utf8").includes(`aria-label="Open AI Chat"`)
+  && ASSISTANT_SELECTOR === 'button[aria-label="Open AI Chat"]', "assistant button selector matches AIChatInterface");
 
 // --- SEO isolation of the preview (D-023, D-025)
 if (!CAREERS_LAUNCHED) {

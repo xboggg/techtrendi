@@ -51,12 +51,12 @@ def scratch_db(urls):  # depends on urls so group roles exist first
 def test_up_then_partial_down_then_up(scratch_db):
     r = _run(scratch_db, "up"); assert r.returncode == 0, r.stderr
     r = _run(scratch_db, "status"); assert r.returncode == 0
-    assert r.stdout.count("applied") == 6 and "pending" not in r.stdout and "!!" not in r.stdout
+    assert r.stdout.count("applied") == 7 and "pending" not in r.stdout and "!!" not in r.stdout
     assert _tables(scratch_db) == TABLES_AFTER_UP
 
-    r = _run(scratch_db, "down", "002"); assert r.returncode == 0, r.stderr      # reverts 006 … 002
+    r = _run(scratch_db, "down", "002"); assert r.returncode == 0, r.stderr      # reverts 007 … 002
     assert _tables(scratch_db) == {"schema_migrations"}
-    r = _run(scratch_db, "status"); assert r.stdout.count("pending") == 5
+    r = _run(scratch_db, "status"); assert r.stdout.count("pending") == 6
 
     r = _run(scratch_db, "up"); assert r.returncode == 0, r.stderr
     assert _tables(scratch_db) == TABLES_AFTER_UP

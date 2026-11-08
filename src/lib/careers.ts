@@ -12,11 +12,38 @@ export const CAREERS_BASE = CAREERS_PREVIEW_BASE;
 export const CAREERS_ROUTE = CAREERS_BASE.replace(/^\//, "");
 export const CAREERS_NOINDEX = !CAREERS_LAUNCHED;
 export const CAREERS_API = "/api/careers/v1";
+export const PAGE_SIZE = 20;
 
 export type Country = "GH" | "NG";
 export type JobKind = "all" | "remote" | "local";
 
 export const COUNTRY_NAME: Record<Country, string> = { GH: "Ghana", NG: "Nigeria" };
+
+// Filter values, as the API computes them (careers-service migration 007). Order = order shown.
+export const FIELDS = {
+  tech: "Software & IT",
+  data: "Data & AI",
+  sales: "Sales",
+  marketing: "Marketing",
+  support: "Customer service",
+  design: "Design & media",
+  finance: "Finance & banking",
+  hr: "HR & recruiting",
+  ops: "Operations & logistics",
+  writing: "Writing & languages",
+  other: "Other",
+} as const;
+export type Field = keyof typeof FIELDS;
+
+export const JOB_TYPES = { full_time: "Full-time", part_time: "Part-time", contract: "Contract", internship: "Internship" } as const;
+export type JobType = keyof typeof JOB_TYPES;
+const JOB_TYPE_WORDS: Record<string, string> = { ...JOB_TYPES, volunteer: "Volunteer" };
+
+export const LEVELS = { entry: "Entry-level", mid: "Mid-level", senior: "Senior" } as const;
+export type Level = keyof typeof LEVELS;
+
+export const POSTED = { day: "Today", week: "This week", month: "This month" } as const;
+export type Posted = keyof typeof POSTED;
 
 export interface Job {
   id: string;
@@ -34,37 +61,109 @@ export interface Job {
   location: string | null;
   salary: string | null;
   posted_at: string | null;
-  closes_at: string | null;
+  closes_at: string | null;          // only a real date from the source, never our estimate
   open_to: string[];
+  open_evidence: Record<string, string>;
+  field: string;
+  job_type: string | null;
+  level: string;
+  categories: string[];
 }
 
 export interface JobPage {
   items: Job[];
-  next_cursor: string | null;
   total: number;
+  page: number;
+  pages: number;
   freshness_note: string;
 }
 
-export interface JobQuery {
-  country: Country;
+/** Everything the reader has chosen, apart from the country (remembered in the browser). */
+export interface BoardState {
   kind: JobKind;
-  q?: string;
-  cursor?: string | null;
-  limit?: number;
+  q: string;
+  fields: Field[];
+  types: JobType[];
+  levels: Level[];
+  pay: boolean;
+  posted: Posted | null;
+  page: number;
 }
 
-/** The request for one page. "All" = open to the reader's country; "Remote" = also remote;
- *  "In Ghana/Nigeria" = the job's own location is there (and it is not remote). */
-export function jobsUrl({ country, kind, q, cursor, limit = 20 }: JobQuery): string {
+export const EMPTY_STATE: BoardState = { kind: "all", q: "", fields: [], types: [], levels: [], pay: false, posted: null, page: 1 };
+
+const pick = <K extends string>(raw: string | null, allowed: Record<K, string>): K[] =>
+  [...new Set((raw ?? "").split(",").map((v) => v.trim()).filter((v): v is K => v in allowed))];
+
+/** The reader's choices from the page address (?kind=remote&field=tech,data&page=3), so the
+ *  phone's Back button and a shared link land on the same list. Unknown values are dropped. */
+export function readState(sp: URLSearchParams): BoardState {
+  const kind = sp.get("kind");
+  const posted = sp.get("posted");
+  const page = Number.parseInt(sp.get("page") ?? "1", 10);
+  return {
+    kind: kind === "remote" || kind === "local" ? kind : "all",
+    q: (sp.get("q") ?? "").slice(0, 200),
+    fields: pick(sp.get("field"), FIELDS),
+    types: pick(sp.get("type"), JOB_TYPES),
+    levels: pick(sp.get("level"), LEVELS),
+    pay: sp.get("pay") === "1",
+    posted: posted && posted in POSTED ? (posted as Posted) : null,
+    page: Number.isFinite(page) && page >= 1 && page <= 500 ? page : 1,
+  };
+}
+
+/** The page address for a state; defaults are left out so the plain address stays plain. */
+export function writeState(s: BoardState): URLSearchParams {
   const p = new URLSearchParams();
-  if (kind === "local") p.set("located", country);
+  if (s.kind !== "all") p.set("kind", s.kind);
+  if (s.q.trim()) p.set("q", s.q.trim());
+  if (s.fields.length) p.set("field", s.fields.join(","));
+  if (s.types.length) p.set("type", s.types.join(","));
+  if (s.levels.length) p.set("level", s.levels.join(","));
+  if (s.pay) p.set("pay", "1");
+  if (s.posted) p.set("posted", s.posted);
+  if (s.page > 1) p.set("page", String(s.page));
+  return p;
+}
+
+/** How many filters (inside the Filters panel) are on. */
+export function filterCount(s: BoardState): number {
+  return s.fields.length + s.types.length + s.levels.length + (s.pay ? 1 : 0) + (s.posted ? 1 : 0);
+}
+
+/** The API request for one page. "All" = open to the reader's country; "Work from home" = also
+ *  remote; "In Ghana/Nigeria" = the job's own location is there (and it is not remote). */
+export function jobsUrl(country: Country, s: BoardState, limit = PAGE_SIZE): string {
+  const p = new URLSearchParams();
+  if (s.kind === "local") p.set("located", country);
   else p.set("country", country);
-  if (kind === "remote") p.set("work_mode", "remote");
-  const words = (q ?? "").trim().slice(0, 200);
+  if (s.kind === "remote") p.set("work_mode", "remote");
+  const words = s.q.trim().slice(0, 200);
   if (words) p.set("q", words);
-  if (cursor) p.set("cursor", cursor);
+  if (s.fields.length) p.set("field", s.fields.join(","));
+  if (s.types.length) p.set("job_type", s.types.join(","));
+  if (s.levels.length) p.set("level", s.levels.join(","));
+  if (s.pay) p.set("pay", "true");
+  if (s.posted) p.set("posted", s.posted);
+  if (s.page > 1) p.set("page", String(s.page));
   p.set("limit", String(limit));
   return `${CAREERS_API}/jobs?${p.toString()}`;
+}
+
+/** Page buttons: every page when there are up to 7, otherwise the first, the last and the
+ *  current one with its neighbours, gaps shown as "…" (fits a phone: at most 7 items). */
+export function pageItems(current: number, pages: number): (number | "…")[] {
+  if (pages <= 7) return Array.from({ length: pages }, (_, i) => i + 1);
+  const c = Math.min(Math.max(current, 1), pages);
+  const start = c <= 3 ? 2 : c >= pages - 2 ? pages - 3 : c - 1;
+  const end = c <= 3 ? 4 : c >= pages - 2 ? pages - 1 : c + 1;
+  const out: (number | "…")[] = [1];
+  if (start > 2) out.push("…");
+  for (let i = start; i <= end; i++) out.push(i);
+  if (end < pages - 1) out.push("…");
+  out.push(pages);
+  return out;
 }
 
 /** "today", "yesterday", "3 days ago", "2 weeks ago", "1 month ago"; "" when unknown. */
@@ -81,9 +180,40 @@ export function postedAgo(iso: string | null, now: Date = new Date()): string {
   return months === 1 ? "1 month ago" : `${months} months ago`;
 }
 
-/** Plain words for the work mode chip; null when the source did not say. */
+/** "7 Jan 2027"; "" when unknown. */
+export function shortDate(iso: string | null): string {
+  if (!iso) return "";
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return "";
+  return new Date(t).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+}
+
+/** Plain words for where the work happens; null when the source did not say. */
 export function workModeLabel(mode: Job["work_mode"]): string | null {
-  return { remote: "Remote", hybrid: "Hybrid", onsite: "On-site", unknown: null }[mode] ?? null;
+  return { remote: "Work from home", hybrid: "Hybrid", onsite: "At the office", unknown: null }[mode] ?? null;
+}
+
+/** "Full-time" for the computed type; the source's own words when we could not tell. */
+export function jobTypeLabel(job: Pick<Job, "job_type" | "employment_type">): string | null {
+  if (job.job_type && JOB_TYPE_WORDS[job.job_type]) return JOB_TYPE_WORDS[job.job_type];
+  const raw = (job.employment_type ?? "").trim();
+  return raw && !/^remote$/i.test(raw) ? raw : null;
+}
+
+export const fieldLabel = (f: string): string => (FIELDS as Record<string, string>)[f] ?? FIELDS.other;
+export const levelLabel = (l: string): string | null => (LEVELS as Record<string, string>)[l] ?? null;
+
+const EVIDENCE = /^(listed|source|stated):\s*(.+)$/i;
+
+/** Why we say a job is open to the reader, in plain words, from the collector's evidence
+ *  ("listed: Ghana", "source: open worldwide"). */
+export function evidenceText(raw: string | undefined): string | null {
+  if (!raw) return null;
+  const m = raw.trim().match(EVIDENCE);
+  if (!m) return raw.trim();
+  const what = m[2].trim();
+  if (m[1].toLowerCase() === "source") return `The job site marks it as ${what}.`;
+  return `The job says: “${what}”.`;
 }
 
 /** "Ghana and Nigeria" / "Nigeria". */
