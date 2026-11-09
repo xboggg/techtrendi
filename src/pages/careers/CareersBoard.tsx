@@ -321,6 +321,8 @@ export default function CareersBoard() {
         title="Jobs Open to People in Ghana and Nigeria"
         description="Remote and local jobs you can apply for from Ghana or Nigeria, from trusted job sites and company career pages. Every job links to where you apply."
         canonical={CAREERS_BASE}
+        image="/og-careers.jpg"
+        imageAlt="TechTrendi Careers: jobs open to people in Ghana and Nigeria"
         noindex={CAREERS_NOINDEX}
         noindexFollow
       />
