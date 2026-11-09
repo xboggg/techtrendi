@@ -119,6 +119,16 @@ def test_jobs_facets_and_details(client, published):
     assert a["closes_at"] is not None
 
 
+def test_stored_facets_follow_edits(client, published, migrator, source):
+    # 008: facets are stored when a job is written; an edit recomputes them
+    with migrator.cursor() as cur:
+        cur.execute("""UPDATE careers.jobs SET title = 'Graduate Trainee Python Developer', categories = '{}', employment_type = 'Internship'
+                       WHERE source_id = %s AND external_id = 'b'""", (source,))
+    migrator.commit()
+    b = client.get(f"{PREFIX}/jobs", params={"company": None, "q": "Graduate"}).json()["items"][0]
+    assert (b["field"], b["job_type"], b["level"]) == ("tech", "internship", "entry")
+
+
 def test_jobs_closing_date_hidden_when_only_estimated(client, published, migrator, source):
     with migrator.cursor() as cur:
         cur.execute("""UPDATE careers.sources SET settings = '{"default_valid_days": 30}' WHERE id = %s""", (source,))
@@ -141,6 +151,45 @@ def test_jobs_new_filters(client, published):
     for bad in ({"field": "plumbing"}, {"field": ","}, {"job_type": "full_time,gig"}, {"level": "x"}, {"posted": "year"}):
         r = client.get(f"{PREFIX}/jobs", params=bad)
         assert r.status_code == 422 and r.json()["code"] == "validation_error", bad
+
+
+def test_jobs_skills(client, published):
+    import app.main as main
+    def get(**p):
+        return client.get(f"{PREFIX}/jobs", params=p).json()
+    a, b = get()["items"]
+    assert a["skills"] == ["data_analysis"] and b["skills"] == ["sales"]      # title / category
+    assert [j["title"] for j in get(skill="sales")["items"]] == ["Branch Manager"]
+    assert [j["title"] for j in get(skill="sales,data_analysis")["items"]] == ["Data Analyst 100%_off", "Branch Manager"]
+    assert get(skill="python")["total"] == 0
+    assert get(country="GH", skill="sales")["total"] == 0
+    # Counts only on request; they keep the other filters but ignore the skill filter itself
+    assert get()["skill_counts"] is None
+    counts = get(facets="true", skill="python")["skill_counts"]
+    assert set(counts) == set(main.SKILLS) and counts["sales"] == 1 and counts["data_analysis"] == 1 and counts["python"] == 0
+    assert get(facets="true", country="GH")["skill_counts"]["sales"] == 0
+    # Only known skills; a pattern sent by the reader is refused, never run
+    for bad in ({"skill": "sales|.*"}, {"skill": "(a+)+"}, {"skill": ","}):
+        r = client.get(f"{PREFIX}/jobs", params=bad)
+        assert r.status_code == 422 and r.json()["code"] == "validation_error", bad
+
+
+@pytest.mark.parametrize("title,cats,want", [
+    ("Freelance AI Trainer (Latvian)", [], ["ai_training"]),
+    ("Senior Front-End Developer", ["Developer"], ["web"]),
+    ("Python Software Engineer - Kubernetes", ["Developer"], ["python", "cloud"]),
+    ("Graduate Sales Development Representative", ["Sales"], ["sales"]),
+    ("Bilingual (French/English) Helpline Responder", [], ["translation", "french"]),
+    ("Accounting Intern", ["Finance"], ["accounting"]),
+    ("Branch Manager", [], []),
+    ("Customer Success Engineer", ["Customer Support"], ["support"]),
+    ("Detail-oriented Mailroom Clerk", [], []),          # "ai" inside words never counts
+    ("Marketing Designer", ["Sales and Marketing"], ["design"]),
+    ("Sales Manager", ["Sales and Marketing"], ["sales"]),
+])
+def test_job_skills_rules(client, title, cats, want):
+    import app.main as main      # loaded by the client fixture with test settings
+    assert main.job_skills(title, cats) == want
 
 
 def test_jobs_numbered_pages_without_repeats(client, published):

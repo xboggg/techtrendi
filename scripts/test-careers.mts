@@ -4,8 +4,9 @@
 // Run: npx tsx scripts/test-careers.mts
 import { readdirSync, readFileSync } from "node:fs";
 import {
-  CAREERS_BASE, CAREERS_INDEXED, CAREERS_LAUNCHED, CAREERS_NOINDEX, CAREERS_ROUTE, EMPTY_STATE, evidenceText, filterCount, jobTypeLabel, jobsUrl,
-  openToText, pageItems, postedAgo, readState, safeLink, shortDate, workModeLabel, writeState, type BoardState,
+  CAREERS_BASE, CAREERS_INDEXED, CAREERS_LAUNCHED, CAREERS_NOINDEX, CAREERS_ROUTE, EMPTY_STATE, SKILLS, evidenceText, filterCount, isNew,
+  jobTypeLabel, jobsUrl, openToText, pageItems, postedAgo, rankedSkills, readState, safeLink, shortDate, skillLabel, workModeLabel, writeState,
+  type BoardState,
 } from "../src/lib/careers";
 import { ASSISTANT_SELECTOR } from "../src/components/careers/useAssistantOutOfWay";
 
@@ -30,17 +31,28 @@ const filtered = params(jobsUrl("GH", S({ fields: ["tech", "data"], types: ["con
 ok(filtered.field === "tech,data" && filtered.job_type === "contract" && filtered.level === "entry" && filtered.pay === "true"
   && filtered.posted === "week" && filtered.page === "3", "filters and page number go to the API");
 ok(!("page" in params(jobsUrl("GH", S({ page: 1 })))), "page 1 sends no page");
+ok(params(jobsUrl("GH", S({ skills: ["python", "french"] }))).skill === "python,french", "skills go to the API");
+ok(params(jobsUrl("GH", S({}), 20, true)).facets === "true" && !("facets" in params(jobsUrl("GH", S({})))), "skill counts only when asked");
 ok(jobsUrl("GH", S({})).startsWith("/api/careers/v1/jobs?"), "same-site API address");
 
 // --- the page address keeps the reader's choices (Back button, shared links)
-const round = S({ kind: "remote", q: "nurse", fields: ["support"], types: ["part_time"], levels: ["senior"], pay: true, posted: "day", page: 4 });
+const round = S({ kind: "remote", q: "nurse", fields: ["support"], skills: ["health", "french"], types: ["part_time"], levels: ["senior"], pay: true, posted: "day", page: 4 });
 ok(JSON.stringify(readState(writeState(round))) === JSON.stringify(round), "address round-trips every choice");
+ok(JSON.stringify(readState(new URLSearchParams("skill=python,plumbing,python")).skills) === '["python"]', "unknown skills dropped from the address");
 ok(writeState(EMPTY_STATE).toString() === "", "no choices = plain address");
 const junk = readState(new URLSearchParams("kind=evil&field=tech,plumbing,tech&type=gig&level=senior&posted=year&page=-2&pay=yes"));
 ok(junk.kind === "all" && JSON.stringify(junk.fields) === '["tech"]' && junk.types.length === 0 && junk.levels[0] === "senior"
   && junk.posted === null && junk.page === 1 && junk.pay === false, "unknown address values are dropped");
 ok(readState(new URLSearchParams("page=999")).page === 1, "page beyond the API limit falls back to 1");
-ok(filterCount(round) === 5 && filterCount(EMPTY_STATE) === 0, "filter count for the Filters button");
+ok(filterCount(round) === 7 && filterCount(EMPTY_STATE) === 0, "filter count for the Filters button (skills included)");
+
+// --- skills: same list as the API, busiest first, chosen ones never vanish
+const apiSkills = [...readFileSync("careers-service/app/main.py", "utf8").matchAll(/^    "([a-z_]+)": r"/gm)].map((m) => m[1]);
+ok(JSON.stringify(apiSkills) === JSON.stringify(Object.keys(SKILLS)), "skills match careers-service SKILLS, same order");
+const ranked = rankedSkills({ python: 3, sales: 40, french: 0, ai_training: 40 }, ["french"]);
+ok(ranked.join(" ") === "ai_training sales python french", "ranked by jobs; ties keep list order; empty skills hidden unless chosen");
+ok(rankedSkills(null).length === Object.keys(SKILLS).length, "no counts yet: every skill");
+ok(skillLabel("ai_training") === "AI training" && skillLabel("nope") === null, "skill labels");
 
 // --- page buttons fit a phone (at most 7)
 const items = (c: number, n: number) => pageItems(c, n).join(" ");
@@ -59,6 +71,7 @@ ok(postedAgo("2026-11-02T12:00:00Z", now) === "5 days ago", "posted 5 days ago")
 ok(postedAgo("2026-10-17T12:00:00Z", now) === "3 weeks ago", "posted 3 weeks ago");
 ok(postedAgo("2026-09-01T12:00:00Z", now) === "2 months ago", "posted 2 months ago");
 ok(postedAgo(null, now) === "" && postedAgo("nonsense", now) === "", "unknown date shows nothing");
+ok(isNew("2026-11-06T13:00:00Z", now) && !isNew("2026-11-05T11:00:00Z", now) && !isNew(null, now), "New badge for the last 2 days");
 ok(openToText(["GH", "NG"]) === "Ghana and Nigeria" && openToText(["NG"]) === "Nigeria" && openToText(["KE"]) === "", "open-to text");
 ok(workModeLabel("remote") === "Work from home" && workModeLabel("onsite") === "At the office" && workModeLabel("unknown") === null, "work mode words");
 ok(jobTypeLabel({ job_type: "full_time", employment_type: "FullTime" }) === "Full-time", "job type in plain words");

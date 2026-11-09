@@ -9,6 +9,8 @@ Endpoints (prefix /api/careers/v1):
 from __future__ import annotations
 
 import logging
+import re
+import time
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Query, Response
@@ -21,7 +23,7 @@ from .db import close_pool, connection, ready_check
 from .errors import ApiError
 from .errors import install as install_errors
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 
 
 @asynccontextmanager
@@ -67,6 +69,7 @@ class JobSummary(BaseModel):
     job_type: str | None                 # JOB_TYPES, from the source's employment type
     level: str                           # LEVELS, from the title's own words
     categories: list[str]
+    skills: list[str]                    # SKILLS keys found in the title or categories
 
 
 class JobPage(BaseModel):
@@ -75,6 +78,7 @@ class JobPage(BaseModel):
     page: int
     pages: int
     freshness_note: str
+    skill_counts: dict[str, int] | None = None   # only with facets=true: jobs per skill, other filters kept
 
 
 FRESHNESS = "Every job shows where it came from. Apply on the source's own page. Lists are re-checked several times a day."
@@ -96,6 +100,54 @@ SELECT id, title, company_name, company_logo_url, summary, apply_url, source_url
  LIMIT %(limit)s OFFSET %(offset)s
 """
 COUNT_SQL = "SELECT count(*) AS n FROM careers.public_jobs WHERE {where}"
+
+# Skills (owner request 9 Nov 2026), matched on the job's title and the source's categories only:
+# feed summaries open with the company's own blurb ("Canonical is a cloud company…"), which put
+# sales jobs under Cloud. Patterns are PostgreSQL regexes (\m \M = word edges) and fixed here;
+# nothing the reader sends is ever used as a pattern. Order = order shown when counts are equal.
+SKILLS = {
+    "ai_training": r"annotat|label(l)?ing|\mai (trainer|tutor|training|rater)|rlhf|\mraters?\M|\mevaluators?\M",
+    "ai": r"machine learning|\mml\M|\mllms?\M|deep learning|artificial intelligence|\mai (engineer|research|scientist|developer)|generative ai|genai|\mnlp\M",
+    "python": r"\mpython\M",
+    "web": r"javascript|typescript|\mreact\M|node\.?js|front-?end|full-?stack|\mphp\M|laravel|web develop",
+    "mobile": r"\mandroid\M|\mios\M|flutter|react native|kotlin|\mswift\M|mobile (app|develop|engineer)",
+    "data_analysis": r"data analy|analytics|power ?bi|tableau|business intelligence",
+    "cloud": r"\maws\M|azure|\mgcp\M|cloud|devops|kubernetes|docker|\msre\M",
+    "security": r"cyber|security (engineer|analyst|operations)|infosec|penetration|\msoc\M|information security",
+    "design": r"\mux\M|\mui\M|user experience|figma|graphic|photoshop|illustrat|canva|product design|\mdesigners?\M",
+    "video": r"video|photo|motion graphic|\mvfx\M|animat",
+    "writing": r"copywrit|content (writ|creat|strateg|market)|\mwriters?\M|\mblog|\meditors?\M|proofread",
+    "translation": r"translat|locali[sz]|interpret|bilingual|linguist|transcri",
+    "french": r"\mfrench\M|francophone",
+    "social": r"social media|\mseo\M|\msem\M|google ads|\mppc\M|digital marketing|performance marketing|community manag",
+    # Not the "Sales and Marketing" category alone (a Marketing Designer is not a sales job).
+    "sales": r"\msales\M(?! (and|&) marketing)|business development|account executive|\mbdr\M|\msdr\M|telesales",
+    "support": r"customer (service|support|success|care|experience)|call cent|help ?desk|client (service|support)",
+    "recruiting": r"recruit|talent acqui|human resources|\mhr\M|people (ops|operations|partner)",
+    "accounting": r"account(ing|ant)|bookkeep|\mtax\M|\maudit|payroll|\mifrs\M",
+    "project": r"project manag|program(me)? manag|scrum|agile|product manag",
+    "assistant": r"virtual assistant|executive assistant|administrative|admin(istrative)? assistant|data entry|office manag",
+    "teaching": r"\mteach|tutor|instructor|lecturer|curriculum",
+    "health": r"\mnurs|medical|clinic|pharma|healthcare|physician|doctor|\mmidwi|caregiv",
+    "logistics": r"logistic|supply chain|warehouse|procure|dispatch|\mdrivers?\M|fleet",
+}
+SKILL_TEXT = "(title || ' | ' || array_to_string(categories, ' '))"
+# The same patterns for the card's skill tags and the counts, in Python's dialect (word edges are \b).
+SKILL_RES = {k: re.compile(v.replace(r"\m", r"\b").replace(r"\M", r"\b"), re.IGNORECASE) for k, v in SKILLS.items()}
+# Counts are worked out here from the matching jobs' titles and categories: 23 regexes per row
+# in PostgreSQL cost ~0.45 s on staging, in Python a few milliseconds.
+FACETS_SQL = "SELECT title, categories FROM careers.public_jobs WHERE {where}"
+
+
+def job_skills(title: str, categories: list[str]) -> list[str]:
+    text = f"{title} | {' '.join(categories)}"
+    return [k for k, rx in SKILL_RES.items() if rx.search(text)]
+
+
+# Skill counts for the same filters are kept for 5 minutes (as long as browsers keep the answer):
+# counting runs the patterns over every matching job (~0.35 s for all ~2,400).
+FACETS_TTL = 300
+_facets_cache: dict[str, tuple[float, dict[str, int]]] = {}
 
 
 def _choices(name: str, raw: str | None, allowed: tuple[str, ...]) -> list[str]:
@@ -142,8 +194,10 @@ def list_jobs(
     field: str | None = Query(default=None, max_length=120),
     job_type: str | None = Query(default=None, max_length=60),
     level: str | None = Query(default=None, max_length=40),
+    skill: str | None = Query(default=None, max_length=300),
     pay: bool = Query(default=False),
     posted: str | None = Query(default=None, pattern="^(day|week|month)$"),
+    facets: bool = Query(default=False),
     limit: int = Query(default=20, ge=1, le=settings.max_page_size),
     page: int = Query(default=1, ge=1, le=MAX_PAGE),
 ) -> JobPage:
@@ -170,13 +224,35 @@ def list_jobs(
     if posted:
         where.append("posted_at >= now() - %(posted)s::interval")
         params["posted"] = POSTED[posted]
+    # Skill counts keep every other filter but not the skill one, so the reader sees what each
+    # skill would give before tapping it.
+    facets_where = " AND ".join(where)
+    picked_skills = _choices("skill", skill, tuple(SKILLS))
+    if picked_skills:
+        where.append(f"{SKILL_TEXT} ~* %(skill_re)s")
+        params["skill_re"] = "|".join(f"({SKILLS[k]})" for k in picked_skills)
     sql_where = " AND ".join(where)
 
+    skill_counts = None
     with connection() as conn, conn.cursor() as cur:
         cur.execute(LIST_SQL.format(where=sql_where), params)
         rows = cur.fetchall()
         cur.execute(COUNT_SQL.format(where=sql_where), params)
         total = cur.fetchone()["n"]
+        if facets:
+            key = facets_where + repr(sorted((k, str(v)) for k, v in params.items() if k not in ("limit", "offset", "skill_re")))
+            hit = _facets_cache.get(key)
+            if hit and time.monotonic() - hit[0] < FACETS_TTL:
+                skill_counts = hit[1]
+            else:
+                cur.execute(FACETS_SQL.format(where=facets_where), params)
+                skill_counts = dict.fromkeys(SKILLS, 0)
+                for r in cur.fetchall():
+                    for k in job_skills(r["title"], list(r["categories"] or [])):
+                        skill_counts[k] += 1
+                if len(_facets_cache) >= 500:
+                    _facets_cache.clear()
+                _facets_cache[key] = (time.monotonic(), skill_counts)
         conn.rollback()      # read-only; nothing to keep
 
     items = [JobSummary(
@@ -188,11 +264,13 @@ def list_jobs(
         closes_at=r["valid_through"].isoformat() if r["valid_through"] and not r["closes_estimated"] else None,
         open_to=list(r["open_to"] or []), open_evidence=dict(r["open_evidence"] or {}),
         field=r["field"], job_type=r["job_type"], level=r["level"], categories=list(r["categories"] or [])[:3],
+        skills=job_skills(r["title"], list(r["categories"] or [])),
     ) for r in rows]
     # Public, identical for everyone: let nginx/Cloudflare and browsers keep it for a few minutes.
     response.headers["Cache-Control"] = "public, max-age=300"
     response.headers["X-Robots-Tag"] = "noindex"
-    return JobPage(items=items, total=total, page=page, pages=max(1, -(-total // limit)), freshness_note=FRESHNESS)
+    return JobPage(items=items, total=total, page=page, pages=max(1, -(-total // limit)), freshness_note=FRESHNESS,
+                   skill_counts=skill_counts)
 
 
 @app.get(f"{settings.api_prefix}/me", tags=["account"])
