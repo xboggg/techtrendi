@@ -49,6 +49,44 @@ export type Level = keyof typeof LEVELS;
 export const POSTED = { day: "Today", week: "This week", month: "This month" } as const;
 export type Posted = keyof typeof POSTED;
 
+// Skills, as the API matches them on the job's title and categories (careers-service main.py SKILLS).
+export const SKILLS = {
+  ai_training: "AI training",
+  ai: "AI & machine learning",
+  python: "Python",
+  web: "Web development",
+  mobile: "Mobile apps",
+  data_analysis: "Data analysis",
+  cloud: "Cloud & DevOps",
+  security: "Cybersecurity",
+  design: "UI/UX & graphic design",
+  video: "Video & photo",
+  writing: "Writing & content",
+  translation: "Translation & languages",
+  french: "French",
+  social: "Social media & SEO",
+  sales: "Sales",
+  support: "Customer support",
+  recruiting: "Recruiting & HR",
+  accounting: "Accounting",
+  project: "Project management",
+  assistant: "Virtual assistant & admin",
+  teaching: "Teaching & tutoring",
+  health: "Nursing & health",
+  logistics: "Logistics & driving",
+} as const;
+export type Skill = keyof typeof SKILLS;
+export const skillLabel = (s: string): string | null => (SKILLS as Record<string, string>)[s] ?? null;
+
+/** Skills with jobs, most jobs first (ties keep the SKILLS order); chosen ones always stay in. */
+export function rankedSkills(counts: Partial<Record<string, number>> | null | undefined, chosen: Skill[] = []): Skill[] {
+  const keys = Object.keys(SKILLS) as Skill[];
+  if (!counts) return keys;
+  return keys
+    .filter((k) => (counts[k] ?? 0) > 0 || chosen.includes(k))
+    .sort((a, b) => (counts[b] ?? 0) - (counts[a] ?? 0));
+}
+
 export interface Job {
   id: string;
   title: string;
@@ -72,6 +110,7 @@ export interface Job {
   job_type: string | null;
   level: string;
   categories: string[];
+  skills?: string[];
 }
 
 export interface JobPage {
@@ -80,6 +119,7 @@ export interface JobPage {
   page: number;
   pages: number;
   freshness_note: string;
+  skill_counts?: Record<string, number> | null;
 }
 
 /** Everything the reader has chosen, apart from the country (remembered in the browser). */
@@ -87,6 +127,7 @@ export interface BoardState {
   kind: JobKind;
   q: string;
   fields: Field[];
+  skills: Skill[];
   types: JobType[];
   levels: Level[];
   pay: boolean;
@@ -94,7 +135,7 @@ export interface BoardState {
   page: number;
 }
 
-export const EMPTY_STATE: BoardState = { kind: "all", q: "", fields: [], types: [], levels: [], pay: false, posted: null, page: 1 };
+export const EMPTY_STATE: BoardState = { kind: "all", q: "", fields: [], skills: [], types: [], levels: [], pay: false, posted: null, page: 1 };
 
 const pick = <K extends string>(raw: string | null, allowed: Record<K, string>): K[] =>
   [...new Set((raw ?? "").split(",").map((v) => v.trim()).filter((v): v is K => v in allowed))];
@@ -109,6 +150,7 @@ export function readState(sp: URLSearchParams): BoardState {
     kind: kind === "remote" || kind === "local" ? kind : "all",
     q: (sp.get("q") ?? "").slice(0, 200),
     fields: pick(sp.get("field"), FIELDS),
+    skills: pick(sp.get("skill"), SKILLS),
     types: pick(sp.get("type"), JOB_TYPES),
     levels: pick(sp.get("level"), LEVELS),
     pay: sp.get("pay") === "1",
@@ -123,6 +165,7 @@ export function writeState(s: BoardState): URLSearchParams {
   if (s.kind !== "all") p.set("kind", s.kind);
   if (s.q.trim()) p.set("q", s.q.trim());
   if (s.fields.length) p.set("field", s.fields.join(","));
+  if (s.skills.length) p.set("skill", s.skills.join(","));
   if (s.types.length) p.set("type", s.types.join(","));
   if (s.levels.length) p.set("level", s.levels.join(","));
   if (s.pay) p.set("pay", "1");
@@ -133,12 +176,12 @@ export function writeState(s: BoardState): URLSearchParams {
 
 /** How many filters (inside the Filters panel) are on. */
 export function filterCount(s: BoardState): number {
-  return s.fields.length + s.types.length + s.levels.length + (s.pay ? 1 : 0) + (s.posted ? 1 : 0);
+  return s.fields.length + s.skills.length + s.types.length + s.levels.length + (s.pay ? 1 : 0) + (s.posted ? 1 : 0);
 }
 
 /** The API request for one page. "All" = open to the reader's country; "Work from home" = also
  *  remote; "In Ghana/Nigeria" = the job's own location is there (and it is not remote). */
-export function jobsUrl(country: Country, s: BoardState, limit = PAGE_SIZE): string {
+export function jobsUrl(country: Country, s: BoardState, limit = PAGE_SIZE, facets = false): string {
   const p = new URLSearchParams();
   if (s.kind === "local") p.set("located", country);
   else p.set("country", country);
@@ -146,12 +189,14 @@ export function jobsUrl(country: Country, s: BoardState, limit = PAGE_SIZE): str
   const words = s.q.trim().slice(0, 200);
   if (words) p.set("q", words);
   if (s.fields.length) p.set("field", s.fields.join(","));
+  if (s.skills.length) p.set("skill", s.skills.join(","));
   if (s.types.length) p.set("job_type", s.types.join(","));
   if (s.levels.length) p.set("level", s.levels.join(","));
   if (s.pay) p.set("pay", "true");
   if (s.posted) p.set("posted", s.posted);
   if (s.page > 1) p.set("page", String(s.page));
   p.set("limit", String(limit));
+  if (facets) p.set("facets", "true");
   return `${CAREERS_API}/jobs?${p.toString()}`;
 }
 
@@ -182,6 +227,13 @@ export function postedAgo(iso: string | null, now: Date = new Date()): string {
   if (days < 60) return `${Math.floor(days / 7)} weeks ago`;
   const months = Math.floor(days / 30);
   return months === 1 ? "1 month ago" : `${months} months ago`;
+}
+
+/** Posted in the last 2 days: the card gets a "New" badge. */
+export function isNew(iso: string | null, now: Date = new Date()): boolean {
+  if (!iso) return false;
+  const t = Date.parse(iso);
+  return !Number.isNaN(t) && now.getTime() - t < 2 * 86_400_000;
 }
 
 /** "7 Jan 2027"; "" when unknown. */
