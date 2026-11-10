@@ -33,6 +33,7 @@ interface ScamAlert {
   description: string;
   affected_platforms: string[];
   what_to_do: string;
+  image_url?: string | null;
   created_at: string;
 }
 
@@ -453,6 +454,19 @@ export default function ScamAlerts() {
 
                   {/* Description */}
                   <p className="text-muted-foreground leading-relaxed mb-4">{alert.description}</p>
+
+                  {/* Screenshot of the scam message, if we have one */}
+                  {alert.image_url && (
+                    <a href={alert.image_url} target="_blank" rel="noopener" className="block mb-4">
+                      <img
+                        src={alert.image_url}
+                        alt={`Screenshot of the scam message: ${alert.title}`}
+                        loading="lazy"
+                        className="mx-auto max-h-[420px] w-auto max-w-full rounded-lg border border-border"
+                      />
+                      <span className="block text-center text-xs text-muted-foreground mt-1.5">Tap to see the full picture</span>
+                    </a>
+                  )}
 
                   {/* Affected Platforms */}
                   {alert.affected_platforms && alert.affected_platforms.length > 0 && (

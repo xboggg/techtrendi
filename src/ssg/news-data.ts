@@ -189,7 +189,7 @@ export async function securityPageLoader() {
   if (!import.meta.env.SSR) return null;
   const [alerts, threatRows, articleRows] = await Promise.all([
     sbFetch(
-      "security_scam_alerts?select=id,title,description,scam_type,severity,emoji,what_to_do,affected_platforms,created_at&is_published=eq.true&is_active=eq.true&order=created_at.desc&limit=6"
+      "security_scam_alerts?select=id,title,description,scam_type,severity,emoji,what_to_do,affected_platforms,image_url,created_at&is_published=eq.true&is_active=eq.true&order=created_at.desc&limit=6"
     ),
     sbFetch(
       "security_threat_level?select=level,title,description,active_threats,updated_at&order=updated_at.desc&limit=1"
