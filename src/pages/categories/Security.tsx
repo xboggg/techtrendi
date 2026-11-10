@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DailyTip } from "@/components/security/DailyTip";
 import { DailyQuizWidget } from "@/components/security/DailyQuizWidget";
 import { ShareWithFamily } from "@/components/security/ShareWithFamily";
+import { ScamScreenshot } from "@/components/security/ScamScreenshot";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { checkMessage } from "@/lib/scamPatterns";
 import { getRiskScore, type StoredRiskScore } from "@/lib/riskScoreStorage";
@@ -784,11 +785,7 @@ export default function Security() {
                 )}
                 <p className="text-[15px] text-muted-foreground leading-relaxed mt-4 whitespace-pre-line">{selectedAlert.description}</p>
                 {selectedAlert.image_url && (
-                  <a href={selectedAlert.image_url} target="_blank" rel="noopener" className="block mt-4">
-                    <img src={selectedAlert.image_url} alt={`Screenshot of the scam message: ${selectedAlert.title}`} loading="lazy"
-                      className="mx-auto max-h-[420px] w-auto max-w-full rounded-xl border border-border" />
-                    <span className="block text-center text-xs text-muted-foreground mt-1.5">Tap to see the full picture</span>
-                  </a>
+                  <ScamScreenshot src={selectedAlert.image_url} title={selectedAlert.title} className="mt-4" />
                 )}
                 {selectedAlert.what_to_do && (
                   <div className="mt-5 rounded-2xl border-l-4 border-emerald-500 bg-emerald-500/10 p-4">
