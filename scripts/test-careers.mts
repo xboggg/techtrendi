@@ -47,8 +47,8 @@ ok(readState(new URLSearchParams("page=999")).page === 1, "page beyond the API l
 ok(filterCount(round) === 7 && filterCount(EMPTY_STATE) === 0, "filter count for the Filters button (skills included)");
 
 // --- skills: same list as the API, busiest first, chosen ones never vanish
-const apiSkills = [...readFileSync("careers-service/app/main.py", "utf8").matchAll(/^    "([a-z_]+)": r"/gm)].map((m) => m[1]);
-ok(JSON.stringify(apiSkills) === JSON.stringify(Object.keys(SKILLS)), "skills match careers-service SKILLS, same order");
+const apiSkills = [...readFileSync("careers-service/app/skills.py", "utf8").matchAll(/^    "([a-z_]+)": r"/gm)].map((m) => m[1]);
+ok(JSON.stringify(apiSkills) === JSON.stringify(Object.keys(SKILLS)), "skills match careers-service app/skills.py SKILLS, same order");
 const ranked = rankedSkills({ python: 3, sales: 40, french: 0, ai_training: 40 }, ["french"]);
 ok(ranked.join(" ") === "ai_training sales python french", "ranked by jobs; ties keep list order; empty skills hidden unless chosen");
 ok(rankedSkills(null).length === Object.keys(SKILLS).length, "no counts yet: every skill");

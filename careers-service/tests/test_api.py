@@ -174,6 +174,38 @@ def test_jobs_skills(client, published):
         assert r.status_code == 422 and r.json()["code"] == "validation_error", bad
 
 
+def test_jobs_by_ids(client, published):
+    a, b = client.get(f"{PREFIX}/jobs").json()["items"]
+    got = client.get(f"{PREFIX}/jobs", params={"ids": f"{b['id']},{a['id'].upper()}"}).json()
+    assert [j["title"] for j in got["items"]] == ["Data Analyst 100%_off", "Branch Manager"] and got["total"] == 2
+    gone = "00000000-0000-4000-8000-000000000000"
+    assert client.get(f"{PREFIX}/jobs", params={"ids": gone}).json()["total"] == 0     # closed = just missing
+    for bad in ({"ids": "1"}, {"ids": ","}, {"ids": ",".join([gone] * 51)}, {"ids": "x' OR 1=1--"}):
+        r = client.get(f"{PREFIX}/jobs", params=bad)
+        assert r.status_code == 422 and r.json()["code"] == "validation_error", bad
+
+
+def test_share_page(client, published, migrator, source):
+    a = client.get(f"{PREFIX}/jobs").json()["items"][0]
+    r = client.get(f"{PREFIX}/share/{a['id']}")
+    assert r.status_code == 200 and r.headers["content-type"].startswith("text/html")
+    assert r.headers["X-Robots-Tag"] == "noindex"
+    t = r.text
+    assert '<meta property="og:title" content="Data Analyst 100%_off at Acme | TechTrendi Jobs">' in t
+    assert "USD 10 / hour · Work from home · Open to people in Ghana and Nigeria." in t
+    assert f'content="0; url=https://techtrendi.com/careers?job={a["id"]}"' in t and "<script" not in t
+    # Words from the source are escaped, never markup
+    with migrator.cursor() as cur:
+        cur.execute("UPDATE careers.jobs SET company_name = %s WHERE external_id = 'a'", ('"><script>alert(1)</script>',))
+    migrator.commit()
+    t = client.get(f"{PREFIX}/share/{a['id']}").text
+    assert "<script" not in t and "&lt;script&gt;" in t
+    # Unknown or closed jobs, and junk ids: a plain page that sends people to the board
+    for jid in ("00000000-0000-4000-8000-000000000000", "not-a-job", "%3Cb%3E"):
+        t = client.get(f"{PREFIX}/share/{jid}").text
+        assert "no longer listed" in t and 'url=https://techtrendi.com/careers"' in t and "<b>" not in t
+
+
 @pytest.mark.parametrize("title,cats,want", [
     ("Freelance AI Trainer (Latvian)", [], ["ai_training"]),
     ("Senior Front-End Developer", ["Developer"], ["web"]),

@@ -18,7 +18,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 ADMIN_URL = os.environ.get("CAREERS_TEST_ADMIN_URL", "")
 TABLES_AFTER_UP = {"schema_migrations", "sources", "source_rights", "source_runs", "work_items", "audit_events",
-                   "jobs", "job_eligibility"}
+                   "jobs", "job_eligibility", "channel_posts"}
 
 
 def _run(url, *args):
@@ -51,12 +51,12 @@ def scratch_db(urls):  # depends on urls so group roles exist first
 def test_up_then_partial_down_then_up(scratch_db):
     r = _run(scratch_db, "up"); assert r.returncode == 0, r.stderr
     r = _run(scratch_db, "status"); assert r.returncode == 0
-    assert r.stdout.count("applied") == 8 and "pending" not in r.stdout and "!!" not in r.stdout
+    assert r.stdout.count("applied") == 9 and "pending" not in r.stdout and "!!" not in r.stdout
     assert _tables(scratch_db) == TABLES_AFTER_UP
 
-    r = _run(scratch_db, "down", "002"); assert r.returncode == 0, r.stderr      # reverts 008 … 002
+    r = _run(scratch_db, "down", "002"); assert r.returncode == 0, r.stderr      # reverts 009 … 002
     assert _tables(scratch_db) == {"schema_migrations"}
-    r = _run(scratch_db, "status"); assert r.stdout.count("pending") == 7
+    r = _run(scratch_db, "status"); assert r.stdout.count("pending") == 8
 
     r = _run(scratch_db, "up"); assert r.returncode == 0, r.stderr
     assert _tables(scratch_db) == TABLES_AFTER_UP

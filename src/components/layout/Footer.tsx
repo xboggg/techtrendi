@@ -53,6 +53,7 @@ const footerLinks = {
     { label: "TechTrendi News", href: "/news" },
     { label: "TechTrendi Blog", href: "/blog" },
     { label: "TechTrendi Tools", href: "/tools" },
+    { label: "TechTrendi Jobs", href: "/careers" },
     // Ghana data bundles, only once launched (src/data/dataBundlesRoute.ts).
     ...(() => { const db = dataBundlesLink(); return db ? [{ label: db.footerLabel, href: db.href }] : []; })(),
     { label: "TechTrendi DigiStore", href: "/store" },

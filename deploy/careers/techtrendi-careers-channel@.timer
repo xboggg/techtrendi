@@ -1,0 +1,13 @@
+# /etc/systemd/system/techtrendi-careers-channel@.timer
+# Jobs channel posts at 07:00, 12:00 and 18:00 Ghana time (= UTC).
+#   systemctl enable --now techtrendi-careers-channel@staging.timer
+[Unit]
+Description=TechTrendi Careers jobs channel posts (%i)
+
+[Timer]
+OnCalendar=*-*-* 07,12,18:00:00 UTC
+RandomizedDelaySec=120
+Persistent=false
+
+[Install]
+WantedBy=timers.target
