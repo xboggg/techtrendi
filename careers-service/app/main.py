@@ -4,17 +4,20 @@ Endpoints (prefix /api/careers/v1):
   GET /health   — process is up; no database, no secrets
   GET /ready    — database answers through the API role
   GET /jobs     — published jobs (careers.public_jobs only), newest first, numbered pages, filters
+  GET /share/{id} — tiny page with the job's title for WhatsApp/Facebook link previews; sends people
+                  on to the board (nginx serves it at techtrendi.com/careers/job/{id})
   GET /me       — proves JWT verification works; returns the caller's id only
 """
 from __future__ import annotations
 
+import html
 import logging
 import re
 import time
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Query, Response
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 
 from .auth import CurrentUser, require_user
@@ -22,6 +25,7 @@ from .config import get_settings
 from .db import close_pool, connection, ready_check
 from .errors import ApiError
 from .errors import install as install_errors
+from .skills import SKILL_TEXT, SKILLS, job_skills
 
 VERSION = "0.4.0"
 
@@ -101,47 +105,9 @@ SELECT id, title, company_name, company_logo_url, summary, apply_url, source_url
 """
 COUNT_SQL = "SELECT count(*) AS n FROM careers.public_jobs WHERE {where}"
 
-# Skills (owner request 9 Nov 2026), matched on the job's title and the source's categories only:
-# feed summaries open with the company's own blurb ("Canonical is a cloud company…"), which put
-# sales jobs under Cloud. Patterns are PostgreSQL regexes (\m \M = word edges) and fixed here;
-# nothing the reader sends is ever used as a pattern. Order = order shown when counts are equal.
-SKILLS = {
-    "ai_training": r"annotat|label(l)?ing|\mai (trainer|tutor|training|rater)|rlhf|\mraters?\M|\mevaluators?\M",
-    "ai": r"machine learning|\mml\M|\mllms?\M|deep learning|artificial intelligence|\mai (engineer|research|scientist|developer)|generative ai|genai|\mnlp\M",
-    "python": r"\mpython\M",
-    "web": r"javascript|typescript|\mreact\M|node\.?js|front-?end|full-?stack|\mphp\M|laravel|web develop",
-    "mobile": r"\mandroid\M|\mios\M|flutter|react native|kotlin|\mswift\M|mobile (app|develop|engineer)",
-    "data_analysis": r"data analy|analytics|power ?bi|tableau|business intelligence",
-    "cloud": r"\maws\M|azure|\mgcp\M|cloud|devops|kubernetes|docker|\msre\M",
-    "security": r"cyber|security (engineer|analyst|operations)|infosec|penetration|\msoc\M|information security",
-    "design": r"\mux\M|\mui\M|user experience|figma|graphic|photoshop|illustrat|canva|product design|\mdesigners?\M",
-    "video": r"video|photo|motion graphic|\mvfx\M|animat",
-    "writing": r"copywrit|content (writ|creat|strateg|market)|\mwriters?\M|\mblog|\meditors?\M|proofread",
-    "translation": r"translat|locali[sz]|interpret|bilingual|linguist|transcri",
-    "french": r"\mfrench\M|francophone",
-    "social": r"social media|\mseo\M|\msem\M|google ads|\mppc\M|digital marketing|performance marketing|community manag",
-    # Not the "Sales and Marketing" category alone (a Marketing Designer is not a sales job).
-    "sales": r"\msales\M(?! (and|&) marketing)|business development|account executive|\mbdr\M|\msdr\M|telesales",
-    "support": r"customer (service|support|success|care|experience)|call cent|help ?desk|client (service|support)",
-    "recruiting": r"recruit|talent acqui|human resources|\mhr\M|people (ops|operations|partner)",
-    "accounting": r"account(ing|ant)|bookkeep|\mtax\M|\maudit|payroll|\mifrs\M",
-    "project": r"project manag|program(me)? manag|scrum|agile|product manag",
-    "assistant": r"virtual assistant|executive assistant|administrative|admin(istrative)? assistant|data entry|office manag",
-    "teaching": r"\mteach|tutor|instructor|lecturer|curriculum",
-    "health": r"\mnurs|medical|clinic|pharma|healthcare|physician|doctor|\mmidwi|caregiv",
-    "logistics": r"logistic|supply chain|warehouse|procure|dispatch|\mdrivers?\M|fleet",
-}
-SKILL_TEXT = "(title || ' | ' || array_to_string(categories, ' '))"
-# The same patterns for the card's skill tags and the counts, in Python's dialect (word edges are \b).
-SKILL_RES = {k: re.compile(v.replace(r"\m", r"\b").replace(r"\M", r"\b"), re.IGNORECASE) for k, v in SKILLS.items()}
 # Counts are worked out here from the matching jobs' titles and categories: 23 regexes per row
 # in PostgreSQL cost ~0.45 s on staging, in Python a few milliseconds.
 FACETS_SQL = "SELECT title, categories FROM careers.public_jobs WHERE {where}"
-
-
-def job_skills(title: str, categories: list[str]) -> list[str]:
-    text = f"{title} | {' '.join(categories)}"
-    return [k for k, rx in SKILL_RES.items() if rx.search(text)]
 
 
 # Skill counts for the same filters are kept for 5 minutes (as long as browsers keep the answer):
@@ -166,6 +132,9 @@ PLACES = {
     "GH": r"\m(ghana|accra|kumasi|tema|takoradi|tamale|cape coast)\M",
     "NG": r"\m(nigeria|lagos|abuja|port harcourt|ibadan|kano|warri|benin city|enugu)\M",
 }
+
+
+UUID_RE = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 
 
 def _like(q: str) -> str:
@@ -195,6 +164,7 @@ def list_jobs(
     job_type: str | None = Query(default=None, max_length=60),
     level: str | None = Query(default=None, max_length=40),
     skill: str | None = Query(default=None, max_length=300),
+    ids: str | None = Query(default=None, max_length=50 * 37),
     pay: bool = Query(default=False),
     posted: str | None = Query(default=None, pattern="^(day|week|month)$"),
     facets: bool = Query(default=False),
@@ -202,6 +172,13 @@ def list_jobs(
     page: int = Query(default=1, ge=1, le=MAX_PAGE),
 ) -> JobPage:
     where, params = ["true"], {"limit": limit, "offset": (page - 1) * limit}
+    if ids is not None:
+        # Shared links and the reader's saved jobs: up to 50 job ids; closed ones simply don't come back.
+        wanted = [v.strip().lower() for v in ids.split(",") if v.strip()]
+        if not wanted or len(wanted) > 50 or any(not UUID_RE.fullmatch(v) for v in wanted):
+            raise ApiError(422, "validation_error", "Request is invalid", {"ids": "use up to 50 job ids, comma separated"})
+        where.append("id = ANY(%(ids)s::uuid[])")
+        params["ids"] = wanted
     if country:
         where.append("%(country)s = ANY(open_to)")
         params["country"] = country.upper()
@@ -271,6 +248,67 @@ def list_jobs(
     response.headers["X-Robots-Tag"] = "noindex"
     return JobPage(items=items, total=total, page=page, pages=max(1, -(-total // limit)), freshness_note=FRESHNESS,
                    skill_counts=skill_counts)
+
+
+SITE = "https://techtrendi.com"
+COUNTRY_WORDS = {"GH": "Ghana", "NG": "Nigeria"}
+# Plain page (no CSS, no script): crawlers read the tags, people are sent straight to the board.
+SHARE_HTML = """<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title>
+<meta name="robots" content="noindex, follow">
+<meta name="description" content="{desc}">
+<link rel="canonical" href="{board}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TechTrendi">
+<meta property="og:url" content="{url}">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{desc}">
+<meta property="og:image" content="{image}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{desc}">
+<meta name="twitter:image" content="{image}">
+<meta http-equiv="refresh" content="0; url={board}">
+</head><body>
+<p><a href="{board}">See this job on TechTrendi Careers</a></p>
+</body></html>
+"""
+
+
+def share_page(job_id: str, row: dict | None) -> str:
+    if row:
+        title = f"{row['title']} at {row['company_name']} | TechTrendi Jobs"
+        where = "Work from home" if row["work_mode"] == "remote" else (row["location_text"] or "")
+        open_to = " and ".join(COUNTRY_WORDS[c] for c in (row["open_to"] or []) if c in COUNTRY_WORDS)
+        bits = [row["salary_text"] or "", where, f"Open to people in {open_to}" if open_to else ""]
+        desc = " · ".join(b for b in bits if b) + ". Free to apply on the employer's own page."
+        board = f"{SITE}/careers?job={job_id}"
+    else:
+        title = "This job is no longer listed | TechTrendi Jobs"
+        desc = "See the latest jobs open to people in Ghana and Nigeria."
+        board = f"{SITE}/careers"
+    e = lambda s: html.escape(s, quote=True)
+    return SHARE_HTML.format(title=e(title), desc=e(desc), board=e(board), url=e(f"{SITE}/careers/job/{job_id}"),
+                             image=e(f"{SITE}/og-careers.jpg"))
+
+
+@app.get(f"{settings.api_prefix}/share/{{job_id}}", response_class=HTMLResponse, tags=["jobs"])
+def share(job_id: str) -> HTMLResponse:
+    row = None
+    jid = job_id.strip().lower()
+    if UUID_RE.fullmatch(jid):
+        with connection() as conn, conn.cursor() as cur:
+            cur.execute("SELECT title, company_name, salary_text, work_mode, location_text, open_to "
+                        "FROM careers.public_jobs WHERE id = %s", (jid,))
+            row = cur.fetchone()
+            conn.rollback()
+    else:
+        jid = ""
+    return HTMLResponse(share_page(jid, row), headers={"Cache-Control": "public, max-age=300", "X-Robots-Tag": "noindex"})
 
 
 @app.get(f"{settings.api_prefix}/me", tags=["account"])

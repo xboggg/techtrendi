@@ -49,7 +49,7 @@ export type Level = keyof typeof LEVELS;
 export const POSTED = { day: "Today", week: "This week", month: "This month" } as const;
 export type Posted = keyof typeof POSTED;
 
-// Skills, as the API matches them on the job's title and categories (careers-service main.py SKILLS).
+// Skills, as the API matches them on the job's title and categories (careers-service app/skills.py).
 export const SKILLS = {
   ai_training: "AI training",
   ai: "AI & machine learning",
@@ -181,6 +181,9 @@ export function filterCount(s: BoardState): number {
 
 /** The API request for one page. "All" = open to the reader's country; "Work from home" = also
  *  remote; "In Ghana/Nigeria" = the job's own location is there (and it is not remote). */
+/** Particular jobs by id (a shared link, the saved list); closed ones are simply not returned. */
+export const jobsByIdUrl = (ids: string[]) => `${CAREERS_API}/jobs?ids=${ids.filter(isJobId).slice(0, 50).join(",")}&limit=50`;
+
 export function jobsUrl(country: Country, s: BoardState, limit = PAGE_SIZE, facets = false): string {
   const p = new URLSearchParams();
   if (s.kind === "local") p.set("located", country);
@@ -276,6 +279,56 @@ export function evidenceText(raw: string | undefined): string | null {
 export function openToText(codes: string[]): string {
   const names = codes.filter((c): c is Country => c === "GH" || c === "NG").map((c) => COUNTRY_NAME[c]);
   return names.join(" and ");
+}
+
+// --- Sharing and saving (owner, 10 Nov 2026) ---
+
+const JOB_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const isJobId = (v: string | null | undefined): v is string => !!v && JOB_ID.test(v);
+
+/** The link people share: a small page with the job's own title for WhatsApp/Facebook previews,
+ *  which sends them on to the board with the job shown (careers-service GET /share/{id}). */
+export const shareUrl = (id: string) => `https://techtrendi.com/careers/job/${id}`;
+export const shareText = (job: Pick<Job, "title" | "company">) => `${job.title} at ${job.company}`;
+export const whatsappUrl = (job: Pick<Job, "id" | "title" | "company">) =>
+  `https://wa.me/?text=${encodeURIComponent(`${shareText(job)} – see it on TechTrendi Jobs: ${shareUrl(job.id)}`)}`;
+export const telegramUrl = (job: Pick<Job, "id" | "title" | "company">) =>
+  `https://t.me/share/url?url=${encodeURIComponent(shareUrl(job.id))}&text=${encodeURIComponent(shareText(job))}`;
+
+/** Saved jobs stay on the reader's own phone (browser storage): no account, nothing sent to us.
+ *  A copy of each job is kept so the list still shows if the job later closes. */
+export const SAVED_KEY = "tt_careers_saved";
+export const SAVED_MAX = 100;
+
+export function readSaved(store: Pick<Storage, "getItem"> | null = safeStorage()): Job[] {
+  try {
+    const raw = store?.getItem(SAVED_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list.filter((j) => j && isJobId(j.id) && typeof j.title === "string").slice(0, SAVED_MAX) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function writeSaved(list: Job[], store: Pick<Storage, "setItem"> | null = safeStorage()): void {
+  try {
+    store?.setItem(SAVED_KEY, JSON.stringify(list.slice(0, SAVED_MAX)));
+  } catch {
+    /* private mode or full: saving just doesn't last */
+  }
+}
+
+/** Saved list with this job added (newest first) or removed. */
+export function toggleSaved(list: Job[], job: Job): Job[] {
+  return list.some((j) => j.id === job.id) ? list.filter((j) => j.id !== job.id) : [job, ...list].slice(0, SAVED_MAX);
+}
+
+function safeStorage(): Storage | null {
+  try {
+    return typeof window === "undefined" ? null : window.localStorage;
+  } catch {
+    return null;
+  }
 }
 
 /** Only https links leave the page (the API already refuses others; belt and braces). */

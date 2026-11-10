@@ -39,11 +39,12 @@ interface NavLink {
   submenu?: { label: string; href: string }[];
 }
 
-// Pillar-aligned: News (Africa Tech) → Online Safety → Tools, then Blog + Store.
+// Pillar-aligned: News (Africa Tech) → Online Safety → Tools → Jobs, then Blog + Store.
 const navLinks: NavLink[] = [
   { label: "Africa Tech", href: "/news", icon: Globe },
   { label: "Online Safety", href: "/security", icon: Shield, isHot: true },
   { label: "Tools", href: "/tools", icon: Zap },
+  { label: "Jobs", href: "/careers", icon: Briefcase },
   {
     label: "Blog",
     href: "/blog",
@@ -102,7 +103,7 @@ export function Header() {
               <span className={`text-xl font-bold ${isOverHero ? "text-white" : "text-foreground"}`}>
                 Tech<span className={isOverHero ? "text-purple-400" : "text-gradient"}>Trendi</span>
               </span>
-              <span className={`flex items-center gap-1 text-[9px] md:text-[10px] font-medium tracking-wide uppercase ${isOverHero ? "text-white/70" : "text-muted-foreground"}`}>
+              <span className={`flex items-center gap-1 whitespace-nowrap text-[9px] md:text-[10px] font-medium tracking-wide uppercase ${isOverHero ? "text-white/70" : "text-muted-foreground"}`}>
                 Ghana's Tech Hub
                 {/* One SVG for both breakpoints. Mobile used a 🇬🇭 emoji,
                     which Windows cannot render — it showed as the letters
@@ -123,7 +124,8 @@ export function Header() {
               >
                 <Link
                   to={link.href}
-                  className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  // px-3 below 1536px: with Jobs added (10 Nov 2026) six links must fit on one line at 1280px.
+                  className={`flex items-center gap-1.5 whitespace-nowrap px-3 2xl:px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive(link.href)
                       ? isOverHero ? "text-white bg-white/20 shadow-sm" : "text-primary bg-primary/10 shadow-sm"
                       : isOverHero ? "text-white/80 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"

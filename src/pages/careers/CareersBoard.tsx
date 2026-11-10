@@ -9,28 +9,29 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
-  Briefcase, ChevronDown, ChevronLeft, ChevronRight, ExternalLink, Globe2, Home, MapPin, Search, ShieldAlert,
-  SlidersHorizontal, Sparkles, TrendingUp, Wallet, X,
+  BookOpen, Briefcase, Check, ChevronDown, ChevronLeft, ChevronRight, ExternalLink, Globe2, Heart, Home, Link as LinkIcon, MapPin,
+  Search, Share2, ShieldAlert, SlidersHorizontal, Sparkles, TrendingUp, Wallet, X,
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useAssistantOutOfWay } from "@/components/careers/useAssistantOutOfWay";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import {
   CAREERS_BASE, CAREERS_NOINDEX, COUNTRY_NAME, EMPTY_STATE, FIELDS, JOB_TYPES, LEVELS, POSTED, SKILLS,
-  evidenceText, fieldLabel, filterCount, isNew, jobTypeLabel, jobsUrl, levelLabel, pageItems, postedAgo, rankedSkills,
-  readState, safeLink, shortDate, skillLabel, workModeLabel, writeState,
+  evidenceText, fieldLabel, filterCount, isJobId, isNew, jobTypeLabel, jobsByIdUrl, jobsUrl, levelLabel, pageItems, postedAgo,
+  rankedSkills, readSaved, readState, safeLink, shareText, shareUrl, shortDate, skillLabel, telegramUrl, toggleSaved,
+  whatsappUrl, workModeLabel, writeSaved, writeState,
   type BoardState, type Country, type Field, type Job, type JobKind, type JobPage, type JobType, type Level, type Posted,
   type Skill,
 } from "@/lib/careers";
 
 const COUNTRY_KEY = "tt_careers_country";
-/** Skills shown on the top panel before "More skills" (fewer on phones), and in the Filters panel before "Show all". */
+/** Skills shown on the top panel before "More skills" (fewer on phones). */
 const TOP_SKILLS = 6;
 const TOP_SKILLS_PHONE = 4;
-const PANEL_SKILLS = 10;
 
 function readCountry(): Country {
   try {
@@ -219,8 +220,48 @@ function Detail({ label, children }: { label: string; children: React.ReactNode 
   );
 }
 
-function JobCard({ job, country, onToggle, index }: { job: Job; country: Country; onToggle: () => void; index: number }) {
+function ShareRow({ job, onDone }: { job: Job; onDone: () => void }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl(job.id));
+      setCopied(true);
+      window.setTimeout(() => { setCopied(false); onDone(); }, 1800);
+    } catch {
+      window.prompt("Copy this link:", shareUrl(job.id));
+    }
+  };
+  const item = "inline-flex min-h-[40px] flex-1 items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3 text-sm font-semibold transition-colors hover:bg-muted";
+  return (
+    <div className="cr-rise flex gap-2" data-testid="share-row">
+      <a href={whatsappUrl(job)} target="_blank" rel="noopener" className={cn(item, "text-emerald-700 dark:text-emerald-400")} data-testid="share-whatsapp">WhatsApp</a>
+      <a href={telegramUrl(job)} target="_blank" rel="noopener" className={cn(item, "text-sky-700 dark:text-sky-400")} data-testid="share-telegram">Telegram</a>
+      <button type="button" onClick={copy} className={item} data-testid="share-copy">
+        {copied ? <><Check aria-hidden className="h-4 w-4" /> Copied</> : <><LinkIcon aria-hidden className="h-4 w-4" /> Copy link</>}
+      </button>
+    </div>
+  );
+}
+
+function JobCard({ job, country, onToggle, index, saved, onSave, closed, highlight }: {
+  job: Job; country: Country; onToggle: () => void; index: number; saved: boolean; onSave: (job: Job) => void;
+  /** A saved job that is no longer listed. */ closed?: boolean;
+  /** The job someone shared with the reader. */ highlight?: boolean;
+}) {
   const [open, setOpen] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  // Phones: the phone's own share menu (WhatsApp, Telegram, SMS…); elsewhere a row of choices.
+  const share = async () => {
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title: shareText(job), text: shareText(job), url: shareUrl(job.id) });
+      } catch {
+        /* closed without sharing */
+      }
+      return;
+    }
+    setSharing((s) => !s);
+  };
   const apply = safeLink(job.apply_url);
   const home = safeLink(job.source_home);
   const remote = job.work_mode === "remote";
@@ -238,7 +279,11 @@ function JobCard({ job, country, onToggle, index }: { job: Job; country: Country
 
   return (
     <article
-      className="cr-card group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-sm transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg motion-reduce:hover:translate-y-0"
+      className={cn(
+        "cr-card group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-sm transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg motion-reduce:hover:translate-y-0",
+        highlight && "border-amber-400 ring-2 ring-amber-300/60",
+        closed && "opacity-70",
+      )}
       style={{ "--cr-i": Math.min(index, 10) } as React.CSSProperties}
       data-testid="job-card"
     >
@@ -309,14 +354,30 @@ function JobCard({ job, country, onToggle, index }: { job: Job; country: Country
         {open ? "See less" : "See more"} <ChevronDown aria-hidden className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
       </button>
 
-      <div className="mt-auto flex flex-col gap-2 pt-2 sm:flex-row sm:items-center sm:justify-between">
-        {apply && (
-          <Button asChild className="min-h-[44px] w-full sm:w-auto">
-            <a href={apply} target="_blank" rel="noopener" data-testid="apply-link">
-              Apply{job.source_name ? ` on ${job.source_name}` : ""} <ExternalLink className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </a>
-          </Button>
-        )}
+      <div className="mt-auto flex flex-col gap-2 pt-2">
+        {closed && <p className="text-sm font-semibold text-muted-foreground" data-testid="job-closed">This job is no longer listed. It may have closed.</p>}
+        <div className="flex gap-2">
+          {apply && !closed && (
+            <Button asChild className="min-h-[44px] min-w-0 flex-1">
+              <a href={apply} target="_blank" rel="noopener" data-testid="apply-link">
+                <span className="truncate">Apply{job.source_name ? ` on ${job.source_name}` : ""}</span> <ExternalLink className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
+              </a>
+            </Button>
+          )}
+          <button type="button" onClick={() => onSave(job)} aria-pressed={saved} data-testid="save-job"
+            aria-label={saved ? "Remove from saved jobs" : "Save this job"}
+            className={cn("inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors",
+              saved ? "border-rose-300 bg-rose-50 text-rose-600 dark:border-rose-500/40 dark:bg-rose-950/40 dark:text-rose-400" : "border-border bg-card text-foreground hover:bg-muted")}>
+            <Heart aria-hidden className={cn("h-5 w-5", saved && "cr-pop fill-current")} />
+          </button>
+          {!closed && (
+            <button type="button" onClick={share} aria-expanded={sharing} data-testid="share-job" aria-label="Share this job"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-foreground transition-colors hover:bg-muted">
+              <Share2 aria-hidden className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+        {sharing && <ShareRow job={job} onDone={() => setSharing(false)} />}
         <p className="text-xs text-muted-foreground">
           {when && <>Posted {when} · </>}
           {job.source_name && (home
@@ -370,6 +431,36 @@ function FilterGroup({ title, hint, children }: { title: string; hint?: string; 
 
 interface Stats { total: number; today: number; remote: number }
 
+/** Story-desk guides for job seekers (owner, 10 Nov 2026), shown once they are published.
+ *  Matched on the title's own words, so a small change before publishing still finds them. */
+const TIP_TITLES = ["title.ilike.%fake job%", "title.ilike.%CV%remote job%"];
+
+function JobTips() {
+  const [tips, setTips] = useState<{ slug: string; title: string }[]>([]);
+  useEffect(() => {
+    let alive = true;
+    supabase.from("articles").select("slug, title").eq("is_published", true).or(TIP_TITLES.join(","))
+      .order("created_at", { ascending: false }).limit(4)
+      .then(({ data }) => { if (alive && data) setTips(data.slice(0, 2)); });
+    return () => { alive = false; };
+  }, []);
+  if (tips.length === 0) return null;
+  return (
+    <div className="cr-rise mt-3 rounded-xl border border-border bg-card p-3" data-testid="job-tips">
+      <p className="flex items-center gap-1.5 text-sm font-bold text-foreground"><BookOpen aria-hidden className="h-4 w-4 text-primary" /> Job tips</p>
+      <ul className="mt-1.5 space-y-1">
+        {tips.map((t) => (
+          <li key={t.slug}>
+            <Link to={`/blog/${t.slug}`} className="inline-flex min-h-[36px] items-center gap-1 text-sm font-semibold text-primary underline-offset-2 hover:underline">
+              {t.title} <ChevronRight aria-hidden className="h-4 w-4 shrink-0" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export default function CareersBoard() {
   const [params, setParams] = useSearchParams();
   // The prerendered shell is built with no address choices, so the first render in the browser
@@ -386,8 +477,17 @@ export default function CareersBoard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [allSkillsOpen, setAllSkillsOpen] = useState(false);
+  // One bottom panel, two contents (owner, 10 Nov: skills and filters looked like "the same thing"):
+  // "skills" = every skill with its count; "filters" = area of work, type, level, pay, date.
+  const [panel, setPanel] = useState<"skills" | "filters" | null>(null);
+  const filtersOpen = panel !== null;
+  // After a skill tap or "Show N jobs", take the reader down to the list once it has updated.
+  const jumpToList = useRef(false);
+  // Saved jobs (this browser only) and the job someone shared with the reader (?job=<id>).
+  const [saved, setSaved] = useState<Job[]>([]);
+  const [savedOpen, setSavedOpen] = useState(false);
+  const [stillListed, setStillListed] = useState<Set<string> | null>(null);
+  const [shared, setShared] = useState<{ id: string; job: Job | null; loaded: boolean } | null>(null);
   const [opened, setOpened] = useState(0);
   const request = useRef<AbortController | null>(null);
   const listTop = useRef<HTMLDivElement | null>(null);
@@ -395,8 +495,39 @@ export default function CareersBoard() {
 
   useAssistantOutOfWay(`${data?.page}-${data?.total}-${opened}-${filtersOpen}`);
 
-  // Remembered country (browser only; the preview is never prerendered).
-  useEffect(() => { setCountry(readCountry()); }, []);
+  // Remembered country and saved jobs (browser only, read after the prerendered first paint).
+  useEffect(() => { setCountry(readCountry()); setSaved(readSaved()); }, []);
+  const savedIds = useMemo(() => new Set(saved.map((j) => j.id)), [saved]);
+  const onSave = useCallback((job: Job) => {
+    setSaved((list) => {
+      const next = toggleSaved(list, job);
+      writeSaved(next);
+      return next;
+    });
+  }, []);
+
+  // A shared link lands here as /careers?job=<id>: show that job above everything else.
+  const sharedId = mounted ? params.get("job") : null;
+  useEffect(() => {
+    if (!isJobId(sharedId) || shared?.id === sharedId) return;
+    setShared({ id: sharedId, job: null, loaded: false });
+    fetch(jobsByIdUrl([sharedId]), { headers: { Accept: "application/json" } })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((p: JobPage) => setShared({ id: sharedId, job: p.items[0] ?? null, loaded: true }))
+      .catch(() => setShared({ id: sharedId, job: null, loaded: true }));
+  }, [sharedId, shared?.id]);
+
+  // Opening the saved list: check which saved jobs are still listed.
+  useEffect(() => {
+    if (!savedOpen || saved.length === 0) return;
+    const ctrl = new AbortController();
+    fetch(jobsByIdUrl(saved.slice(0, 50).map((j) => j.id)), { signal: ctrl.signal, headers: { Accept: "application/json" } })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((p: JobPage) => setStillListed(new Set(p.items.map((j) => j.id))))
+      .catch(() => { /* unknown: show them all as listed */ });
+    return () => ctrl.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per opening
+  }, [savedOpen]);
 
   /** New choices start again at page 1; the address is replaced (not a new Back step). */
   const update = useCallback((patch: Partial<BoardState>, push = false) => {
@@ -469,6 +600,17 @@ export default function CareersBoard() {
     if (top !== undefined && top < 96) window.scrollTo({ top: Math.max(0, window.scrollY + top - 96), behavior: "instant" as ScrollBehavior });
   }, [shownPage]);
 
+  const goToList = useCallback(() => {
+    const top = listTop.current?.getBoundingClientRect().top;
+    if (top !== undefined) window.scrollTo({ top: Math.max(0, window.scrollY + top - 88) });
+  }, []);
+  // The list for a new skill or filter has arrived (and no panel covers it): show it.
+  useEffect(() => {
+    if (!jumpToList.current || loading || panel !== null) return;
+    jumpToList.current = false;
+    goToList();
+  }, [loading, panel, shownUrl, goToList]);
+
   const name = COUNTRY_NAME[country];
   const pickCountry = (c: Country) => { setCountry(c); saveCountry(c); update({}); };
   const nFilters = filterCount(state);
@@ -483,9 +625,15 @@ export default function CareersBoard() {
   // Top panel: the chosen skills first, then the busiest ones, up to TOP_SKILLS.
   const topSkills = [...state.skills, ...skillsRanked.filter((s) => !state.skills.includes(s))].slice(0, Math.max(TOP_SKILLS, state.skills.length));
   const moreSkills = Math.max(0, skillsRanked.length - topSkills.length);
-  // Filters panel: the busiest skills plus any chosen ones, until "Show all skills".
-  const panelSkills = allSkillsOpen ? skillsRanked : skillsRanked.filter((s, i) => i < PANEL_SKILLS || state.skills.includes(s));
   const toggleSkill = (s: Skill) => update({ skills: toggle(state.skills, s) });
+  /** A skill tapped on the top panel: the list below changes, so go and show it. */
+  const tapTopSkill = (s: Skill) => { jumpToList.current = true; toggleSkill(s); };
+  /** The Filters button counts only what is inside the Filters panel (skills have their own). */
+  const nPanelFilters = nFilters - state.skills.length;
+  const closePanel = (showList: boolean) => {
+    if (showList) jumpToList.current = true;
+    setPanel(null);
+  };
 
   const activeChips: { key: string; label: string; clear: () => void }[] = [
     ...state.skills.map((s) => ({ key: `s-${s}`, label: SKILLS[s], clear: () => toggleSkill(s) })),
@@ -509,6 +657,25 @@ export default function CareersBoard() {
         noindexFollow
       />
       <div className="container mx-auto max-w-5xl px-4 pb-16 pt-4 md:pt-8">
+        {shared && (
+          <section aria-label="Job shared with you" className="mb-4" data-testid="shared-job">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <h2 className="text-sm font-bold uppercase tracking-wide text-amber-700 dark:text-amber-300">Shared with you</h2>
+              <button type="button" onClick={() => setShared(null)} aria-label="Hide the shared job"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted">
+                <X aria-hidden className="h-4 w-4" />
+              </button>
+            </div>
+            {!shared.loaded
+              ? <div aria-hidden className="h-56 animate-pulse rounded-2xl border border-border bg-muted/50" />
+              : shared.job
+                ? <JobCard job={shared.job} index={0} country={country} highlight saved={savedIds.has(shared.job.id)} onSave={onSave}
+                    onToggle={() => setOpened((n) => n + 1)} />
+                : <p className="rounded-2xl border border-border bg-card p-4 text-sm text-foreground" data-testid="shared-gone">
+                    That job is no longer listed. It may have closed. Here are other jobs open to people in {name}.
+                  </p>}
+          </section>
+        )}
         <section aria-label="Choose jobs"
           className="relative isolate overflow-hidden rounded-3xl bg-gradient-to-br from-[#081536] via-[#0c2366] to-[#1446c4] px-4 pb-4 pt-5 text-white shadow-xl shadow-blue-900/20 sm:px-8 sm:pb-8 sm:pt-9"
           data-testid="careers-hero">
@@ -580,16 +747,16 @@ export default function CareersBoard() {
             </label>
             <button
               type="button"
-              onClick={() => setFiltersOpen(true)}
+              onClick={() => setPanel("filters")}
               data-testid="filters-open"
               className={cn(
                 "cr-shine inline-flex min-h-[52px] shrink-0 items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-300 via-amber-400 to-orange-400 px-4 text-[15px] font-extrabold text-slate-900 transition-transform hover:scale-[1.03] active:scale-95 motion-reduce:transform-none",
-                nFilters === 0 && "cr-glow",
+                nPanelFilters === 0 && "cr-glow",
               )}
             >
               <SlidersHorizontal aria-hidden className="h-5 w-5" />
               Filters
-              {nFilters > 0 && <span className="flex h-6 min-w-[24px] items-center justify-center rounded-full bg-slate-900 px-1.5 text-xs font-bold text-amber-300" data-testid="filters-count">{nFilters}</span>}
+              {nPanelFilters > 0 && <span className="flex h-6 min-w-[24px] items-center justify-center rounded-full bg-slate-900 px-1.5 text-xs font-bold text-amber-300" data-testid="filters-count">{nPanelFilters}</span>}
             </button>
           </div>
 
@@ -605,13 +772,13 @@ export default function CareersBoard() {
                 : (
                   <>
                     {topSkills.map((s, i) => (
-                      <SkillPill key={s} active={state.skills.includes(s)} onClick={() => toggleSkill(s)} count={skillCounts[s]} testId={`skill-top-${s}`}
+                      <SkillPill key={s} active={state.skills.includes(s)} onClick={() => tapTopSkill(s)} count={skillCounts[s]} testId={`skill-top-${s}`}
                         className={cn(i >= TOP_SKILLS_PHONE && !state.skills.includes(s) && "hidden sm:inline-flex")}>
                         {SKILLS[s]}
                       </SkillPill>
                     ))}
                     {(moreSkills > 0 || topSkills.length > TOP_SKILLS_PHONE) && (
-                      <button type="button" onClick={() => { setAllSkillsOpen(true); setFiltersOpen(true); }} data-testid="skills-more"
+                      <button type="button" onClick={() => setPanel("skills")} data-testid="skills-more"
                         className="inline-flex min-h-[40px] items-center gap-1 rounded-full px-2 text-[13px] font-bold text-amber-300 underline-offset-4 hover:underline sm:text-sm">
                         More skills <ChevronRight aria-hidden className="h-4 w-4" />
                       </button>
@@ -640,13 +807,21 @@ export default function CareersBoard() {
           <ShieldAlert aria-hidden className="mt-0.5 h-5 w-5 shrink-0" />
           <p>Never pay money to get a job. Real employers do not charge fees. <Link to="/report-scam" className="font-semibold underline underline-offset-2">Report a fake job</Link></p>
         </div>
+        {mounted && <JobTips />}
 
         <div ref={listTop} />
-        <p className="mt-5 text-sm font-semibold text-foreground" aria-live="polite" data-testid="count">
-          {total === null ? "Loading jobs…"
-            : total === 0 ? (nFilters ? "No jobs match these filters. Try removing one." : "No jobs match yet. Try another word or tab.")
-            : <>{fmt(total)} {total === 1 ? "job" : "jobs"}{data && data.pages > 1 && <span className="font-normal text-muted-foreground"> · page {data.page} of {fmt(data.pages)}</span>}</>}
-        </p>
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-foreground" aria-live="polite" data-testid="count">
+            {total === null ? "Loading jobs…"
+              : total === 0 ? (nFilters ? "No jobs match these filters. Try removing one." : "No jobs match yet. Try another word or tab.")
+              : <>{fmt(total)} {total === 1 ? "job" : "jobs"}{data && data.pages > 1 && <span className="font-normal text-muted-foreground"> · page {data.page} of {fmt(data.pages)}</span>}</>}
+          </p>
+          <button type="button" onClick={() => { setStillListed(null); setSavedOpen(true); }} data-testid="saved-open"
+            className="inline-flex min-h-[40px] shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted">
+            <Heart aria-hidden className={cn("h-4 w-4", saved.length > 0 && "fill-rose-500 text-rose-500")} />
+            Saved{saved.length > 0 && <span className="text-muted-foreground" data-testid="saved-count">{saved.length}</span>}
+          </button>
+        </div>
 
         {failed && (
           <div className="mt-3 rounded-xl border border-border bg-card p-4 text-sm" role="alert" data-testid="load-error">
@@ -657,7 +832,8 @@ export default function CareersBoard() {
 
         {/* Keyed by the request shown, so each new list rises in, card by card. */}
         <div key={shownUrl} className={cn("mt-3 grid grid-cols-1 gap-3 transition-opacity [overflow-anchor:none] md:grid-cols-2", busy && jobs.length > 0 && "opacity-50")} data-testid="job-list" aria-busy={busy}>
-          {jobs.map((j, i) => <JobCard key={j.id} job={j} index={i} country={country} onToggle={() => setOpened((n) => n + 1)} />)}
+          {jobs.map((j, i) => <JobCard key={j.id} job={j} index={i} country={country} saved={savedIds.has(j.id)} onSave={onSave}
+            onToggle={() => setOpened((n) => n + 1)} />)}
           {busy && jobs.length === 0 && Array.from({ length: 4 }, (_, i) => (
             <div key={i} aria-hidden className="h-56 animate-pulse rounded-2xl border border-border bg-muted/50" />
           ))}
@@ -671,27 +847,31 @@ export default function CareersBoard() {
         </p>
       </div>
 
-      <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+      <Sheet open={filtersOpen} onOpenChange={(open) => { if (!open) closePanel(false); }}>
         {/* Phone: a panel from the bottom, full width. Wider screens (owner, 8 Nov 2026: full width
             "looks terrible" on a computer): a centred box, 640px wide, lifted off the bottom edge. */}
-        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl px-4 pb-0 pt-5 sm:bottom-6 sm:mx-auto sm:max-h-[80vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:px-6" data-testid="filters-panel">
+        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl px-4 pb-0 pt-5 sm:bottom-6 sm:mx-auto sm:max-h-[80vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:px-6"
+          data-testid="filters-panel" data-panel={panel ?? undefined}>
+          {panel === "skills" ? (
+            <>
+              <SheetHeader className="text-left">
+                <SheetTitle>Skills</SheetTitle>
+                <SheetDescription>Tap the skills you have. You can pick more than one. The number is how many jobs ask for it.</SheetDescription>
+              </SheetHeader>
+              <div className="mt-4 flex flex-wrap gap-2 pb-4" data-testid="skills-panel">
+                {skillsRanked.map((s) => (
+                  <Chip key={s} small active={state.skills.includes(s)} onClick={() => toggleSkill(s)} testId={`skill-${s}`}
+                    count={skillCounts ? skillCounts[s] ?? 0 : undefined}>{SKILLS[s]}</Chip>
+                ))}
+              </div>
+            </>
+          ) : (
+          <>
           <SheetHeader className="text-left">
             <SheetTitle>Filters</SheetTitle>
-            <SheetDescription>Pick as many as you like. The list updates as you tap.</SheetDescription>
+            <SheetDescription>Narrow the list by type of work, job type, level, pay and date. The list updates as you tap.</SheetDescription>
           </SheetHeader>
           <div className="mt-4 space-y-4 pb-4">
-            <FilterGroup title="Skills" hint="The number is how many jobs ask for it.">
-              {panelSkills.map((s) => (
-                <Chip key={s} small active={state.skills.includes(s)} onClick={() => toggleSkill(s)} testId={`skill-${s}`}
-                  count={skillCounts ? skillCounts[s] ?? 0 : undefined}>{SKILLS[s]}</Chip>
-              ))}
-              {panelSkills.length < skillsRanked.length && (
-                <button type="button" onClick={() => setAllSkillsOpen(true)} data-testid="skills-all"
-                  className="inline-flex min-h-[44px] items-center gap-1 px-2 text-sm font-bold text-primary">
-                  Show all {skillsRanked.length} skills <ChevronDown aria-hidden className="h-4 w-4" />
-                </button>
-              )}
-            </FilterGroup>
             <FilterGroup title="Area of work">
               {(Object.keys(FIELDS) as Field[]).map((f) => (
                 <Chip key={f} small active={state.fields.includes(f)} onClick={() => update({ fields: toggle(state.fields, f) })} testId={`field-${f}`}>{FIELDS[f]}</Chip>
@@ -717,12 +897,35 @@ export default function CareersBoard() {
               ))}
             </FilterGroup>
           </div>
+          </>
+          )}
           <div className="sticky bottom-0 -mx-4 flex gap-2 border-t border-border bg-background px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:-mx-6 sm:px-6 sm:pb-4">
-            <Button variant="outline" className="min-h-[48px]" onClick={clearFilters} disabled={!nFilters}>Clear all</Button>
-            <Button className="min-h-[48px] flex-1" onClick={() => setFiltersOpen(false)} data-testid="filters-done">
+            <Button variant="outline" className="min-h-[48px]"
+              onClick={panel === "skills" ? () => update({ skills: [] }) : () => update({ fields: [], types: [], levels: [], pay: false, posted: null })}
+              disabled={panel === "skills" ? state.skills.length === 0 : nPanelFilters === 0}>Clear</Button>
+            <Button className="min-h-[48px] flex-1" onClick={() => closePanel(true)} data-testid="filters-done">
               {busy ? "Updating…" : total === null ? "Show jobs" : `Show ${fmt(total)} ${total === 1 ? "job" : "jobs"}`}
             </Button>
           </div>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={savedOpen} onOpenChange={setSavedOpen}>
+        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl px-4 pb-6 pt-5 sm:bottom-6 sm:mx-auto sm:max-h-[80vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:px-6" data-testid="saved-panel">
+          <SheetHeader className="text-left">
+            <SheetTitle>Saved jobs</SheetTitle>
+            <SheetDescription>Saved on this phone or computer only. Tap the heart on any job to save it.</SheetDescription>
+          </SheetHeader>
+          {saved.length === 0
+            ? <p className="mt-6 text-sm text-muted-foreground" data-testid="saved-empty">No saved jobs yet. Tap the heart on a job you like, then find it here later.</p>
+            : (
+              <div className="mt-4 grid grid-cols-1 gap-3">
+                {saved.map((j, i) => (
+                  <JobCard key={j.id} job={j} index={i} country={country} saved onSave={onSave} onToggle={() => setOpened((n) => n + 1)}
+                    closed={stillListed !== null && !stillListed.has(j.id)} />
+                ))}
+              </div>
+            )}
         </SheetContent>
       </Sheet>
     </Layout>

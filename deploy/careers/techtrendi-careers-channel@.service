@@ -1,0 +1,27 @@
+# /etc/systemd/system/techtrendi-careers-channel@.service
+# One post of new jobs to the public TechTrendi Jobs Telegram channel (workers/channel.py).
+# Started by techtrendi-careers-channel@<instance>.timer. The instance name selects
+# /etc/techtrendi-careers/channel-<instance>.env, which sets CAREERS_WORKER_DATABASE_URL,
+# CAREERS_TG_BOT_TOKEN and CAREERS_TG_CHANNEL (root:techtrendi-careers 640; never in git).
+[Unit]
+Description=TechTrendi Careers jobs channel post (%i)
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=techtrendi-careers
+Group=techtrendi-careers
+WorkingDirectory=/opt/techtrendi-careers/current/careers-service
+EnvironmentFile=/etc/techtrendi-careers/channel-%i.env
+ExecStart=/opt/techtrendi-careers/venv/bin/python -m workers.channel
+TimeoutStartSec=180
+MemoryMax=192M
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/techtrendi-careers
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+StandardOutput=append:/var/log/techtrendi-careers/channel-%i.log
+StandardError=inherit
