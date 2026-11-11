@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Check, Facebook, Link2, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type EiTechMeme, eiTechDate, eiTechImage, eiTechWebp } from "@/data/eiTech";
+import { EiTechLaughButton, EiTechVote, useEiTechReactions } from "@/components/ei-tech/EiTechReactions";
 
 const SITE_URL = "https://techtrendi.com";
 export const EI_TECH_HUB_URL = `${SITE_URL}/ei-tech`;
@@ -16,7 +17,7 @@ const waHref = (text: string) => `https://wa.me/?text=${encodeURIComponent(text)
 // preview shows the right meme). The picture is fetched ahead of time when the
 // card comes near the screen, because iPhones refuse to open the share sheet if
 // we make them wait for a download after the tap.
-export function EiTechShare({ meme, className }: { meme: EiTechMeme; className?: string }) {
+export function EiTechShare({ meme, className, leading }: { meme: EiTechMeme; className?: string; leading?: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const fileRef = useRef<File | null>(null);
   const [copied, setCopied] = useState(false);
@@ -72,10 +73,11 @@ export function EiTechShare({ meme, className }: { meme: EiTechMeme; className?:
 
   return (
     <div ref={ref} className={cn("flex items-center gap-2", className)}>
+      {leading}
       <button
         type="button"
         onClick={share}
-        className="flex-1 inline-flex items-center justify-center gap-2 h-12 px-5 rounded-xl bg-[#25D366] text-white font-bold shadow-md hover:bg-[#1ebe5a] active:scale-[0.98] transition"
+        className="flex-1 min-w-0 inline-flex items-center justify-center gap-2 h-12 px-3 rounded-xl bg-[#25D366] text-white font-bold shadow-md hover:bg-[#1ebe5a] active:scale-[0.98] transition"
       >
         <Share2 className="w-5 h-5" /> Share
       </button>
@@ -84,7 +86,7 @@ export function EiTechShare({ meme, className }: { meme: EiTechMeme; className?:
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Share on Facebook"
-        className="inline-flex items-center justify-center w-12 h-12 shrink-0 rounded-xl bg-[#1877F2] text-white hover:bg-[#166fe0] transition-colors"
+        className="inline-flex items-center justify-center w-11 sm:w-12 h-12 shrink-0 rounded-xl bg-[#1877F2] text-white hover:bg-[#166fe0] transition-colors"
       >
         <Facebook className="w-5 h-5" />
       </a>
@@ -92,7 +94,7 @@ export function EiTechShare({ meme, className }: { meme: EiTechMeme; className?:
         type="button"
         onClick={copy}
         aria-label={copied ? "Link copied" : "Copy link"}
-        className="inline-flex items-center justify-center w-12 h-12 shrink-0 rounded-xl border border-border bg-card text-foreground hover:bg-muted transition-colors"
+        className="inline-flex items-center justify-center w-11 sm:w-12 h-12 shrink-0 rounded-xl border border-border bg-card text-foreground hover:bg-muted transition-colors"
       >
         {copied ? <Check className="w-5 h-5 text-emerald-500" /> : <Link2 className="w-5 h-5" />}
       </button>
@@ -109,6 +111,7 @@ export function EiTechMemeCard({ meme, headingLevel = 2, linkTitle = false, eage
   eager?: boolean;
 }) {
   const H = headingLevel === 1 ? "h1" : "h2";
+  const { counts, mine, react } = useEiTechReactions(meme);
   const picture = (
     <picture>
       <source srcSet={eiTechWebp(meme)} type="image/webp" />
@@ -133,7 +136,12 @@ export function EiTechMemeCard({ meme, headingLevel = 2, linkTitle = false, eage
           <span className="shrink-0 text-xs text-muted-foreground">{eiTechDate(meme.date)}</span>
         </div>
         <p className="text-muted-foreground mt-1">{meme.caption}</p>
-        <EiTechShare meme={meme} className="mt-4" />
+        <EiTechVote meme={meme} counts={counts} mine={mine} onVote={(side) => react("vote", side)} />
+        <EiTechShare
+          meme={meme}
+          className="mt-4"
+          leading={<EiTechLaughButton count={counts ? counts.laugh : null} laughed={!!mine.laugh} onLaugh={() => react("laugh", "laugh")} />}
+        />
       </div>
     </article>
   );
