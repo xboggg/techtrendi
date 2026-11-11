@@ -24,6 +24,7 @@ Everything about running production techtrendi.com. Pair with
 | **DNS / CDN** | Cloudflare (proxied for static-asset caching) |
 | **Database** | `techtrendi` schema inside self-hosted Supabase docker stack |
 | **Process model** | Static files only — no Node, no PM2, no app server |
+| **Telegram desks** | `techtrendi-article-bot` service on 144 (`/opt/tech-news/article_bot.py`): story desk (articles) + Ei Tech! meme desk — see `NEWS_SERVICES_DOCUMENTATION.md` §4 |
 
 The same host also runs cyberabofra, trendimovies, trendicars,
 learn.techtrendi.com, etc. Don't restart shared services like `nginx`

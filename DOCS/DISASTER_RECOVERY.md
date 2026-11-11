@@ -48,6 +48,14 @@ What it backs up for techtrendi:
 | Nginx config (whole `/etc/nginx/sites-{available,enabled}/`) | included in `server-configs-<date>.tar.gz` | 5 days |
 | Let's Encrypt certs | included in `server-configs-<date>.tar.gz` | 5 days |
 
+Checked 2026-11-11 against the script: the webroot archive leaves out
+`images/`; instead, images changed in the last 8 days go up daily and ALL
+images weekly (so the Ei Tech! pictures in `images/ei-tech/` and scam-alert
+pictures in `images/scam-alerts/` are covered). The Supabase dump includes
+the `ei_tech_memes` / `ei_tech_reactions` tables, and `/opt/tech-news`
+(bots, story desk, meme desk incl. `meme_jobs/`) is archived daily without
+venvs/logs.
+
 A **databases-only** copy of the schema dump also lands in
 `gdrive:databases/144-main/<date>/techtrendi-schema-<date>.dump`
 (separate folder, easier to navigate when you just want a DB).

@@ -30,6 +30,50 @@
 
 ---
 
+## ⭐ LATEST CHANGES — 10–11 November 2026 (READ THIS)
+
+### Ei Tech! — funny tech memes at `/ei-tech` (repo `xboggg/techtrendi`, PRs #15–#18)
+- **What it is:** a meme feed. Each meme = our OWN picture (never a copied one) with the Ei Tech! bar,
+  a short title and one funny line. **We never explain a joke or tell people what to think** (owner's rule).
+  Hero with big animated "Ei Tech!"; homepage card after Creepy Tech (`src/components/home/EiTechHomeCard.tsx`);
+  footer link under Topics.
+- **Pages:** `/ei-tech` list (`src/pages/ei-tech/EiTechHub.tsx`, indexed, in the sitemap) and one page per meme
+  `/ei-tech/<slug>` (`EiTechMemePage.tsx`, noindex, kept out of the sitemap by `scripts/generate-sitemap.mjs`).
+  `/ei-tech?m=<slug>` scrolls the list to one meme.
+- **Data:** table `techtrendi.ei_tech_memes` (public reads `status = 'published'` only; drafts/binned hidden).
+  The build bakes the published list into `src/data/eiTechMemes.json` (`scripts/fetch-ei-tech.mjs`, keeps the
+  committed file if the database can't be reached) so pages prerender; in the browser the pages re-read the table
+  (`useEiTechMemes` in `src/data/eiTech.ts`), so a newly published meme shows at once. Until the next daily build
+  (11:30 UTC) a new meme has no page of its own; its links use `/ei-tech?m=<slug>`.
+- **Share button:** on phones it sends the meme PICTURE itself (Web Share with files) with "More jokes:
+  techtrendi.com/ei-tech"; elsewhere the meme's link (WhatsApp). Facebook + copy link buttons too.
+  Each meme has a 1200x630 share card (`<slug>-share.jpg`) used as its og:image.
+- **😂 laugh + optional Team vote** (`src/components/ei-tech/EiTechReactions.tsx`): every meme has a 😂 count;
+  memes with vote sides get "Which team are you?" (results after voting, can switch). Stored anonymously in
+  `techtrendi.ei_tech_reactions` only through SECURITY DEFINER functions `ei_tech_react` / `ei_tech_counts`
+  (visitors have no table access; one laugh + one vote per browser per meme; 120/min per meme cap; only
+  published memes). **Never rename a meme's slug or swap its vote sides after people have voted.**
+- **Adding memes = Telegram meme desk** (no code change, no deploy): see `NEWS_SERVICES_DOCUMENTATION.md` §4.
+- Migrations: `supabase/migrations/20261111_ei_tech_reactions.sql`, `20261111_ei_tech_memes.sql` (+ `_rollback`).
+
+### Scam alerts — a picture of the scam message (PRs #12, #13)
+- Column `security_scam_alerts.image_url` (optional). Shown by `src/components/security/ScamScreenshot.tsx`:
+  a framed "What the fake message looks like" panel with a "View full message" viewer, on `/scam-alerts` cards
+  and the `/security` pop-up. Pictures go in `/var/www/techtrendi/images/scam-alerts/` (crop to the scam message
+  only, red "FAKE - DO NOT CLICK" bar, under 300 KB). The admin Scam Alerts form has no picture field yet.
+- "Update the security section" with a scam screenshot means a **scam alert**, not an article.
+
+### /security page — hydration fix (PR #14)
+- The daily quiz picked its question (and the streak) from the visitor's date/localStorage during render, and
+  "Updated 3 days ago" used the clock, so whenever the visitor's day differed from the build day React redrew
+  the whole page (#418/#423). Now the first render matches the prerendered HTML and the real values fill in
+  after mount. **Rule for every prerendered page: never read the date, the clock or localStorage during render.**
+
+### Story desk (4–5 Nov) and meme desk (11 Nov) — Telegram
+- Both live in `@technews_highlight_bot` (`/opt/tech-news/article_bot.py`); details in `NEWS_SERVICES_DOCUMENTATION.md` §4.
+
+---
+
 ## ⭐ LATEST CHANGES — 31 October – 1 November 2026 (READ THIS)
 
 ### Website (repo `xboggg/techtrendi`)
