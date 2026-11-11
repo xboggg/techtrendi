@@ -45,9 +45,14 @@ const NAV = [
 const SEVERITY: Record<string, string> = {
   critical: "bg-red-500", high: "bg-red-500", medium: "bg-amber-500", low: "bg-emerald-500",
 };
-const timeAgo = (d?: string) => {
+// `now` is null on the prerender and the first (hydration) render: the page
+// was built on a different day than the visitor reads it, so "today" vs
+// "3 days ago" would differ from the static HTML and React would redraw the
+// whole page (#418/#423). Until mounted, show the fixed date instead.
+const timeAgo = (d: string | undefined, now: number | null) => {
   if (!d) return "recently";
-  const days = Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
+  if (now === null) return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+  const days = Math.floor((now - new Date(d).getTime()) / 86400000);
   if (days <= 0) return "today";
   if (days === 1) return "yesterday";
   if (days < 7) return `${days} days ago`;
@@ -300,12 +305,15 @@ export default function Security() {
   // has taken it before — never a fake/hardcoded number. null until we know
   // there ISN'T one (SSR has no localStorage, so this starts undefined).
   const [riskScore, setRiskScore] = useState<StoredRiskScore | null | undefined>(undefined);
+  // Visitor's clock for the "updated 3 days ago" labels — set after mount, see timeAgo.
+  const [now, setNow] = useState<number | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.15]);
 
   useEffect(() => {
     setRiskScore(getRiskScore());
+    setNow(Date.now());
   }, []);
 
   useEffect(() => {
@@ -410,7 +418,7 @@ export default function Security() {
                   </span>
                 </span>
               ) : (
-                <span className="text-xs text-white/40">· updated {timeAgo(threat?.updated_at)}</span>
+                <span className="text-xs text-white/40">· updated {timeAgo(threat?.updated_at, now)}</span>
               )}
               <ChevronRight className="w-3.5 h-3.5 text-white/40 group-hover:translate-x-0.5 transition-transform" />
             </motion.button>
@@ -487,7 +495,7 @@ export default function Security() {
               </div>
               <div className="flex items-baseline gap-1.5">
                 <span className="text-base font-semibold text-emerald-400">Updated</span>
-                <span className="text-sm text-white/45">{lastUpdated ? timeAgo(lastUpdated) : "regularly"}</span>
+                <span className="text-sm text-white/45">{lastUpdated ? timeAgo(lastUpdated, now) : "regularly"}</span>
               </div>
             </motion.div>
           </div>
@@ -562,7 +570,7 @@ export default function Security() {
             <div>
               <div className="flex items-center gap-2 mb-2"><span className="relative flex h-2.5 w-2.5"><span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-60 animate-ping" /><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" /></span><span className="text-xs font-bold tracking-[0.2em] uppercase text-red-500">Circulating now</span></div>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground">What's happening in Ghana right now</h2>
-              <p className="text-muted-foreground mt-2 flex items-center gap-1.5"><Clock className="w-4 h-4" /> Updated {timeAgo(alerts[0]?.created_at)} · verified by CSA, reported by the community</p>
+              <p className="text-muted-foreground mt-2 flex items-center gap-1.5"><Clock className="w-4 h-4" /> Updated {timeAgo(alerts[0]?.created_at, now)} · verified by CSA, reported by the community</p>
             </div>
             <Link to="/scam-alerts" className="inline-flex items-center gap-1.5 text-primary font-medium hover:gap-2.5 transition-all">See all alerts <ArrowRight className="w-4 h-4" /></Link>
           </Reveal>
@@ -655,7 +663,7 @@ export default function Security() {
                     {riskScore ? (
                       <>
                         <AnimatedCounter end={riskScore.score} duration={1.5} className="text-5xl font-black text-white" />
-                        <span className="text-xs text-white/50 mt-0.5">{timeAgo(riskScore.takenAt)}</span>
+                        <span className="text-xs text-white/50 mt-0.5">{timeAgo(riskScore.takenAt, now)}</span>
                       </>
                     ) : (
                       <>
