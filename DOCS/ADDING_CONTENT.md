@@ -134,6 +134,34 @@ then rebuild and redeploy.
 
 ---
 
+## 9. Add a scam alert (with a picture of the scam message)
+
+Scam alerts show on `/scam-alerts` and in "Circulating now" on `/security`
+(table `techtrendi.security_scam_alerts`, newest first). Add one in
+**Admin → Scam Alerts**. Plain words; end "what to do" with "report it to
+the CSA on 292"; write scam web addresses plainly, never as links.
+
+To show a picture of the scam message: crop the screenshot to the message
+only (no chat names), add a red "FAKE - DO NOT CLICK" bar, keep it under
+300 KB (.webp), put it in `/var/www/techtrendi/images/scam-alerts/` on the
+server and set the alert's `image_url` to `/images/scam-alerts/<file>.webp`
+(the admin form has no picture field yet). The site shows it as a
+"What the fake message looks like" panel. No deploy needed.
+
+---
+
+## 10. Add an Ei Tech! meme
+
+Send the meme picture to the TechTrendi Telegram group
+(@technews_highlight_bot), tap **😂 Yes, Ei Tech!**, check the preview,
+tap **✅ Publish**. That's all: no code, no deploy. Details:
+`NEWS_SERVICES_DOCUMENTATION.md` §4 "Ei Tech! meme desk".
+
+Rules: our own pictures only (remake a meme you like; never post a copied
+picture), and never explain the joke.
+
+---
+
 ## The deploy command (after any change above)
 
 From the project root on your laptop:

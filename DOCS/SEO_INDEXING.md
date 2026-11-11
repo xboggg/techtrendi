@@ -49,6 +49,13 @@ and shrunk the sitemap to ~166 URLs, which would be catastrophic for indexing.
 The build now fails instead, and a self-test keeps that guard in place. See
 [DEPLOY_SAFETY.md](DEPLOY_SAFETY.md).
 
+## Ei Tech! pages (2026-11-11)
+
+`/ei-tech` (the meme list) is indexed and in the sitemap. Single-meme pages
+`/ei-tech/<slug>` are `noindex, follow` and kept out of the sitemap: a page
+that is mostly one picture looks thin to Google and AdSense. Revisit only if
+memes get real written content.
+
 ## Fixed 2026-10-11
 
 ### Soft 404s

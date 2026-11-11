@@ -49,19 +49,28 @@ deploy/                # Server-side install + SSH gate scripts (canonical copie
 
 ## Routing
 
-Routes are defined in [`src/App.tsx`](../src/App.tsx) (or the dedicated
-router file referenced from there). Most pages are public — there is no
-authenticated user flow on the published site itself. The admin panel
-(article publishing, etc.) is at `/admin` and authenticates against
-Supabase.
+Routes are defined in [`src/ssg/routes.tsx`](../src/ssg/routes.tsx), the
+route table of `vite-react-ssg` (entry `src/main.tsx`). `src/App.tsx` is
+**no longer used** (kept for reference only) — a route added there does
+nothing. Most pages are public. The admin panel is at `/admin` and
+authenticates against Supabase.
 
 When adding a route:
 
 1. Create the component in `src/pages/`.
-2. Register it in the route table.
-3. If the route should be pre-rendered for SEO, ensure the build script
-   picks it up — see `scripts/publish-articles.mjs` for the pre-render
-   pattern used for article URLs.
+2. Register it in `src/ssg/routes.tsx` (`lazy: d(() => import(...))`).
+   Pages with a dynamic part (`blog/:slug`, `ei-tech/:slug`) need
+   `getStaticPaths` to be prerendered; build-time data comes from a
+   `loader` (`src/ssg/news-data.ts`) or a baked JSON file (see Build).
+3. Every route is prerendered unless `vite.config.ts` `includedRoutes`
+   skips it; the sitemap is made from the built files
+   (`scripts/generate-sitemap.mjs`, which has its own exclude list).
+
+**Hydration rule:** the prerendered HTML and the first render in the
+browser must be identical, or React throws #418/#423 and redraws the whole
+page. Never read the date/clock, `localStorage` or random values during
+render — read them in `useEffect` after mount (see `Security.tsx` `timeAgo`,
+`DailyQuizWidget.tsx`, `EiTechReactions.tsx`).
 
 ---
 
@@ -76,6 +85,13 @@ The client uses `@supabase/supabase-js` to fetch published content at
 build time (for static articles) and at runtime (for live dashboards).
 Connection is via the same self-hosted Supabase as cyberabofra — see
 `src/lib/supabase.ts` or equivalent for the client config.
+
+Tables added in November 2026: `ei_tech_memes` (Ei Tech! memes, public
+reads published rows), `ei_tech_reactions` (😂 + votes, only through the
+SECURITY DEFINER functions `ei_tech_react` / `ei_tech_counts`), and
+`security_scam_alerts.image_url` (scam-message picture). New tables that
+the browser writes to get RLS + a SECURITY DEFINER function, never a
+`USING (true)` write policy.
 
 Article publishing flow:
 
@@ -116,11 +132,19 @@ number of distinct queries crosses ~10.
 
 ## Build pipeline
 
-`npm run build` runs:
+`npm run build` (see `package.json`) runs:
 
-1. `vite build` — outputs to `dist/`.
-2. (If configured) prerender script that pulls published articles from
-   Supabase and writes per-article HTML files.
+1. Bake scripts that read the live database and write committed JSON
+   files used for prerendering (each keeps the old file if the database
+   can't be reached): `fetch-data-bundles`, `fetch-bundle-changes`,
+   `fetch-hero-slides`, `fetch-sponsors`, `fetch-featured-guides`,
+   `fetch-ei-tech` (→ `src/data/eiTechMemes.json`).
+2. `vite-react-ssg build` — prerenders every route to `dist/`.
+3. `generate-sitemap.mjs` (fails the build if far too few articles came
+   back — see DEPLOY_SAFETY.md) and `strip-ads-sponsored.mjs`.
+
+Pages that show data which changes between builds (hero, Ei Tech!, scam
+alerts) re-read the database in the browser after mount.
 
 The build is idempotent — same git ref produces the same artefacts.
 

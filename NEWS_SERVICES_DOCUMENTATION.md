@@ -289,6 +289,8 @@ Runs as a systemd service: `techtrendi-article-bot`
 | `/reviewstatus` | Show review stats |
 | `/help` | Show all commands |
 | 🔄 **Change picture** / ✅ **Keep** buttons | Under each Ghana/Africa news message — swap or accept the cover (see section 1). Added 1 Nov 2026. |
+| A message (words, links, pictures) | Story desk: "Write a TechTrendi article from this?" (below) |
+| A picture with no words | Ei Tech! meme desk: "Add this picture to Ei Tech!?" (below) |
 
 **Examples:**
 ```
@@ -296,6 +298,40 @@ Runs as a systemd service: `techtrendi-article-bot`
 /article Ghana's Digital ID System Explained
 /review Samsung Galaxy S26 Ultra | Smartphones
 ```
+
+### Story desk (added 4 Nov 2026) — `story_desk.py`
+Edmund sends words, links and/or pictures to the group → bot asks **"Write a TechTrendi article from this
+message?"** (✍️ Yes / 😂 It's a meme (only when pictures came) / No) → `story_desk.py` (own venv
+`/opt/tech-news/venv-desk`, Claude Sonnet 5.5 at high effort, web search + fetch) researches and writes →
+private preview page under `/images/previews/<token>/` → ✅ Publish / ✏️ Change / ❌ Bin it.
+Jobs `/opt/tech-news/desk_jobs/`, log `/var/log/techtrendi-desk.log`, runs as `techtrendi-desk-*` systemd units.
+About $0.73 an article.
+
+### Ei Tech! meme desk (added 11 Nov 2026) — `meme_desk.py`
+Puts memes on **techtrendi.com/ei-tech** from Telegram, no code change or deploy.
+1. Edmund sends the meme **picture** with no words → after 8 seconds (if no words follow) the bot asks
+   **"Add this picture to Ei Tech!?"** (😂 Yes, Ei Tech! / No). An album = one meme per picture.
+   A picture **with** words gets the story desk question, which then has a **😂 It's a meme** button; the words
+   are passed to the AI as his wishes (e.g. "vote: Team Jollof vs Team Waakye").
+2. `meme_desk.py make <job>` (venv-desk, Claude Sonnet 5.5, effort low, structured output; ~1 cent, ~5–20 s)
+   looks at the picture and writes: title, one funny line (never explains the joke), picture description (alt),
+   slug, and the vote: two **sides**, **relatable** (🙋 Been there / 🙅 Not me) or **none**. It flags someone
+   else's watermark/@handle (we publish only our own versions), famous people, big brand logos, typos; it
+   refuses hateful, sexual, private-person, party-political, scam/betting or gore content.
+3. It adds the Ei Tech! bar (unless the picture already has it), saves `<slug>.jpg`, `<slug>.webp` and the
+   1200x630 `<slug>-share.jpg` (all under 300 KB) in `/var/www/techtrendi/images/ei-tech/`, writes a **draft**
+   row in `techtrendi.ei_tech_memes`, and sends the preview with ✅ Publish / ✏️ Change / ❌ Bin it.
+4. **Publish** → row `published` → at the top of /ei-tech and on the homepage card at once; the bot replies with
+   the link `/ei-tech?m=<slug>` and checks it. Own page `/ei-tech/<slug>` after the daily build (11:30 UTC).
+   **Change** → reply with what to change (`meme_desk.py revise`, ~1–2 min). **Bin** → row `binned`, files kept.
+
+| | |
+|---|---|
+| Code | `/opt/tech-news/meme_desk.py`; bot part in `article_bot.py` (`_meme_*`, `on_meme_button`, callbacks `meme:go/no/pub/chg/bin`) |
+| Jobs | `/opt/tech-news/meme_jobs/<id>/job.json` + `picture` (git-ignored) |
+| Log | `/var/log/techtrendi-desk.log` (lines "meme job …"); units `systemctl list-units 'techtrendi-meme-*'` |
+| Database | `techtrendi.ei_tech_memes` (memes), `techtrendi.ei_tech_reactions` (😂 + votes) |
+| Backup of the bot before the change | `/opt/tech-news/article_bot.py.bak-20261111-meme` |
 
 ### Telegram channel
 - **Bot token:** `<REDACTED>`
