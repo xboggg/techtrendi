@@ -13,6 +13,9 @@
 // all under 300 KB), then add an entry at the TOP of this list. The build makes
 // /ei-tech/<slug> automatically, and its share tags come from that page.
 //
+// Laughs and votes are stored in techtrendi.ei_tech_reactions by meme slug
+// (supabase/migrations/20261111_ei_tech_reactions.sql), so never rename a slug.
+//
 // `date` is a plain string on purpose: the pages are prerendered, so nothing
 // here may depend on the visitor's clock (hydration — see Security.tsx timeAgo).
 
@@ -27,6 +30,15 @@ export interface EiTechMeme {
   alt: string;
   width: number;
   height: number;
+  /** Optional two-sided vote ("Team iPhone / Team Cow"). Leave it out when a
+   *  meme has no sides — every meme still gets the 😂 laugh button. Never
+   *  change a meme's sides after people have voted (the votes are stored as a/b). */
+  vote?: { a: EiTechVoteSide; b: EiTechVoteSide };
+}
+
+export interface EiTechVoteSide {
+  emoji: string;
+  label: string;
 }
 
 export const EI_TECH_MEMES: EiTechMeme[] = [
@@ -38,6 +50,7 @@ export const EI_TECH_MEMES: EiTechMeme[] = [
     alt: "A laughing man at a roadside kiosk wears a T-shirt: an orange iPhone and a cow both cost $1,300. Two years later the iPhone has a cracked screen, and the cow has two calves.",
     width: 1080,
     height: 1460,
+    vote: { a: { emoji: "📱", label: "Team iPhone" }, b: { emoji: "🐄", label: "Team Cow" } },
   },
 ];
 
