@@ -16,6 +16,7 @@ import staticNews from "@/data/news.json";
 // No static featured articles fallback
 import staticFeaturedGuides from "@/data/featured-guides.json";
 import { CreepyTechHomeSection } from "@/components/home/CreepyTechCarousel";
+import { EiTechHomeCard } from "@/components/home/EiTechHomeCard";
 import { cn } from "@/lib/utils";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { AutoCarousel } from "@/components/home/AutoCarousel";
@@ -1105,6 +1106,9 @@ export default function Index() {
 
       {/* 6b. Creepy Tech — standalone curiosity section (moved out of Online Safety) */}
       <CreepyTechHomeSection variant="creepy" />
+
+      {/* 6c. Ei Tech! — newest funny tech meme (src/data/eiTech.ts) */}
+      <EiTechHomeCard />
 
       {/* 7. Featured Articles Section - Magazine Layout */}
       <section className="py-16 bg-background">

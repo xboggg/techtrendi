@@ -64,6 +64,8 @@ for (const file of files) {
   const seg = path.split("/")[0];
   if (EXCLUDE_EXACT.has(path)) continue;
   if (EXCLUDE_PREFIX.includes(seg)) continue;
+  // Ei Tech! single-meme pages are noindex (EiTechMemePage.tsx); only the /ei-tech list is listed.
+  if (path.startsWith("ei-tech/")) continue;
   if (seen.has(path)) continue;
   seen.add(path);
   const lastmod = statSync(file).mtime.toISOString().slice(0, 10);
