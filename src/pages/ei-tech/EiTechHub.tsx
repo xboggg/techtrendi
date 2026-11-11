@@ -1,9 +1,10 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { EiTechMemeCard, EI_TECH_HUB_URL } from "@/components/ei-tech/EiTechMemeCard";
-import { EI_TECH_MEMES, eiTechShareImage } from "@/data/eiTech";
+import { EI_TECH_MEMES, eiTechShareImage, useEiTechMemesLive } from "@/data/eiTech";
 import { cn } from "@/lib/utils";
 import { ArrowDown, ArrowRight, Share2 } from "lucide-react";
 
@@ -19,11 +20,27 @@ const FLOATERS = [
   { e: "🤣", l: "45%", t: "86%", s: "hidden md:block text-3xl", d: 8.5, y: -8, r: 12 },
 ];
 
-// /ei-tech — every Ei Tech! meme, newest first (src/data/eiTech.ts), as a feed.
-// Indexed; each meme's own page (/ei-tech/:slug) is noindex for now.
+// /ei-tech — every Ei Tech! meme, newest first, as a feed (src/data/eiTech.ts:
+// baked at build, then the live list). /ei-tech?m=<slug> scrolls to one meme — the
+// link of a meme published since the last build. Indexed; each meme's own page
+// (/ei-tech/:slug) is noindex for now.
 export default function EiTechHub() {
-  const latest = EI_TECH_MEMES[0];
-  const many = EI_TECH_MEMES.length > 1;
+  const [memes, loaded] = useEiTechMemesLive();
+  const latest = EI_TECH_MEMES[0]; // share card in <head>: the prerendered (baked) one
+  const many = memes.length > 1;
+  const [focus, setFocus] = useState<string | null>(null);
+
+  // ?m=<slug>: scroll to that meme once the live list is in (newer memes above it would
+  // otherwise push it down after the scroll, and a brand-new meme only arrives with it).
+  useEffect(() => {
+    if (!loaded) return;
+    const m = new URLSearchParams(window.location.search).get("m");
+    if (!m || !/^[a-z0-9-]{1,80}$/.test(m) || focus === m) return;
+    const el = document.getElementById(m);
+    if (!el) return;
+    setFocus(m);
+    setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+  }, [memes, loaded, focus]);
 
   const shareHub = async () => {
     const text = "Ei Tech! Funny tech jokes to laugh at and share 😂";
@@ -109,8 +126,10 @@ export default function EiTechHub() {
       <section id="jokes" className="pb-14 pt-6 md:pt-10 bg-gradient-to-b from-orange-50 to-background dark:from-background dark:to-background scroll-mt-20">
         <div className="container">
           <div className={cn("mx-auto grid gap-8", many ? "max-w-4xl md:grid-cols-2 items-start" : "max-w-xl")}>
-            {EI_TECH_MEMES.map((m, i) => (
-              <EiTechMemeCard key={m.slug} meme={m} linkTitle eager={i === 0} />
+            {memes.map((m, i) => (
+              <div key={m.slug} className={cn("rounded-3xl transition-shadow duration-700", focus === m.slug && "ring-4 ring-orange-400 ring-offset-4 ring-offset-orange-50 dark:ring-offset-background")}>
+                <EiTechMemeCard meme={m} linkTitle eager={i === 0} />
+              </div>
             ))}
           </div>
 

@@ -1,0 +1,18 @@
+[
+ {
+  "slug": "iphone-vs-cow",
+  "title": "iPhone or cow?",
+  "caption": "Same money. Two years later… Ei!",
+  "alt": "A laughing man at a roadside kiosk wears a T-shirt: an orange iPhone and a cow both cost $1,300. Two years later the iPhone has a cracked screen, and the cow has two calves.",
+  "width": 1080,
+  "height": 1460,
+  "image_jpg": "/ei-tech/iphone-vs-cow.jpg",
+  "image_webp": "/ei-tech/iphone-vs-cow.webp",
+  "share_image": "/ei-tech/iphone-vs-cow-share.jpg",
+  "vote_a_emoji": "📱",
+  "vote_a_label": "Team iPhone",
+  "vote_b_emoji": "🐄",
+  "vote_b_label": "Team Cow",
+  "published_at": "2026-11-11T11:40:00+00:00"
+ }
+]

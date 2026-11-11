@@ -1,17 +1,17 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Laugh } from "lucide-react";
-import { EI_TECH_MEMES, eiTechWebp, eiTechImage } from "@/data/eiTech";
+import { eiTechImage, eiTechSharePath, eiTechWebp, useEiTechMemes } from "@/data/eiTech";
 
-// Homepage teaser for Ei Tech! (/ei-tech): the newest meme from src/data/eiTech.ts.
-// Static data only (no fetch, no dates from the clock), so it prerenders and hydrates cleanly.
+// Homepage teaser for Ei Tech! (/ei-tech): the newest meme. First render = the list baked at
+// build (matches the prerendered homepage); the live list swaps in a newer meme after mount.
 export function EiTechHomeCard() {
-  const meme = EI_TECH_MEMES[0];
+  const meme = useEiTechMemes()[0];
   if (!meme) return null;
   return (
     <section className="py-12 md:py-16 bg-background">
       <div className="container">
         <Link
-          to={`/ei-tech/${meme.slug}`}
+          to={eiTechSharePath(meme)}
           className="group grid md:grid-cols-[1fr_1.1fr] overflow-hidden rounded-3xl bg-[#0f172a] text-white shadow-xl max-w-4xl mx-auto"
         >
           <picture className="block">

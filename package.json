@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/fetch-data-bundles.mjs && node scripts/fetch-bundle-changes.mjs && node scripts/fetch-hero-slides.mjs && node scripts/fetch-sponsors.mjs && node scripts/fetch-featured-guides.mjs && node scripts/fix-ssg-utf8.mjs && vite-react-ssg build && node scripts/generate-sitemap.mjs && node scripts/strip-ads-sponsored.mjs",
+    "build": "node scripts/fetch-data-bundles.mjs && node scripts/fetch-bundle-changes.mjs && node scripts/fetch-hero-slides.mjs && node scripts/fetch-sponsors.mjs && node scripts/fetch-featured-guides.mjs && node scripts/fetch-ei-tech.mjs && node scripts/fix-ssg-utf8.mjs && vite-react-ssg build && node scripts/generate-sitemap.mjs && node scripts/strip-ads-sponsored.mjs",
     "build:csr": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
