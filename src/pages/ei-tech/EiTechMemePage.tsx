@@ -19,7 +19,7 @@ export default function EiTechMemePage() {
     <Layout>
       <SEOHead
         title={`${meme.title} | Ei Tech!`}
-        description={`${meme.caption} A tech joke from Ei Tech! on TechTrendi, with the real lesson behind it.`}
+        description={`${meme.caption} A tech joke from Ei Tech! on TechTrendi. Have a laugh and share it.`}
         canonical={`/ei-tech/${meme.slug}`}
         image={eiTechShareImage(meme)}
         imageAlt={meme.alt}
