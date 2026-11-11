@@ -70,13 +70,24 @@ export function DailyQuizWidget() {
   const [answered, setAnswered] = useState(false);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState(false);
+  // Today's question and the streak depend on the visitor's date and their
+  // localStorage, which the prerendered HTML can't know (it was built on a
+  // different day, with no saved streak). Reading them during render made the
+  // first render differ from the static HTML and React threw away the whole
+  // /security page (hydration error #418/#423). So the first render always
+  // matches the build (question 0, no streak) and the real values are filled
+  // in right after mount. (11 Nov 2026)
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [streak, setStreak] = useState(0);
 
-  // Get today's question based on day of year
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-  const todayQuestion = questionPool[dayOfYear % questionPool.length];
+  const todayQuestion = questionPool[questionIndex];
 
-  // Check if already answered today
+  // Pick today's question by day of year, and check if already answered today
   useEffect(() => {
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
+    setQuestionIndex(dayOfYear % questionPool.length);
+    setStreak(parseInt(localStorage.getItem("security_quiz_streak") || "0"));
+
     const lastAnswered = localStorage.getItem("security_quiz_last_date");
     const today = new Date().toISOString().split("T")[0];
     if (lastAnswered === today) {
@@ -112,9 +123,8 @@ export function DailyQuizWidget() {
       localStorage.setItem("security_quiz_streak", "1");
     }
     localStorage.setItem("security_quiz_streak_date", today);
+    setStreak(parseInt(localStorage.getItem("security_quiz_streak") || "0"));
   };
-
-  const streak = parseInt(localStorage.getItem("security_quiz_streak") || "0");
 
   return (
     <motion.div
