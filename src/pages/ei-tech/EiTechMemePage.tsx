@@ -2,18 +2,23 @@ import { Link, useParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { EiTechMemeCard } from "@/components/ei-tech/EiTechMemeCard";
-import { EI_TECH_MEMES, eiTechImage, eiTechShareImage } from "@/data/eiTech";
+import { eiTechImage, eiTechSharePath, eiTechShareImage, useEiTechMemesLive } from "@/data/eiTech";
 import NotFound from "@/pages/NotFound";
 import { ArrowLeft } from "lucide-react";
 
-// /ei-tech/:slug — one meme, the page people land on from a WhatsApp share.
-// Its share card (og:image) is the meme's 1200x630 -share.jpg; public/og-meta.php
-// reads it from this prerendered page for social bots.
+// /ei-tech/:slug — one meme, the page people land on from a shared link.
+// Prerendered for every meme in the baked list (src/data/eiTech.ts), with the
+// meme's 1200x630 share card as og:image. A meme published since the last build
+// is looked up in the live list (links normally send those to /ei-tech?m=<slug>).
 export default function EiTechMemePage() {
   const { slug } = useParams();
-  const meme = EI_TECH_MEMES.find((m) => m.slug === slug);
-  if (!meme) return <NotFound />;
-  const others = EI_TECH_MEMES.filter((m) => m.slug !== meme.slug).slice(0, 4);
+  const [memes, loaded] = useEiTechMemesLive();
+  const meme = memes.find((m) => m.slug === slug);
+  if (!meme) {
+    if (!loaded) return <Layout><div className="container py-24 text-center text-muted-foreground">Loading…</div></Layout>;
+    return <NotFound />;
+  }
+  const others = memes.filter((m) => m.slug !== meme.slug).slice(0, 4);
 
   return (
     <Layout>
@@ -45,7 +50,7 @@ export default function EiTechMemePage() {
                 <h2 className="text-xl font-bold text-foreground mb-4">More from Ei Tech!</h2>
                 <div className="grid grid-cols-2 gap-4">
                   {others.map((m) => (
-                    <Link key={m.slug} to={`/ei-tech/${m.slug}`} className="group rounded-2xl border border-border bg-card overflow-hidden hover:shadow-lg transition-shadow">
+                    <Link key={m.slug} to={eiTechSharePath(m)} className="group rounded-2xl border border-border bg-card overflow-hidden hover:shadow-lg transition-shadow">
                       <img src={eiTechImage(m)} alt={m.alt} width={m.width} height={m.height} loading="lazy" className="block w-full aspect-square object-cover object-top" />
                       <p className="p-3 text-sm font-semibold text-foreground group-hover:text-orange-600 transition-colors">{m.title}</p>
                     </Link>

@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Check, Facebook, Link2, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { type EiTechMeme, eiTechDate, eiTechImage, eiTechWebp } from "@/data/eiTech";
+import { type EiTechMeme, eiTechDate, eiTechImage, eiTechSharePath, eiTechWebp } from "@/data/eiTech";
 import { EiTechLaughButton, EiTechVote, useEiTechReactions } from "@/components/ei-tech/EiTechReactions";
 
 const SITE_URL = "https://techtrendi.com";
 export const EI_TECH_HUB_URL = `${SITE_URL}/ei-tech`;
-export const eiTechUrl = (m: EiTechMeme) => `${SITE_URL}/ei-tech/${m.slug}`;
+export const eiTechUrl = (m: EiTechMeme) => `${SITE_URL}${eiTechSharePath(m)}`;
 
 const waHref = (text: string) => `https://wa.me/?text=${encodeURIComponent(text)}`;
 
@@ -112,6 +112,9 @@ export function EiTechMemeCard({ meme, headingLevel = 2, linkTitle = false, eage
 }) {
   const H = headingLevel === 1 ? "h1" : "h2";
   const { counts, mine, react } = useEiTechReactions(meme);
+  // A meme published since the last build has no page of its own yet (eiTechSharePath).
+  const ownPage = eiTechSharePath(meme).startsWith("/ei-tech/");
+  linkTitle = linkTitle && ownPage;
   const picture = (
     <picture>
       <source srcSet={eiTechWebp(meme)} type="image/webp" />
