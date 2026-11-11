@@ -80,6 +80,32 @@ if (preg_match('#^(tools-preview/)?data-bundles/(ghana)(/(at|mtn|telecel))?$#', 
     exit;
 }
 
+// Ei Tech! memes (11 Nov 2026): /ei-tech and /ei-tech/<slug>. The build prerenders every meme
+// page (src/data/eiTech.ts), so the share title, text and picture are read from that page's own
+// og: tags here; adding a meme needs no change in this file.
+if (preg_match('#^ei-tech(/[a-z0-9-]+)?$#', $path)) {
+    $html = @file_get_contents(__DIR__ . '/' . $path . '.html');
+    $og = [];
+    if ($html !== false) {
+        foreach (['title', 'description', 'image'] as $k) {
+            if (preg_match('#<meta[^>]*property="og:' . $k . '"[^>]*content="([^"]*)"#', $html, $mm)
+                || preg_match('#<meta[^>]*content="([^"]*)"[^>]*property="og:' . $k . '"#', $html, $mm)) {
+                $og[$k] = html_entity_decode($mm[1], ENT_QUOTES, 'UTF-8');
+            }
+        }
+    }
+    if (count($og) === 3) {
+        $t = preg_replace('/\s*\|\s*TechTrendi\s*$/i', '', $og['title']);
+        serve_og(
+            htmlspecialchars($t, ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($og['description'], ENT_QUOTES, 'UTF-8'),
+            $og['image'], 'image/jpeg', $SITE_URL . '/' . $path, '', '', '', 'website'
+        );
+    }
+    serve_default(); // unknown meme or page missing
+    exit;
+}
+
 // Static pages with custom OG tags — unique title/description per page
 $static_pages = [
     'books/think-before-you-click' => [
