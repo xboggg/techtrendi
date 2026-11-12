@@ -61,7 +61,7 @@
 - All posts: plain "→" style, end with the CSA line (292 / WhatsApp 0501603111). `src/data/creepy-tech.json`
   (homepage fallback 1–10) refreshed.
 - Drafts: 19 kept → renumbered 91–109 and published. 21 NOT kept (17 repeats + 4 unproven) are still hidden,
-  parked at numbers 900+old (e.g. 993) — awaiting the owner's yes before deleting.
+  were deleted the same day after the owner approved the exact list. Table = 109 rows, all published.
 - Backup + undo on server 144: `/root/backups/creepy-tech-20261112/` (`posts-before.json` = all 130 full rows;
   copy into supabase-db as `/tmp/ct-before.json`, run `rollback.sql`).
 
