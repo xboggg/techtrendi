@@ -47,6 +47,16 @@
   height (wrapper `relative`, inner `lg:absolute lg:inset-0`); the topics scroll inside `.rl-ticker` like a
   ticker, following the spotlight (`box.scrollTo` on the list only — never `scrollIntoView`, which would
   move the page). Pauses on hover. Phones unchanged (box below the news, everything shown).
+
+### Ei Tech! is now a floating neon button (PR #24, LIVE 12 Nov)
+- The big Ei Tech! card on the homepage was removed (owner: "is not nice at all"). In its place, a
+  neon "Ei Tech!" sign floats bottom-LEFT on every page (`src/components/ei-tech/EiTechFloat.tsx`,
+  lazy + ClientOnly in `src/ssg/RootLayout.tsx`; CSS `.eit-neon` / `.eit-pop` in `src/index.css`).
+- Tap → pop-up with the newest meme, the vote, 😂 and "More jokes". Flickers only while the newest
+  meme is unopened (localStorage `eitech_fab_seen`), steady glow after.
+- Hidden on /ei-tech, /admin, /careers, /data-bundles, /tools-preview, /arcade, /auth (edit `HIDE_ON`).
+- Lifts above a Google bottom anchor ad if one is showing, so it never covers an ad.
+- Browser-only, so prerendered HTML / SEO / AdSense are unchanged. `EiTechHomeCard.tsx` is unused.
 - Design canvas (private): https://claude.ai/artifact/1D9PLCjVDJhnuuimCD6jhr
 
 ## ⭐ LATEST CHANGES — 10–11 November 2026
