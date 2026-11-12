@@ -43,6 +43,10 @@
   hover/focus). CSS `.rl-*` in `src/index.css`; all motion off for "reduce motion".
 - All data loads after mount (as before), so the prerendered HTML / SEO / AdSense are unchanged.
 - The old separate Rundown strip (`IntlNewsScroller`) lower down was removed. "1 days ago" → "1 day ago".
+- **Level heights (PR #22, LIVE 12 Nov):** on computers the Rundown box is pinned to the news column's
+  height (wrapper `relative`, inner `lg:absolute lg:inset-0`); the topics scroll inside `.rl-ticker` like a
+  ticker, following the spotlight (`box.scrollTo` on the list only — never `scrollIntoView`, which would
+  move the page). Pauses on hover. Phones unchanged (box below the news, everything shown).
 - Design canvas (private): https://claude.ai/artifact/1D9PLCjVDJhnuuimCD6jhr
 
 ## ⭐ LATEST CHANGES — 10–11 November 2026
