@@ -849,13 +849,19 @@ export default function Index() {
           )}
           </div>
 
-          {/* The Rundown — today's topics + the four days before */}
-          <div className="min-w-0">
+          {/* The Rundown — today's topics + the four days before.
+              On computers the box is pinned to the news column's height
+              (absolute fill), so both sides end level every day; the topics
+              scroll inside it like a ticker (owner's choice, 12 Nov 2026).
+              Phones stack normally and show everything. */}
+          <div className="min-w-0 relative lg:min-h-[540px]">
+            <div className="lg:absolute lg:inset-0">
             {internationalNews.length > 0 ? (
               <RundownLive editions={internationalNews} />
             ) : loadingIntlNews ? (
               <div className="h-full min-h-[480px] rounded-3xl animate-pulse bg-muted" />
             ) : null}
+            </div>
           </div>
           </div>
         </div>
