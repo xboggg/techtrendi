@@ -75,6 +75,21 @@ export function RundownLive({ editions }: { editions: RundownEdition[] }) {
     return () => clearInterval(id);
   }, [shown, paused, topics.length]);
 
+  // Ticker: on computers the box is pinned to the news column's height, so the
+  // topic list may be taller than its space. Glide the list so the spotlit
+  // topic sits in the middle. Scrolls ONLY the list box (never the page —
+  // scrollIntoView would move the whole page). On phones the list is not
+  // clipped, so there is nothing to scroll and this does nothing.
+  const tickerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const box = tickerRef.current;
+    if (!box || paused || box.scrollHeight <= box.clientHeight + 2) return;
+    const item = box.querySelectorAll("li")[spot] as HTMLElement | undefined;
+    if (!item) return;
+    const top = item.offsetTop - box.clientHeight / 2 + item.offsetHeight / 2;
+    box.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  }, [spot, paused, topics.length]);
+
   if (!today) return null;
   const when = new Date(today.created_at);
   const dayLabel = when.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
@@ -116,7 +131,8 @@ export function RundownLive({ editions }: { editions: RundownEdition[] }) {
             {cleanTitle(today.title)}
           </Link>
 
-          <ol className="mt-4 flex flex-col gap-0.5" aria-label="Today's topics">
+          <div ref={tickerRef} className="rl-ticker relative mt-4 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
+          <ol className="relative flex flex-col gap-0.5 lg:py-3" aria-label="Today's topics">
             {topics.length === 0
               ? [0, 1, 2, 3, 4].map((i) => <li key={i} className="h-6 my-0.5 rounded bg-white/5 animate-pulse" />)
               : topics.map((t, i) => (
@@ -136,17 +152,18 @@ export function RundownLive({ editions }: { editions: RundownEdition[] }) {
                 </li>
               ))}
           </ol>
+          </div>
 
           <Link
             to={`/news/${today.slug}`}
-            className="cta-sheen rl-up mt-5 self-start inline-flex items-center gap-2 rounded-full bg-white text-[#0b1020] font-bold text-sm px-5 py-2.5 hover:gap-3 transition-all"
+            className="cta-sheen rl-up mt-4 shrink-0 self-start inline-flex items-center gap-2 rounded-full bg-white text-[#0b1020] font-bold text-sm px-5 py-2.5 hover:gap-3 transition-all"
             style={{ "--d": `${300 + topics.length * 70}ms` } as React.CSSProperties}
           >
             Read today&apos;s briefing <ArrowRight className="w-4 h-4" />
           </Link>
 
           {earlier.length > 0 && (
-            <div className="mt-auto pt-5">
+            <div className="mt-auto pt-4 shrink-0">
               <div className="border-t border-white/10 pt-4 flex flex-col gap-2">
                 {earlier.slice(0, 4).map((e, i) => (
                   <Link

@@ -997,6 +997,12 @@ body {
 .rl-topic::before { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 3px; background: #34d399; transform: scaleY(0); transform-origin: top; }
 .rl-topic.is-spot::before { transform: scaleY(1); animation: rlBar .5s ease-out; }
 .rl-day:hover .rl-nudge { animation: rlNudge .8s ease-in-out infinite; }
+/* Ticker (computers only): the box is pinned to the news height, the topic
+   list scrolls inside it — no scrollbar, soft fade at top and bottom. */
+@media (min-width: 1024px) {
+  .rl-ticker { scrollbar-width: none; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 calc(100% - 28px), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 calc(100% - 28px), transparent 100%); }
+  .rl-ticker::-webkit-scrollbar { display: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .rl-frame, .rl-glow-a, .rl-glow-b, .rl-grid, .rl-scan, .rl-title, .rl-shown .rl-up,
   .rl-topic.is-spot::before, .rl-day:hover .rl-nudge { animation: none; }
