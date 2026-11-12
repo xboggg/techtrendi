@@ -16,7 +16,6 @@ import staticNews from "@/data/news.json";
 // No static featured articles fallback
 import staticFeaturedGuides from "@/data/featured-guides.json";
 import { CreepyTechHomeSection } from "@/components/home/CreepyTechCarousel";
-import { EiTechHomeCard } from "@/components/home/EiTechHomeCard";
 import { RundownLive } from "@/components/home/RundownLive";
 import { cn } from "@/lib/utils";
 import { AnimatedCard } from "@/components/ui/animated-card";
@@ -1059,8 +1058,8 @@ export default function Index() {
       {/* 6b. Creepy Tech — standalone curiosity section (moved out of Online Safety) */}
       <CreepyTechHomeSection variant="creepy" />
 
-      {/* 6c. Ei Tech! — newest funny tech meme (src/data/eiTech.ts) */}
-      <EiTechHomeCard />
+      {/* 6c. Ei Tech! moved off the homepage (owner, 12 Nov 2026): it is now the
+          floating neon "Ei Tech!" button on every page — components/ei-tech/EiTechFloat.tsx */}
 
       {/* 7. Featured Articles Section - Magazine Layout */}
       <section className="py-16 bg-background">
