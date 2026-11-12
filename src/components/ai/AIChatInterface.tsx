@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useHideOnScroll } from '@/hooks/useHideOnScroll';
 import { AI_CHAT_URL, AI_MODEL, AI_REASONING_EFFORT } from "@/lib/aiProxy";
 
 interface Message {
@@ -132,6 +133,7 @@ export function AIChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId] = useState(() => crypto.randomUUID());
   const [showScrollDown, setShowScrollDown] = useState(false);
+  const scrollHidden = useHideOnScroll();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -259,11 +261,17 @@ export function AIChatInterface() {
   };
 
   // Compact floating chat button with galaxy orbiting stars
+  // (slides away while the reader scrolls down so it never covers text — see useHideOnScroll)
   if (!isOpen) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 group"
+        className={cn(
+          "fixed bottom-6 right-6 z-50 group transition-[opacity,transform] duration-300",
+          scrollHidden ? "opacity-0 translate-y-24 pointer-events-none" : "opacity-100 translate-y-0"
+        )}
+        data-scroll-hidden={scrollHidden ? "true" : undefined}
+        tabIndex={scrollHidden ? -1 : undefined}
         aria-label="Open AI Chat"
       >
         <div className="relative w-14 h-14 overflow-visible">
