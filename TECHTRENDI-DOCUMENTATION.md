@@ -48,6 +48,22 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### The 11 articles linked from the safety guide audited + corrected (DB, LIVE 12 Nov)
+- Rewritten: `mobile-money-fraud-ghana-momo-scams-2026-guide` (made-up "GHS 78m" stat → BoG 2025 fraud cases
+  16,733→24,778; Vodafone/AirtelTigo → Telecel/AT; unverified fraud numbers → MTN 419 + official app/website;
+  fake "Cassava Marketplace" and real food brands removed), `7-phishing-red-flags-reveal-every-attack`,
+  `password-manager-guide`, `parents-guide-whatsapp-snapchat-tiktok-safety` (fabricated anecdotes/stats — "Boeing
+  employee", "Dr Sarah Chen", "surveyed 500" — garbled â€” characters, US-only advice, nationality profiling).
+- Targeted fixes: sim-swap (no "porting lock" in Ghana → Ghana Card check; numbers), scams-in-ghana-right-now
+  (Bawumia GH¢850 + CSA food-vendor alerts added, domains defanged, date), fake-whatsapp-promo (Bawumia example),
+  job (Labour Department licensing), romance (StopNCII / Take It Down), investment (2026 SEC warnings),
+  fake-customer-service (CSA food-vendor figure). Police = 18555 or 191 everywhere.
+- Verified kept: CSA sextortion GH¢103,663→GH¢499,044 (Jan–Apr 2024 vs 2025); CSA fake listings 54 cases /
+  GH¢266,195 (1 Jan–26 Apr 2026).
+- Backup/undo on 144: `/root/backups/safety-linked-20261112/` (before.json = 11 full rows; copy to supabase-db as
+  /tmp/linked-before.json, run rollback.sql). Blog pages are prerendered → `gh workflow run Deploy` after DB edits.
+- Still open: 22 of 357 published articles contained garbled "â€”"-style characters (3 now fixed here).
+
 ### Safety guide rewritten + article boxes readable in dark mode (LIVE 12 Nov)
 - `/blog/how-to-stay-safe-online-in-ghana` (the homepage "The full safety guide" button) rewritten in
   `techtrendi.articles` as a full guide (~2,800 words, 14 min): 3 habits, check first (292 before paying, Scam
