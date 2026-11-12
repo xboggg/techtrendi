@@ -30,7 +30,22 @@
 
 ---
 
-## ⭐ LATEST CHANGES — 10–11 November 2026 (READ THIS)
+## ⭐ LATEST CHANGES — 12 November 2026 (READ THIS)
+
+### Homepage news + The Rundown side by side (PR #20, LIVE 12 Nov)
+- Owner picked it from 31 designs on a canvas ("news 17 + Rundown 11"). Section "Fresh from Ghana & Africa"
+  in `src/pages/Index.tsx`: left = 9 Africa Tech stories (1 big, 2 medium, 6 headlines in two columns of 3);
+  right = **The Rundown** box `src/components/home/RundownLive.tsx`. Phones stack: news, then Rundown.
+- The Rundown box: today's edition with **every topic** (the edition's `<h3>` story headings, max 10 —
+  the same split `RundownTabloid` uses), "Read today's briefing", then the 4 earlier days (5 days in all).
+- **Owner wanted "moving parts"**: rotating light border, drifting glows, scrolling grid, scan line,
+  shimmering title, rise-in on scroll, a spotlight bar walking down the topics every 2.6 s (pauses on
+  hover/focus). CSS `.rl-*` in `src/index.css`; all motion off for "reduce motion".
+- All data loads after mount (as before), so the prerendered HTML / SEO / AdSense are unchanged.
+- The old separate Rundown strip (`IntlNewsScroller`) lower down was removed. "1 days ago" → "1 day ago".
+- Design canvas (private): https://claude.ai/artifact/1D9PLCjVDJhnuuimCD6jhr
+
+## ⭐ LATEST CHANGES — 10–11 November 2026
 
 ### Ei Tech! — funny tech memes at `/ei-tech` (repo `xboggg/techtrendi`, PRs #15–#18)
 - **What it is:** a meme feed. Each meme = our OWN picture (never a copied one) with the Ei Tech! bar,
