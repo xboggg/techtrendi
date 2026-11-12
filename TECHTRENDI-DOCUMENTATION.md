@@ -48,6 +48,27 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### 20 generic security articles audited: 10 rewritten, 10 hidden + 301-redirected (LIVE 12 Nov)
+- Owner: "Go ahead with no assumptions". All 20 (the ones that had garbled characters) were AI-written US-style
+  pieces with invented first-person research ("I tested 23 VPNs", "847"), invented people (Marcus Chen, Dr Sarah
+  Martinez…), fake events ("6-character password exposed 340M"), a defamatory claim that AV labs rig tests, harmful
+  advice, nationality profiling and no Ghana content.
+- REWRITTEN (same slugs, verified facts only, Ghana reporting box): complete-two-factor-authentication-setup-guide,
+  protect-whatsapp-from-hackers-complete-guide, phone-spying-detection-guide, social-media-privacy-guide-lock-down-
+  strangers, how-to-tell-if-website-email-message-is-scam-2026-checklist, what-to-do-when-youve-been-hacked-recovery-
+  guide, cybersecurity-guide-for-beginners, passwords-becoming-obsolete-whats-replacing-them (now "Passkeys
+  Explained"), vpn-comparison-tested-honest-truth-privacy-2026 (now "Do You Need a VPN?"), ultimate-guide-online-
+  privacy-2026.
+- HIDDEN (is_published=false, NOT deleted) + nginx 301 in `/etc/nginx/sites-enabled/techtrendi.com` (block "Audit
+  12 Nov 2026", after the /tools/ghs-exchange-rate line): 3 VPN/privacy-tools → vpn-comparison…; 3 password articles
+  → password-manager-guide; delete-digital-footprint → ultimate-guide-online-privacy-2026; hidden-email-
+  vulnerabilities → 7-phishing-red-flags…; why-antivirus → cybersecurity-guide-for-beginners; cybersecurity-threats-
+  2026 → how-to-stay-safe-online-in-ghana. Trailing-slash URLs reach the target in 2 hops (existing slash rule first).
+- Not used: the "Bank of Ghana 2-day MoMo lock after SIM swap" claim (no official source found).
+- Backups/undo on 144: `/root/backups/audit20-20261112/` (before.json = 20 full rows, rollback.sql) and
+  `/root/backups/techtrendi.com.nginx.bak-20261112-audit` (nginx before the redirects).
+- `src/data/articles.json` / `articles-light.json` still list some hidden slugs but are not imported anywhere (old data).
+
 ### The 11 articles linked from the safety guide audited + corrected (DB, LIVE 12 Nov)
 - Rewritten: `mobile-money-fraud-ghana-momo-scams-2026-guide` (made-up "GHS 78m" stat → BoG 2025 fraud cases
   16,733→24,778; Vodafone/AirtelTigo → Telecel/AT; unverified fraud numbers → MTN 419 + official app/website;
