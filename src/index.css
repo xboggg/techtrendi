@@ -997,6 +997,22 @@ body {
 .rl-topic::before { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 3px; background: #34d399; transform: scaleY(0); transform-origin: top; }
 .rl-topic.is-spot::before { transform: scaleY(1); animation: rlBar .5s ease-out; }
 .rl-day:hover .rl-nudge { animation: rlNudge .8s ease-in-out infinite; }
+/* Ei Tech! floating neon button (src/components/ei-tech/EiTechFloat.tsx, owner's
+   pick "19 — Neon sign", 12 Nov 2026). Flickers only while there is a meme the
+   visitor hasn't opened; steady glow after. */
+.eit-neon { display: inline-flex; align-items: center; padding: 8px 14px; border-radius: 12px; background: #0a0612; border: 2px solid #f97316;
+  font-weight: 900; font-size: 19px; letter-spacing: -.01em; line-height: 1.1; color: #ffedd5; cursor: pointer;
+  text-shadow: 0 0 4px #fb923c, 0 0 10px #f97316, 0 0 20px #f97316;
+  box-shadow: 0 0 10px rgba(249,115,22,.6), inset 0 0 10px rgba(249,115,22,.35), 0 8px 20px rgba(0,0,0,.3);
+  transition: transform .2s ease; }
+.eit-neon:hover { transform: translateY(-2px) scale(1.03); }
+.eit-neon:focus-visible { outline: 3px solid #fb923c; outline-offset: 3px; }
+.eit-neon.is-fresh { animation: eitNeon 4s infinite; }
+@keyframes eitNeon { 0%,18%,22%,25%,53%,57%,100% { opacity: 1 } 20%,24%,55% { opacity: .45 } }
+@media (max-width: 640px) { .eit-neon { font-size: 16px; padding: 7px 11px; } }
+.eit-pop { animation: eitPop .25s ease-out; }
+@keyframes eitPop { from { opacity: 0; transform: translateY(10px) scale(.97) } }
+@media (prefers-reduced-motion: reduce) { .eit-neon.is-fresh, .eit-pop { animation: none; } }
 /* Ticker (computers only): the box is pinned to the news height, the topic
    list scrolls inside it — no scrollbar, soft fade at top and bottom. */
 @media (min-width: 1024px) {

@@ -33,6 +33,7 @@ const quietLazy = (load: () => Promise<{ default: ComponentType }>) =>
 const AIChatInterface = quietLazy(() => import("@/components/ai/AIChatInterface"));
 const CartDrawer = quietLazy(() => import("@/components/store/CartDrawer").then((m) => ({ default: m.CartDrawer })));
 const OnboardingTour = quietLazy(() => import("@/components/ui/onboarding-tour"));
+const EiTechFloat = quietLazy(() => import("@/components/ei-tech/EiTechFloat"));
 
 // QueryClient config copied verbatim from App.tsx (single source for the SSG entry).
 const queryClient = new QueryClient({
@@ -97,6 +98,7 @@ export default function RootLayout() {
                         <Outlet />
 
                         <ClientOnly>{() => <Suspense fallback={null}><AIChatInterface /></Suspense>}</ClientOnly>
+                        <ClientOnly>{() => <Suspense fallback={null}><EiTechFloat /></Suspense>}</ClientOnly>
                         <ClientOnly>{() => <Suspense fallback={null}><CartDrawer /></Suspense>}</ClientOnly>
                         <ClientOnly>{() => <CookieConsent />}</ClientOnly>
                         <ClientOnly>{() => <Suspense fallback={null}><OnboardingTour /></Suspense>}</ClientOnly>
