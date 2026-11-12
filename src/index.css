@@ -1132,3 +1132,10 @@ body {
     animation: none !important;
   }
 }
+
+/* Coloured boxes and table cells written into article HTML with an inline pale background
+   (#f…/#e…). In dark mode the theme's near-white text made them unreadable; they keep a dark
+   text colour of their own (an inline color: on the element still wins). Audit 12 Nov 2026. */
+.dark .article-content :is([style*="background:#f"], [style*="background:#e"], [style*="background: #f"], [style*="background: #e"], [style*="background-color:#f"], [style*="background-color:#e"], [style*="background-color: #f"], [style*="background-color: #e"]) { color: #1f2937; }
+.article-content [style*="background"] :is(p, li, strong, b, em, h2, h3, h4, a, blockquote, td, th) { color: inherit; }
+.article-content [style*="background"] a { text-decoration: underline; }
