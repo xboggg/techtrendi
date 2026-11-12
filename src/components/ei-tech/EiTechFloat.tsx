@@ -4,6 +4,7 @@ import { ArrowRight, X } from "lucide-react";
 import { eiTechImage, eiTechSharePath, eiTechWebp, useEiTechMemes, type EiTechMeme } from "@/data/eiTech";
 import { EiTechLaughButton, EiTechVote, useEiTechReactions } from "@/components/ei-tech/EiTechReactions";
 import { cn } from "@/lib/utils";
+import { useHideOnScroll } from "@/hooks/useHideOnScroll";
 
 // Floating "Ei Tech!" neon button, bottom-left on (almost) every page — owner's pick
 // (sample 19, 12 Nov 2026) to replace the big Ei Tech! card on the homepage.
@@ -44,6 +45,7 @@ export default function EiTechFloat() {
   const [ready, setReady] = useState(false);
   const [lift, setLift] = useState(0);
   const boxRef = useRef<HTMLDivElement>(null);
+  const scrollHidden = useHideOnScroll();
 
   const hidden = HIDE_ON.some((p) => pathname === p || pathname.startsWith(p + "/"));
 
@@ -74,6 +76,8 @@ export default function EiTechFloat() {
 
   if (!meme || hidden) return null;
 
+  // Slides away while reading downwards (never while its pop-up is open).
+  const show = ready && (open || !scrollHidden);
   const fresh = seen !== null && seen !== meme.slug;
   const toggle = () => {
     setOpen((o) => !o);
@@ -83,7 +87,8 @@ export default function EiTechFloat() {
   return (
     <div
       ref={boxRef}
-      className={cn("eit-float fixed left-4 md:left-6 z-40 transition-[opacity,transform,bottom] duration-500", ready ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none")}
+      className={cn("eit-float fixed left-4 md:left-6 z-40 transition-[opacity,transform,bottom] duration-300", show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16 pointer-events-none")}
+      data-scroll-hidden={show ? undefined : "true"}
       style={{ bottom: `calc(${lift ? lift + 12 : 16}px + env(safe-area-inset-bottom, 0px))` }}
     >
       {open && <EiTechPopup meme={meme} onClose={() => setOpen(false)} />}
