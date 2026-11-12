@@ -1819,8 +1819,8 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     // 22 Oct 2026 (owner): the edge tab looked cut off; now a small round button that hides while scrolling.
     const css = sh.chromeCss(0.6);
     const sel = 'button\\[aria-label="Open AI Chat"\\]';
-    check("assistant: a 48px round button 16px from the bottom-right corner (≥ 44px tap), its transition opacity/transform only, and no edge tab",
-      new RegExp(`${sel} \\{ right: 16px !important; bottom: calc\\(16px \\+ env\\(safe-area-inset-bottom, 0px\\)\\) !important; width: 48px !important; height: 48px !important; padding: 0 !important; border-radius: 9999px !important;`).test(css) &&
+    check("assistant: a 48px round button 16px from the bottom-right corner (above the cookie bar while it shows; ≥ 44px tap), its transition opacity/transform only, and no edge tab",
+      new RegExp(`${sel} \\{ right: 16px !important; bottom: calc\\(16px \\+ var\\(--cookie-bar-h, 0px\\) \\+ env\\(safe-area-inset-bottom, 0px\\)\\) !important; width: 48px !important; height: 48px !important; padding: 0 !important; border-radius: 9999px !important;`).test(css) &&
       /transition: opacity 200ms ease, transform 200ms ease !important;/.test(css) && !/width: 24px|border-radius: 12px 0 0 12px/.test(css));
     check("assistant: hidden while scrolling (html.db-scrolling: faded, slid down, not tappable; keyboard focus keeps it), back 800ms after the last scroll; reduced motion: no transition",
       new RegExp(`html\\.db-scrolling ${sel}:not\\(:focus-visible\\) \\{ opacity: 0 !important; transform: translateY\\(24px\\) scale\\(0\\.9\\) !important; pointer-events: none !important; \\}`).test(css) &&

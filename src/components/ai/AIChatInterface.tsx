@@ -267,9 +267,11 @@ export function AIChatInterface() {
       <button
         onClick={() => setIsOpen(true)}
         className={cn(
-          "fixed bottom-6 right-6 z-50 group transition-[opacity,transform] duration-300",
+          "fixed right-6 z-50 group transition-[opacity,transform,bottom] duration-300",
           scrollHidden ? "opacity-0 translate-y-24 pointer-events-none" : "opacity-100 translate-y-0"
         )}
+        // 24px from the bottom, or just above the cookie bar while it shows.
+        style={{ bottom: 'calc(var(--cookie-bar-h, 0px) + 24px)' }}
         data-scroll-hidden={scrollHidden ? "true" : undefined}
         tabIndex={scrollHidden ? -1 : undefined}
         aria-label="Open AI Chat"
