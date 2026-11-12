@@ -48,6 +48,24 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 1 of ~12 (LIVE 12 Nov)
+- Scan of the 325 remaining published articles: 240 show fabrication markers (invented "I tested/I spent",
+  "847", invented experts), ~1,470 mostly unsourced % figures, ~3,500 US-only references; 262 never mention Ghana.
+  The 53 genuinely Ghana-focused articles are almost all clean. Scan script: scratchpad `sections/scan.mjs`.
+- Round 1 = the 20 most-read flagged articles (4 parallel fact-check agents, owner approved the hide list):
+  - HIDDEN + nginx 301 (block "# Audit round 1"): free-mental-health-apps (fake Stanford study, non-existent crisis
+    app) → Health Tech; 72-hour-resume (invented people/salaries) → free-online-certifications; selling-stock-photos
+    (never about stock photos) → Smart Income; how-to-migrate-everything (duplicate) → transfer-everything-new-phone;
+    ios-vs-android → Phones; budget-gaming → Gaming; voice-ai-assistants → 10-ai-tools; smart-home-devices-cut-
+    electric-bill → Green Tech; beginners-guide-using-computer → How-To.
+  - REWRITTEN: how-to-link-ghana-card-to-bank-and-momo-accounts (BoG Jan 2026 rule; wrong USSD paths, invented
+    wallet limits and phishing-looking bank URLs removed), transfer-everything-new-phone (no "free unlimited Google
+    Photos"), parental-controls, smartphones-seniors, free-online-certifications (free study vs paid exams),
+    10-ai-tools, external-storage, why-internet-slow (mobile data + NCA), children-screens (fake quotes removed).
+  - FIXED: local-ai-models (llama3.2:8b command didn't exist → llama3.1:8b; first person removed),
+    travel-public-space (juice jacking, boarding pass, O.MG cable, cedi prices, Ghana contacts).
+- Backups/undo on 144: `/root/backups/round1-20261112/` (before.json 20 rows, rollback.sql, nginx copy before).
+
 ### 20 generic security articles audited: 10 rewritten, 10 hidden + 301-redirected (LIVE 12 Nov)
 - Owner: "Go ahead with no assumptions". All 20 (the ones that had garbled characters) were AI-written US-style
   pieces with invented first-person research ("I tested 23 VPNs", "847"), invented people (Marcus Chen, Dr Sarah
