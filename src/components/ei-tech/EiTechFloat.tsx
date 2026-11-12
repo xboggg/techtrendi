@@ -89,7 +89,8 @@ export default function EiTechFloat() {
       ref={boxRef}
       className={cn("eit-float fixed left-4 md:left-6 z-40 transition-[opacity,transform,bottom] duration-300", show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16 pointer-events-none")}
       data-scroll-hidden={show ? undefined : "true"}
-      style={{ bottom: `calc(${lift ? lift + 12 : 16}px + env(safe-area-inset-bottom, 0px))` }}
+      // Above a Google anchor ad or the cookie bar, whichever is taller.
+      style={{ bottom: `calc(max(${lift ? lift + 12 : 16}px, var(--cookie-bar-h, 0px) + 12px) + env(safe-area-inset-bottom, 0px))` }}
     >
       {open && <EiTechPopup meme={meme} onClose={() => setOpen(false)} />}
       <button

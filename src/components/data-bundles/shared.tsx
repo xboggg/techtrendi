@@ -554,7 +554,8 @@ const INTERACTIVE = "a[href],button,input,select,textarea,summary,label,[role=bu
 export function chatWouldCover(): boolean {
   if (typeof document === "undefined") return false;
   const w = document.documentElement.clientWidth, h = window.innerHeight;
-  const L = w - 16 - 48, T = h - 16 - 48;
+  const lift = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--cookie-bar-h")) || 0; // above the cookie bar while it shows
+  const L = w - 16 - 48, T = h - 16 - 48 - lift;
   const pts: [number, number][] = [[L + 24, T + 24], [L + 6, T + 6], [L + 42, T + 6], [L + 6, T + 42], [L + 42, T + 42]];
   for (const [x, y] of pts) {
     const stack = document.elementsFromPoint(x, y);
@@ -579,7 +580,7 @@ export const HEADER_PRIMARY = "214 100% 45%";
 export function chromeCss(headerAlpha: number): string {
   const blur = "-webkit-backdrop-filter: blur(16px) saturate(150%) !important; backdrop-filter: blur(16px) saturate(150%) !important; box-shadow: none !important;";
   return [
-    `${ASSISTANT_SELECTOR} { right: 16px !important; bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important; width: 48px !important; height: 48px !important; padding: 0 !important; border-radius: 9999px !important; background: linear-gradient(135deg, #7c3aed, #a21caf) !important; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.45) !important; overflow: hidden !important; display: flex !important; align-items: center !important; justify-content: center !important; transition: opacity 200ms ease, transform 200ms ease !important; }`,
+    `${ASSISTANT_SELECTOR} { right: 16px !important; bottom: calc(16px + var(--cookie-bar-h, 0px) + env(safe-area-inset-bottom, 0px)) !important; width: 48px !important; height: 48px !important; padding: 0 !important; border-radius: 9999px !important; background: linear-gradient(135deg, #7c3aed, #a21caf) !important; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.45) !important; overflow: hidden !important; display: flex !important; align-items: center !important; justify-content: center !important; transition: opacity 200ms ease, transform 200ms ease !important; }`,
     `${ASSISTANT_SELECTOR} > * { display: none !important; }`,
     `${ASSISTANT_SELECTOR}::after { content: "\\2726"; color: #fff; font-size: 20px; line-height: 1; }`,
     // While scrolling: out of the way (never over the text being read); keyboard focus keeps it.

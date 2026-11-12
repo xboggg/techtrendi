@@ -34,17 +34,22 @@ export function CookieConsent() {
 
   // While the bar shows, the page scrolls focused fields and #anchors clear of it
   // (scroll-padding-bottom = its height; UI audit M4). Put back when it goes.
+  // It also publishes its height as --cookie-bar-h so the floating Ei Tech! and
+  // AI chat buttons sit just above it instead of hiding underneath (audit, 12 Nov 2026).
   useEffect(() => {
     if (!isVisible || showSettings) return;
     const el = barRef.current;
     if (!el || typeof document === 'undefined') return;
     const root = document.documentElement;
     const prev = root.style.scrollPaddingBottom;
-    const set = () => { root.style.scrollPaddingBottom = `${el.offsetHeight}px`; };
+    const set = () => {
+      root.style.scrollPaddingBottom = `${el.offsetHeight}px`;
+      root.style.setProperty('--cookie-bar-h', `${el.offsetHeight}px`);
+    };
     set();
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(set) : null;
     ro?.observe(el);
-    return () => { ro?.disconnect(); root.style.scrollPaddingBottom = prev; };
+    return () => { ro?.disconnect(); root.style.scrollPaddingBottom = prev; root.style.removeProperty('--cookie-bar-h'); };
   }, [isVisible, showSettings, compact]);
 
   useEffect(() => {

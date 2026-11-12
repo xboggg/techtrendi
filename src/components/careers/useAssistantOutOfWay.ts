@@ -15,7 +15,8 @@ const TAPPABLE = "a[href],button,input,select,textarea,summary,label,[role=butto
 
 function wouldCover(): boolean {
   const w = document.documentElement.clientWidth, h = window.innerHeight;
-  const L = w - 16 - 48, T = h - 16 - 48;
+  const lift = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--cookie-bar-h")) || 0; // above the cookie bar while it shows
+  const L = w - 16 - 48, T = h - 16 - 48 - lift;
   const points: [number, number][] = [[L + 24, T + 24], [L + 6, T + 6], [L + 42, T + 6], [L + 6, T + 42], [L + 42, T + 42]];
   return points.some(([x, y]) => {
     const under = document.elementsFromPoint(x, y).find((e) => !e.closest(ASSISTANT_SELECTOR));
@@ -24,7 +25,7 @@ function wouldCover(): boolean {
 }
 
 const CSS = [
-  `${ASSISTANT_SELECTOR} { right: 16px !important; bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important; width: 48px !important; height: 48px !important; transition: opacity 200ms ease, transform 200ms ease !important; }`,
+  `${ASSISTANT_SELECTOR} { right: 16px !important; bottom: calc(16px + var(--cookie-bar-h, 0px) + env(safe-area-inset-bottom, 0px)) !important; width: 48px !important; height: 48px !important; transition: opacity 200ms ease, transform 200ms ease !important; }`,
   `${ASSISTANT_SELECTOR} > div { width: 48px !important; height: 48px !important; }`,
   `html.${SCROLLING} ${ASSISTANT_SELECTOR}:not(:focus-visible), html.${COVERING} ${ASSISTANT_SELECTOR}:not(:focus-visible) { opacity: 0 !important; transform: translateY(24px) scale(0.9) !important; pointer-events: none !important; }`,
   `@media (prefers-reduced-motion: reduce) { ${ASSISTANT_SELECTOR} { transition: none !important; } }`,
