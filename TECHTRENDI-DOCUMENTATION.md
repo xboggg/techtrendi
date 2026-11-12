@@ -48,6 +48,26 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Cyber Awareness — 41 hidden drafts audited: 24 repeats deleted, 17 fixed + published (DB, LIVE 12 Nov)
+- Owner: "Fix and delete repeated items". The page now has 112 posts (header count updates by itself).
+- Deleted (owner-approved list; all hidden, 0 views, never public): old drafts 97, 98, 99, 100, 101, 102, 103,
+  105, 106, 107, 108, 113, 114, 115, 118, 119, 121, 123, 124, 127, 129, 133, 134, 135 — each repeated a live post
+  or another draft.
+- The 17 kept drafts were rewritten in the same plain "→" style and renumbered 96–112 (safe: never public):
+  96←96 pyramid, 97←104 fake help number on Google, 98←109 fake antivirus, 99←110 fake update, 100←111 fake Apple
+  Account email, 101←112 apps shared as .apk, 102←116 harmful browser add-on, 103←117 fake boss video call (Arup
+  Hong Kong 2024, ~US$25M), 104←120 fake celebrity advert (real name removed), 105←122 fake job interview, 106←125
+  flat not for rent (moved to Online Shopping & Marketplace Scams), 107←126 fake AI app, 108←128 look-alike web
+  address (made-up bank name only), 109←130 app permissions, 110←131 backups, 111←132 what to do after a scam,
+  112←136 old accounts.
+- Facts corrected: CSA email is report@csa.gov.gh (not incident@); MTN fraud = dial 419 or *170# → My Wallet →
+  Report Fraud (the "0800 900 100" number was unconfirmed and removed); unproven claims removed (Companies Act,
+  "2023 Google removed apps", "every week in Ghana", AI-photo detection by image search).
+- New topics in the Topic menu: Phishing & Fake Messages, Tech Support & Device Scams, AI-Powered Scams,
+  Everyday Safety Habits (chips appear automatically once a category has published posts).
+- Backup + undo on server 144, same folder: `drafts-before.json` (all 41 full rows). Undo = copy it into
+  supabase-db as `/tmp/drafts-before.json`, then run `rollback-drafts.sql` (puts the 41 drafts back exactly).
+
 ### Homepage news + The Rundown side by side (PR #20, LIVE 12 Nov)
 - Owner picked it from 31 designs on a canvas ("news 17 + Rundown 11"). Section "Fresh from Ghana & Africa"
   in `src/pages/Index.tsx`: left = 9 Africa Tech stories (1 big, 2 medium, 6 headlines in two columns of 3);
