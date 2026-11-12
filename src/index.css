@@ -972,6 +972,37 @@ body {
   .animate-ticker-scroll, .animate-flag-flow { animation: none; }
 }
 
+/* Homepage "The Rundown" box (src/components/home/RundownLive.tsx).
+   A light that runs round the border, drifting glows, a scrolling grid, a scan
+   line, a rise-in once the box is on screen (.rl-shown, set by JS, so nothing is
+   hidden without it) and a spotlight bar on the current topic. */
+@property --rl-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+@keyframes rlSpin { to { --rl-angle: 360deg; } }
+@keyframes rlDrift { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(36px, 28px) scale(1.15); } }
+@keyframes rlDriftB { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-40px, -24px) scale(1.1); } }
+@keyframes rlGrid { from { background-position: 0 0; } to { background-position: 0 26px; } }
+@keyframes rlScan { 0% { transform: translateY(-120%); } 60%, 100% { transform: translateY(900%); } }
+@keyframes rlUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes rlBar { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes rlTitle { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes rlNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+.rl-frame { background: conic-gradient(from var(--rl-angle), rgba(52,211,153,.9), rgba(59,130,246,.15) 25%, rgba(59,130,246,.9) 50%, rgba(52,211,153,.15) 75%, rgba(52,211,153,.9)); animation: rlSpin 6s linear infinite; }
+.rl-glow-a { animation: rlDrift 11s ease-in-out infinite; }
+.rl-glow-b { animation: rlDriftB 13s ease-in-out infinite; }
+.rl-grid { background-image: linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px); background-size: 26px 26px; animation: rlGrid 3s linear infinite; }
+.rl-scan { animation: rlScan 7s ease-in-out infinite; }
+.rl-shown .rl-up { animation: rlUp .6s cubic-bezier(.2,.7,.2,1) backwards; animation-delay: var(--d, 0ms); }
+.rl-title { background: linear-gradient(90deg, #fff, #a7f3d0, #93c5fd, #fff); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: rlTitle 8s ease-in-out infinite; }
+.rl-title:hover { color: #a7f3d0; -webkit-text-fill-color: #a7f3d0; }
+.rl-topic::before { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 3px; background: #34d399; transform: scaleY(0); transform-origin: top; }
+.rl-topic.is-spot::before { transform: scaleY(1); animation: rlBar .5s ease-out; }
+.rl-day:hover .rl-nudge { animation: rlNudge .8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .rl-frame, .rl-glow-a, .rl-glow-b, .rl-grid, .rl-scan, .rl-title, .rl-shown .rl-up,
+  .rl-topic.is-spot::before, .rl-day:hover .rl-nudge { animation: none; }
+  .rl-scan { display: none; }
+}
+
 /* Sponsor pages (/sponsored/*). All motion is skipped for "reduce motion".
    Scroll reveal only hides things once SponsorPage adds .sp-anim (JS ran), and
    uses fill-mode "backwards" so hover lifts still work after the entrance. */
