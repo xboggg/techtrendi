@@ -48,6 +48,21 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Safety guide rewritten + article boxes readable in dark mode (LIVE 12 Nov)
+- `/blog/how-to-stay-safe-online-in-ghana` (the homepage "The full safety guide" button) rewritten in
+  `techtrendi.articles` as a full guide (~2,800 words, 14 min): 3 habits, check first (292 before paying, Scam
+  Checker, SEC licence check), fake giveaway/promo links (fact-checked Mahama/Bawumia cash hoaxes, Samira Bawumia
+  airtime accounts, Ghana@68 free data, BoG/Ernest Chemist/GOIL anniversary prizes, Shatta Wale fake app ad), MoMo,
+  loan apps/investments, phone/SIM/WhatsApp, romance/jobs/customer care, shopping, AI fakes, Ghana Card, family,
+  what to do, numbers to save. Same URL/title. Fixed: 18555 is the Police general line (also 191), not "Cybercrime
+  Unit"; added MTN 419 and Bank of Ghana complaints.office@bog.gov.gh. Jump links use the same text-based heading ids
+  the page's sidebar contents makes (never give h2s custom ids). Blog pages are prerendered — after a DB edit run
+  the Deploy workflow (`gh workflow run Deploy`) or wait for the 11:30 UTC daily build.
+- Backup/undo on 144: `/root/backups/safety-guide-20261112/` (article-before.json; copy to supabase-db as
+  /tmp/safety-before.json, run rollback.sql).
+- PR #34: `src/index.css` — text inside article boxes/table cells with an inline pale background keeps the box
+  colour (dark text in dark mode). 24 articles had near-invisible bold text/numbers in dark mode (contrast 1:1 → ≥6.4).
+
 ### Creepy Tech — all posts fact-checked: 90 rewritten, 19 drafts fixed + published (DB, LIVE 12 Nov)
 - Owner: "Go ahead for both". Table `techtrendi.creepy_tech_posts`; page now shows 109 posts (count is automatic).
 - Removed false claims about Ghana and named companies: Ghana Card "IDEMIA/foreign servers" (#85, built by Margins
