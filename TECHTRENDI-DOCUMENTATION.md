@@ -62,7 +62,11 @@
   GH¢266,195 (1 Jan–26 Apr 2026).
 - Backup/undo on 144: `/root/backups/safety-linked-20261112/` (before.json = 11 full rows; copy to supabase-db as
   /tmp/linked-before.json, run rollback.sql). Blog pages are prerendered → `gh workflow run Deploy` after DB edits.
-- Still open: 22 of 357 published articles contained garbled "â€”"-style characters (3 now fixed here).
+- Garbled characters FIXED same day: 20 more articles had UTF-8 text saved as Windows-1252 ("â€”" for —, "â€“"
+  for –, "â†’" for →, "âœ—" for ✗, "â‚¬" for €, "SÃ£o" for São). Repaired by decoding each sequence back to its
+  character (titles, excerpts, content; updated_at left unchanged). Published articles with garbled text: 0.
+  Backup/undo on 144: `/root/backups/mojibake-20261112/` (before.json; copy to supabase-db as /tmp/moji-before.json,
+  run rollback.sql).
 
 ### Safety guide rewritten + article boxes readable in dark mode (LIVE 12 Nov)
 - `/blog/how-to-stay-safe-online-in-ghana` (the homepage "The full safety guide" button) rewritten in
