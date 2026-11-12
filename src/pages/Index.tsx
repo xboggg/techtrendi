@@ -17,6 +17,7 @@ import staticNews from "@/data/news.json";
 import staticFeaturedGuides from "@/data/featured-guides.json";
 import { CreepyTechHomeSection } from "@/components/home/CreepyTechCarousel";
 import { EiTechHomeCard } from "@/components/home/EiTechHomeCard";
+import { RundownLive } from "@/components/home/RundownLive";
 import { cn } from "@/lib/utils";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { AutoCarousel } from "@/components/home/AutoCarousel";
@@ -157,93 +158,6 @@ const toolCategories = [
     count: 23,
   },
 ];
-
-// World Tech in Brief — a light, editorial horizontal strip. International news
-// is secondary to the Africa-first pillars, so it's a clean swipe-rail of
-// headlines (full titles visible, no crowding) rather than a dark terminal panel.
-function IntlNewsScroller({ news, formatTimeAgo }: { news: NewsItem[]; formatTimeAgo: (d: string) => string }) {
-  const items = news.slice(0, 8);
-  if (items.length === 0) return null;
-  const [latest, ...rest] = items;
-  const cleanTitle = (t: string) => t.replace(/^The Rundown\s*[-–—:]\s*/i, "");
-  const editionDate = new Date(latest.created_at).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
-
-  return (
-    <section className="py-10 md:py-14">
-      <div className="container">
-        <div className="relative overflow-hidden rounded-3xl bg-[#0b1020] border border-white/10 shadow-2xl">
-          {/* ambient glows */}
-          <div aria-hidden className="pointer-events-none absolute -top-24 -left-16 w-72 h-72 rounded-full bg-emerald-500/15 blur-3xl" />
-          <div aria-hidden className="pointer-events-none absolute -bottom-24 -right-10 w-80 h-80 rounded-full bg-primary/20 blur-3xl" />
-          {/* faint grid texture */}
-          <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.04]"
-               style={{ backgroundImage: "linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)", backgroundSize: "26px 26px" }} />
-
-          <div className="relative p-6 md:p-9">
-            {/* Masthead */}
-            <div className="flex items-center justify-between gap-4 pb-5 mb-6 border-b border-white/10">
-              <div className="flex items-center gap-3">
-                <span className="relative flex h-2.5 w-2.5 shrink-0">
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
-                </span>
-                <div>
-                  <h2 className="text-lg md:text-2xl font-black tracking-tight text-white leading-none">
-                    The Rundown
-                  </h2>
-                  <span className="text-[11px] md:text-xs text-white/50 tracking-wide">World tech, briefed — every day</span>
-                </div>
-              </div>
-              <span className="hidden sm:inline-flex items-center gap-2 font-mono text-[10px] md:text-xs uppercase tracking-[0.2em] text-emerald-300/80 border border-emerald-400/20 rounded-full px-3 py-1.5">
-                <Globe className="w-3.5 h-3.5" /> Daily Edition
-              </span>
-            </div>
-
-            {/* Today's edition — hero */}
-            <Link to={`/news/${latest.slug}`} className="group block">
-              <div className="flex items-center gap-2 mb-2.5">
-                <span className="font-mono text-[10px] md:text-[11px] uppercase tracking-[0.18em] text-emerald-300">{editionDate}</span>
-                <span className="h-px flex-1 bg-gradient-to-r from-emerald-400/30 to-transparent" />
-                <span className="font-mono text-[10px] text-white/40">{formatTimeAgo(latest.created_at)}</span>
-              </div>
-              <h3 className="text-2xl md:text-4xl font-black text-white leading-[1.1] tracking-tight group-hover:text-emerald-200 transition-colors">
-                {cleanTitle(latest.title)}
-              </h3>
-              {latest.excerpt && (
-                <p className="text-sm md:text-lg text-white/65 mt-3 max-w-3xl leading-relaxed line-clamp-2">{latest.excerpt}</p>
-              )}
-              <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-white text-[#0b1020] font-bold text-sm px-5 py-2.5 group-hover:gap-3 transition-all">
-                Read today&apos;s briefing
-                <ArrowRight className="w-4 h-4" />
-              </span>
-            </Link>
-
-            {/* Earlier editions */}
-            {rest.length > 0 && (
-              <div className="mt-8 pt-6 border-t border-white/10">
-                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">Earlier editions</span>
-                <div className="flex gap-4 overflow-x-auto pb-1 mt-3 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  {rest.map((item) => (
-                    <Link
-                      key={item.id}
-                      to={`/news/${item.slug}`}
-                      className="group snap-start shrink-0 w-[230px] md:w-[260px] rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] hover:border-white/25 p-3.5 transition-colors"
-                    >
-                      <span className="font-mono text-[10px] uppercase tracking-wide text-white/40">{formatTimeAgo(item.created_at)}</span>
-                      <p className="text-sm font-semibold text-white/90 group-hover:text-white mt-1 leading-snug line-clamp-2 transition-colors">
-                        {cleanTitle(item.title)}
-                      </p>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 // Auto-sliding "Editor's Pick" card — sits in the top-left slot of the
 // Latest Guides section. Cycles through the admin-flagged is_featured
@@ -518,10 +432,10 @@ export default function Index() {
         .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
         .eq("is_published", true)
         .eq("category", "Africa Tech")
-        // The Rundown lives in its own section below — keep it out of this grid.
+        // The Rundown has its own box beside this grid — keep it out.
         .not("slug", "like", "the-rundown-%")
         .order("created_at", { ascending: false })
-        .limit(5);
+        .limit(9);
 
       if (error) {
         // Reached the API but it refused — rate limit, auth, network blip.
@@ -542,15 +456,15 @@ export default function Index() {
 
   const fetchInternationalNews = async () => {
     try {
-      // "The Rundown" — our original daily world-tech briefing (slug the-rundown-*).
-      // (Replaces the old aggregated international-news strip.)
+      // "The Rundown" — our original daily world-tech briefing (slug the-rundown-*):
+      // today's edition plus the four before it (RundownLive).
       const { data, error } = await supabase
         .from("news")
         .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
         .eq("is_published", true)
         .like("slug", "the-rundown-%")
         .order("created_at", { ascending: false })
-        .limit(12);
+        .limit(5);
 
       if (!error && data && data.length > 0) {
         setInternationalNews(data);
@@ -571,8 +485,8 @@ export default function Index() {
     const diffDays = Math.floor(diffHours / 24);
 
     if (diffMins < 60) return `${diffMins} min ago`;
-    if (diffHours < 24) return `${diffHours} hours ago`;
-    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
@@ -807,47 +721,53 @@ export default function Index() {
             </Button>
           </div>
 
+          {/* Owner's pick, 11 Nov 2026 (redesign canvas): news on the left —
+              1 big, 2 medium, 6 headlines in two even columns — and The Rundown
+              beside it on the right. Phones stack: news first, then the Rundown. */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="lg:col-span-2 min-w-0">
           {loadingNews ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className={cn(
-                  "rounded-2xl overflow-hidden animate-pulse bg-muted",
-                  i === 2 ? "md:row-span-2 aspect-[3/4]" : "aspect-[16/10]"
-                )} />
-              ))}
+            <div className="flex flex-col gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-[1.3fr_1fr] gap-4 md:gap-5">
+                <div className="rounded-2xl animate-pulse bg-muted aspect-[16/10] sm:aspect-auto sm:min-h-[360px]" />
+                <div className="grid grid-cols-1 gap-4 md:gap-5">
+                  <div className="rounded-2xl animate-pulse bg-muted aspect-[16/9]" />
+                  <div className="rounded-2xl animate-pulse bg-muted aspect-[16/9]" />
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-x-7 gap-y-3">
+                {[1, 2, 3, 4, 5, 6].map((i) => <div key={i} className="h-12 rounded-lg animate-pulse bg-muted" />)}
+              </div>
             </div>
           ) : latestNews.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {latestNews.slice(0, 5).map((news, index) => {
-                const isLarge = index === 1;
-                return (
-                  <Link
-                    key={news.id}
-                    to={`/news/${news.slug}`}
-                    className={cn(
-                      "group relative rounded-2xl overflow-hidden bg-muted",
-                      isLarge ? "md:row-span-2" : ""
-                    )}
-                  >
-                    <div className={cn(
-                      "relative w-full h-full overflow-hidden",
-                      isLarge ? "aspect-[3/4] md:aspect-auto md:h-full" : "aspect-[16/10]"
-                    )}>
+            <div className="flex flex-col gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-[1.3fr_1fr] gap-4 md:gap-5">
+                {latestNews.slice(0, 3).map((news, index) => {
+                  const isLarge = index === 0;
+                  return (
+                    <Link
+                      key={news.id}
+                      to={`/news/${news.slug}`}
+                      className={cn(
+                        "group relative rounded-2xl overflow-hidden bg-muted",
+                        isLarge ? "sm:row-span-2 aspect-[16/10] sm:aspect-auto sm:min-h-[360px]" : "aspect-[16/9]"
+                      )}
+                    >
                       {news.cover_image ? (
                         <img
                           src={news.cover_image}
                           alt={news.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-slate-700 to-slate-900" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900" />
                       )}
 
                       {/* Dark gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
 
                       {/* Category badge */}
-                      <div className="absolute top-4 left-4">
+                      <div className="absolute top-3 left-3 md:top-4 md:left-4">
                         <span className={cn(
                           "px-3 py-1 rounded-lg text-xs font-semibold text-white",
                           newsCategoryColors[news.category] || "bg-blue-500"
@@ -859,27 +779,45 @@ export default function Index() {
                       {/* Content at bottom */}
                       <div className="absolute inset-x-0 bottom-0 p-4 md:p-5">
                         <h3 className={cn(
-                          "font-bold text-white mb-2 line-clamp-2 group-hover:text-blue-300 transition-colors duration-300",
-                          isLarge ? "text-xl md:text-2xl" : "text-base md:text-lg"
+                          "font-bold text-white line-clamp-3 group-hover:text-blue-300 transition-colors duration-300",
+                          isLarge ? "text-xl md:text-2xl mb-2" : "text-base mb-1"
                         )}>
                           {news.title}
                         </h3>
-                        <div className="flex items-center gap-3 text-white/60 text-xs">
+                        <div className="flex items-center gap-3 text-white/70 text-xs">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {formatTimeAgo(news.created_at)}
                           </span>
-                          <span>·</span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {news.read_time_minutes || 3} Min Read
-                          </span>
+                          {isLarge && (
+                            <>
+                              <span>·</span>
+                              <span>{news.read_time_minutes || 3} min read</span>
+                            </>
+                          )}
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                );
-              })}
+                    </Link>
+                  );
+                })}
+              </div>
+              {latestNews.length > 3 && (
+                <div className="grid sm:grid-cols-2 gap-x-7 border-t-[3px] border-blue-600">
+                  {latestNews.slice(3, 9).map((news) => (
+                    <Link
+                      key={news.id}
+                      to={`/news/${news.slug}`}
+                      className="group flex items-baseline gap-3 py-3.5 border-b border-border"
+                    >
+                      <span aria-hidden="true" className="w-2 h-2 rounded-[2px] bg-blue-600 shrink-0 -translate-y-0.5" />
+                      <span className="flex-1 text-[15px] font-semibold leading-snug text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+                        {news.title}
+                      </span>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">{formatTimeAgo(news.created_at)}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-12 text-muted-foreground">
@@ -909,11 +847,19 @@ export default function Index() {
               )}
             </div>
           )}
+          </div>
+
+          {/* The Rundown — today's topics + the four days before */}
+          <div className="min-w-0">
+            {internationalNews.length > 0 ? (
+              <RundownLive editions={internationalNews} />
+            ) : loadingIntlNews ? (
+              <div className="h-full min-h-[480px] rounded-3xl animate-pulse bg-muted" />
+            ) : null}
+          </div>
+          </div>
         </div>
       </section>
-
-      {/* World Tech in Brief — slim international-news strip (secondary to pillars) */}
-      {internationalNews.length > 0 && <IntlNewsScroller news={internationalNews} formatTimeAgo={formatTimeAgo} />}
 
       {/* Paid "Sponsored" card (src/data/sponsors.ts) — after the news, before Online Safety */}
       <SponsoredCard className="py-8" />
