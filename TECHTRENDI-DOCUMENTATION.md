@@ -32,6 +32,22 @@
 
 ## ⭐ LATEST CHANGES — 12 November 2026 (READ THIS)
 
+### Cyber Awareness — all 95 posts fact-checked and rewritten (DB, LIVE 12 Nov; fallback PR #26)
+- Owner: "fix all issues, with facts and no assumptions". Text lives in `techtrendi.cyber_awareness_posts`
+  (numbers 1–95 published; 96–136 are hidden drafts and were NOT touched). Categories, numbers and ids unchanged,
+  so shared `#post-N` links still work.
+- Fixed: wrong advice (video "can't be faked", Wi-Fi "sees everything", airplane mode vs chargers, garage blocks
+  relay, passport chip "broadcasts", turn location off, DBAN, email address = reset), out-of-date facts (E-Levy
+  abolished 2 Apr 2025, Vodafone → Telecel, RGD → Office of the Registrar of Companies orc.gov.gh, Ghana chip
+  passports since Apr 2025, no "porting lock"), US content ($, Amazon/FedEx, garage sale, soccer), blaming lines,
+  a real celebrity name (#69), "Naked" title (#68 → "Photo Blackmail Trap").
+- Five repeats became new topics on the same numbers: #35 Phone snatched plan, #58 Loan that needs a fee first,
+  #63 Fake customer care account, #74 "I sent my code to you by mistake", #87 Money mule job.
+- All posts now one plain style (short "→" tips) and end with the CSA line: call/text 292 or WhatsApp 0501603111.
+- `src/data/cyber-awareness.json` (homepage carousel fallback, posts 1–10) refreshed to match (PR #26).
+- Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
+  `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
+
 ### Homepage news + The Rundown side by side (PR #20, LIVE 12 Nov)
 - Owner picked it from 31 designs on a canvas ("news 17 + Rundown 11"). Section "Fresh from Ghana & Africa"
   in `src/pages/Index.tsx`: left = 9 Africa Tech stories (1 big, 2 medium, 6 headlines in two columns of 3);
