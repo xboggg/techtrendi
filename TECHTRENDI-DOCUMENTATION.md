@@ -48,6 +48,23 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Creepy Tech — all posts fact-checked: 90 rewritten, 19 drafts fixed + published (DB, LIVE 12 Nov)
+- Owner: "Go ahead for both". Table `techtrendi.creepy_tech_posts`; page now shows 109 posts (count is automatic).
+- Removed false claims about Ghana and named companies: Ghana Card "IDEMIA/foreign servers" (#85, built by Margins
+  Group/IMS), Google Street View "Ghana Wi-Fi data" (#88, Street View came 2016), "Mozilla 2023 TikTok Africa study"
+  (#89, doesn't exist), Roblox "100M breach 2021" (#76), "Heydio" app (#39, real one is MyHeritage Deep Nostalgia),
+  Wing drones in Ghana (#84), "APT-C-23" cameras (#54); plus made-up stats, outdated facts (Android clipboard alerts,
+  juice jacking, BMW seats, MAC never changes), US-only advice (FBI IC3, zip codes) and scare headlines.
+- New topics on the same numbers (links still work): #12 open visitor book, #19 Wi-Fi name, #56 cheap TV boxes
+  (FBI BADBOX 2.0), #66 ATM hidden camera, #81 Wi-Fi password-sharing apps, #82 Truecaller, #84 Worldcoin Kenya,
+  #85 Ghana Card photocopies, #89 TikTok Lite.
+- All posts: plain "→" style, end with the CSA line (292 / WhatsApp 0501603111). `src/data/creepy-tech.json`
+  (homepage fallback 1–10) refreshed.
+- Drafts: 19 kept → renumbered 91–109 and published. 21 NOT kept (17 repeats + 4 unproven) are still hidden,
+  parked at numbers 900+old (e.g. 993) — awaiting the owner's yes before deleting.
+- Backup + undo on server 144: `/root/backups/creepy-tech-20261112/` (`posts-before.json` = all 130 full rows;
+  copy into supabase-db as `/tmp/ct-before.json`, run `rollback.sql`).
+
 ### Cyber Awareness — 41 hidden drafts audited: 24 repeats deleted, 17 fixed + published (DB, LIVE 12 Nov)
 - Owner: "Fix and delete repeated items". The page now has 112 posts (header count updates by itself).
 - Deleted (owner-approved list; all hidden, 0 views, never public): old drafts 97, 98, 99, 100, 101, 102, 103,
