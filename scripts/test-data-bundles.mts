@@ -2679,7 +2679,10 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   const L = route.dataBundlesRouteConfig(true), P = route.dataBundlesRouteConfig(false);
   check("launch (round 10): flipped, the canonical is https://techtrendi.com/data-bundles/ghana (and /ghana/mtn, /at, /telecel) and robots index",
     L.canonical("ghana") === "https://techtrendi.com/data-bundles/ghana" && ["at", "mtn", "telecel"].every((n) => L.canonical("ghana", n) === `https://techtrendi.com/data-bundles/ghana/${n}`) && L.noindex === false && L.route === "data-bundles" &&
-    /content=\{noindex \? 'noindex, nofollow' : 'index, follow/.test(src("src/components/seo/SEOHead.tsx")));
+    // SEOHead gained a `noindexFollow` option (careers, Ei Tech! meme pages); its default is still 'noindex, nofollow'.
+    (/content=\{noindex \? 'noindex, nofollow' : 'index, follow/.test(src("src/components/seo/SEOHead.tsx")) ||
+      (/content=\{noindex \? noindexValue : 'index, follow/.test(src("src/components/seo/SEOHead.tsx")) &&
+        /const noindexValue = noindexFollow \? 'noindex, follow' : 'noindex, nofollow';/.test(src("src/components/seo/SEOHead.tsx")))));
   check("launch (round 10): flipped, the pages are prerendered (includedRoutes adds them, so the sitemap, built from the prerendered files, lists them)",
     JSON.stringify(L.prerenderPaths) === JSON.stringify(["/data-bundles/ghana", "/data-bundles/ghana/at", "/data-bundles/ghana/mtn", "/data-bundles/ghana/telecel"]) &&
     /\.concat\(DATA_BUNDLES_PRERENDER\)/.test(vite) && !/EXCLUDE_PREFIX = \[[^\]]*"data-bundles"/.test(src("scripts/generate-sitemap.mjs")) && /Walks the prerendered `dist\/` output/.test(src("scripts/generate-sitemap.mjs")));
@@ -3268,7 +3271,7 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
   check("UI contrast: Accept is white on blue-700, 'Learn more' blue-700 / blue-300 (both at least 4.5:1 in both themes); consent logic unchanged",
     ck.includes("const acceptCls = 'bg-blue-700 text-white hover:bg-blue-800';") && (ck.match(/text-blue-700/g) ?? []).length >= 2 && ck.includes("updateConsent(prefs.analytics, prefs.advertising);"));
   // L2, L3, L5.
-  check("UI L2: RollText under reduced motion is plain text (no AnimatePresence)", /const reduce = useReducedMotion\(\);\n\s*if \(reduce\) return <span[^\n]*>\{text\}<\/span>;/.test(sh));
+  check("UI L2: RollText under reduced motion is plain text (no AnimatePresence)", /const reduce = useReducedMotion\(\);\r?\n\s*if \(reduce\) return <span[^\n]*>\{text\}<\/span>;/.test(sh));
   check("UI L3: slider thumbs have a 44 px hit area; the 'AT' switch is at least 44 px wide",
     src("src/components/data-bundles/LabelledSlider.tsx").includes("before:absolute before:-inset-3 before:rounded-full before:content-['']") &&
     src("src/components/data-bundles/MonthlyPlanner.tsx").includes("before:absolute before:-inset-[7px] before:rounded-full before:content-['']") && net.includes("inline-flex min-h-11 min-w-11 items-center justify-center rounded-full"));
@@ -3628,7 +3631,8 @@ async function prebuildCase(name: string, rowData: unknown, rowCapturedAt: strin
     check("strip (build): the prebuild keeps the committed changes file unless the new one passes the checks (version, dates, nothing in the future), and never fails the build",
       fb.okChanges(good, Date.parse(good.generatedAt)) && !fb.okChanges({ ...good, v: 2 }, Date.parse(good.generatedAt)) && !fb.okChanges({ ...good, generatedAt: "2099-01-01T00:00:00Z" }, Date.parse(good.generatedAt)) &&
       !fb.okChanges({ ...good, changes: [{ ...good.changes[0] ?? {}, date: "2099-01-01" }] }, Date.parse(good.generatedAt)) && !fb.okChanges(null) &&
-      /"build": "node scripts\/fetch-data-bundles\.mjs && node scripts\/fetch-bundle-changes\.mjs && (node scripts\/fetch-hero-slides\.mjs && )?(node scripts\/fetch-sponsors\.mjs && )?(node scripts\/fetch-featured-guides\.mjs && )?vite-react-ssg build/.test(src("package.json")) && !/process\.exit\(/.test(src("scripts/fetch-bundle-changes.mjs")));
+      // Other prebuild steps (hero slides, sponsors, guides, Ei Tech!, utf8 fix...) may follow; the data bundle fetches come first.
+      /"build": "node scripts\/fetch-data-bundles\.mjs && node scripts\/fetch-bundle-changes\.mjs && (node scripts\/[\w-]+\.mjs && )*vite-react-ssg build/.test(src("package.json")) && !/process\.exit\(/.test(src("scripts/fetch-bundle-changes.mjs")));
   }
   {
     // Homepage hero pictures from /admin/hero-images (owner, 31 Oct 2026).
