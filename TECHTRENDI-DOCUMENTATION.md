@@ -48,6 +48,26 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 5 + lengthening batch 2 (LIVE 13 Nov)
+- Lengthening batch 2: the remaining 25 short audit rewrites expanded to 1,308–1,778 words (security guides,
+  Round 2 health, Round 3 Smart Income). All audit rewrites are now ≥1,300 words. Backup `/root/backups/expand2-20261113/`.
+  Unverifiable NIA "hotline" removed (points to nia.gov.gh). Ghana Card guide now covers L.I. 2523 (biometric checks,
+  no photocopies; enforced from 3 Nov 2026) and NCA *402*1#.
+- Round 5 = 20 most-read unchecked articles across sections (owner approved hides with "Go"):
+  - HIDDEN + nginx 301 (block "# Audit round 5"): local-ai-models-run-own-hardware-free → local-ai-models-run-on-your-own-hardware-free;
+    budget-gaming-setup-under-500-premium-experience → gaming-setup-under-2000-ghana-budget-guide (target not yet checked);
+    game-streaming-content-creation-realistic-guide-2026 → beginners-guide-game-streaming-twitch-youtube-2026;
+    power-banks-capacity-claims-vs-actual-performance → power-bank-capacity-claims-vs-actual-performance;
+    phone-cases-screen-protectors-complete-buyers-guide → phone-cases-screen-protectors-complete-guide.
+  - REWRITTEN/FIXED (17, 1,400–3,100 words): Ghana children online (UNICEF 750 → 51,000+ reports; Act 1038 penalties),
+    scam teardowns, password mistakes (NIST 2025), smart-home (Android AirTag alerts), identity protection (Ghana Card),
+    remote-worker pay (PayPal Ghana = send only), One Million Coders (Sept/Oct 2026), NHIS (*929#; 054-444-6447 /
+    030-274-6447), iPhone status symbol, organise digital life, esports (Ghana Esports Federation), gaming lag,
+    beginner streaming, power banks (ICAO/IATA 2026 rules), phone cases, phone storage, phone photography.
+- Live tests passed (phone + desktop); sitemap drops hidden; AdSense/canonical intact.
+- Backups/undo: `/root/backups/round5-20261113/` (hide-output.txt holds the 2 extra hidden rows).
+- Breaking news 13 Nov: "Microsoft Outage Hits Outlook and Teams Worldwide, Ghana Users Affected" (news, Africa Tech).
+
 ### Whole-site article audit — Round 4: rest of Smart Income + lengthening batch 1 (LIVE 13 Nov)
 - Owner rule (13 Nov): articles must not be too short — rewrites now 1,300–1,800 words of verified depth
   (steps, Ghana specifics, tables, common mistakes, FAQ), never padding.
