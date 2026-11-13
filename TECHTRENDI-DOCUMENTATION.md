@@ -48,6 +48,32 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 4: rest of Smart Income + lengthening batch 1 (LIVE 13 Nov)
+- Owner rule (13 Nov): articles must not be too short — rewrites now 1,300–1,800 words of verified depth
+  (steps, Ghana specifics, tables, common mistakes, FAQ), never padding.
+- Lengthening batch 1: the 12 shortest audit rewrites expanded to 1,330–1,560 words (10 AI tools, free certifications,
+  passkeys, slow internet, meditation apps, digital detox, blue-light glasses, fitness trackers, external storage,
+  parental controls, children & screens, digital wellness). Backup `/root/backups/expand1-20261113/`.
+  ⚠️ certifications article mentions CompTIA Security+ V8 launching ~17 Nov 2026 — recheck after.
+- Round 4 = last 16 unchecked Smart Income articles (4 fact-check agents; owner approved hides with "go"):
+  - HIDDEN + nginx 301 (block "# Audit round 4"): selling-digital-products-create-sell-online +
+    digital-product-creation-…-people-want → …-people-actually-want; build-personal-brand-opens-doors →
+    you-already-have-a-personal-brand…; websites-make-money-online-2026 → make-money-online-without-scams-2026;
+    digital-real-estate… → making-money-blogging-why-people-quit; selling-technical-courses… +
+    technical-course-creators… → create-sell-online-courses-technical-topics; tiktok-creator-fund (closed Dec 2023)
+    → start-profitable-youtube-channel-2026.
+  - REWRITTEN (1,390–1,860 words): make-money-online-without-scams-2026, create-sell-online-courses-technical-topics
+    (Udemy 37%/97%, Teachable/Podia need Stripe), writing-selling-ebook-gumroad-30-day-plan (KDP 70% only
+    $2.99–$12.99; Ghana paid by cheque), social-media-marketing-small-business-guide (DataReportal Oct 2025;
+    Instagram 5 hashtags), making-money-blogging-why-people-quit (AdSense no traffic minimum), affiliate-marketing-…
+    (Amazon gift card/cheque for Ghana; Jumia KOL), ai-data-labeling-jobs-pay-how-to-find,
+    build-emergency-fund-paycheck-to-paycheck (T-bills, IC Liquidity Fund, GDPC GH₵6,250 / GH₵1,250).
+  - Selar fee: Selar's own blog says ~4–10% by currency; "5% + GH¢1" is third-party only — don't print it.
+    Paystack Ghana 1.95% (official).
+- Live test: 8 rewrites + 12 lengthened × phone + desktop passed; sitemap drops all 8 hidden; AdSense/canonical intact.
+- Backups/undo: `/root/backups/round4-20261113/`. Smart Income is now fully audited. Next: lengthen ~25 more
+  short rewrites, then the next section by views.
+
 ### Whole-site article audit — Round 3: Smart Income, 20 most-read (LIVE 13 Nov)
 - 20 most-read unchecked Smart Income articles; 4 parallel fact-check agents; owner approved the hide list ("Go").
   Three of the hidden ones came from one 19 Mar 2026 batch reusing the same invented names — check that batch.
