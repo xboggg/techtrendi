@@ -48,6 +48,33 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 3: Smart Income, 20 most-read (LIVE 13 Nov)
+- 20 most-read unchecked Smart Income articles; 4 parallel fact-check agents; owner approved the hide list ("Go").
+  Three of the hidden ones came from one 19 Mar 2026 batch reusing the same invented names — check that batch.
+  - HIDDEN + nginx 301 (block "# Audit round 3"): faceless-youtube-channels-how-they-work (dup, invented "Marcus
+    $127,000") → faceless-youtube-channel-business-model-financial-breakdown; print-on-demand-explained (dup, invented
+    "$3,847" teacher) → how-to-start-print-on-demand-business-guide; first-web-development-client-without-portfolio
+    + building-websites-local-businesses-side-project (dups, invented stories/income) →
+    freelance-web-development-first-client-no-portfolio; teaching-tech-to-seniors, local-tech-support-side-gig,
+    using-ai-tools-build-side-business (invented people/figures, US-only) → Smart Income category.
+  - REWRITTEN (same slugs, verified facts, "About this guide"): start-profitable-youtube-channel-2026,
+    start-youtube-tech-review-channel (ZV-E10 II US$999 body, Premiere Pro ~US$22.99/mo), creator-economy-2026
+    (Goldman Sachs 2023 ~US$250bn → ~US$480bn by 2027), how-to-sell-anything-online (Ghana-first: Jiji/Tonaton,
+    Paystack Starter Business, Etsy doesn't pay Ghana), selling-old-tech-stuff (wipe steps, FRP order, safe meet-ups,
+    fake MoMo "payment sent", CSA box), digital-product-creation-…-actually-want (Gumroad 10% + $0.50 / 30% Discover,
+    Affinity free since Oct 2025), fiverr-upwork-mistakes (off-platform payment bans, fake-client scams),
+    building-niche-tech-newsletter (Substack/Beehiiv/Ghost need Stripe → not for Ghana-based paid subs; Paystack).
+  - FIXED in place: faceless-youtube-…-financial-breakdown (fake "YouTube 2025 data" CPMs removed, 55%/45% split,
+    US$100bn), how-to-start-print-on-demand (Spring/Teespring closed Oct 2026, Etsy no monthly fee + can't pay Ghana,
+    fee maths), freelance-web-development-first-client (Upwork 0–15%, Connects US$0.15, WordPress ~39%, scam box),
+    virtual-assistant-…-guide (US-only agencies removed, Freshdesk free plan ended, scam box), personal-brand (OECD
+    61% / US$259bn of US$427bn; unsourced "6×" removed).
+  - YouTube Ghana facts: YPP open in Ghana (1,000 subs + 4,000 h/12 mo or 10M Shorts views/90 days); 500-sub tier,
+    memberships, Super Chat/Thanks NOT in Ghana; paid by bank wire/cheque at US$100, not MoMo; 30% US withholding
+    (no treaty), 24% if no tax info.
+- Live test: 13 articles × phone + desktop passed; sitemap drops all 7 hidden; homepage AdSense meta + canonical intact.
+- Backups/undo on 144: `/root/backups/round3-20261113/`. Next: Smart Income continued (articles 21+ by views).
+
 ### Whole-site article audit — Round 2: Health Tech + 3 money articles (LIVE 13 Nov)
 - 20 articles: all 17 flagged Health Tech + freelance-platforms-that-pay-ghanaians, apps-that-pay-you, crypto guide.
   4 parallel fact-check agents; owner approved the hide list ("Go"). All 20 had invented first-person testing;
