@@ -48,6 +48,24 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 6 (LIVE 13 Nov)
+- 20 articles (4 carried over + next 16 most-read); one-pass agents (fact-check + write); owner approved hides with "go".
+  - HIDDEN + nginx 301 (block "# Audit round 6"): phone-durability-myths-debunked-cases-screen-protectors +
+    phone-durability-myths-debunked-complete-guide → phone-cases-screen-protectors-complete-guide;
+    smartphone-photo-rules-professional-photographers-cringe (fake quotes attributed to real photographers) →
+    phone-photography-guide-professional-results; ai-explained-non-technical-guide → what-is-ai-really-no-jargon-explanation;
+    5-hidden-bottlenecks-macbook-slower-usb-drive (false premise) → external-storage-ssd-hdd-nas-guide-2026;
+    two-factor-authentication-methods-ranked-weakest-to-strongest → complete-two-factor-authentication-setup-guide
+    (4 live articles re-linked to the 2FA guide; backup relink-before.csv).
+  - REWRITTEN (14, 1,390–1,850 words): smartphone-buying-guide-2026, iphone-18-pro-ghana-upgrade-or-wait-2026 (Apple newsroom
+    9 Sep 2026; eSIM-only models), gaming-setup-under-2000-ghana-budget-guide, mobile-gaming-budget-ghana-save-data,
+    cloud-gaming-services-compared… (no major service officially offered in Ghana), electric-vehicles-ghana-2026-reality-check
+    (Dec 2023 policy; 2026 Energy Commission charging rules "reported"), mechanical-keyboard-addiction-guide,
+    usb-c-hubs-docks-compared…, backup-internet-remote-workers-ghana-plan-b, time-zones-remote-work-ghana… (UK +1 in summer),
+    what-is-ai-really…, how-to-ai-proof-your-career-guide (WEF 2025 / IMF 2024), tech-skills-that-matter-most-2027 (no salaries),
+    ai-powered-productivity… (privacy box).
+- Live test passed (phone + desktop); sitemap drops hidden; AdSense/canonical intact. Backups/undo: `/root/backups/round6-20261113/`.
+
 ### Whole-site article audit — Round 5 + lengthening batch 2 (LIVE 13 Nov)
 - Lengthening batch 2: the remaining 25 short audit rewrites expanded to 1,308–1,778 words (security guides,
   Round 2 health, Round 3 Smart Income). All audit rewrites are now ≥1,300 words. Backup `/root/backups/expand2-20261113/`.
