@@ -48,6 +48,32 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 2: Health Tech + 3 money articles (LIVE 13 Nov)
+- 20 articles: all 17 flagged Health Tech + freelance-platforms-that-pay-ghanaians, apps-that-pay-you, crypto guide.
+  4 parallel fact-check agents; owner approved the hide list ("Go"). All 20 had invented first-person testing;
+  several had invented quotes pinned on REAL named doctors/academics (reputation risk).
+  - HIDDEN + nginx 301 (block "# Audit round 2"): phone-stealing-sleep (dup) → phone-destroying-sleep;
+    blue-light-glasses-science-eye-strain-testing (dup) → blue-light-glasses-eye-strain-science-reality;
+    meditation-apps-…-2024 (dup) → meditation-apps-tested-…; screen-time-brain (fake "Microsoft 50,000" study) →
+    children-screens guide; 30-days-passive-screen-time (fake Orben/Kuss quotes) → digital-detox;
+    silicon-valley-workers-never-sit (invented premise), smartwatch-detects-illness (fake Perez/Radin quotes,
+    false "non-invasive glucose" claim), telemedicine-myths (US-only, invented doctor) → Health Tech category;
+    apps-that-pay-you (Dosh dead, apps not in Ghana, "you cannot lose") → make-money-online-without-scams-2026.
+  - REWRITTEN (same slugs, verified facts, health note + "About this guide"): phone-destroying-sleep (Chang 2015,
+    Irwin ~28%, Williamson & Feyer 0.05%), sleep-tracking (Altini 2021 79%, Windred 2024 60,977, orthosomnia, FDA
+    apnoea Feb/Sep 2024), blue-light-glasses (Cochrane 2023 17 trials/619, AAO quote), meditation-apps (free first;
+    Happier = ex-Ten Percent Happier), digital-detox (grayscale, Rhee & Kim 2016), zero-dollar-home-gym (WHO
+    150–300 min + strength 2 days; chair safety), digital-wellness, air-quality (Accra PM2.5 89 vs 23 µg/m³
+    harmattan, WHO 5 µg/m³, carbon-monoxide warning), fitness-tracker-calorie-lies (Stanford 2017 27–93%;
+    Lancet PH 2025 7,000 steps), beginners-guide-cryptocurrency (VASP Act 2025, Act 1154; BoG + SEC; Ghana scam
+    patterns; SEC 0800 100 065 + CSA report box).
+  - FIXED in place: freelance-platforms-that-pay-ghanaians (Upwork 0–15% fee since May 2025 + Direct to Local Bank
+    GHS; Fiverr 14-day clearance; Telecel Cash; PayPal not full service in Ghana; Remotasks warning; 99designs
+    Hyperwallet; fake "34%" stat and fake community quote removed).
+- Live test: 11 articles × phone + desktop passed; sitemap drops all 9 hidden; homepage AdSense meta + canonical intact.
+- Backups/undo on 144: `/root/backups/round2-20261113/` (before.json 20 rows, update.json, rollback.sql,
+  rollback-hide.sql, nginx copy before). Next: Smart Income (34 flagged left).
+
 ### Whole-site article audit — Round 1 of ~12 (LIVE 12 Nov)
 - Scan of the 325 remaining published articles: 240 show fabrication markers (invented "I tested/I spent",
   "847", invented experts), ~1,470 mostly unsourced % figures, ~3,500 US-only references; 262 never mention Ghana.
