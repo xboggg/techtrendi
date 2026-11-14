@@ -48,6 +48,25 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 8 (LIVE 14 Nov)
+- 20 articles: 9 overlaps found in Round 7 + 11 next most-read unchecked ("unchecked" = no "Last reviewed: November 2026" line).
+  Owner's rule this round: no assumptions, verified facts only, content worth sharing; rewrites ≥1,300 words.
+  - HIDDEN + nginx 301 (block "# Audit round 8"): public-wifi-real-threats-vs-paranoia → public-wifi-dangers-real-risks-vs-paranoia;
+    streaming-cloud-ai-environmental-cost-reality + netflix-digital-carbon-footprint-streaming-emissions → real-environmental-cost-streaming-cloud-storage-ai;
+    iphone-battery-myths-costing-money → double-phone-battery-life-tricks-guide; building-vs-buying-gaming-pc-cost-breakdown +
+    gaming-hardware-requirements-2026-reality-check + why-expensive-gaming-pc-loses-budget-video-editing → how-to-build-budget-gaming-pc-modern-titles;
+    expensive-earbuds-sound-cheap-why-plus-exceptions → wireless-earbuds-sound-quality-anc-comfort-test;
+    mechanical-keyboards-explained-switches-layouts-guide → mechanical-keyboard-addiction-guide;
+    home-server-setup-media-streaming-backups → home-server-setup-guide-beginners. 5 live links re-pointed/removed (relink-before.csv).
+  - 10 REWRITTEN (1,422–1,970 words): home solar Ghana, free-to-play games, PC/console/mobile in Africa, earbuds under GH¢500
+    (Telefonika/Compughana prices dated 14 Nov), smartwatch vs tracker, laptop accessories, remote-work promotion, bootcamp to hired,
+    AI beginner projects, smart home setup.
+  - Verified: Apple Watch in Ghana lists Blood Oxygen only (no ECG/hypertension/sleep apnoea); Samsung ECG list excludes Ghana;
+    Sony lists only South Africa in Africa (no Ghana PlayStation Store); Bloom 2015 remote study gave no "50%" figure;
+    Gemini Gems read-only 17 Nov, removed 17 Dec 2026 (re-check AI projects article then).
+  - Backup + undo: server 144 `/root/backups/round8-20261114/`. Live test 10 × 2 screen sizes + sitemap + AdSense/canonical ALL PASSED;
+    all 10 redirects tested.
+
 ### Whole-site article audit — Round 7 (LIVE 14 Nov)
 - 20 next most-read articles (green energy/Ghana, phones, gaming, how-to, mixed); one-pass agents; owner approved the hide.
   - HIDDEN + nginx 301 (block "# Audit round 7"): building-gaming-pc-three-budget-levels-cost-breakdown-2026
