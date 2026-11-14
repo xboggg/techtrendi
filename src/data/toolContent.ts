@@ -1358,17 +1358,19 @@ export const toolContentData: Record<string, ToolContent> = {
 
 // Finance
 "ghana-tax-calculator": {
-  intro: "Calculate your Ghana income tax based on the latest GRA tax brackets. Enter your gross monthly or annual salary and instantly see your PAYE, SSNIT contribution, and take-home pay.",
+  intro: "Work out your take-home pay with the new Ghana income tax bands from 1 September 2026, see your SSNIT, and check the VAT, NHIL and GETFund inside what you buy. Everything updates live as you type.",
   howTo: [
-    "Enter your gross monthly or annual salary in Ghana Cedis.",
-    "Select whether you want monthly or annual calculations.",
-    "View the breakdown of SSNIT, PAYE tax, and your net take-home pay.",
+    "My salary: type your basic monthly pay (and any cash allowances). You see your take-home pay, the tax staircase and your SSNIT at once.",
+    "Shopping VAT: list what you bought, mark each item as taxed, no VAT or zero-rated, and read the receipt. Use \"Is it taxed?\" to look up common items.",
+    "Pay I need: type the money you want in hand each month to see the basic salary to ask for.",
   ],
-  whyNeedIt: "Understanding your tax obligations should not require an accountant. This tool uses the current GRA tax tables so you can quickly verify your payslip deductions or estimate take-home pay before accepting a job offer.",
+  whyNeedIt: "Tax rules changed twice in 2026: VAT became a clean 20% on 1 January and new income tax bands started on 1 September. This tool uses both, so you can check your payslip, plan a job offer or understand a receipt without an accountant.",
   faqs: [
-    { q: "Are the tax brackets up to date?", a: "Yes, the calculator uses the latest Ghana Revenue Authority tax rates. We update it whenever GRA announces changes." },
-    { q: "Does this include SSNIT contributions?", a: "Yes. The calculator deducts the employee SSNIT contribution (5.5% for Tier 1) before calculating PAYE tax, just like your employer does." },
-    { q: "Can I use this for self-employed income?", a: "This tool is designed for PAYE employees. Self-employed taxpayers have different rules and should consult the GRA guidelines or a tax professional." },
+    { q: "Which tax bands does it use?", a: "The bands in the Income Tax (Amendment) Act 2026 (Act 1178), used by GRA from 1 September 2026: the first GH¢7,056 a year (GH¢588 a month) is tax-free, then 5%, 10%, 17.5%, 25%, 30% and 35% above GH¢600,000 a year." },
+    { q: "How much SSNIT comes out of my pay?", a: "5.5% of your basic salary. Your employer adds 13%. Of the 18.5% total, 13.5% goes to SSNIT (Tier 1) and 5% to your Tier 2 scheme. In 2026 SSNIT stops at a basic of GH¢69,000 a month." },
+    { q: "How is VAT worked out now?", a: "Since 1 January 2026, taxed items pay GETFund levy 2.5%, NHIL 2.5% and VAT 15%, each on the price before tax — 20% in total. GH¢100 becomes GH¢120. The 1% COVID-19 levy was scrapped." },
+    { q: "Does everything pay VAT?", a: "No. Raw foodstuffs grown in Ghana, medicines and hospital care, school fees, approved textbooks, trotro and bus fares, house rent, home electricity, tap water, fuel and bank charges are on the no-VAT list. Exports and Ghana-made sanitary pads are zero-rated." },
+    { q: "Is this tax advice?", a: "No. It is an estimate for people who live in Ghana and earn a salary. Reliefs, overtime and special cases can change your figure. GRA has the final word." },
   ],
 },
 "compound-interest": {

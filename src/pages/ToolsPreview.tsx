@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
    ========================================================================== */
 
 const FLAGSHIP = [
-  { title: "Ghana Tax Calculator", cmd: "ghana-tax-calculator", short: "PAYE, SSNIT & take-home pay (2026 GRA bands)", icon: Calculator, gradient: "from-green-600 to-emerald-700", href: "/tools/ghana-tax-calculator" },
+  { title: "Ghana Tax Calculator", cmd: "ghana-tax-calculator", short: "PAYE, SSNIT & VAT (new 2026 rules)", icon: Calculator, gradient: "from-green-600 to-emerald-700", href: "/tools/ghana-tax-calculator" },
   { title: "Ghana Scam Checker", cmd: "scam-checker", short: "Check a suspicious message before you reply", icon: Shield, gradient: "from-cyan-500 to-blue-600", href: "/tools/ghana-scam-checker" },
   { title: "MoMo Fee Calculator", cmd: "momo-fee-calc", short: "Exact MTN & AT Money fees — E-Levy removed", icon: Calculator, gradient: "from-yellow-400 to-orange-500", href: "/tools/momo-fee-calculator" },
   { title: "ECG Bill Estimator", cmd: "ecg-bill-estimator", short: "Estimate your electricity bill (PURC 2026)", icon: Zap, gradient: "from-amber-500 to-yellow-600", href: "/tools/ecg-bill-estimator" },
