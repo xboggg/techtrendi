@@ -48,6 +48,26 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 9 (LIVE 14 Nov)
+- 20 articles: the overlap list from Round 8 + 3 green-tech overlaps; owner approved hides with "Ok".
+  - HIDDEN + nginx 301 (block "# Audit round 9"): is-solar-finally-cheaper-than-staying-on-grid-2026-numbers → solar-panels-home-ghana-cost-worth-it-2026;
+    carbon-footprint-apps-behavior-change-test-results → carbon-footprint-tech-use-explained-simple-guide;
+    your-old-iphone-is-killing-kids-ghana-apple-knows + e-waste-recycling-how-to-dispose-of-old-tech → e-waste-ghana-old-phones-responsible-disposal-guide;
+    hidden-zero-dollar-gaming-loophole-nvidia-doesnt-want-you-know → cloud-gaming-services-compared-latency-library-performance-2026;
+    hidden-mind-control-program-gaming-microtransactions → parental-controls-that-work-without-spying;
+    mobile-gaming-titles-worth-your-time-and-money → mobile-gaming-africa-takeover-best-games-2026;
+    setting-up-smart-home-from-scratch-what-to-buy-first → smart-home-setup-guide-what-to-buy-first;
+    remote-workers-promotion-bias-how-to-fix → staying-visible-getting-promoted-remote-work;
+    ghanaian-coding-bootcamp-grads-struggling-hired-what-works → bootcamp-to-hired-what-happens-after-graduation;
+    developer-portfolio-that-… + developer-portfolio-tips-… → developer-portfolio-hiring-managers-actually-review;
+    wifi-invisible-enemies-killing-speed → why-internet-slow-how-to-fix-today;
+    home-office-setup-ghanaian-remote-workers-guide → laptop-accessories-improve-productivity-worth-buying. 5 live links re-pointed.
+  - 6 REWRITTEN (1,642–1,972 words): smart plugs/timers/meters for the ECG bill, gaming laptop vs desktop, developer portfolio,
+    laptop battery myths, power banks (oraimo Ghana prices 14 Nov), extending electronics life.
+  - Verified: Windows 10 consumer ESU to 12 Oct 2027 (Microsoft); Vercel Hobby personal/non-commercial only (Vercel pricing + terms).
+  - Open bug: children-online-gaming-safety-ghana-guide shows raw `&lt;cite index=…&gt;` text — fix in the next round.
+  - Backup + undo: server 144 `/root/backups/round9-20261114/`. Live test 6 × 2 screen sizes + sitemap + AdSense ALL PASSED; 14 redirects tested.
+
 ### Whole-site article audit — Round 8 (LIVE 14 Nov)
 - 20 articles: 9 overlaps found in Round 7 + 11 next most-read unchecked ("unchecked" = no "Last reviewed: November 2026" line).
   Owner's rule this round: no assumptions, verified facts only, content worth sharing; rewrites ≥1,300 words.
