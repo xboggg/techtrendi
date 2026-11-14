@@ -48,6 +48,29 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 10 (LIVE 14 Nov)
+- 20 articles (jobs/careers, smart home, gaming, EV overlaps); owner approved hides with "Go".
+  - REWRITTEN (9, ≥1,300 words, fact-checked): remote-tech-jobs-where-to-find-how-to-land, hidden-job-market-how-it-works-access-without-applying,
+    what-nobody-tells-you-before-first-tech-interview, ai-twi-ga-ewe-ghana-language-tools-guide, router-security-silent-invasion-guide,
+    smart-home-devices-secret-surveillance-network, gaming-monitor-myths-debunked-refresh-rates-panels-performance,
+    right-to-repair-wins-device-costs-savings-2026, children-online-gaming-safety-ghana-guide.
+  - FIXED in place: cv-tips-for-remote-jobs-a-guide-for-ghana-and-nigeria (14 fixes). KEPT as accurate (review line added):
+    how-to-spot-a-fake-job-offer-a-guide-for-job-seekers-in-ghana-and-nigeria.
+  - Display bug fixed: leftover `<cite>` tags showed as raw text on 2 articles; the audit checker now blocks them.
+  - HIDDEN + nginx 301 (block "# Audit round 10"): get-tech-job-no-degree-no-experience → tech-skills-that-matter-most-2027;
+    resume-that-gets-interviews-hiring-managers-guide → cv-tips-for-remote-jobs-a-guide-for-ghana-and-nigeria;
+    tech-interview-signals-disqualify-application → what-nobody-tells-you-before-first-tech-interview;
+    github-readme-12-job-offers-28-days → developer-portfolio-hiring-managers-actually-review;
+    180-dollar-office-setup-beats-silicon-valley-gear → laptop-accessories-improve-productivity-worth-buying;
+    internet-reliability-remote-work-backup-solutions-failover → backup-internet-remote-workers-ghana-plan-b;
+    smart-home-automation-under-100-dollars-budget → smart-home-setup-guide-what-to-buy-first;
+    gaming-peripherals-that-improve-gameplay → gaming-setup-under-2000-ghana-budget-guide;
+    ev-lies-uncomfortable-truths-electric-cars → electric-vehicles-ghana-2026-reality-check.
+  - 1 live link repointed (free-online-certifications-that-get-you-hired-2026 → tech-skills-that-matter-most-2027).
+- Tested live: 11 articles × phone + laptop, 9 redirects 301 OK, sitemap 0 hidden / 9 targets listed, AdSense meta present.
+- Backup + undo on server 144: `/root/backups/round10-20261114/` (before.json, rollback.sql, rollback-hide.sql,
+  techtrendi.com.nginx.before, r10-relink-before.csv).
+
 ### Whole-site article audit — Round 9 (LIVE 14 Nov)
 - 20 articles: the overlap list from Round 8 + 3 green-tech overlaps; owner approved hides with "Ok".
   - HIDDEN + nginx 301 (block "# Audit round 9"): is-solar-finally-cheaper-than-staying-on-grid-2026-numbers → solar-panels-home-ghana-cost-worth-it-2026;
