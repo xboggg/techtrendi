@@ -59,6 +59,8 @@ interface CountryTaxConfig {
   hasPension?: boolean;
   pensionName?: string;
   pensionRate?: number;
+  pensionPreTax?: boolean;
+  pensionMaxWage?: number;
 }
 
 // --- Tax configurations by country ---
@@ -132,33 +134,39 @@ const taxConfigs: Record<Country, CountryTaxConfig> = {
     symbol: "GHS",
     brackets: {
       single: [
-        { min: 0, max: 5880, rate: 0 },
-        { min: 5880, max: 7440, rate: 5 },
-        { min: 7440, max: 11280, rate: 10 },
-        { min: 11280, max: 45120, rate: 17.5 },
-        { min: 45120, max: 432000, rate: 25 },
-        { min: 432000, max: Infinity, rate: 30 },
+        { min: 0, max: 7056, rate: 0 },
+        { min: 7056, max: 8016, rate: 5 },
+        { min: 8016, max: 9216, rate: 10 },
+        { min: 9216, max: 44016, rate: 17.5 },
+        { min: 44016, max: 236016, rate: 25 },
+        { min: 236016, max: 600000, rate: 30 },
+        { min: 600000, max: Infinity, rate: 35 },
       ],
       married: [
-        { min: 0, max: 5880, rate: 0 },
-        { min: 5880, max: 7440, rate: 5 },
-        { min: 7440, max: 11280, rate: 10 },
-        { min: 11280, max: 45120, rate: 17.5 },
-        { min: 45120, max: 432000, rate: 25 },
-        { min: 432000, max: Infinity, rate: 30 },
+        { min: 0, max: 7056, rate: 0 },
+        { min: 7056, max: 8016, rate: 5 },
+        { min: 8016, max: 9216, rate: 10 },
+        { min: 9216, max: 44016, rate: 17.5 },
+        { min: 44016, max: 236016, rate: 25 },
+        { min: 236016, max: 600000, rate: 30 },
+        { min: 600000, max: Infinity, rate: 35 },
       ],
       head_of_household: [
-        { min: 0, max: 5880, rate: 0 },
-        { min: 5880, max: 7440, rate: 5 },
-        { min: 7440, max: 11280, rate: 10 },
-        { min: 11280, max: 45120, rate: 17.5 },
-        { min: 45120, max: 432000, rate: 25 },
-        { min: 432000, max: Infinity, rate: 30 },
+        { min: 0, max: 7056, rate: 0 },
+        { min: 7056, max: 8016, rate: 5 },
+        { min: 8016, max: 9216, rate: 10 },
+        { min: 9216, max: 44016, rate: 17.5 },
+        { min: 44016, max: 236016, rate: 25 },
+        { min: 236016, max: 600000, rate: 30 },
+        { min: 600000, max: Infinity, rate: 35 },
       ],
     },
     hasPension: true,
     pensionName: "SSNIT",
     pensionRate: 5.5,
+    // Ghana: SSNIT is taken off before PAYE and stops at GH¢69,000 a month (2026). Bands: Act 1178, from 1 Sep 2026.
+    pensionPreTax: true,
+    pensionMaxWage: 828000,
   },
   NG: {
     name: "Nigeria",
@@ -321,7 +329,13 @@ export default function PaycheckCalculator() {
     const annualOtherDeductions = otherDeductions * 12;
     const totalPreTaxDeductions = annual401k + annualHealthInsurance + annualOtherDeductions;
 
-    const taxableIncome = Math.max(0, annualGross - totalPreTaxDeductions);
+    // Country-specific pension (Ghana/Nigeria)
+    let pensionTax = 0;
+    if (config.hasPension && config.pensionRate) {
+      pensionTax = Math.min(annualGross, config.pensionMaxWage ?? Infinity) * (config.pensionRate / 100);
+    }
+
+    const taxableIncome = Math.max(0, annualGross - totalPreTaxDeductions - (config.pensionPreTax ? pensionTax : 0));
 
     // Federal/Income Tax
     const federalTax = calculateFederalTax(taxableIncome, config.brackets[filingStatus]);
@@ -339,11 +353,6 @@ export default function PaycheckCalculator() {
       socialSecurityTax = ssWage * (config.socialSecurity.rate / 100);
     }
 
-    // Country-specific pension (Ghana/Nigeria)
-    let pensionTax = 0;
-    if (config.hasPension && config.pensionRate) {
-      pensionTax = annualGross * (config.pensionRate / 100);
-    }
 
     // Medicare
     let medicareTax = 0;

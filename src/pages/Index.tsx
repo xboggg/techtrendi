@@ -117,7 +117,7 @@ const categoryLabels: Record<string, string> = {
 // `burst` = the comic speech-burst badge (tool-specific).
 const flagshipTools = [
   { title: "ECG Bill Estimator", description: "Estimate your electricity bill on the PURC 2026 tariff", icon: Zap, gradient: "from-amber-500 to-yellow-600", href: "/tools/ecg-bill-estimator", burst: "ECG!" },
-  { title: "Ghana Tax Calculator", description: "PAYE, SSNIT & take-home pay (2026 GRA bands)", icon: Calculator, gradient: "from-green-600 to-emerald-700", href: "/tools/ghana-tax-calculator", burst: "GRA!" },
+  { title: "Ghana Tax Calculator", description: "PAYE, SSNIT & VAT (new 2026 rules)", icon: Calculator, gradient: "from-green-600 to-emerald-700", href: "/tools/ghana-tax-calculator", burst: "GRA!" },
   { title: "Ghana Scam Checker", description: "Check a suspicious message before you reply", icon: Shield, gradient: "from-cyan-500 to-blue-600", href: "/tools/ghana-scam-checker", burst: "419!" },
   { title: "MoMo Fee Calculator", description: "Exact MTN & AT Money fees — E-Levy correctly removed", icon: Calculator, gradient: "from-yellow-400 to-orange-500", href: "/tools/momo-fee-calculator", burst: "MTN!" },
 ];
