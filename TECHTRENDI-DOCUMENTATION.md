@@ -48,6 +48,17 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Ghana Tax Calculator rebuilt (LIVE 15 Nov 2026, PR #49)
+- /tools/ghana-tax-calculator: tabs My salary / Shopping VAT / Pay I need; framer-motion animations; canonical tag added.
+- Maths in `src/lib/ghanaTax.ts` (no React) — tests: `node --experimental-strip-types scripts/test-ghana-tax.mjs` (26 checks).
+- Facts + item list + sources in `src/data/ghanaTaxFacts.ts` (LAST_CHECKED). Only add VAT items the Act/GRA clearly classify.
+- PAYE: Act 1178 bands from 1 Sep 2026 (7,056 / 960 / 1,200 / 34,800 / 192,000 / 363,984 / 35% above 600,000). Old Act 1111 bands kept for "old vs new" (sum 605,000 — known table error, GRA advised 605k). Middle earners (~GH¢4–20k basic) pay slightly MORE under the new bands — the page says so honestly.
+- SSNIT: employee 5.5% only (old page wrongly also took Tier 2 5%); employer 13%; cap GH¢69,000/month (2026).
+- VAT: Act 1151 from 1 Jan 2026 — VAT 15% + NHIL 2.5% + GETFund 2.5% on the same base = 20%; COVID levy gone. Exempt/zero-rated per First/Second Schedules. Local purchases only (imports differ).
+- Bonus: up to 15% of yearly basic at 5% final; excess on normal bands (GRA PAYE page).
+- Paycheck Calculator (Ghana): same new bands, SSNIT pre-tax and capped.
+- When GRA changes rates: update ghanaTax.ts + ghanaTaxFacts.ts + toolContent FAQ, run the test, deploy.
+
 ### Whole-site article audit — Round 10 (LIVE 14 Nov)
 - 20 articles (jobs/careers, smart home, gaming, EV overlaps); owner approved hides with "Go".
   - REWRITTEN (9, ≥1,300 words, fact-checked): remote-tech-jobs-where-to-find-how-to-land, hidden-job-market-how-it-works-access-without-applying,
