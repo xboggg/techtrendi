@@ -48,6 +48,24 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 7 (LIVE 14 Nov)
+- 20 next most-read articles (green energy/Ghana, phones, gaming, how-to, mixed); one-pass agents; owner approved the hide.
+  - HIDDEN + nginx 301 (block "# Audit round 7"): building-gaming-pc-three-budget-levels-cost-breakdown-2026
+    (fabricated builds, undated US prices) → how-to-build-budget-gaming-pc-modern-titles. No live links pointed to it.
+  - 19 REWRITTEN (1,366–2,003 words): e-waste, appliance electricity use, energy-efficient appliances, renewable energy,
+    EV/e-motorbikes, carbon footprint, streaming/AI energy, S27 Ultra (states it is NOT announced; no cedi prices),
+    battery life, earbuds, budget gaming PC, mobile gaming Africa, Wi-Fi not working, home server, second brain,
+    teaching children online safety (now for teachers), AI image generators, Accra traffic, public Wi-Fi.
+  - Verified: PURC tariff from 1 Jul 2026 (unchanged Q4): lifeline 89.9315 p/kWh, 0–300 kWh 203.7509, >300 kWh 269.2235;
+    Act 917 replaced by Environmental Protection Act 2025 (Act 1124); Agbogbloshie demolished Jul 2021; Energy Commission
+    1–7 star labels; Ghana mains 230 V.
+  - Not yet checked, overlap these (next round): public-wifi-real-threats-vs-paranoia, building-vs-buying-gaming-pc-cost-breakdown,
+    home-server-setup-media-streaming-backups, streaming-cloud-ai-environmental-cost-reality,
+    netflix-digital-carbon-footprint-streaming-emissions, best-wireless-earbuds-under-500-ghana-2026,
+    expensive-earbuds-sound-cheap-why-plus-exceptions, iphone-battery-myths-costing-money.
+  - Backup + undo: server 144 `/root/backups/round7-20261113/` (before.json, rollback.sql, rollback-hide.sql,
+    techtrendi.com.nginx.before). Live test: 19 articles × 2 screen sizes + sitemap + AdSense/canonical ALL PASSED.
+
 ### Whole-site article audit — Round 6 (LIVE 13 Nov)
 - 20 articles (4 carried over + next 16 most-read); one-pass agents (fact-check + write); owner approved hides with "go".
   - HIDDEN + nginx 301 (block "# Audit round 6"): phone-durability-myths-debunked-cases-screen-protectors +
