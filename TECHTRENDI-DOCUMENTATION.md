@@ -48,6 +48,21 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 15 (LIVE 15 Nov)
+- 20 articles (slow PCs, backup/storage, hacking & scams, phone privacy/speed); owner approved hides with "Sure".
+  - REWRITTEN (9): why-computer-boots-slow-ssd-fix ("Slow Windows PC? The Fixes That Work"; Win10 ESU to 12 Oct 2027 per Microsoft),
+    computer-lying-storage-space-cleanup, ultimate-photo-backup-guide-never-lose-photos, backup-strategies-fail-ransomware-321-fix,
+    external-drive-suicide-warning-signs ("Signs Your External Drive Is Failing" — title fixed; slug unchanged), how-deepfake-scams-work-and-how-to-spot-them,
+    identity-theft-recovery-24-hours (Ghana: banks/MoMo, Police, CSA 292, NIA), what-your-phone-knows-about-you-stop-tracking, fix-slow-phone-10-minutes-guide.
+  - HIDDEN + nginx 301 (block "# Audit round 15"): why-fast-pc-suddenly-runs-slow-like-2010, windows-productivity-sabotage-linux-solution → why-computer-boots-slow-ssd-fix;
+    operating-system-secretly-sabotaging-important-work-fixes, how-hackers-target-regular-people-simple-defenses → cybersecurity-guide-for-beginners;
+    cloud-storage-reliability-test → backup-strategies-fail-ransomware-321-fix; external-storage-ssd-hdd-nas-guide → external-storage-ssd-hdd-nas-guide-2026;
+    social-engineering-psychology-why-smart-people-get-hacked → real-life-scam-teardowns-ghana-cybersecurity-guide; cybersecurity-mistakes-people-make-daily →
+    password-account-mistakes-cybersecurity-guide-2026; hidden-phone-apps-selling-your-data-guide → what-your-phone-knows-about-you-stop-tracking;
+    phone-betrayal-stealth-tactics-killing-focus → digital-detox-strategies-for-tech-workers; smartphone-technologies-what-matters-2024 → smartphone-buying-guide-2026.
+  - Relinked: ultimate-guide-online-privacy-2026 (merged its link to the hidden phone-apps article into the what-your-phone-knows link).
+- Backup + undo on server 144: `/root/backups/round15-20261115/` (before.json, rollback.sql, rollback-hide.sql, techtrendi.com.nginx.before, r15-relink-before.csv).
+
 ### Whole-site article audit — Round 14 (LIVE 15 Nov)
 - 20 articles (AI & jobs, AI misc, productivity methods, phone buying); owner approved hides with "Ok".
   - REWRITTEN (6): ai-tools-eliminated-jobs-2024 ("AI and Jobs in Ghana: What the Real Numbers Say"), dark-side-ai-nobody-talks-about ("The Real Risks of AI"),
