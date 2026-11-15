@@ -48,6 +48,25 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 16, FINAL (LIVE 15 Nov) — every live article now fact-checked
+- Last 28 unchecked articles; owner approved hides with "Go on". After this round 0 published articles lack the November 2026 fact-check mark.
+  - REWRITTEN (16): how-to-remove-yourself-from-google-search-results, hidden-phone-features-change-device-usage, foldable-phones-gimmick-or-future-of-mobile-computing
+    (Fold8 / iPhone Duo, checked on Samsung + Apple newsrooms), wearable-tech-beyond-smartwatches-rings-glasses-worth-buying, green-web-hosting-sustainable-software-development-practices,
+    ai-agents-what-they-are-why-they-matter-how-they-work, remote-work-employee-surveillance-monitoring-guide-2026, ai-girlfriend-boyfriend-apps-ghana-what-is-happening,
+    online-banking-without-apps-security-guide, build-website-one-day-no-coding, spot-fake-news-misinformation-guide-2026, stop-googling-commands-use-help-flag,
+    free-tools-save-thousands-dollars-every-year (new Google accounts from 9 Mar 2026 get 5 GB + 10 GB after phone check — Google help page),
+    how-to-spot-fake-reviews-guide-2026, never-pay-full-price-online-shopping-hacks-2026, simple-vs-complex-task-management-finding-the-right-balance.
+  - FIXED (1): fake-traffitech-gh-fine-text-scam-fake-dvla-site (scammer's full number removed, unchecked .sbs cost removed, CSA 9 Nov 2026 warning added).
+  - HIDDEN + nginx 301 (block "# Audit round 16"): browser-privacy-settings-that-actually-matter → ultimate-guide-online-privacy-2026; browser-productivity-privacy-guide →
+    focus-apps-website-blockers-that-actually-change-habits; vpn-myths-debunked-what-they-actually-protect, company-vpn-not-protecting-remote-work-data → vpn-comparison-tested-honest-truth-privacy-2026;
+    password-managers-compared-security-safety → password-manager-guide; ultimate-guide-online-safety-2026 → how-to-stay-safe-online-in-ghana; make-old-phone-feel-new-again-tricks →
+    fix-slow-phone-10-minutes-guide; eco-gadgets-that-actually-pay-you-back → cut-electricity-bill-smart-home-technology-ghana; sustainable-phone-cases-accessories-not-greenwashing →
+    phone-cases-screen-protectors-complete-guide; ai-financial-management-60-day-risk-analysis → investment-scams-ghana; ai-judge-boss-secretly-scores-employee-emails →
+    remote-work-employee-surveillance-monitoring-guide-2026.
+  - Relinked (7 links in 5 articles): ultimate-guide-online-privacy-2026, public-wifi-dangers-real-risks-vs-paranoia, cybersecurity-guide-for-beginners,
+    vpn-comparison-tested-honest-truth-privacy-2026, organize-digital-life-files-photos-passwords-notes.
+- Backup + undo on server 144: `/root/backups/round16-20261115/` (before.json, rollback.sql, rollback-hide.sql, techtrendi.com.nginx.before, r16-relink-before.csv).
+
 ### Whole-site article audit — Round 15 (LIVE 15 Nov)
 - 20 articles (slow PCs, backup/storage, hacking & scams, phone privacy/speed); owner approved hides with "Sure".
   - REWRITTEN (9): why-computer-boots-slow-ssd-fix ("Slow Windows PC? The Fixes That Work"; Win10 ESU to 12 Oct 2027 per Microsoft),
