@@ -48,6 +48,17 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### After the audit (15 Nov) — slug rename, unchecked-article alert, two drafts checked
+- Slug rename: external-drive-suicide-warning-signs → **external-drive-failing-warning-signs** (DB slug + 5 page_views rows; nginx 301 for the old address).
+  Undo on 144: `/root/backups/slug-rename-20261115/`.
+- New daily alert (srv 144 `/opt/monitoring/techtrendi-unchecked-articles.py`, cron 11:30 UTC, source in `xboggg/server-ops` srv144/monitoring/):
+  Telegram message to the tech-news chat when a PUBLISHED article lacks the November 2026 fact-check mark. `daily_article_gen.py` (Mon/Wed/Fri)
+  publishes non-[VERIFY] topics straight away; those are what it catches. Read-only. After a future audit, add the new mark to `MARKS`.
+- [VERIFY] drafts fact-checked and rewritten, **still drafts** (is_published=false) until the owner says publish:
+  digital-savings-investment-apps-ghana-what-to-check (Fido EasySave = 91-day T-bill minus 1.5 pts, not "10%"; licences checked on SEC/BoG lists),
+  how-to-receive-money-from-abroad-in-ghana (draft wrongly said Wise/Payoneer are BoG-licensed; Wise is NOT on BoG Notice BG/GOV/SEC/2026/42, 6 Nov 2026,
+  46 registered IMTOs). Undo: `/root/backups/round17-20261115/rollback.sql`.
+
 ### Whole-site article audit — Round 16, FINAL (LIVE 15 Nov) — every live article now fact-checked
 - Last 28 unchecked articles; owner approved hides with "Go on". After this round 0 published articles lack the November 2026 fact-check mark.
   - REWRITTEN (16): how-to-remove-yourself-from-google-search-results, hidden-phone-features-change-device-usage, foldable-phones-gimmick-or-future-of-mobile-computing
