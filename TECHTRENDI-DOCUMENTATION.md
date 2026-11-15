@@ -48,6 +48,22 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 12 (LIVE 15 Nov)
+- 20 articles (remote-work duplicates, inbox/app clutter, Ghana scams/programmes/phones, AI/trends/5G); owner approved hides with "Yes".
+  - REWRITTEN (11, ≥1,500 words): complete-remote-work-webcam-microphone-guide-budget-premium, async-work-culture-productive-without-meetings,
+    inbox-zero-strategies-that-actually-work, digital-minimalism-reduce-app-clutter-productivity, best-remote-work-tools-worth-paying-for-2026,
+    why-cheap-android-phones-ghana-come-with-malware-pre-installed, free-government-programs-ghana-qualify-for (only programmes confirmed running in 2026),
+    phone-security-settings-everyone-ignores, 10-biggest-technology-trends-reshaping-2026, best-laptop-bags-ghana-protection-style-value-guide,
+    5g-reality-check-carriers-vs-actual-performance (Ghana 5G: NGIC live Mar 2026, exclusivity ended 15 Jul 2026, Telecel 2.3 GHz target Dec 2026, MTN 700 MHz/3 GHz).
+  - FIXED (3): scams-in-ghana-right-now (lengthened with dated CSA/SEC warnings), traffitech-gh-speeding-fine-guide (AT name, wording),
+    mental-health-apps-therapists-secretly-recommend (emergency 112 / ambulance 193; helpline 0800 678 678 confirmed via 2026 WHO-hosted guidelines).
+  - HIDDEN + nginx 301 (block "# Audit round 12"): webcams-microphones-remote-work-tested-budget-premium + webcams-microphones-remote-work-budget-premium-picks-2026
+    → complete-remote-work-webcam-microphone-guide-budget-premium; async-work-culture-productive-without-constant-meetings → async-work-culture-productive-without-meetings;
+    email-management-strategies-inbox-zero → inbox-zero-strategies-that-actually-work; ultimate-ai-tools-guide-2026 → 10-ai-tools-everyone-should-use-2026;
+    how-to-use-ai-10x-productivity-beginners-guide → ai-powered-productivity-automate-email-scheduling-notes. No live links pointed at them.
+- Tested live: 14 articles × phone + laptop, 6 redirects 301 OK, sitemap 0 hidden / 5 targets listed, AdSense meta present.
+- Backup + undo on server 144: `/root/backups/round12-20261115/` (before.json incl. is_published, rollback.sql, rollback-hide.sql, techtrendi.com.nginx.before).
+
 ### Whole-site article audit — Round 11 (LIVE 14–15 Nov)
 - 20 articles (jobs/pay, learning, remote work, child safety/gaming/EV); owner approved hides with "ok".
   - REWRITTEN (9, ≥1,300 words): salary-negotiation-scripts-that-work, start-freelancing-replace-9-to-5-income-guide,
