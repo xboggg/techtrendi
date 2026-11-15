@@ -48,6 +48,27 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 11 (LIVE 14–15 Nov)
+- 20 articles (jobs/pay, learning, remote work, child safety/gaming/EV); owner approved hides with "ok".
+  - REWRITTEN (9, ≥1,300 words): salary-negotiation-scripts-that-work, start-freelancing-replace-9-to-5-income-guide,
+    tech-certifications-that-actually-work-2026, self-taught-developer-roadmap-that-actually-works,
+    remote-work-tax-implications-digital-nomads-wfh (Act 1178 bands), complete-guide-working-remotely-from-anywhere,
+    surviving-tech-layoff-financial-prep-job-search-mental-health, gaming-creates-elite-employees, ev-home-charging-setup-costs-reality-check.
+  - FIXED + retitled: expensive-monitor-myth-busted.
+  - HIDDEN + nginx 301 (block "# Audit round 11"): remote-tech-jobs-ultimate-guide-2026 → remote-tech-jobs-where-to-find-how-to-land;
+    negotiating-tech-salaries-scripts-strategies-career-level → salary-negotiation-scripts-that-work;
+    tech-salary-numbers-manager-doesnt-want-you-to-see → salary-negotiation-scripts-that-work;
+    side-projects-impress-employers-more-than-certifications → developer-portfolio-hiring-managers-actually-review;
+    free-learning-platforms-better-than-expensive-degrees → free-online-certifications-that-get-you-hired-2026;
+    learn-any-tech-skill-30-days-system → tech-skills-that-matter-most-2027;
+    digital-nomad-real-costs-47000-reality-check → complete-guide-working-remotely-from-anywhere;
+    coworking-spaces-vs-home-office-productivity-cost-comparison → complete-guide-working-remotely-from-anywhere;
+    complete-guide-protecting-children-online-2026 → ghana-children-internet-online-safety-parents-teachers-guide;
+    retro-gaming-millionaires-plastic-junk-boom → pc-console-mobile-gaming-africa-platform-comparison-2026.
+  - 1 live link repointed (what-nobody-tells-you-before-first-tech-interview → salary-negotiation-scripts-that-work).
+- Tested live: 10 articles × phone + laptop, 10 redirects 301 OK, sitemap 0 hidden / 8 targets listed, AdSense meta present.
+- Backup + undo on server 144: `/root/backups/round11-20261114/` (before.json, rollback.sql, rollback-hide.sql, techtrendi.com.nginx.before, r11-relink-before.csv).
+
 ### Ghana Tax Calculator rebuilt (LIVE 15 Nov 2026, PR #49)
 - /tools/ghana-tax-calculator: tabs My salary / Shopping VAT / Pay I need; framer-motion animations; canonical tag added.
 - Maths in `src/lib/ghanaTax.ts` (no React) — tests: `node --experimental-strip-types scripts/test-ghana-tax.mjs` (26 checks).
