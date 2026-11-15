@@ -48,6 +48,23 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 13 (LIVE 15 Nov)
+- 20 articles (AI productivity/writing cluster, phone hacking, team tools, video calls); owner approved hides with "Continue".
+  - REWRITTEN (7): ai-handle-entire-workload-one-week-experiment (retitled "Using AI at Work Without Getting Into Trouble"),
+    ai-writing-tools-when-they-help-hurt-how-to-use-right, chatgpt-vs-claude-vs-gemini-comparison (plans/prices 15 Nov 2026),
+    best-project-management-tools-distributed-teams, free-video-calls-worldwide-family-guide (Skype closed 5 May 2025),
+    video-call-etiquette-professional-remote-workers-guide, how-to-record-professional-quality-video-calls-presentations.
+  - HIDDEN + nginx 301 (block "# Audit round 13"): ai-tools-actually-productive-2024, ai-tools-replacing-expensive-software-2026,
+    ai-productivity-scam-silicon-valley-exposed → 10-ai-tools-everyone-should-use-2026; chatgpt-productivity-guide-get-things-done →
+    ai-powered-productivity-automate-email-scheduling-notes; ai-writing-tools-help-hurt-use-right, write-anything-with-ai-complete-guide,
+    ai-companies-prompting-secret-better-chatgpt → ai-writing-tools-when-they-help-hurt-how-to-use-right; protect-phone-from-hackers-step-by-step-guide,
+    how-hackers-break-into-phones-and-how-to-stop-them → phone-security-settings-everyone-ignores; best-remote-team-management-tools-comparison-2026 →
+    best-project-management-tools-distributed-teams; eliminating-status-meetings-remote-team-productivity-case-study, remote-work-productivity-myth-destroying-day →
+    async-work-culture-productive-without-meetings; video-conferencing-myth-costing-money-zoom-alternatives → best-remote-work-tools-worth-paying-for-2026.
+    No live links pointed at them.
+- Tested live: 7 articles × phone + laptop, 13 redirects 301 OK, sitemap 0 hidden / 7 targets listed, AdSense meta present.
+- Backup + undo on server 144: `/root/backups/round13-20261115/` (before.json, rollback.sql, rollback-hide.sql, techtrendi.com.nginx.before).
+
 ### Whole-site article audit — Round 12 (LIVE 15 Nov)
 - 20 articles (remote-work duplicates, inbox/app clutter, Ghana scams/programmes/phones, AI/trends/5G); owner approved hides with "Yes".
   - REWRITTEN (11, ≥1,500 words): complete-remote-work-webcam-microphone-guide-budget-premium, async-work-culture-productive-without-meetings,
