@@ -48,6 +48,22 @@
 - Backup + undo on server 144: `/root/backups/cyber-awareness-20261112/` (`posts-before.json` full rows,
   `rollback.sql` + `rollback-data.json` restore title/emoji/content/updated_at for 1–95).
 
+### Whole-site article audit — Round 14 (LIVE 15 Nov)
+- 20 articles (AI & jobs, AI misc, productivity methods, phone buying); owner approved hides with "Ok".
+  - REWRITTEN (6): ai-tools-eliminated-jobs-2024 ("AI and Jobs in Ghana: What the Real Numbers Say"), dark-side-ai-nobody-talks-about ("The Real Risks of AI"),
+    ai-tools-homework-research-studying ("Using AI to Study", UG AI policy Apr 2026), time-blocking-vs-pomodoro-vs-flow-state-productivity-methods,
+    focus-apps-website-blockers-that-actually-change-habits, budget-phones-vs-old-flagships-2024 ("New Budget Phone or Used Older Flagship?").
+  - HIDDEN + nginx 301 (block "# Audit round 14"): will-ai-replace-your-job-honest-truth, ai-replacing-jobs-2026-reality-check → how-to-ai-proof-your-career-guide;
+    ai-changing-everything-what-you-need-to-know → what-is-ai-really-no-jargon-explanation; what-is-prompt-engineering-why-care → ai-writing-tools-when-they-help-hurt-how-to-use-right;
+    create-stunning-ai-art-videos-music-free-tools-2026 → ai-image-generators-compared-quality-ethics-practical-use; kids-never-google-again-ai-search-revolution → ai-tools-homework-research-studying;
+    tech-predictions-2030-whats-actually-worth-believing → 10-biggest-technology-trends-reshaping-2026; morning-routine-myth-…, brain-hidden-schedule-remote-work →
+    time-blocking-vs-pomodoro-vs-flow-state-productivity-methods; 2-minute-digital-detox-doubles-deep-work-hours → digital-detox-strategies-for-tech-workers;
+    cheap-phones-outperform-expensive-flagships-2025 → budget-phones-vs-old-flagships-2024; flagship-phone-comparison-best-value-2025, psychology-smartphone-buying-why-we-choose-wrong →
+    smartphone-buying-guide-2026; phone-choice-psychology-reveals-personality → iphone-status-symbol-psychology.
+  - 2 live links repointed (10-ai-tools-everyone-should-use-2026, ai-data-labeling-jobs-pay-how-to-find → ai-tools-eliminated-jobs-2024).
+- Tested live: 6 articles × phone + laptop, 14 redirects 301 OK, sitemap 0 hidden / all targets listed, AdSense meta present.
+- Backup + undo on server 144: `/root/backups/round14-20261115/` (before.json, rollback.sql, rollback-hide.sql, techtrendi.com.nginx.before, r14-relink-before.csv).
+
 ### Whole-site article audit — Round 13 (LIVE 15 Nov)
 - 20 articles (AI productivity/writing cluster, phone hacking, team tools, video calls); owner approved hides with "Continue".
   - REWRITTEN (7): ai-handle-entire-workload-one-week-experiment (retitled "Using AI at Work Without Getting Into Trouble"),
