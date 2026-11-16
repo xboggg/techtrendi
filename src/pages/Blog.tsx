@@ -357,6 +357,12 @@ export default function Blog() {
             Showing {startIndex + 1}-{Math.min(startIndex + ARTICLES_PER_PAGE, filteredArticles.length)} of {filteredArticles.length} articles
           </p>
         )}
+        {/* Plain link to the full list (16 Nov 2026): Google never presses the page buttons above. */}
+        <p className="text-center mt-4">
+          <Link to="/blog/archive/1" className="inline-flex min-h-11 items-center font-medium text-primary hover:underline">
+            See every guide and article, newest first →
+          </Link>
+        </p>
       </div>
     </Layout>
   );

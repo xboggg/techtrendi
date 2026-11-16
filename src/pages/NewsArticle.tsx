@@ -141,8 +141,11 @@ export default function NewsArticle() {
   // in which case the effect below fetches it). Client behavior is unchanged.
   const loaderArticle = (useLoaderData() as NewsItem | null) ?? null;
   const [news, setNews] = useState<NewsItem | null>(loaderArticle);
-  const [relatedNews, setRelatedNews] = useState<NewsItem[]>([]);
-  const [trendingNews, setTrendingNews] = useState<NewsItem[]>([]);
+  // Build-time related stories (src/ssg/news-data.ts, 16 Nov 2026) so the links exist in the
+  // HTML Google reads; the browser fetch below may refresh them after the page loads.
+  const buildRelated = ((loaderArticle as (NewsItem & { _related?: NewsItem[] }) | null)?._related) ?? [];
+  const [relatedNews, setRelatedNews] = useState<NewsItem[]>(buildRelated.slice(0, 3));
+  const [trendingNews, setTrendingNews] = useState<NewsItem[]>(buildRelated.slice(0, 6));
   const [loading, setLoading] = useState(!loaderArticle);
   // "Xh ago"-style labels depend on the current time, which differs between
   // SSG build time and client hydration time — rendering them immediately
@@ -180,7 +183,7 @@ export default function NewsArticle() {
       .catch(() => setLoading(false));
 
     // Fetch related + trending news
-    fetch(`${SUPABASE_URL}/rest/v1/news?select=id,title,slug,excerpt,category,cover_image,read_time_minutes,created_at,author&order=created_at.desc&limit=10`, {
+    fetch(`${SUPABASE_URL}/rest/v1/news?select=id,title,slug,excerpt,category,cover_image,read_time_minutes,created_at,author&is_published=eq.true&order=created_at.desc&limit=10`, {
       headers: { "apikey": SUPABASE_KEY },
       signal: controller.signal,
     })
@@ -430,6 +433,11 @@ export default function NewsArticle() {
                 </div>
               </section>
             )}
+            <p className="mt-8 text-center">
+              <Link to="/news/archive/1" className="inline-flex min-h-11 items-center font-medium text-primary hover:underline">
+                See every news story →
+              </Link>
+            </p>
           </article>
 
           {/* ── Sidebar ── */}
