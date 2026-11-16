@@ -122,7 +122,11 @@ export default function BlogArticle() {
   const initialArticle = loaderArticle || instant || routerArticle;
 
   const [article, setArticle] = useState<Article | undefined>(initialArticle);
-  const [allArticles, setAllArticles] = useState<Article[]>([]);
+  // Build-time related guides (src/ssg/news-data.ts, 16 Nov 2026) so "Related Articles" links exist
+  // in the HTML Google reads; the browser fetch below replaces them with the full list after load.
+  const [allArticles, setAllArticles] = useState<Article[]>(
+    () => ((loaderArticle as (Article & { _related?: Article[] }) | undefined)?._related) ?? []
+  );
   const [loading, setLoading] = useState(!initialArticle);
 
   const backLink = '/blog';
@@ -177,7 +181,7 @@ export default function BlogArticle() {
       });
 
     // Also fetch all articles for related
-    fetch(`${SUPABASE_URL}/rest/v1/articles?select=id,title,slug,excerpt,category,cover_image,read_time_minutes,created_at,author,tags,views&order=created_at.desc`, {
+    fetch(`${SUPABASE_URL}/rest/v1/articles?select=id,title,slug,excerpt,category,cover_image,read_time_minutes,created_at,author,tags,views&is_published=eq.true&order=created_at.desc`, {
       headers: { "apikey": SUPABASE_KEY },
     })
       .then(res => res.ok ? res.json() : null)
@@ -667,6 +671,11 @@ export default function BlogArticle() {
               </div>
             </section>
           )}
+          <p className="mt-8 text-center">
+            <Link to="/blog/archive/1" className="inline-flex min-h-11 items-center font-medium text-primary hover:underline">
+              See every guide and article →
+            </Link>
+          </p>
         </div>
       </article>
     </Layout>

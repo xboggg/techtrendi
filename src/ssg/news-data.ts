@@ -120,6 +120,30 @@ async function getBlogMap(): Promise<Map<string, Row>> {
   return blogCache;
 }
 
+// Internal links (16 Nov 2026). Search Console showed Google had indexed 1 page of ~1,730:
+// article pages linked to NO other article in the HTML Google reads, because the "Related"
+// boxes were filled in by the browser after the page loaded. Each article now carries a few
+// related cards from the build data (`_related`), so the links exist in the static HTML.
+const CARD_FIELDS = ["id", "slug", "title", "excerpt", "category", "cover_image", "read_time_minutes", "created_at", "author", "tags"];
+function card(row: Row): Row {
+  const out: Row = {};
+  for (const k of CARD_FIELDS) if (k in row) out[k] = row[k];
+  return out;
+}
+
+/** Up to `n` stories near this one in time: same category first, then any category. */
+function nearby(all: Row[], self: Row, n: number): Row[] {
+  const i = all.findIndex((r) => r.slug === self.slug);
+  const byDistance = all
+    .map((r, j) => ({ r, d: Math.abs(j - i) }))
+    .filter(({ r }) => r.slug !== self.slug)
+    .sort((a, b) => a.d - b.d)
+    .map(({ r }) => r);
+  const same = byDistance.filter((r) => r.category === self.category);
+  const rest = byDistance.filter((r) => r.category !== self.category);
+  return [...same, ...rest].slice(0, n).map(card);
+}
+
 export async function newsStaticPaths(): Promise<string[]> {
   if (!import.meta.env.SSR) return [];
   return [...(await getNewsMap()).keys()].map((slug) => `news/${slug}`);
@@ -127,7 +151,10 @@ export async function newsStaticPaths(): Promise<string[]> {
 
 export async function newsLoader({ params }: { params: { slug?: string } }) {
   if (!import.meta.env.SSR || !params.slug) return null;
-  return (await getNewsMap()).get(params.slug) ?? null;
+  const map = await getNewsMap();
+  const row = map.get(params.slug);
+  if (!row) return null;
+  return { ...row, _related: nearby([...map.values()], row, 6) };
 }
 
 export async function blogStaticPaths(): Promise<string[]> {
@@ -137,8 +164,50 @@ export async function blogStaticPaths(): Promise<string[]> {
 
 export async function blogLoader({ params }: { params: { slug?: string } }) {
   if (!import.meta.env.SSR || !params.slug) return null;
-  return (await getBlogMap()).get(params.slug) ?? null;
+  const map = await getBlogMap();
+  const row = map.get(params.slug);
+  if (!row) return null;
+  return { ...row, _related: nearby([...map.values()], row, 6) };
 }
+
+// Archive pages (16 Nov 2026): /news/archive/N and /blog/archive/N list EVERY story as a
+// plain link, newest first. /news and /blog page through their lists with buttons, which
+// Google never presses, so it could reach only the first 12 news stories and 9 guides.
+export const ARCHIVE_PAGE_SIZE = 50;
+
+export type ArchiveData = {
+  kind: "news" | "blog";
+  page: number;
+  totalPages: number;
+  total: number;
+  items: { slug: string; title: string; created_at: string; category: string }[];
+};
+
+async function archiveRows(kind: "news" | "blog"): Promise<Row[]> {
+  return [...(kind === "news" ? await getNewsMap() : await getBlogMap()).values()];
+}
+
+async function archivePaths(kind: "news" | "blog"): Promise<string[]> {
+  if (!import.meta.env.SSR) return [];
+  const pages = Math.max(1, Math.ceil((await archiveRows(kind)).length / ARCHIVE_PAGE_SIZE));
+  return Array.from({ length: pages }, (_, i) => `${kind}/archive/${i + 1}`);
+}
+
+async function archiveLoader(kind: "news" | "blog", pageParam?: string): Promise<ArchiveData | null> {
+  if (!import.meta.env.SSR) return null;
+  const rows = await archiveRows(kind);
+  const totalPages = Math.max(1, Math.ceil(rows.length / ARCHIVE_PAGE_SIZE));
+  const page = Math.min(Math.max(1, parseInt(pageParam || "1", 10) || 1), totalPages);
+  const items = rows.slice((page - 1) * ARCHIVE_PAGE_SIZE, page * ARCHIVE_PAGE_SIZE).map((r) => ({
+    slug: String(r.slug), title: String(r.title || ""), created_at: String(r.created_at || ""), category: String(r.category || ""),
+  }));
+  return { kind, page, totalPages, total: rows.length, items };
+}
+
+export const newsArchivePaths = () => archivePaths("news");
+export const blogArchivePaths = () => archivePaths("blog");
+export const newsArchiveLoader = ({ params }: { params: { page?: string } }) => archiveLoader("news", params.page);
+export const blogArchiveLoader = ({ params }: { params: { page?: string } }) => archiveLoader("blog", params.page);
 
 // List-page loaders: seed /blog and /news with the same build-time data so
 // their article cards exist in the static HTML (2026-07-26 — the pages were

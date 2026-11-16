@@ -368,6 +368,12 @@ export default function News() {
             Showing {startIndex + 1}-{Math.min(startIndex + NEWS_PER_PAGE, filteredNews.length)} of {filteredNews.length} news articles
           </p>
         )}
+        {/* Plain link to the full list (16 Nov 2026): Google never presses the page buttons above. */}
+        <p className="text-center mt-4">
+          <Link to="/news/archive/1" className="inline-flex min-h-11 items-center font-medium text-primary hover:underline">
+            See every news story, newest first →
+          </Link>
+        </p>
       </div>
     </Layout>
   );

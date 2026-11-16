@@ -8,11 +8,50 @@
 //
 // Wired via package.json: "build": "vite-react-ssg build && node scripts/generate-sitemap.mjs"
 
-import { readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
 const SITE = "https://techtrendi.com";
 const DIST = "dist";
+
+// True "last changed" dates (16 Nov 2026). Every URL used to say it changed on the build day
+// (the file's build time), so Search Console saw 1,082 pages "modified today", every day, and
+// the dates told Google nothing. Articles and news now use their own updated_at from the
+// database. Other pages get NO lastmod rather than a made-up one. If the database can't be
+// reached, article dates are simply left out; the sitemap is still written.
+function envValue(name) {
+  if (process.env[name]) return process.env[name];
+  if (existsSync(".env")) {
+    const m = readFileSync(".env", "utf8").match(new RegExp(`^${name}=["']?([^"'\\r\\n]+)`, "m"));
+    if (m) return m[1];
+  }
+  return "";
+}
+
+async function articleDates() {
+  const url = envValue("VITE_SUPABASE_URL") || "https://db2.techtrendi.com";
+  const key = envValue("VITE_SUPABASE_PUBLISHABLE_KEY");
+  const headers = {
+    apikey: key,
+    Authorization: `Bearer ${key}`,
+    "User-Agent": "Mozilla/5.0 (compatible; TechTrendiSSG/1.0; +https://techtrendi.com) AppleWebKit/537.36",
+  };
+  const dates = new Map();
+  for (const [table, prefix] of [["articles", "blog"], ["news", "news"]]) {
+    try {
+      const res = await fetch(`${url}/rest/v1/${table}?select=slug,updated_at,created_at&is_published=eq.true&limit=5000`, { headers });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      for (const r of await res.json()) {
+        const d = String(r.updated_at || r.created_at || "").slice(0, 10);
+        if (r.slug && /^\d{4}-\d{2}-\d{2}$/.test(d)) dates.set(`${prefix}/${r.slug}`, d);
+      }
+    } catch (e) {
+      console.warn(`[sitemap] could not read ${table} dates (${e.message}); leaving their lastmod out`);
+    }
+  }
+  return dates;
+}
+const DATES = await articleDates();
 
 // Pages that exist as .html but should NOT be advertised to crawlers.
 // "data-bundles": the bare address is a 301 to /data-bundles/ghana, never a page of its own.
@@ -68,7 +107,7 @@ for (const file of files) {
   if (path.startsWith("ei-tech/")) continue;
   if (seen.has(path)) continue;
   seen.add(path);
-  const lastmod = statSync(file).mtime.toISOString().slice(0, 10);
+  const lastmod = DATES.get(path) || "";
   const { priority, freq } = meta(path);
   const loc = path === "" ? `${SITE}/` : `${SITE}/${path}`;
   urls.push({ loc, lastmod, priority, freq });
@@ -88,7 +127,7 @@ urls.sort((a, b) => rank(a) - rank(b) || a.loc.localeCompare(b.loc));
 const body = urls
   .map(
     (u) =>
-      `  <url>\n    <loc>${u.loc}</loc>\n    <lastmod>${u.lastmod}</lastmod>\n` +
+      `  <url>\n    <loc>${u.loc}</loc>\n` + (u.lastmod ? `    <lastmod>${u.lastmod}</lastmod>\n` : "") +
       `    <changefreq>${u.freq}</changefreq>\n    <priority>${u.priority}</priority>\n  </url>`
   )
   .join("\n");

@@ -10,7 +10,7 @@ import { DATA_BUNDLES_ROUTE } from "@/data/dataBundlesRoute";
 import { CAREERS_ROUTE } from "@/lib/careers";
 import { SPONSORS } from "@/data/sponsors";
 import { EI_TECH_MEMES } from "@/data/eiTech";
-import { newsLoader, newsStaticPaths, blogLoader, blogStaticPaths, blogListLoader, newsListLoader, productsListLoader, securityPageLoader } from "./news-data";
+import { newsLoader, newsStaticPaths, blogLoader, blogStaticPaths, blogListLoader, newsListLoader, productsListLoader, securityPageLoader, newsArchiveLoader, newsArchivePaths, blogArchiveLoader, blogArchivePaths } from "./news-data";
 
 // Adapt our default-export pages to vite-react-ssg's lazy ({ Component }).
 // Also recover from stale-deploy chunk failures: after a deploy, a tab holding
@@ -62,6 +62,9 @@ export const routes: RouteRecord[] = [
       { path: "blog/:slug", lazy: d(() => import("../pages/BlogArticle")), loader: blogLoader, getStaticPaths: blogStaticPaths },
       { path: "news", lazy: d(() => import("../pages/News")), loader: newsListLoader },
       { path: "news/:slug", lazy: d(() => import("../pages/NewsArticle")), loader: newsLoader, getStaticPaths: newsStaticPaths },
+      // Archive pages (16 Nov 2026): every story and guide as a plain link, 50 per page, so Google can reach them.
+      { path: "news/archive/:page", lazy: d(() => import("../pages/Archive")), loader: newsArchiveLoader, getStaticPaths: newsArchivePaths },
+      { path: "blog/archive/:page", lazy: d(() => import("../pages/Archive")), loader: blogArchiveLoader, getStaticPaths: blogArchivePaths },
       { path: "phones", lazy: d(() => import("../pages/categories/Phones")) },
       { path: "security", lazy: d(() => import("../pages/categories/Security")), loader: securityPageLoader },
       { path: "scam-alerts", lazy: d(() => import("../pages/ScamAlerts")) },

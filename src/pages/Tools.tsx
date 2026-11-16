@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { dataBundlesLink } from "@/data/dataBundlesRoute";
+import { allTools, categories as toolTopics } from "@/data/tools";
 
 interface ToolCategoryCard {
   id: string;
@@ -288,6 +289,34 @@ export default function Tools() {
             );
           })}
         </div>
+
+        {/* Every tool as a plain link (16 Nov 2026). The cards above lead to category pages that
+            are not built in advance, so Google could reach only 8 of 130+ tools from here. */}
+        <section aria-labelledby="all-tools" className="mb-16">
+          <h2 id="all-tools" className="text-2xl font-bold text-foreground mb-6">Every tool, by topic</h2>
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {toolTopics.map((topic) => {
+              const tools = allTools
+                .filter((t) => t.categoryId === topic.id && t.href.startsWith("/tools/"))
+                .sort((a, b) => a.title.localeCompare(b.title));
+              if (!tools.length) return null;
+              return (
+                <div key={topic.id}>
+                  <h3 className="font-semibold text-foreground mb-2">{topic.title}</h3>
+                  <ul className="space-y-1">
+                    {tools.map((t) => (
+                      <li key={t.id}>
+                        <Link to={t.href} className="inline-block py-1 text-sm text-muted-foreground hover:text-primary">
+                          {t.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+        </section>
       </div>
 
       {/* Gradient Banner */}
