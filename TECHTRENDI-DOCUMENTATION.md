@@ -2037,7 +2037,12 @@ Original: "Think Before You Click" cybersecurity ebook by Edmund Adjekum (on the
 
 Before reapplying for AdSense (rejected previously):
 - ✅ Per-article AI disclosure badge
-- ✅ Author attribution to named person (Edmund A.) — required for E-E-A-T
+- ✅ Author attribution — CHANGED 16 Nov 2026 (owner: "desk names by section"): bylines are now desks, not the owner's name.
+  News = "TechTrendi News Desk", The Rundown = "The Rundown", articles = "TechTrendi Editorial",
+  Security articles = "TechTrendi Safety Desk". The owner stays named as founder/editor on `/about`.
+  DB triggers `techtrendi.set_desk_byline_article/_news` set this for EVERY writer (old scripts that send
+  "Edmund A." or "TechTrendi Team" are corrected); any other real name (guest writer) is kept.
+  JSON-LD marks desk bylines as `Organization`. Backup of the old bylines: `/root/backups/bylines-20261116/`.
 - ✅ AdSense + AI content sections added to `/disclosure` page
 - ✅ Soft 404 routes redirected (no more "Page Not Found" with 200 status)
 - ✅ All ALL-CAPS sensationalist headings removed from Creepy Tech content

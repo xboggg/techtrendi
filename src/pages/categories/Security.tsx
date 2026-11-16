@@ -729,7 +729,7 @@ export default function Security() {
                   {a.excerpt && <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{a.excerpt}</p>}
                   <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
                     <Clock className="w-3.5 h-3.5" /> Updated {new Date(a.created_at).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
-                    <span className="text-border">·</span> {a.author || "Edmund A."}
+                    <span className="text-border">·</span> {a.author || "TechTrendi Safety Desk"}
                   </div>
                 </div>
               </Link>
@@ -744,13 +744,13 @@ export default function Security() {
                   {a.excerpt && <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{a.excerpt}</p>}
                   <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
                     <Clock className="w-3.5 h-3.5" /> Updated {new Date(a.created_at).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
-                    <span className="text-border">·</span> {a.author || "Edmund A."}
+                    <span className="text-border">·</span> {a.author || "TechTrendi Safety Desk"}
                   </div>
                 </div>
               </Link>
             ))}
           </div>
-          <p className="text-center text-xs text-muted-foreground mt-8">Written by <span className="font-medium text-foreground">Edmund A.</span> · reviewed by the TechTrendi team · sources: Ghana CSA, SEC</p>
+          <p className="text-center text-xs text-muted-foreground mt-8">Written and reviewed by the <span className="font-medium text-foreground">TechTrendi Safety Desk</span> · sources: Ghana CSA, SEC</p>
         </div>
       </section>
 

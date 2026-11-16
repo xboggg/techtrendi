@@ -283,7 +283,7 @@ export default function NewsArticle() {
         canonical={`/news/${news.slug}`}
         image={getNewsImage(news)}
         type="article"
-        author={news.author || "Edmund A."}
+        author={news.author || (isRundown ? "The Rundown" : "TechTrendi News Desk")}
         publishedTime={news.created_at}
         category={news.category}
         tags={news.tags || []}
@@ -326,7 +326,7 @@ export default function NewsArticle() {
           )}
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-xs border border-border">AI-Assisted · Editorially Reviewed</span>
-            <span className="flex items-center gap-1"><User className="w-4 h-4" />{news.author || "Edmund A."}</span>
+            <span className="flex items-center gap-1"><User className="w-4 h-4" />{news.author || (isRundown ? "The Rundown" : "TechTrendi News Desk")}</span>
             <span className="flex items-center gap-1"><Calendar className="w-4 h-4" />{formatDate(news.created_at)}</span>
             <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{news.read_time_minutes || 3} min read</span>
           </div>

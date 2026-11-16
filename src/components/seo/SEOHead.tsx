@@ -109,7 +109,8 @@ export function SEOHead({
         headline: baseTitle,
         description,
         image: [imageUrl],
-        author: { '@type': 'Person', name: author },
+        // Desk bylines (owner, 16 Nov 2026) are Organizations; a real person's name stays a Person.
+        author: { '@type': /^(TechTrendi\b|The Rundown$)/.test(author) ? 'Organization' : 'Person', name: author, url: `${SITE_URL}/about` },
         publisher: {
           '@type': 'Organization',
           name: SITE_NAME,
