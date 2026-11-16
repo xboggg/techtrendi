@@ -30,6 +30,30 @@
 
 ---
 
+## ⭐ LATEST CHANGES — 16 November 2026 (READ THIS)
+
+### Google could reach almost nothing — links for every page (PR #59, LIVE 16 Nov)
+Search Console (property `https://techtrendi.com/`): **1 page indexed of ~1,730** known; 3 months = 4 clicks.
+No manual action. The HTML Google reads linked to only 12 news stories, 9 guides and 8 tools, because the
+list pages page with buttons (`onClick`) and the "Related" boxes were filled in by the browser.
+- **Archive pages** `/news/archive/N` (Africa Tech + Big Tech, 50 per page) and `/blog/archive/N`:
+  `src/pages/Archive.tsx`, data from `newsArchiveLoader` / `blogArchiveLoader` in `src/ssg/news-data.ts`.
+  Linked from `/news`, `/blog` and the bottom of every article ("See every …").
+- **Related links in the static HTML**: `newsLoader` / `blogLoader` add `_related` (6 nearby items, same
+  category first); `NewsArticle.tsx` / `BlogArticle.tsx` start their Related boxes from it.
+- **/tools** lists every tool by topic (from `allTools` in `src/data/tools.ts`).
+- **Sitemap dates**: `scripts/generate-sitemap.mjs` now uses each article's real `updated_at`; other pages get
+  no `<lastmod>` (it used to be the build day for all 1,082 URLs). If the DB can't be read, dates are left out.
+- Related fetches in the browser now ask only for published items (`is_published=eq.true`).
+
+### Also 16 Nov
+- **Desk bylines** replace "Edmund A." (see the AdSense checklist note below; DB triggers `set_desk_byline_*`).
+- **News source check** also covers The Rundown (`daily_rundown.py`, tech-news 831b86a).
+- **Google News links** now open the real story (`resolve_google_news()` in `ghana_tech_news.py`, tech-news
+  4461c82); 276 stories had been skipped 9–16 Nov because Google sent the server to its cookie page.
+
+---
+
 ## ⭐ LATEST CHANGES — 12 November 2026 (READ THIS)
 
 ### Cyber Awareness — all 95 posts fact-checked and rewritten (DB, LIVE 12 Nov; fallback PR #26)
