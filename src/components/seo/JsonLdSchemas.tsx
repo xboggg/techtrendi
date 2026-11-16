@@ -97,7 +97,7 @@ export function ArticleSchema({
   image,
   publishedTime,
   modifiedTime,
-  author = 'Edmund A.',
+  author = 'TechTrendi Editorial',
   category,
   tags = [],
   wordCount,
@@ -111,7 +111,9 @@ export function ArticleSchema({
     '@id': `${fullUrl}#article`,
     isPartOf: { '@id': `${SITE_URL}/#website` },
     author: {
-      '@type': 'Person',
+      // Desk bylines (owner, 16 Nov 2026) are the site's own desks, so Google is told
+      // they are an Organization, not a person. A real person's name stays a Person.
+      '@type': /^(TechTrendi\b|The Rundown$)/.test(author) ? 'Organization' : 'Person',
       name: author,
       url: `${SITE_URL}/about`,
     },

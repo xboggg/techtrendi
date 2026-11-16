@@ -464,7 +464,7 @@ export default function BlogArticle() {
         canonical={`/blog/${article.slug}`}
         image={getArticleImage(article)}
         type="article"
-        author={article.author || "Edmund A."}
+        author={article.author || "TechTrendi Editorial"}
         publishedTime={article.created_at}
         category={article.category}
         tags={article.tags || []}
@@ -517,7 +517,7 @@ export default function BlogArticle() {
               </span>
               <span className="flex items-center gap-1">
                 <User className="w-4 h-4" />
-                {article.author || "Edmund A."}
+                {article.author || "TechTrendi Editorial"}
               </span>
               <span className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
