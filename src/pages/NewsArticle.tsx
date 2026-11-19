@@ -355,13 +355,19 @@ export default function NewsArticle() {
             ) : (
               <>
             {/* Cover Image — constrained height */}
-            <div className="rounded-2xl overflow-hidden mb-10">
+            <div className="relative rounded-2xl overflow-hidden mb-10">
               <img
                 src={getNewsImage(news)}
                 alt={news.title}
                 className="w-full max-h-[480px] object-cover"
                 onError={(e) => { (e.target as HTMLImageElement).src = categoryImages["default"]; }}
               />
+              {/* AI-made covers are labelled so nobody takes them for a real photo of the event (19 Nov 2026). */}
+              {news.cover_image?.includes("/ghana-tech-ai-") && (
+                <span className="absolute bottom-3 right-3 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white">
+                  Illustration
+                </span>
+              )}
             </div>
 
             {/* Article Content */}
