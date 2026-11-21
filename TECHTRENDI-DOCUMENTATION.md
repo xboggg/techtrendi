@@ -566,6 +566,21 @@ list pages page with buttons (`onClick`) and the "Related" boxes were filled in 
   only, red "FAKE - DO NOT CLICK" bar, under 300 KB). The admin Scam Alerts form has no picture field yet.
 - "Update the security section" with a scam screenshot means a **scam alert**, not an article.
 
+### Scam alerts — one page per alert, shareable (21 Nov 2026)
+- Column `security_scam_alerts.slug` (unique), filled by trigger `scam_alerts_fill_slug` from the title on insert
+  (migration `20261121_scam_alert_slug.sql` + `_rollback`); editing a title keeps the slug.
+- Page `src/pages/ScamAlertPage.tsx` at `/scam-alerts/:slug`, prerendered by `scamAlertLoader` /
+  `scamAlertStaticPaths` in `src/ssg/news-data.ts` (published alerts) and listed in the sitemap. Alerts added
+  after a build open through the app fallback (fetched by slug) until the next deploy.
+- Share buttons `src/components/security/ScamAlertShare.tsx` (bar + menu) share the alert page; helpers in
+  `src/lib/scamAlerts.ts`. Used on `/scam-alerts` cards (titles link to the page), the alert page and the
+  `/security` pop-up ("Open this alert").
+- Link previews: `public/og-meta.php` reads the alert live by slug for WhatsApp/Facebook/X/Telegram bots.
+  Picture = `/images/scam-alerts/share/<slug>.jpg`, a 1200x630 card (title + first screenshot, or a warning
+  sign) drawn by `/opt/tech-news/scam_share_cards.py`, cron every 10 min, redrawn only on change
+  (`share/.manifest.json`; `--force` redraws all). Log `/var/log/techtrendi-scam-cards.log`.
+- The list page `/scam-alerts` has its own share picture `public/og-scam-alerts.jpg` (owner's image).
+
 ### /security page — hydration fix (PR #14)
 - The daily quiz picked its question (and the streak) from the visitor's date/localStorage during render, and
   "Updated 3 days ago" used the clock, so whenever the visitor's day differed from the build day React redrew

@@ -10,7 +10,7 @@ import { DATA_BUNDLES_ROUTE } from "@/data/dataBundlesRoute";
 import { CAREERS_ROUTE } from "@/lib/careers";
 import { SPONSORS } from "@/data/sponsors";
 import { EI_TECH_MEMES } from "@/data/eiTech";
-import { newsLoader, newsStaticPaths, blogLoader, blogStaticPaths, blogListLoader, newsListLoader, productsListLoader, securityPageLoader, newsArchiveLoader, newsArchivePaths, blogArchiveLoader, blogArchivePaths } from "./news-data";
+import { newsLoader, newsStaticPaths, blogLoader, blogStaticPaths, blogListLoader, newsListLoader, productsListLoader, securityPageLoader, newsArchiveLoader, newsArchivePaths, blogArchiveLoader, blogArchivePaths, scamAlertLoader, scamAlertStaticPaths } from "./news-data";
 
 // Adapt our default-export pages to vite-react-ssg's lazy ({ Component }).
 // Also recover from stale-deploy chunk failures: after a deploy, a tab holding
@@ -68,6 +68,8 @@ export const routes: RouteRecord[] = [
       { path: "phones", lazy: d(() => import("../pages/categories/Phones")) },
       { path: "security", lazy: d(() => import("../pages/categories/Security")), loader: securityPageLoader },
       { path: "scam-alerts", lazy: d(() => import("../pages/ScamAlerts")) },
+      // One page per scam alert (21 Nov 2026), so each can be shared with its own title and picture.
+      { path: "scam-alerts/:slug", lazy: d(() => import("../pages/ScamAlertPage")), loader: scamAlertLoader, getStaticPaths: scamAlertStaticPaths },
       { path: "tools-preview", lazy: d(() => import("../pages/ToolsPreview")) },
       // Careers jobs board: "careers" since 8 Nov 2026 (src/lib/careers.ts CAREERS_LAUNCHED). Prerendered
       // shell, noindex and kept out of the sitemap (generate-sitemap.mjs) until CAREERS_INDEXED.

@@ -106,6 +106,58 @@ if (preg_match('#^ei-tech(/[a-z0-9-]+)?$#', $path)) {
     exit;
 }
 
+// One scam alert (21 Nov 2026): /scam-alerts/<slug>. Read live from the table (so an alert
+// added after the last build still previews right), picture = the 1200x630 card that
+// /opt/tech-news/scam_share_cards.py draws into images/scam-alerts/share/<slug>.jpg, with
+// ?v=<file time> so WhatsApp/Facebook refetch a redrawn card. No card yet -> the list picture.
+if (preg_match('#^scam-alerts/([a-z0-9-]{1,80})$#', $path, $m)) {
+    $slug = $m[1];
+    $alert = null;
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $SUPABASE_URL . '/rest/v1/security_scam_alerts?slug=eq.' . urlencode($slug) . '&is_published=eq.true&select=title,description,created_at&limit=1',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 3,
+        CURLOPT_CONNECTTIMEOUT => 2,
+        CURLOPT_HTTPHEADER => [
+            'apikey: ' . $SUPABASE_ANON_KEY,
+            'Authorization: Bearer ' . $SUPABASE_ANON_KEY,
+            'Accept: application/json',
+            'Accept-Profile: techtrendi'
+        ]
+    ]);
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($http_code === 200 && $response) {
+        $rows = json_decode($response, true);
+        if (is_array($rows) && isset($rows[0]['title'])) $alert = $rows[0];
+    }
+    if (!$alert) {
+        // Unknown or unpublished alert, or the database did not answer: the list page's preview.
+        serve_og('Scam Alerts - Latest Scam Warnings',
+            'Stay informed about the latest scams and fraud attempts. Real-time scam alerts to protect you and your family.',
+            $SITE_URL . '/og-scam-alerts.jpg', 'image/jpeg', $SITE_URL . '/scam-alerts', '', '', '', 'website');
+    }
+    $desc = trim(preg_replace('/\s+/u', ' ', (string) ($alert['description'] ?? '')));
+    // Cut near 155 characters at a space (the server's PHP has no mbstring: /u keeps UTF-8 whole).
+    if (preg_match('/^.{0,155}/su', $desc, $mm) && strlen($mm[0]) < strlen($desc)) {
+        $cut = $mm[0];
+        $sp = strrpos($cut, ' ');
+        $desc = rtrim(($sp !== false && $sp > 80) ? substr($cut, 0, $sp) : $cut, " ,.;:-") . '…';
+    }
+    $card = __DIR__ . '/images/scam-alerts/share/' . $slug . '.jpg';
+    $img = is_file($card)
+        ? $SITE_URL . '/images/scam-alerts/share/' . $slug . '.jpg?v=' . filemtime($card)
+        : $SITE_URL . '/og-scam-alerts.jpg';
+    serve_og(
+        htmlspecialchars('Scam Alert: ' . $alert['title'], ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars($desc, ENT_QUOTES, 'UTF-8'),
+        $img, 'image/jpeg', $SITE_URL . '/scam-alerts/' . $slug, '', 'Scam Alerts',
+        htmlspecialchars((string) ($alert['created_at'] ?? ''), ENT_QUOTES, 'UTF-8'), 'article'
+    );
+}
+
 // Static pages with custom OG tags — unique title/description per page
 $static_pages = [
     'books/think-before-you-click' => [
