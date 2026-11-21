@@ -23,7 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ScamScreenshot } from "@/components/security/ScamScreenshot";
+import { ScamScreenshot, alertImages } from "@/components/security/ScamScreenshot";
 
 interface ScamAlert {
   id: string;
@@ -35,6 +35,7 @@ interface ScamAlert {
   affected_platforms: string[];
   what_to_do: string;
   image_url?: string | null;
+  image_urls?: string[] | null;
   created_at: string;
 }
 
@@ -456,9 +457,9 @@ export default function ScamAlerts() {
                   {/* Description */}
                   <p className="text-muted-foreground leading-relaxed mb-4">{alert.description}</p>
 
-                  {/* Screenshot of the scam message, if we have one */}
-                  {alert.image_url && (
-                    <ScamScreenshot src={alert.image_url} title={alert.title} className="mb-4" />
+                  {/* Screenshot(s) of the scam, if we have any (several = slides) */}
+                  {alertImages(alert).length > 0 && (
+                    <ScamScreenshot srcs={alertImages(alert)} title={alert.title} className="mb-4" />
                   )}
 
                   {/* Affected Platforms */}

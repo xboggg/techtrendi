@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DailyTip } from "@/components/security/DailyTip";
 import { DailyQuizWidget } from "@/components/security/DailyQuizWidget";
 import { ShareWithFamily } from "@/components/security/ShareWithFamily";
-import { ScamScreenshot } from "@/components/security/ScamScreenshot";
+import { ScamScreenshot, alertImages } from "@/components/security/ScamScreenshot";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { checkMessage } from "@/lib/scamPatterns";
 import { getRiskScore, type StoredRiskScore } from "@/lib/riskScoreStorage";
@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 // ── data shapes ──────────────────────────────────────────────────────────────
-interface ScamAlert { id: string; title: string; description: string; scam_type: string; severity: string; emoji?: string | null; what_to_do?: string | null; affected_platforms?: string[] | null; image_url?: string | null; created_at?: string; }
+interface ScamAlert { id: string; title: string; description: string; scam_type: string; severity: string; emoji?: string | null; what_to_do?: string | null; affected_platforms?: string[] | null; image_url?: string | null; image_urls?: string[] | null; created_at?: string; }
 interface ThreatLevel { level: string; title: string; description: string; active_threats: string[]; updated_at: string; }
 interface Article { id: string; title: string; slug: string; excerpt: string | null; category: string; cover_image: string | null; created_at: string; tags: string[] | null; author?: string | null; }
 
@@ -317,7 +317,7 @@ export default function Security() {
   }, []);
 
   useEffect(() => {
-    supabase.from("security_scam_alerts").select("id,title,description,scam_type,severity,emoji,what_to_do,affected_platforms,image_url,created_at")
+    supabase.from("security_scam_alerts").select("id,title,description,scam_type,severity,emoji,what_to_do,affected_platforms,image_url,image_urls,created_at")
       .eq("is_published", true).eq("is_active", true).order("created_at", { ascending: false }).limit(6)
       .then(({ data }) => { if (data) setAlerts(data as ScamAlert[]); });
 
@@ -792,8 +792,8 @@ export default function Security() {
                   </div>
                 )}
                 <p className="text-[15px] text-muted-foreground leading-relaxed mt-4 whitespace-pre-line">{selectedAlert.description}</p>
-                {selectedAlert.image_url && (
-                  <ScamScreenshot src={selectedAlert.image_url} title={selectedAlert.title} className="mt-4" />
+                {alertImages(selectedAlert).length > 0 && (
+                  <ScamScreenshot srcs={alertImages(selectedAlert)} title={selectedAlert.title} className="mt-4" />
                 )}
                 {selectedAlert.what_to_do && (
                   <div className="mt-5 rounded-2xl border-l-4 border-emerald-500 bg-emerald-500/10 p-4">
