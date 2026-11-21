@@ -22,7 +22,6 @@ import { GROUPS, canWin, hasConflict, isConditional, isPending, isTimeRestricted
 import { BudgetFinder } from "@/components/data-bundles/BudgetFinder";
 import { MonthlyPlanner } from "@/components/data-bundles/MonthlyPlanner";
 import { Leaderboards } from "@/components/data-bundles/Leaderboards";
-import { DealChecker } from "@/components/data-bundles/DealChecker";
 import { Advice } from "@/components/data-bundles/Advice";
 import { LiveStatus, ShareWhatsApp, SourcesAndDisclaimer, SourceLine } from "@/components/data-bundles/meta";
 import { WhatChanged } from "@/components/data-bundles/WhatChanged";
@@ -53,7 +52,6 @@ function notRankedText(model: BundleModel): string {
 }
 
 const JUMPS = [
-  ["deal-check", "Scam check"],
   ["rankings", "Winners"],
   ["monthly", "Monthly"],
   ["advice", "Tips"],
@@ -187,8 +185,6 @@ export default function DataBundlesDashboard() {
             {/* The winners board carries the face-off (its summary bars) and each network's
                 "See all … bundles" link; the separate face-off and network panels are gone
                 from this page (owner, 22 Oct 2026). The network pages keep their own best deals. */}
-            {/* "Is this data deal real?" (21 Nov 2026, after a fake data site emptied a buyer's MoMo wallet). */}
-            <DealChecker model={model} />
             <Leaderboards model={model} basePath={basePath} />
             <MonthlyPlanner model={model} />
             <Advice model={model} />
