@@ -133,6 +133,12 @@ $static_pages = [
         'description' => 'Your cybersecurity command center. Threat alerts, scam warnings, security tools, and expert advice to keep you safe online.',
         'image' => 'https://techtrendi.com/images/og-security.jpg',
     ],
+    // Owner's own share picture (21 Nov 2026), same as the page's og:image in ScamAlerts.tsx.
+    'scam-alerts' => [
+        'title' => 'Scam Alerts - Latest Scam Warnings',
+        'description' => 'Stay informed about the latest scams and fraud attempts. Real-time scam alerts to protect you and your family.',
+        'image' => 'https://techtrendi.com/og-scam-alerts.jpg',
+    ],
     'blog' => [
         'title' => 'TechTrendi Blog - Expert Tech Guides and Articles',
         'description' => 'In-depth technology articles covering smartphones, AI, cybersecurity, productivity, and more. Written for real people, not experts.',
