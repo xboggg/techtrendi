@@ -24,6 +24,7 @@ export function ScamScreenshot({ srcs, title, className }: ScamScreenshotProps) 
   const [open, setOpen] = useState(false);
   const [idx, setIdx] = useState(0);
   const track = useRef<HTMLDivElement>(null);
+  const touch = useRef<{ x: number; y: number } | null>(null);
   const many = srcs.length > 1;
   const alt = (i: number) => `Screenshot ${many ? `${i + 1} of ${srcs.length} ` : ""}of the scam: ${title}`;
 
@@ -46,6 +47,13 @@ export function ScamScreenshot({ srcs, title, className }: ScamScreenshotProps) 
     window.addEventListener("keydown", onKey);
     return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = prevOverflow; };
   }, [open, srcs.length]);
+
+  // After the big view closes, show the same screenshot in the small slider.
+  useEffect(() => {
+    if (open) return;
+    const el = track.current;
+    if (el && Math.round(el.scrollLeft / Math.max(1, el.clientWidth)) !== idx) el.scrollTo({ left: idx * el.clientWidth });
+  }, [open, idx]);
 
   if (!srcs.length) return null;
 
@@ -110,7 +118,18 @@ export function ScamScreenshot({ srcs, title, className }: ScamScreenshotProps) 
 
       {open && typeof document !== "undefined" && createPortal(
         <div className="fixed inset-0 z-[300] flex items-start justify-center overflow-y-auto bg-black/85 backdrop-blur-sm p-4 sm:p-8"
-          onClick={() => setOpen(false)} role="dialog" aria-modal="true" aria-label={alt(idx)}>
+          onClick={() => setOpen(false)} role="dialog" aria-modal="true" aria-label={alt(idx)}
+          // Phones: swipe left/right in the big view to go to the next/previous screenshot (owner, 21 Nov 2026).
+          onTouchStart={(e) => { touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }}
+          onTouchEnd={(e) => {
+            const start = touch.current;
+            touch.current = null;
+            if (!start || !many) return;
+            const dx = e.changedTouches[0].clientX - start.x;
+            const dy = e.changedTouches[0].clientY - start.y;
+            if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return; // a tap or an up/down scroll
+            setIdx((i) => (dx < 0 ? Math.min(srcs.length - 1, i + 1) : Math.max(0, i - 1)));
+          }}>
           <button type="button" onClick={() => setOpen(false)} aria-label="Close"
             className="fixed top-4 right-4 z-10 rounded-full bg-white/15 p-2 text-white hover:bg-white/25 transition-colors">
             <X className="w-6 h-6" />
