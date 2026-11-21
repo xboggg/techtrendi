@@ -8,6 +8,8 @@ import { DailyTip } from "@/components/security/DailyTip";
 import { DailyQuizWidget } from "@/components/security/DailyQuizWidget";
 import { ShareWithFamily } from "@/components/security/ShareWithFamily";
 import { ScamScreenshot, alertImages } from "@/components/security/ScamScreenshot";
+import { ScamAlertShareBar } from "@/components/security/ScamAlertShare";
+import { alertPath } from "@/lib/scamAlerts";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { checkMessage } from "@/lib/scamPatterns";
 import { getRiskScore, type StoredRiskScore } from "@/lib/riskScoreStorage";
@@ -19,7 +21,7 @@ import {
 } from "lucide-react";
 
 // ── data shapes ──────────────────────────────────────────────────────────────
-interface ScamAlert { id: string; title: string; description: string; scam_type: string; severity: string; emoji?: string | null; what_to_do?: string | null; affected_platforms?: string[] | null; image_url?: string | null; image_urls?: string[] | null; created_at?: string; }
+interface ScamAlert { id: string; slug?: string | null; title: string; description: string; scam_type: string; severity: string; emoji?: string | null; what_to_do?: string | null; affected_platforms?: string[] | null; image_url?: string | null; image_urls?: string[] | null; created_at?: string; }
 interface ThreatLevel { level: string; title: string; description: string; active_threats: string[]; updated_at: string; }
 interface Article { id: string; title: string; slug: string; excerpt: string | null; category: string; cover_image: string | null; created_at: string; tags: string[] | null; author?: string | null; }
 
@@ -317,7 +319,7 @@ export default function Security() {
   }, []);
 
   useEffect(() => {
-    supabase.from("security_scam_alerts").select("id,title,description,scam_type,severity,emoji,what_to_do,affected_platforms,image_url,image_urls,created_at")
+    supabase.from("security_scam_alerts").select("id,slug,title,description,scam_type,severity,emoji,what_to_do,affected_platforms,image_url,image_urls,created_at")
       .eq("is_published", true).eq("is_active", true).order("created_at", { ascending: false }).limit(6)
       .then(({ data }) => { if (data) setAlerts(data as ScamAlert[]); });
 
@@ -801,7 +803,14 @@ export default function Security() {
                     <p className="text-sm text-foreground/80 mt-1.5 leading-relaxed whitespace-pre-line">{selectedAlert.what_to_do}</p>
                   </div>
                 )}
-                <div className="flex flex-wrap gap-2 mt-6">
+                <div className="mt-6">
+                  <p className="text-sm font-semibold text-foreground mb-2">Warn your friends and family</p>
+                  <ScamAlertShareBar alert={selectedAlert} />
+                </div>
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {selectedAlert.slug && (
+                    <Link to={alertPath(selectedAlert)} onClick={() => setSelectedAlert(null)} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-muted text-sm font-medium text-foreground hover:bg-muted/70 transition-colors">Open this alert <ArrowRight className="w-4 h-4" /></Link>
+                  )}
                   <a href="tel:292" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition-colors"><Phone className="w-4 h-4" /> Report to CSA (292)</a>
                   <Link to="/scam-alerts" onClick={() => setSelectedAlert(null)} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-muted text-sm font-medium text-foreground hover:bg-muted/70 transition-colors">See all alerts <ArrowRight className="w-4 h-4" /></Link>
                 </div>

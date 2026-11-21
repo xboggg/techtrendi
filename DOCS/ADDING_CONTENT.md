@@ -148,6 +148,18 @@ server and set the alert's `image_url` to `/images/scam-alerts/<file>.webp`
 (the admin form has no picture field yet). The site shows it as a
 "What the fake message looks like" panel. No deploy needed.
 
+Several screenshots: set `image_urls` (a list, in the order to show) and
+`image_url` to the first one; the site shows them as slides.
+
+**Each alert has its own page** (21 Nov 2026): `/scam-alerts/<slug>`. The
+slug is made from the title automatically when the alert is added (it never
+changes when the title is edited, so shared links keep working). The share
+buttons (WhatsApp, Facebook, X, Copy link) share that page, and its preview
+picture is drawn on the server within 10 minutes
+(`/opt/tech-news/scam_share_cards.py`, cron). The page opens at once; run
+`gh workflow run Deploy` so Google gets the ready-made version and the
+sitemap lists it.
+
 ---
 
 ## 10. Add an Ei Tech! meme

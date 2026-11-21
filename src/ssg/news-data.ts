@@ -249,6 +249,40 @@ export async function productsListLoader() {
   return productsCache;
 }
 
+// One page per scam alert (21 Nov 2026): /scam-alerts/<slug>, so each alert can be shared
+// on its own with its own title and picture. Published alerts only (the same rows the public
+// list shows). An alert added after a build still opens: nginx falls back to the app, which
+// fetches it by slug in the browser; the next deploy prerenders it.
+const SCAM_ALERT_COLUMNS =
+  "id,slug,title,description,scam_type,severity,emoji,what_to_do,affected_platforms,image_url,image_urls,created_at";
+let scamAlertCache: Row[] | null = null;
+
+async function getScamAlerts(): Promise<Row[]> {
+  if (!scamAlertCache) {
+    scamAlertCache = (
+      await sbFetch(`security_scam_alerts?select=${SCAM_ALERT_COLUMNS}&is_published=eq.true&order=created_at.desc&limit=500`)
+    ).filter((r) => typeof r.slug === "string" && /^[a-z0-9-]{1,80}$/.test(r.slug));
+  }
+  return scamAlertCache;
+}
+
+export async function scamAlertStaticPaths(): Promise<string[]> {
+  if (!import.meta.env.SSR) return [];
+  return (await getScamAlerts()).map((r) => `scam-alerts/${r.slug}`);
+}
+
+export async function scamAlertLoader({ params }: { params: { slug?: string } }) {
+  if (!import.meta.env.SSR || !params.slug) return null;
+  const all = await getScamAlerts();
+  const row = all.find((r) => r.slug === params.slug);
+  if (!row) return null;
+  const others = all
+    .filter((r) => r.slug !== row.slug)
+    .slice(0, 5)
+    .map((r) => ({ slug: r.slug, title: r.title, emoji: r.emoji, created_at: r.created_at }));
+  return { alert: row, others };
+}
+
 // Same fix for /security — the "Scams going round in Ghana" hub fetched its
 // scam-alert cards, threat-level banner, and related articles entirely
 // client-side via three separate useEffect calls, so none of it existed in
@@ -258,7 +292,7 @@ export async function securityPageLoader() {
   if (!import.meta.env.SSR) return null;
   const [alerts, threatRows, articleRows] = await Promise.all([
     sbFetch(
-      "security_scam_alerts?select=id,title,description,scam_type,severity,emoji,what_to_do,affected_platforms,image_url,image_urls,created_at&is_published=eq.true&is_active=eq.true&order=created_at.desc&limit=6"
+      "security_scam_alerts?select=id,slug,title,description,scam_type,severity,emoji,what_to_do,affected_platforms,image_url,image_urls,created_at&is_published=eq.true&is_active=eq.true&order=created_at.desc&limit=6"
     ),
     sbFetch(
       "security_threat_level?select=level,title,description,active_threats,updated_at&order=updated_at.desc&limit=1"

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -12,32 +12,17 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  Share2,
-  Copy,
   AlertTriangle,
   Clock,
   Filter,
   Loader2,
-  MessageCircle,
   ShieldCheck,
   X,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ScamScreenshot, alertImages } from "@/components/security/ScamScreenshot";
-
-interface ScamAlert {
-  id: string;
-  emoji: string;
-  title: string;
-  severity: "low" | "medium" | "high" | "critical";
-  scam_type: string;
-  description: string;
-  affected_platforms: string[];
-  what_to_do: string;
-  image_url?: string | null;
-  image_urls?: string[] | null;
-  created_at: string;
-}
+import { ScamAlertShareMenu } from "@/components/security/ScamAlertShare";
+import { type ScamAlert, alertPath, severityConfig } from "@/lib/scamAlerts";
 
 interface ThreatLevel {
   level: string;
@@ -57,36 +42,6 @@ const scamTypeFilters = [
   "Mobile Money",
   "Social Media",
 ];
-
-const severityConfig: Record<
-  string,
-  { bg: string; text: string; dot: string; label: string }
-> = {
-  low: {
-    bg: "bg-emerald-50 dark:bg-emerald-500/10",
-    text: "text-emerald-700 dark:text-emerald-400",
-    dot: "bg-emerald-500",
-    label: "Low Risk",
-  },
-  medium: {
-    bg: "bg-amber-50 dark:bg-amber-500/10",
-    text: "text-amber-700 dark:text-amber-400",
-    dot: "bg-amber-500",
-    label: "Medium Risk",
-  },
-  high: {
-    bg: "bg-orange-50 dark:bg-orange-500/10",
-    text: "text-orange-700 dark:text-orange-400",
-    dot: "bg-orange-500",
-    label: "High Risk",
-  },
-  critical: {
-    bg: "bg-red-50 dark:bg-red-500/10",
-    text: "text-red-700 dark:text-red-400",
-    dot: "bg-red-500",
-    label: "Critical",
-  },
-};
 
 const threatLevelConfig: Record<string, { bg: string; text: string; dot: string }> = {
   low: {
@@ -138,7 +93,6 @@ export default function ScamAlerts() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
   const [threatLevel, setThreatLevel] = useState<ThreatLevel | null>(null);
-  const [showShareMenu, setShowShareMenu] = useState<string | null>(null);
 
   useEffect(() => {
     fetchThreatLevel();
@@ -203,18 +157,6 @@ export default function ScamAlerts() {
   };
 
   const totalPages = Math.ceil(totalCount / ALERTS_PER_PAGE);
-
-  const shareToWhatsApp = (alert: ScamAlert) => {
-    const text = `${alert.emoji} SCAM ALERT: ${alert.title}\n\n${alert.description}\n\nStay safe! Read more at ${window.location.origin}/scam-alerts`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
-    setShowShareMenu(null);
-  };
-
-  const copyLink = (alert: ScamAlert) => {
-    navigator.clipboard.writeText(`${window.location.origin}/scam-alerts`);
-    toast.success("Link copied to clipboard!");
-    setShowShareMenu(null);
-  };
 
   const tlConfig = threatLevel
     ? threatLevelConfig[threatLevel.level] || threatLevelConfig.moderate
@@ -395,7 +337,9 @@ export default function ScamAlerts() {
                     <span className="text-2xl flex-shrink-0">{alert.emoji}</span>
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <h3 className="text-lg font-semibold text-foreground">{alert.title}</h3>
+                        <h3 className="text-lg font-semibold text-foreground">
+                          <Link to={alertPath(alert)} className="hover:text-red-600 dark:hover:text-red-400 hover:underline underline-offset-4">{alert.title}</Link>
+                        </h3>
                         <span
                           className={cn(
                             "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold",
@@ -418,42 +362,8 @@ export default function ScamAlerts() {
                       </div>
                     </div>
 
-                    {/* Share */}
-                    <div className="relative flex-shrink-0">
-                      <button
-                        onClick={() =>
-                          setShowShareMenu(showShareMenu === alert.id ? null : alert.id)
-                        }
-                        className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </button>
-                      <AnimatePresence>
-                        {showShareMenu === alert.id && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                            className="absolute right-0 top-11 z-10 bg-popover border border-border rounded-xl p-1.5 shadow-xl min-w-[150px]"
-                          >
-                            <button
-                              onClick={() => shareToWhatsApp(alert)}
-                              className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
-                            >
-                              <MessageCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-                              WhatsApp
-                            </button>
-                            <button
-                              onClick={() => copyLink(alert)}
-                              className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
-                            >
-                              <Copy className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                              Copy Link
-                            </button>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
+                    {/* Share: the alert's own page (21 Nov 2026) */}
+                    <ScamAlertShareMenu alert={alert} />
                   </div>
 
                   {/* Description */}
