@@ -125,7 +125,7 @@ export function EiTechLaughButton({ count, laughed, onLaugh }: { count: number |
       <motion.span key={pop} className="text-2xl leading-none" initial={pop ? { scale: 1.6, rotate: -15 } : false} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 400, damping: 12 }}>
         😂
       </motion.span>
-      <span className="tabular-nums">{count === null ? "Ei!" : short(count)}</span>
+      <span className="tabular-nums">{count === null ? "LOL" : short(count)}</span>
     </button>
   );
 }

@@ -97,10 +97,10 @@ export default function EiTechFloat() {
         type="button"
         onClick={toggle}
         aria-expanded={open}
-        aria-label={fresh ? "Ei Tech! New funny tech meme" : "Ei Tech! Funny tech memes"}
+        aria-label={fresh ? "LOL.exe New funny tech meme" : "LOL.exe Funny tech memes"}
         className={cn("eit-neon", fresh && "is-fresh")}
       >
-        Ei Tech!
+        LOL.exe
       </button>
     </div>
   );
@@ -112,12 +112,12 @@ function EiTechPopup({ meme, onClose }: { meme: EiTechMeme; onClose: () => void 
   return (
     <div
       role="dialog"
-      aria-label="Ei Tech! newest meme"
+      aria-label="LOL.exe newest meme"
       className="eit-pop absolute left-0 bottom-[calc(100%+12px)] w-[min(340px,calc(100vw-32px))] max-h-[min(78vh,640px)] overflow-y-auto rounded-2xl border border-border bg-card text-foreground shadow-2xl"
     >
       <div className="flex items-center justify-between gap-2 px-4 pt-3 pb-2">
         <span className="text-sm font-black tracking-tight">
-          Ei <span className="text-orange-500">Tech!</span> <span className="font-semibold text-muted-foreground">· have a laugh</span>
+          LOL<span className="text-orange-500">.exe</span> <span className="font-semibold text-muted-foreground">· have a laugh</span>
         </span>
         <button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground">
           <X className="w-4 h-4" />

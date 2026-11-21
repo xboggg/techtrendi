@@ -23,8 +23,8 @@ export default function EiTechMemePage() {
   return (
     <Layout>
       <SEOHead
-        title={`${meme.title} | Ei Tech!`}
-        description={`${meme.caption} A tech joke from Ei Tech! on TechTrendi. Have a laugh and share it.`}
+        title={`${meme.title} | LOL.exe`}
+        description={`${meme.caption} A tech joke from LOL.exe on TechTrendi. Have a laugh and share it.`}
         canonical={`/ei-tech/${meme.slug}`}
         image={eiTechShareImage(meme)}
         imageAlt={meme.alt}
@@ -32,7 +32,7 @@ export default function EiTechMemePage() {
         noindexFollow
         breadcrumbs={[
           { name: "Home", path: "/" },
-          { name: "Ei Tech!", path: "/ei-tech" },
+          { name: "LOL.exe", path: "/ei-tech" },
           { name: meme.title, path: `/ei-tech/${meme.slug}` },
         ]}
       />
@@ -41,13 +41,13 @@ export default function EiTechMemePage() {
         <div className="container">
           <div className="max-w-xl mx-auto">
             <Link to="/ei-tech" className="inline-flex items-center gap-1.5 mb-5 text-sm font-semibold text-foreground hover:text-orange-600 transition-colors">
-              <ArrowLeft className="w-4 h-4" /> <span>Ei <span className="text-orange-500">Tech!</span></span> all jokes
+              <ArrowLeft className="w-4 h-4" /> <span>LOL<span className="text-orange-500">.exe</span></span> all jokes
             </Link>
             <EiTechMemeCard meme={meme} headingLevel={1} eager />
 
             {others.length > 0 ? (
               <div className="mt-12">
-                <h2 className="text-xl font-bold text-foreground mb-4">More from Ei Tech!</h2>
+                <h2 className="text-xl font-bold text-foreground mb-4">More from LOL.exe</h2>
                 <div className="grid grid-cols-2 gap-4">
                   {others.map((m) => (
                     <Link key={m.slug} to={eiTechSharePath(m)} className="group rounded-2xl border border-border bg-card overflow-hidden hover:shadow-lg transition-shadow">
@@ -59,7 +59,7 @@ export default function EiTechMemePage() {
               </div>
             ) : (
               <p className="mt-10 text-center text-muted-foreground">
-                More jokes are coming. <Link to="/ei-tech" className="font-semibold text-primary hover:underline">See Ei Tech!</Link>
+                More jokes are coming. <Link to="/ei-tech" className="font-semibold text-primary hover:underline">See LOL.exe</Link>
               </p>
             )}
           </div>

@@ -43,9 +43,9 @@ export default function EiTechHub() {
   }, [memes, loaded, focus]);
 
   const shareHub = async () => {
-    const text = "Ei Tech! Funny tech jokes to laugh at and share 😂";
+    const text = "LOL.exe: funny tech jokes to laugh at and share 😂";
     try {
-      if (navigator.share) { await navigator.share({ title: "Ei Tech!", text, url: EI_TECH_HUB_URL }); return; }
+      if (navigator.share) { await navigator.share({ title: "LOL.exe", text, url: EI_TECH_HUB_URL }); return; }
     } catch (e) {
       if ((e as Error)?.name === "AbortError") return;
     }
@@ -55,13 +55,13 @@ export default function EiTechHub() {
   return (
     <Layout>
       <SEOHead
-        title="Ei Tech! Funny Tech Jokes and Memes"
+        title="LOL.exe: Funny Tech Jokes and Memes"
         description="Funny tech jokes and memes about phones, gadgets, apps and the internet. Have a laugh and share them with your friends and family."
         canonical="/ei-tech"
         image={latest ? eiTechShareImage(latest) : undefined}
         imageAlt={latest ? latest.alt : undefined}
-        keywords={["tech jokes", "tech memes", "funny tech", "phone memes", "Ei Tech"]}
-        breadcrumbs={[{ name: "Home", path: "/" }, { name: "Ei Tech!", path: "/ei-tech" }]}
+        keywords={["tech jokes", "tech memes", "funny tech", "phone memes", "LOL.exe"]}
+        breadcrumbs={[{ name: "Home", path: "/" }, { name: "LOL.exe", path: "/ei-tech" }]}
       />
 
       {/* ───────── HERO ───────── */}
@@ -94,9 +94,9 @@ export default function EiTechHub() {
             className="mt-5 text-7xl sm:text-8xl md:text-9xl font-black tracking-tight leading-none">
             <motion.span className="inline-block origin-bottom"
               animate={{ rotate: [0, -8, 8, -5, 0] }} transition={{ duration: 0.9, repeat: Infinity, repeatDelay: 3.5, delay: 1.2 }}>
-              Ei
-            </motion.span>{" "}
-            <span className="bg-gradient-to-r from-orange-300 via-orange-500 to-rose-500 bg-clip-text text-transparent">Tech!</span>
+              LOL
+            </motion.span>
+            <span className="bg-gradient-to-r from-orange-300 via-orange-500 to-rose-500 bg-clip-text text-transparent">.exe</span>
             <span className="sr-only"> Funny tech jokes and memes</span>
           </motion.h1>
 
@@ -111,7 +111,7 @@ export default function EiTechHub() {
               See the jokes <ArrowDown className="w-5 h-5" />
             </a>
             <button type="button" onClick={shareHub} className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white/10 border border-white/20 backdrop-blur text-white font-semibold hover:bg-white/15 transition-colors">
-              <Share2 className="w-5 h-5" /> Share Ei Tech!
+              <Share2 className="w-5 h-5" /> Share LOL.exe
             </button>
           </motion.div>
         </div>
@@ -135,7 +135,7 @@ export default function EiTechHub() {
 
           <div className="max-w-xl mx-auto mt-12 rounded-2xl border border-border bg-card p-6 text-center">
             <p className="font-bold text-foreground text-lg">Seen a funny tech moment?</p>
-            <p className="text-muted-foreground mt-1">Send it to us. It could be the next Ei Tech!</p>
+            <p className="text-muted-foreground mt-1">Send it to us. It could be the next LOL.exe joke!</p>
             <Link to="/contact" className="inline-flex items-center gap-1.5 mt-4 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors">
               Send it to us <ArrowRight className="w-4 h-4" />
             </Link>
