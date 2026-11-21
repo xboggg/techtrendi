@@ -226,6 +226,8 @@ export default function ScamAlerts() {
         title="Scam Alerts - Latest Scam Warnings"
         description="Stay informed about the latest scams and fraud attempts. Real-time scam alerts to protect you and your family."
         canonical="/scam-alerts"
+        image="/og-scam-alerts.jpg"
+        imageAlt="TechTrendi Scam Alerts: spot scams, stay protected"
       />
 
       {/* Hero */}
