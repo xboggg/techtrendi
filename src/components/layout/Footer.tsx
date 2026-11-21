@@ -65,7 +65,7 @@ const footerLinks = {
     { label: "How-To", href: "/how-to" },
     { label: "Smart Income", href: "/smart-income" },
     { label: "Productivity", href: "/productivity" },
-    { label: "Ei Tech! (Tech Jokes)", href: "/ei-tech" },
+    { label: "LOL.exe (Tech Jokes)", href: "/ei-tech" },
   ],
   company: [
     { label: "About", href: "/about" },
