@@ -2,6 +2,13 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { purgeOgCache } from "@/lib/purgeOgCache";
+import { needsImageReview } from "@/lib/imageAttribution";
+import {
+  ImageSourceFields,
+  imageSourceColumns,
+  imageSourceFormFrom,
+  initialImageSourceForm,
+} from "@/components/admin/ImageSourceFields";
 import { AdminLayout } from "./AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,6 +74,10 @@ interface NewsItem {
   meta_description: string | null;
   tags: string[] | null;
   author: string | null;
+  image_source_type?: string | null;
+  image_credit?: string | null;
+  image_caption?: string | null;
+  image_source_auto?: boolean | null;
 }
 
 const NEWS_CATEGORIES = [
@@ -94,6 +105,7 @@ const initialNewsState = {
   meta_description: "",
   tags: "",
   author: "TechTrendi Team",
+  ...initialImageSourceForm,
 };
 
 export default function AdminNews() {
@@ -140,6 +152,7 @@ export default function AdminNews() {
         meta_description: data.meta_description || null,
         tags: data.tags ? data.tags.split(",").map(t => t.trim()) : null,
         author: data.author || "TechTrendi Team",
+        ...imageSourceColumns(data),
       });
       if (error) throw error;
     },
@@ -170,6 +183,7 @@ export default function AdminNews() {
           meta_description: data.meta_description || null,
           tags: data.tags ? data.tags.split(",").map(t => t.trim()) : null,
           author: data.author || "TechTrendi Team",
+          ...imageSourceColumns(data),
           updated_at: new Date().toISOString(),
         })
         .eq("id", id);
@@ -239,6 +253,7 @@ export default function AdminNews() {
       meta_description: item.meta_description || "",
       tags: item.tags?.join(", ") || "",
       author: item.author || "TechTrendi Team",
+      ...imageSourceFormFrom(item),
     });
     setIsDialogOpen(true);
   };
@@ -599,6 +614,12 @@ export default function AdminNews() {
                   )}
                 </div>
 
+                <ImageSourceFields
+                  value={formData}
+                  onChange={(next) => setFormData((prev) => ({ ...prev, ...next }))}
+                  saved={editingNews ?? undefined}
+                />
+
                 <div className="space-y-2">
                   <Label>Content (HTML supported)</Label>
                   <RichTextEditor
@@ -798,6 +819,11 @@ export default function AdminNews() {
                         <p className="text-xs text-muted-foreground line-clamp-1">
                           /news/{item.slug}
                         </p>
+                        {needsImageReview(item) && (
+                          <span className="mt-1 inline-block rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">
+                            Image source: not set
+                          </span>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>

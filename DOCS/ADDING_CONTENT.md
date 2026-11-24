@@ -174,6 +174,27 @@ picture), and never explain the joke.
 
 ---
 
+## 11. Say where a cover picture comes from (Image Source, 24 Nov 2026)
+
+Every News and Blog cover can carry a small label in its bottom-right corner
+(AI Illustration, Photo Illustration, File Photo, Stock Photo, Courtesy) and a line
+under it with a caption and "Image: <credit>". It is drawn on top with CSS; the picture
+file is never changed.
+
+- **Automatic:** the database fills the label from the cover's filename for pictures our
+  pipelines make: `ghana-tech-ai-*` = AI Illustration; `ghana-tech-px<id>` or
+  images.pexels.com = Stock Photo, credit Pexels; images.unsplash.com = Stock Photo,
+  credit Unsplash. This covers every automatic writer and the Telegram picture buttons.
+- **Your own pictures** (admin uploads, pictures sent to the bot) are NOT guessed. The
+  admin News/Blog lists show **"Image source: not set"** on them. Open the article, choose
+  the label under *Image Source*, add a credit/caption if needed, save, then run the deploy.
+- A label you choose stays until the cover picture itself is changed. When a script
+  changes the picture, the label is worked out again and the old credit/caption dropped.
+- Columns: `image_source_type`, `image_credit`, `image_caption`, `image_source_auto` on
+  `techtrendi.news` and `techtrendi.articles`. Migration + rollback:
+  `supabase/migrations/20261124_image_attribution*.sql`. Code: `src/lib/imageAttribution.ts`,
+  `src/components/article/CoverAttribution.tsx`, `src/components/admin/ImageSourceFields.tsx`.
+
 ## The deploy command (after any change above)
 
 From the project root on your laptop:

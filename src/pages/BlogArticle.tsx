@@ -16,6 +16,7 @@ import DOMPurify from "isomorphic-dompurify"; // SSG-safe: works in Node build +
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
 import { CommentsBox } from "@/components/article/CommentsBox";
 import { WhatsAppChannelCTA } from "@/components/article/WhatsAppChannelCTA";
+import { ImageCreditLine, ImageSourceBadge } from "@/components/article/CoverAttribution";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
@@ -34,6 +35,9 @@ interface Article {
   tags: string[] | null;
   author: string | null;
   views: number | null;
+  image_source_type?: string | null;
+  image_credit?: string | null;
+  image_caption?: string | null;
 }
 
 interface TableOfContentsItem {
@@ -554,17 +558,21 @@ export default function BlogArticle() {
             </div>
           </header>
 
-          {/* Cover Image */}
-          <div className="rounded-2xl overflow-hidden mb-10 bg-muted aspect-video">
-            <img
-              src={getArticleImage(article)}
-              alt={article.title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = categoryImages[article.category] || categoryImages["default"];
-              }}
-            />
-          </div>
+          {/* Cover Image + where it comes from (label on the picture, credit/caption under it; 24 Nov 2026) */}
+          <figure className="mb-10">
+            <div className="relative rounded-2xl overflow-hidden bg-muted aspect-video">
+              <img
+                src={getArticleImage(article)}
+                alt={article.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = categoryImages[article.category] || categoryImages["default"];
+                }}
+              />
+              {article.cover_image && <ImageSourceBadge attribution={article} />}
+            </div>
+            {article.cover_image && <ImageCreditLine attribution={article} />}
+          </figure>
 
           <div className="lg:grid lg:grid-cols-[1fr_250px] lg:gap-12">
             {/* Article Content */}

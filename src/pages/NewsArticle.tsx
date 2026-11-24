@@ -13,6 +13,7 @@ import { useReadingHistory } from "@/components/ui/reading-history";
 import { NewsletterForm } from "@/components/newsletter/NewsletterForm";
 import { RundownTabloid } from "@/components/news/RundownTabloid";
 import { CommentsBox } from "@/components/article/CommentsBox";
+import { ImageCreditLine, ImageSourceBadge } from "@/components/article/CoverAttribution";
 import DOMPurify from "isomorphic-dompurify"; // SSG-safe: works in Node build + browser
 
 /**
@@ -116,6 +117,9 @@ interface NewsItem {
   author: string | null;
   meta_description: string | null;
   tags: string[] | null;
+  image_source_type?: string | null;
+  image_credit?: string | null;
+  image_caption?: string | null;
 }
 
 const categoryImages: Record<string, string> = {
@@ -355,20 +359,20 @@ export default function NewsArticle() {
             ) : (
               <>
             {/* Cover Image — constrained height */}
-            <div className="relative rounded-2xl overflow-hidden mb-10">
-              <img
-                src={getNewsImage(news)}
-                alt={news.title}
-                className="w-full max-h-[480px] object-cover"
-                onError={(e) => { (e.target as HTMLImageElement).src = categoryImages["default"]; }}
-              />
-              {/* AI-made covers are labelled so nobody takes them for a real photo of the event (19 Nov 2026). */}
-              {news.cover_image?.includes("/ghana-tech-ai-") && (
-                <span className="absolute bottom-3 right-3 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white">
-                  Illustration
-                </span>
-              )}
-            </div>
+            <figure className="mb-10">
+              <div className="relative rounded-2xl overflow-hidden">
+                <img
+                  src={getNewsImage(news)}
+                  alt={news.title}
+                  className="w-full max-h-[480px] object-cover"
+                  onError={(e) => { (e.target as HTMLImageElement).src = categoryImages["default"]; }}
+                />
+                {/* Where the picture comes from (AI Illustration, Stock Photo...), 24 Nov 2026.
+                    Replaces the 19 Nov "Illustration" tag; AI covers now carry image_source_type. */}
+                {news.cover_image && <ImageSourceBadge attribution={news} />}
+              </div>
+              {news.cover_image && <ImageCreditLine attribution={news} />}
+            </figure>
 
             {/* Article Content */}
             <div
