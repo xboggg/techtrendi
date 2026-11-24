@@ -30,6 +30,23 @@ export function imageSourceFormFrom(row: ImageAttribution): ImageSourceForm {
   };
 }
 
+/**
+ * The admin changed the cover picture in the form. A credit and caption the admin has not
+ * edited belong to the OLD picture, so they are emptied (Codex review on PR #69); anything
+ * the admin typed is kept. Use for both the URL box and the upload button.
+ */
+export function withNewCover<T extends ImageSourceForm & { cover_image: string }>(
+  prev: T,
+  cover: string,
+  saved?: ImageAttribution & { cover_image?: string | null },
+): T {
+  const next = { ...prev, cover_image: cover };
+  if (cover === (saved?.cover_image || "")) return next;
+  if (prev.image_credit === (saved?.image_credit || "")) next.image_credit = "";
+  if (prev.image_caption === (saved?.image_caption || "")) next.image_caption = "";
+  return next;
+}
+
 /** Columns to save. Automatic is sent as NULL; the database fills it in. */
 export function imageSourceColumns(f: ImageSourceForm) {
   return {

@@ -8,6 +8,7 @@ import {
   imageSourceColumns,
   imageSourceFormFrom,
   initialImageSourceForm,
+  withNewCover,
 } from "@/components/admin/ImageSourceFields";
 import { AdminLayout } from "./AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -308,7 +309,7 @@ export default function AdminArticles() {
       }
 
       const { url } = await res.json();
-      setFormData((prev) => ({ ...prev, cover_image: url }));
+      setFormData((prev) => withNewCover(prev, url, editingArticle ?? undefined));
       toast({ title: "Image uploaded & optimized!" });
     } catch (error) {
       toast({ title: "Error uploading image", description: String(error), variant: "destructive" });
@@ -617,7 +618,7 @@ export default function AdminArticles() {
                     <Input
                       type="text"
                       value={formData.cover_image}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, cover_image: e.target.value }))}
+                      onChange={(e) => setFormData((prev) => withNewCover(prev, e.target.value, editingArticle ?? undefined))}
                       placeholder="Image URL or upload"
                       className="flex-1"
                     />

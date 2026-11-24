@@ -88,7 +88,11 @@ begin
       g := techtrendi.image_source_guess(new.cover_image);
       new.image_source_type := g.source_type;
       new.image_source_auto := g.source_type is not null;
-      if coalesce(new.image_credit, '') = '' then
+      -- Empty credit, or the OLD picture's automatic credit sent back unchanged after the
+      -- picture was swapped (Codex review, PR #69): use the new picture's credit.
+      if coalesce(new.image_credit, '') = ''
+         or (new.cover_image is distinct from old.cover_image and old.image_source_auto
+             and new.image_credit is not distinct from old.image_credit) then
         new.image_credit := g.credit;
       end if;
     else
