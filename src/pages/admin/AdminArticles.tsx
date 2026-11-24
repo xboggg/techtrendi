@@ -2,6 +2,14 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { purgeOgCache } from "@/lib/purgeOgCache";
+import { needsImageReview } from "@/lib/imageAttribution";
+import {
+  ImageSourceFields,
+  imageSourceColumns,
+  imageSourceFormFrom,
+  initialImageSourceForm,
+  withNewCover,
+} from "@/components/admin/ImageSourceFields";
 import { AdminLayout } from "./AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,6 +75,10 @@ interface Article {
   created_at: string;
   updated_at: string;
   is_featured?: boolean;
+  image_source_type?: string | null;
+  image_credit?: string | null;
+  image_caption?: string | null;
+  image_source_auto?: boolean | null;
 }
 
 const CATEGORIES = [
@@ -94,6 +106,7 @@ const initialArticleState = {
   is_published: false,
   read_time_minutes: 5,
   is_featured: false,
+  ...initialImageSourceForm,
 };
 
 export default function AdminArticles() {
@@ -143,6 +156,7 @@ export default function AdminArticles() {
         is_published: data.is_published,
         read_time_minutes: data.read_time_minutes,
         is_featured: data.is_featured,
+        ...imageSourceColumns(data),
       });
       if (error) throw error;
     },
@@ -171,6 +185,7 @@ export default function AdminArticles() {
           is_published: data.is_published,
           read_time_minutes: data.read_time_minutes,
           is_featured: data.is_featured,
+          ...imageSourceColumns(data),
           updated_at: new Date().toISOString(),
         })
         .eq("id", id);
@@ -238,6 +253,7 @@ export default function AdminArticles() {
       is_published: article.is_published,
       read_time_minutes: article.read_time_minutes || 5,
       is_featured: article.is_featured || false,
+      ...imageSourceFormFrom(article),
     });
     setIsDialogOpen(true);
   };
@@ -293,7 +309,7 @@ export default function AdminArticles() {
       }
 
       const { url } = await res.json();
-      setFormData((prev) => ({ ...prev, cover_image: url }));
+      setFormData((prev) => withNewCover(prev, url, editingArticle ?? undefined));
       toast({ title: "Image uploaded & optimized!" });
     } catch (error) {
       toast({ title: "Error uploading image", description: String(error), variant: "destructive" });
@@ -602,7 +618,7 @@ export default function AdminArticles() {
                     <Input
                       type="text"
                       value={formData.cover_image}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, cover_image: e.target.value }))}
+                      onChange={(e) => setFormData((prev) => withNewCover(prev, e.target.value, editingArticle ?? undefined))}
                       placeholder="Image URL or upload"
                       className="flex-1"
                     />
@@ -634,6 +650,12 @@ export default function AdminArticles() {
                     />
                   )}
                 </div>
+
+                <ImageSourceFields
+                  value={formData}
+                  onChange={(next) => setFormData((prev) => ({ ...prev, ...next }))}
+                  saved={editingArticle ?? undefined}
+                />
 
                 {/* Excerpt */}
                 <div className="space-y-2">
@@ -904,6 +926,11 @@ export default function AdminArticles() {
                             <Clock className="w-3 h-3" />
                             {article.read_time_minutes || 5} min read
                           </p>
+                          {needsImageReview(article) && (
+                            <span className="mt-1 inline-block rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">
+                              Image source: not set
+                            </span>
+                          )}
                         </div>
                       </div>
                     </TableCell>
