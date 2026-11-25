@@ -88,6 +88,7 @@ function meta(path) {
   if (path.startsWith("tools/")) return { priority: "0.6", freq: "monthly" };
   // Ghana data bundles: prices re-checked every 3 hours (launch L4).
   if (path === "data-bundles" || path.startsWith("data-bundles/")) return { priority: "0.8", freq: "daily" };
+  if (path.startsWith("broadband/")) return { priority: "0.8", freq: "weekly" };
   // section landing pages
   if (["blog", "news", "tools", "security", "store", "guides"].includes(path))
     return { priority: "0.8", freq: "weekly" };
