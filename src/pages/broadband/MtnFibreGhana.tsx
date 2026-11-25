@@ -402,7 +402,7 @@ export default function MtnFibreGhana() {
               <div className="flex flex-wrap gap-2 mt-6">
                 <a href="https://shop.mtn.com.gh/" target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-xl bg-amber-400 text-slate-900 font-extrabold px-4 py-3 hover:bg-amber-300">
-                  <MapPin className="h-5 w-5" /> Check my area on MTN's site <ExternalLink className="h-4 w-4" />
+                  <MapPin className="h-5 w-5" /> Check fibre availability on MTN's site <ExternalLink className="h-4 w-4" />
                 </a>
                 <button onClick={share} className="inline-flex items-center gap-2 rounded-xl bg-white/10 border border-white/20 font-bold px-4 py-3 hover:bg-white/15">
                   <Share2 className="h-5 w-5" /> Share
