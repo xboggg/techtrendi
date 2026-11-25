@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { motion, animate, useReducedMotion, useInView } from "framer-motion";
 import {
   Wifi, Check, Zap, Users, Gamepad2, Download, MapPin, Phone, MessageCircle, Mail, Router, AlertTriangle,
-  CalendarClock, BadgePercent, Smartphone, Building2, ExternalLink, ShieldCheck, Share2, Lightbulb, Home, Sparkles,
+  CalendarClock, BadgePercent, Smartphone, Building2, ExternalLink, ShieldCheck, Share2, Lightbulb, Home, Sparkles, ArrowRight, BarChart3,
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -343,6 +344,7 @@ const JUMPS = [
   { href: "#which-plan", label: "Which plan?" },
   { href: "#how-to-get-it", label: "How to get it" },
   { href: "#good-to-know", label: "Small print" },
+  { href: "#mobile-data", label: "Mobile data" },
   { href: "#help", label: "Help" },
   { href: "#faq", label: "Questions" },
 ];
@@ -443,6 +445,22 @@ export default function MtnFibreGhana() {
                 MTN Business Fibre costs the same (GH¢299, GH¢444, GH¢999 a month) and adds a <b className="text-foreground">fixed (static) IP address</b>,
                 network security, and Graphic Business news. Order through the Business tab on shop.mtn.com.gh.
               </p>
+            </div>
+          </section>
+
+          <section id="mobile-data" className="scroll-mt-24">
+            <SectionTitle icon={Smartphone} sub="Fibre is for home. On the move, your phone still needs a data bundle.">Need mobile data too?</SectionTitle>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Link to="/data-bundles/ghana/mtn" className="group rounded-3xl p-5 bg-gradient-to-br from-amber-400 to-yellow-300 text-slate-900 shadow-sm hover:shadow-md transition-shadow">
+                <p className="text-lg font-black flex items-center gap-2"><Smartphone className="h-5 w-5" /> MTN data bundle prices</p>
+                <p className="text-sm mt-1 font-medium">Every MTN bundle, today's prices, and how much data your money buys.</p>
+                <span className="inline-flex items-center gap-1 mt-3 font-bold group-hover:gap-2 transition-all">See MTN bundles <ArrowRight className="h-4 w-4" /></span>
+              </Link>
+              <Link to="/data-bundles/ghana" className="group rounded-3xl p-5 bg-slate-900 text-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow">
+                <p className="text-lg font-black flex items-center gap-2"><BarChart3 className="h-5 w-5 text-amber-400" /> Compare MTN, Telecel and AT</p>
+                <p className="text-sm mt-1 text-slate-300">See which network gives the most data for your money.</p>
+                <span className="inline-flex items-center gap-1 mt-3 font-bold text-amber-300 group-hover:gap-2 transition-all">Compare networks <ArrowRight className="h-4 w-4" /></span>
+              </Link>
             </div>
           </section>
 
