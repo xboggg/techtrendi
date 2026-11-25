@@ -16,7 +16,7 @@ export function FibreJourney() {
 
   return (
     <figure className="rounded-3xl border bg-slate-950 text-white p-4 sm:p-6 overflow-hidden">
-      <svg viewBox="0 0 700 250" className="w-full h-auto" role="img" aria-labelledby="fj-title fj-desc">
+      <svg viewBox="0 0 700 264" className="w-full h-auto" role="img" aria-labelledby="fj-title fj-desc">
         <title id="fj-title">How fibre broadband reaches your home</title>
         <desc id="fj-desc">
           Light travels through a thin glass cable from MTN's network on the street into your house. The MTN router
@@ -38,12 +38,12 @@ export function FibreJourney() {
           <rect x="4" y="110" width="44" height="80" rx="6" fill="#1e293b" stroke="#64748b" strokeWidth="2" />
           <rect x="12" y="122" width="28" height="6" rx="3" fill="#facc15" />
           <rect x="12" y="134" width="28" height="6" rx="3" fill="#22d3ee" />
-          <text x="30" y="214" textAnchor="middle" className="text-[22px] md:text-[15px]" fill="#cbd5e1" fontWeight="700">Street</text>
+          <text x="30" y="214" textAnchor="middle" fontSize="19" fill="#cbd5e1" fontWeight="700">Street</text>
         </g>
 
         {/* the glass cable */}
         <path d="M20 150 C 120 150, 150 90, 250 90 S 380 150, 470 150" fill="none" stroke="url(#fj-cable)" strokeWidth="6" strokeLinecap="round" />
-        <text x="250" y="66" textAnchor="middle" className="text-[22px] md:text-[15px]" fill="#fde68a" fontWeight="700">Light in a glass cable</text>
+        <text x="250" y="66" textAnchor="middle" fontSize="19" fill="#fde68a" fontWeight="700">Light in a glass cable</text>
         {pulse(0, "#fffbeb")}
         {pulse(1.05, "#a5f3fc")}
         {pulse(2.1, "#fde68a")}
@@ -70,7 +70,7 @@ export function FibreJourney() {
               </path>
             ))}
           </g>
-          <text x="540" y="247" textAnchor="middle" className="text-[22px] md:text-[15px]" fill="#cbd5e1" fontWeight="700">Your home</text>
+          <text x="540" y="256" textAnchor="middle" fontSize="19" fill="#cbd5e1" fontWeight="700">Your home</text>
         </g>
 
         {/* devices */}
