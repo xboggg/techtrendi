@@ -85,7 +85,9 @@ export default function TechEventsHub() {
     if (sort === "newest") return [...r].sort((a, b) => b.first_seen.localeCompare(a.first_seen) || a.starts_on.localeCompare(b.starts_on));
     return f.when === "past" ? [...r].sort((a, b) => b.starts_on.localeCompare(a.starts_on)) : r;
   }, [events, f, sort, today]);
-  const calEvents = useMemo(() => events.filter((e) => matches(e, { ...f, when: "upcoming", month: null }, today, "when") ), [events, f, today]);
+  // Calendar: the month on screen replaces a picked month; any other "When" choice still applies
+  // (Codex, PR #73). "All coming events" shows the whole month, past days dimmed.
+  const calEvents = useMemo(() => events.filter((e) => matches(e, { ...f, month: null }, today, f.when === "upcoming" ? "when" : undefined)), [events, f, today]);
   const calCount = useMemo(() => calEvents.filter((e) => e.starts_on <= `${calMonth}-31` && e.ends_on >= `${calMonth}-01`).length, [calEvents, calMonth]);
   const shown = view === "calendar" ? calCount : results.length;
   const months = useMemo(() => [...new Set(upcoming.map((e) => monthKey(e.starts_on)))].sort(), [upcoming]);

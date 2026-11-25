@@ -6,7 +6,7 @@ import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { cn } from "@/lib/utils";
 import {
-  KIND_LABELS, TECH_EVENTS, TECH_EVENTS_PATH, type TechEvent, dateRange, eventJsonLd, eventStatus, flag, ldJson, place,
+  KIND_LABELS, TECH_EVENTS_PATH, type TechEvent, dateRange, eventJsonLd, eventStatus, flag, ldJson, place,
   plainSummary, useTechEventsLive, useToday,
 } from "@/data/techEvents";
 import { DateTile, EventRow, Extras, KindBadge, WhenBadge, kindStyle } from "@/components/tech-events/EventParts";
@@ -20,7 +20,9 @@ export default function TechEventPage() {
   const { slug } = useParams();
   const [events, loaded] = useTechEventsLive();
   const today = useToday();
-  const e = events.find((x) => x.slug === slug) || TECH_EVENTS.find((x) => x.slug === slug);
+  // `events` is the baked list until the live list answers (and stays baked if it fails), so an
+  // event hidden since the build disappears here too instead of coming back (Codex, PR #73).
+  const e = events.find((x) => x.slug === slug);
 
   const more = useMemo(() => {
     if (!e) return { here: [] as TechEvent[], same: [] as TechEvent[] };

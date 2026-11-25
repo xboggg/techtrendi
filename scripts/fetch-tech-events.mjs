@@ -52,7 +52,9 @@ async function run() {
     if (!events.length) { log("no events came back. KEPT the committed file."); return; }
     const today = new Date().toISOString().slice(0, 10);
     const old = existsSync(FILE) ? JSON.parse(readFileSync(FILE, "utf8")) : null;
-    if (old && JSON.stringify(old.events) === JSON.stringify(events)) { log(`${events.length} events, unchanged.`); return; }
+    // generated_on is the prerender's "today" (src/data/techEvents.ts BUILD_DAY), so it is refreshed
+    // even when the rows are the same, else ended events would prerender as coming (Codex, PR #73).
+    if (old && old.generated_on === today && JSON.stringify(old.events) === JSON.stringify(events)) { log(`${events.length} events, unchanged.`); return; }
     writeFileSync(FILE, JSON.stringify({ generated_on: today, events }, null, 1) + "\n");
     log(`UPDATED ${FILE} (${events.length} events).`);
   } catch (e) {
