@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
   KIND_LABELS, MAIN_COUNTRIES, REGIONS, SOURCE_LABELS, TECH_EVENTS, TECH_EVENTS_PATH, TOPIC_LABELS, type TechEvent,
-  dateRange, dayDiff, flag, hasOwnPage, monthKey, monthLabel, place, useTechEventsLive, useToday,
+  dateRange, dayDiff, flag, hasOwnPage, monthKey, monthLabel, place, todayISO, useTechEventsLive, useToday,
 } from "@/data/techEvents";
 import { DateTile, EventCalendar, EventCard, EventLink, EventRow, KindBadge, kindStyle } from "@/components/tech-events/EventParts";
 import {
@@ -63,15 +63,15 @@ export default function TechEventsHub() {
     if (r.view === "grid" || r.view === "calendar") setView(r.view);
     if (r.sort === "newest") setSort("newest");
     if (r.open && /^[a-z0-9-]{3,100}$/.test(r.open)) setOpenSlug(r.open);
-    if (r.f.month) setCalMonth(r.f.month);
+    setCalMonth(r.cal || r.f.month || monthKey(todayISO()));
     setReady(true);
   }, []);
-  useEffect(() => { setCalMonth((m) => (f.month ? f.month : m < monthKey(today) ? monthKey(today) : m)); }, [today, f.month]);
+  useEffect(() => { if (f.month) setCalMonth(f.month); }, [f.month]);
   useEffect(() => {
     if (!ready) return;
-    const s = searchFromFilters(f, view, sort, open?.slug || null);
+    const s = searchFromFilters(f, view, sort, open?.slug || null, view === "calendar" && calMonth !== monthKey(today) ? calMonth : null);
     if (s !== window.location.search) window.history.replaceState(window.history.state, "", `${TECH_EVENTS_PATH}${s}`);
-  }, [f, view, sort, open, ready]);
+  }, [f, view, sort, open, ready, calMonth, today]);
   // ?e=<slug>: open that event once the live list has it.
   useEffect(() => {
     if (!openSlug) return;

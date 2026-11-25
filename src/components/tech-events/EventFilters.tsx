@@ -81,7 +81,7 @@ export const activeCount = (f: Filters) =>
 // ---------------- address bar ----------------
 const list = (s: string | null, ok: (x: string) => boolean) => (s ? s.split(",").filter(ok).slice(0, 30) : []);
 
-export function filtersFromSearch(search: string): { f: Filters; view: string | null; sort: string | null; open: string | null } {
+export function filtersFromSearch(search: string): { f: Filters; view: string | null; sort: string | null; open: string | null; cal: string | null } {
   const p = new URLSearchParams(search);
   const w = p.get("w") as When | null;
   const m = p.get("m");
@@ -98,10 +98,12 @@ export function filtersFromSearch(search: string): { f: Filters; view: string | 
       month: m && /^\d{4}-\d{2}$/.test(m) ? m : null,
     },
     view: p.get("v"), sort: p.get("s"), open: p.get("e"),
+    cal: /^\d{4}-\d{2}$/.test(p.get("cal") || "") ? p.get("cal") : null,
   };
 }
 
-export function searchFromFilters(f: Filters, view: string, sort: string, open: string | null) {
+/** `cal`: the month the calendar shows (kept so a shared calendar link opens on it; Codex, PR #73). */
+export function searchFromFilters(f: Filters, view: string, sort: string, open: string | null, cal: string | null = null) {
   const p = new URLSearchParams();
   if (f.q.trim()) p.set("q", f.q.trim());
   if (f.countries.length) p.set("c", f.countries.join(","));
@@ -115,6 +117,7 @@ export function searchFromFilters(f: Filters, view: string, sort: string, open: 
   if (view !== "list") p.set("v", view);
   if (sort !== "soonest") p.set("s", sort);
   if (open) p.set("e", open);
+  if (view === "calendar" && cal && cal !== f.month) p.set("cal", cal);
   const s = p.toString().replace(/%2C/g, ",");
   return s ? `?${s}` : "";
 }
