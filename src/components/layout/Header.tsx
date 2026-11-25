@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, User, LogOut, Crown, Shield, Sparkles, Flame, Smartphone, Lock, Cpu, Lightbulb, BookOpen, DollarSign, ShoppingBag, LayoutDashboard, Newspaper, Gamepad2, Watch, Briefcase, HeartPulse, Wifi, Leaf, Zap, Star, Globe } from "lucide-react";
+import { Menu, X, ChevronDown, User, LogOut, Crown, Shield, Sparkles, Flame, Smartphone, Lock, Cpu, Lightbulb, BookOpen, DollarSign, ShoppingBag, LayoutDashboard, Newspaper, Gamepad2, Watch, Briefcase, HeartPulse, Wifi, Leaf, Zap, Star, Globe, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GhanaFlag } from "@/components/ui/ghana-flag";
 import { useAuth } from "@/contexts/AuthContext";
@@ -45,6 +45,8 @@ const navLinks: NavLink[] = [
   { label: "Online Safety", href: "/security", icon: Shield, isHot: true },
   { label: "Tools", href: "/tools", icon: Zap },
   { label: "Jobs", href: "/careers", icon: Briefcase },
+  // Tech events across Africa (25 Nov 2026), src/data/techEvents.ts.
+  { label: "Events", href: "/tech-events", icon: CalendarDays },
   {
     label: "Blog",
     href: "/blog",
@@ -132,7 +134,8 @@ export function Header() {
                   } ${link.isHot ? "relative pr-9" : ""}`}
                   // pr-9: the HOT badge sits in this extra right padding, clear of the label at every width.
                 >
-                  {link.icon && <link.icon className="w-4 h-4 text-orange-500" />}
+                  {/* Icons only from 1440px: with Events added (25 Nov 2026) seven links must fit on one line at 1280px. */}
+                  {link.icon && <link.icon className="hidden min-[1440px]:block w-4 h-4 text-orange-500" />}
                   {link.label}
                   {link.isHot && (
                     <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-[10px] font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full animate-pulse">
