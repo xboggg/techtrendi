@@ -195,6 +195,22 @@ file is never changed.
   `supabase/migrations/20261124_image_attribution*.sql`. Code: `src/lib/imageAttribution.ts`,
   `src/components/article/CoverAttribution.tsx`, `src/components/admin/ImageSourceFields.tsx`.
 
+## 12. Update the MTN Fibre guide (25 Nov 2026)
+
+Page: https://techtrendi.com/broadband/ghana/mtn-fibre (plain-words guide: prices, plan picker,
+download race, how to order, small print, help, FAQ, sources).
+
+- All facts live in `src/data/mtnFibreFacts.ts` (prices for 1, 3, 6 and 12 months, FAQ, sources,
+  `LAST_CHECKED`). The page is `src/pages/broadband/MtnFibreGhana.tsx`; the drawing is
+  `src/components/broadband/FibreJourney.tsx`.
+- Only use MTN's own pages (shop.mtn.com.gh, help-center.mtn.com.gh, mtn.com.gh terms) or 2+
+  reputable Ghana news outlets. Never a reseller blog on its own.
+- When MTN changes a price: edit `PLANS` and `LAST_CHECKED`, run
+  `node --experimental-strip-types scripts/test-mtn-fibre.mts`, and redraw the share picture
+  `public/og-mtn-fibre-ghana.jpg` (1200x630, under 300 KB; it shows the three monthly prices).
+- Known open points (25 Nov 2026): the shop says "Free Installation" but MTN's terms still mention a
+  fee; no official coverage list; fair-use policy not published; upload speed not published.
+
 ## The deploy command (after any change above)
 
 From the project root on your laptop:

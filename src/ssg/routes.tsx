@@ -82,6 +82,8 @@ export const routes: RouteRecord[] = [
       { path: DATA_BUNDLES_ROUTE, element: <Navigate to={`/${DATA_BUNDLES_ROUTE}/ghana`} replace /> },
       { path: `${DATA_BUNDLES_ROUTE}/:country`, lazy: d(() => import("../pages/data-bundles/DataBundlesDashboard")) },
       { path: `${DATA_BUNDLES_ROUTE}/:country/:network`, lazy: d(() => import("../pages/data-bundles/DataBundlesNetwork")) },
+      // MTN Fibre guide (25 Nov 2026): plain-words, fact-checked guide. Facts in src/data/mtnFibreFacts.ts.
+      { path: "broadband/ghana/mtn-fibre", lazy: d(() => import("../pages/broadband/MtnFibreGhana")) },
       { path: "rundown-preview", lazy: d(() => import("../pages/RundownPreview")) },
       { path: "productivity", lazy: d(() => import("../pages/categories/Productivity")) },
       { path: "how-to", lazy: d(() => import("../pages/categories/HowTo")) },
