@@ -166,9 +166,9 @@ $static_pages = [
         'image' => 'https://techtrendi.com/images/books/think-before-you-click-og.jpg',
     ],
     'tools' => [
-        'title' => '125+ Free Online Tools - No Signup Required',
+        'title' => '130+ Free Online Tools - No Signup Required',
         'description' => 'Free online tools for everyone: password generators, QR codes, resume builders, calculators, and more. No signup needed.',
-        'image' => 'https://techtrendi.com/images/og-tools.jpg',
+        'image' => 'https://techtrendi.com/og-tools.jpg', // 27 Nov 2026, same as Tools.tsx
     ],
     'store' => [
         'title' => 'DigiStore - Digital Products, Ebooks and Templates',
@@ -183,7 +183,7 @@ $static_pages = [
     'security' => [
         'title' => 'Security Hub - Protect Yourself Online',
         'description' => 'Your cybersecurity command center. Threat alerts, scam warnings, security tools, and expert advice to keep you safe online.',
-        'image' => 'https://techtrendi.com/images/og-security.jpg',
+        'image' => 'https://techtrendi.com/og-security.jpg', // 27 Nov 2026, same as Security.tsx
     ],
     // Owner's own share picture (21 Nov 2026), same as the page's og:image in ScamAlerts.tsx.
     'scam-alerts' => [
@@ -194,7 +194,7 @@ $static_pages = [
     'blog' => [
         'title' => 'TechTrendi Blog - Expert Tech Guides and Articles',
         'description' => 'In-depth technology articles covering smartphones, AI, cybersecurity, productivity, and more. Written for real people, not experts.',
-        'image' => 'https://techtrendi.com/images/og-blog.jpg',
+        'image' => 'https://techtrendi.com/og-blog.jpg', // 27 Nov 2026, same as Blog.tsx
     ],
     'news' => [
         'title' => 'Tech News - Latest Technology Headlines',
