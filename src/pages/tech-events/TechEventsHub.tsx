@@ -6,14 +6,15 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
-  KIND_LABELS, MAIN_COUNTRIES, REGIONS, SOURCE_LABELS, TECH_EVENTS, TECH_EVENTS_PATH, TOPIC_LABELS, type TechEvent,
-  dateRange, dayDiff, flag, hasOwnPage, monthKey, monthLabel, place, todayISO, useTechEventsLive, useToday,
+  KIND_LABELS, MAIN_COUNTRIES, REGIONS, SHOWN_SOURCES, SOURCE_LABELS, TECH_EVENTS, TECH_EVENTS_OG, TECH_EVENTS_OG_ALT, TECH_EVENTS_PATH, TOPIC_LABELS, type TechEvent,
+  dateRange, dayDiff, hasOwnPage, monthKey, monthLabel, place, todayISO, useTechEventsLive, useToday,
 } from "@/data/techEvents";
 import { DateTile, EventCalendar, EventCard, EventLink, EventRow, KindBadge, kindStyle } from "@/components/tech-events/EventParts";
 import {
   EMPTY, FilterPanel, type Filters, WHEN_LABELS, activeCount, countBy, filtersFromSearch, matches, searchFromFilters, toggle,
 } from "@/components/tech-events/EventFilters";
 import { EventAbout, EventActions, EventFacts, pageUrlFor } from "@/components/tech-events/EventDetails";
+import { Flag } from "@/components/tech-events/Flag";
 
 type View = "list" | "grid" | "calendar";
 type Sort = "soonest" | "newest";
@@ -106,11 +107,11 @@ export default function TechEventsHub() {
   const n = activeCount(f);
   const sets = (x: Filters) => { setF(x); setCalDay(null); };
 
-  const chips: { label: string; clear: () => void }[] = [
+  const chips: { label: string; cc?: string; clear: () => void }[] = [
     ...(f.q.trim() ? [{ label: `“${f.q.trim()}”`, clear: () => sets({ ...f, q: "" }) }] : []),
     ...(f.when !== "upcoming" ? [{ label: WHEN_LABELS[f.when], clear: () => sets({ ...f, when: "upcoming" }) }] : []),
     ...(f.month ? [{ label: monthLabel(f.month), clear: () => sets({ ...f, month: null }) }] : []),
-    ...f.countries.map((c) => ({ label: `${flag(c)} ${events.find((e) => e.country_code === c)?.country || c}`, clear: () => sets({ ...f, countries: toggle(f.countries, c) }) })),
+    ...f.countries.map((c) => ({ label: events.find((e) => e.country_code === c)?.country || c, cc: c, clear: () => sets({ ...f, countries: toggle(f.countries, c) }) })),
     ...f.regions.map((r) => ({ label: r, clear: () => sets({ ...f, regions: toggle(f.regions, r) }) })),
     ...f.kinds.map((k) => ({ label: KIND_LABELS[k], clear: () => sets({ ...f, kinds: toggle(f.kinds, k) }) })),
     ...f.topics.map((t) => ({ label: TOPIC_LABELS[t], clear: () => sets({ ...f, topics: toggle(f.topics, t) }) })),
@@ -126,6 +127,8 @@ export default function TechEventsHub() {
         title="Tech Events in Africa: Ghana, Nigeria, Kenya, South Africa"
         description={`${upcoming.length} coming tech events across Africa: conferences, meetups, hackathons and classes in Ghana, Nigeria, Kenya, South Africa and more. Updated every 6 hours.`}
         canonical={TECH_EVENTS_PATH}
+        image={TECH_EVENTS_OG}
+        imageAlt={TECH_EVENTS_OG_ALT}
         keywords={["tech events Africa", "tech events Ghana", "tech events Nigeria", "tech events Kenya", "tech events South Africa", "tech conferences Africa", "DevFest", "tech meetups Accra", "tech meetups Lagos", "hackathons Africa"]}
         breadcrumbs={[{ name: "Home", path: "/" }, { name: "Tech Events", path: TECH_EVENTS_PATH }]}
         itemList={{ name: "Coming tech events in Africa", items: itemNames }}
@@ -169,7 +172,7 @@ export default function TechEventsHub() {
                 {MAIN_COUNTRIES.map((c) => (
                   <button key={c} onClick={() => { sets({ ...f, countries: toggle(f.countries, c) }); }}
                     className={cn("rounded-full px-3.5 py-1.5 text-sm font-semibold ring-1 transition", f.countries.includes(c) ? "bg-white text-slate-900 ring-white" : "bg-white/5 text-white ring-white/20 hover:bg-white/15")}>
-                    {flag(c)} {COUNTRY_NAMES[c]} <span className="opacity-60">{heroCountries.get(c) || 0}</span>
+                    <Flag cc={c} /> {COUNTRY_NAMES[c]} <span className="opacity-60">{heroCountries.get(c) || 0}</span>
                   </button>
                 ))}
               </div>
@@ -197,7 +200,7 @@ export default function TechEventsHub() {
                     <div className="min-w-0">
                       <KindBadge kind={spotlight.kind} className="!bg-white/10 !text-white !ring-white/20" />
                       <h2 className="mt-1.5 text-xl font-bold leading-snug sm:text-2xl">{spotlight.title}</h2>
-                      <p className="mt-1 flex items-center gap-1.5 text-sm text-white/70"><MapPin className="h-4 w-4 shrink-0" /><span aria-hidden="true">{flag(spotlight.country_code)}</span> {place(spotlight)}</p>
+                      <p className="mt-1 flex items-center gap-1.5 text-sm text-white/70"><MapPin className="h-4 w-4 shrink-0" /><Flag cc={spotlight.country_code} /> {place(spotlight)}</p>
                       <p className="mt-0.5 flex items-center gap-1.5 text-sm text-white/70"><CalendarDays className="h-4 w-4 shrink-0" /> {dateRange(spotlight)}</p>
                     </div>
                   </div>
@@ -257,7 +260,7 @@ export default function TechEventsHub() {
                 <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
                   {chips.map((c) => (
                     <button key={c.label} onClick={c.clear} className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary hover:bg-primary/20">
-                      {c.label} <X className="h-3 w-3" />
+                      {c.cc && <Flag cc={c.cc} />}{c.label} <X className="h-3 w-3" />
                     </button>
                   ))}
                   <button onClick={() => sets(EMPTY)} className="px-1 text-xs font-semibold text-muted-foreground underline hover:text-foreground">Clear all</button>
@@ -308,7 +311,7 @@ export default function TechEventsHub() {
                       className="group flex items-center justify-between rounded-2xl border border-border bg-card p-4 transition hover:border-primary/40 hover:shadow-md">
                       <div>
                         <div className="font-bold group-hover:text-primary">{r}</div>
-                        <div className="mt-0.5 text-sm text-muted-foreground">{list.length} event{list.length === 1 ? "" : "s"} <span className="ml-1" aria-hidden="true">{top.map(flag).join(" ")}</span></div>
+                        <div className="mt-0.5 text-sm text-muted-foreground">{list.length} event{list.length === 1 ? "" : "s"} <span className="ml-1 inline-flex gap-1 align-middle">{top.map((c) => <Flag key={c} cc={c} />)}</span></div>
                       </div>
                       <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-primary" />
                     </a>
@@ -323,10 +326,10 @@ export default function TechEventsHub() {
                 <h2 className="flex items-center gap-2 font-bold"><Radio className="h-5 w-5 text-emerald-500" /> Where these events come from</h2>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   Our tracker checks public event calendars every 6 hours:{" "}
-                  {Object.entries(SOURCE_LABELS).filter(([k]) => k !== "manual").map(([k, s], i, a) => (
+                  {SHOWN_SOURCES.map((k) => [k, SOURCE_LABELS[k]] as const).map(([k, s], i, a) => (
                     <span key={k}><a href={s.url} target="_blank" rel="noopener noreferrer nofollow" className="font-semibold text-foreground underline">{s.name}</a>{i < a.length - 2 ? ", " : i === a.length - 2 ? " and " : ""}</span>
                   ))}
-                  . We remove repeats and wrong listings. Dates can change, so always check the organiser's website before you travel.
+                  , plus events our team checks by hand. We remove repeats and wrong listings. Dates can change, so always check the organiser's website before you travel.
                 </p>
               </div>
               <div className="rounded-3xl bg-gradient-to-br from-indigo-600 to-emerald-600 p-5 text-white sm:p-6">

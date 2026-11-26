@@ -6,9 +6,10 @@ import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import {
   KIND_LABELS, KIND_ORDER, MAIN_COUNTRIES, MONTHS, REGIONS, TOPIC_LABELS, type TechEvent,
-  addDays, dayDiff, flag, monthKey, weekday,
+  addDays, dayDiff, monthKey, weekday,
 } from "@/data/techEvents";
 import { kindStyle } from "./EventParts";
+import { Flag } from "@/components/tech-events/Flag";
 
 export type When = "upcoming" | "week" | "weekend" | "month" | "3months" | "past";
 export type Facet = "country" | "region" | "kind" | "topic" | "format" | "when";
@@ -194,7 +195,7 @@ export function FilterPanel({ events, f, set, today, months }: {
         <div className="flex flex-wrap gap-1.5">
           {MAIN_COUNTRIES.map((c) => (
             <Chip key={c} on={f.countries.includes(c)} count={countries.get(c) || 0} onClick={() => set({ ...f, countries: toggle(f.countries, c) })}>
-              <span aria-hidden="true">{flag(c)}</span>{{ GH: "Ghana", NG: "Nigeria", KE: "Kenya", ZA: "South Africa" }[c]}
+              <Flag cc={c} />{{ GH: "Ghana", NG: "Nigeria", KE: "Kenya", ZA: "South Africa" }[c]}
             </Chip>
           ))}
         </div>
@@ -207,7 +208,7 @@ export function FilterPanel({ events, f, set, today, months }: {
             <div className="mt-2 flex flex-wrap gap-1.5">
               {otherCountries.map((c) => (
                 <Chip key={c} on={f.countries.includes(c)} count={countries.get(c) || 0} onClick={() => set({ ...f, countries: toggle(f.countries, c) })}>
-                  <span aria-hidden="true">{flag(c)}</span>{names.get(c)}
+                  <Flag cc={c} />{names.get(c)}
                 </Chip>
               ))}
             </div>

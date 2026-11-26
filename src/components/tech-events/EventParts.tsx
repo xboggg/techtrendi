@@ -11,8 +11,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   DAYS, FORMAT_LABELS, KIND_LABELS, MON, MONTHS, TOPIC_LABELS, type TechEvent, addDays, dateRange,
-  downloadIcs, eventPath, eventStatus, flag, googleCalendarUrl, hasOwnPage, parts, place, timeRange, weekday,
+  downloadIcs, eventPath, eventStatus, googleCalendarUrl, hasOwnPage, parts, place, timeRange, weekday,
 } from "@/data/techEvents";
+import { Flag } from "@/components/tech-events/Flag";
 
 // ---------------- look per type of event ----------------
 export const KIND_STYLE: Record<string, { grad: string; soft: string; Icon: React.ComponentType<{ className?: string }> }> = {
@@ -121,7 +122,7 @@ export function EventRow({ e, today, onOpen }: { e: TechEvent; today: string; on
         </div>
         <h3 className="text-base font-bold leading-snug text-foreground group-hover:text-primary sm:text-lg">{e.title}</h3>
         <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-          <span aria-hidden="true">{flag(e.country_code)}</span>
+          <Flag cc={e.country_code} />
           <span className="truncate">{place(e)}{e.starts_on !== e.ends_on ? ` · ${dateRange(e)}` : t ? ` · ${t}` : ""}</span>
         </p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -151,7 +152,7 @@ export function EventCard({ e, today, onOpen }: { e: TechEvent; today: string; o
             <div className="text-xs font-bold uppercase tracking-widest opacity-90">{MON[p.m - 1]} {p.y}</div>
             <div className="text-4xl font-black leading-none tabular-nums">{p.d}{e.starts_on !== e.ends_on && <span className="text-xl font-bold opacity-90">–{parts(e.ends_on).d}{parts(e.ends_on).m !== p.m ? ` ${MON[parts(e.ends_on).m - 1]}` : ""}</span>}</div>
           </div>
-          <span className="text-3xl drop-shadow" aria-hidden="true">{flag(e.country_code)}</span>
+          <span className="text-3xl drop-shadow"><Flag cc={e.country_code} /></span>
         </div>
       </div>
       <div className="flex flex-1 flex-col p-4">

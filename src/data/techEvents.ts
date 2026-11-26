@@ -2,7 +2,8 @@
 //
 // The events live in the database (techtrendi.tech_events). Nobody types them in: the monitor
 // on the server (/opt/tech-news/tech_events/sync.py, every 6 hours) reads Labari Data (the
-// calendar behind techlabari.com/event-calendar), dev.events and Luma, merges the same event
+// calendar behind techlabari.com/event-calendar), dev.events, Luma, Google Developer Groups Ghana
+// and a hand-checked list (checked_events.json), merges the same event
 // seen on two sites, sorts it by plain keyword rules (no AI) and tells Edmund on Telegram
 // about new ones. To hide a wrong event: set its status to 'hidden' (the monitor never
 // un-hides).
@@ -188,8 +189,23 @@ export const SOURCE_LABELS: Record<string, { name: string; url: string }> = {
   labari: { name: "Labari Data", url: "https://app.labaridata.com/events" },
   devevents: { name: "dev.events", url: "https://dev.events/AF" },
   luma: { name: "Luma", url: "https://luma.com" },
+  gdg: { name: "Google Developer Groups", url: "https://gdg.community.dev" },
   manual: { name: "TechTrendi", url: "https://techtrendi.com" },
 };
+
+/** Share picture for /tech-events and every event page. Design: docs/og-designs/og-tech-events.html
+ *  (render at 1200x630, JPEG, keep under ~300 KB for WhatsApp). */
+export const TECH_EVENTS_OG = "/og-tech-events.jpg";
+export const TECH_EVENTS_OG_ALT = "Tech Events in Africa: conferences, meetups, hackathons and classes in Ghana, Nigeria, Kenya, South Africa and more. Updated every 6 hours. TechTrendi.";
+
+/** The calendars named in "Where these events come from" (owner, 26 Nov 2026: dev.events and Luma only). */
+export const SHOWN_SOURCES = ["devevents", "luma"] as const;
+
+/** Sources never named on the pages (owner, 26 Nov 2026: no "Labari Data" text). */
+export const UNNAMED_SOURCES = new Set(["labari"]);
+
+/** The listing's name for "See it on …", or null when it is not named. */
+export const sourceName = (e: TechEvent) => (UNNAMED_SOURCES.has(e.source) ? null : SOURCE_LABELS[e.source]?.name || null);
 
 /** 🇬🇭 from "GH" (regional indicator letters). */
 export const flag = (cc: string) => /^[A-Z]{2}$/.test(cc) ? String.fromCodePoint(...[...cc].map((c) => 0x1f1a5 + c.charCodeAt(0))) : "";
