@@ -140,6 +140,8 @@ export default function Tools() {
         title="130+ Free Online Tools - No Signup Required"
         description="Free online tools for everyone: password generators, QR codes, resume builders, calculators, and more. No signup needed."
         canonical="/tools"
+        image="/og-tools.jpg"
+        imageAlt="130+ free online tools on TechTrendi: passwords, QR codes, calculators, images, CV builder and more. No signup."
       />
       {/* Hero Section */}
       <PageHero
