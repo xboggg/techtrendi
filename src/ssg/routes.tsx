@@ -10,6 +10,7 @@ import { DATA_BUNDLES_ROUTE } from "@/data/dataBundlesRoute";
 import { CAREERS_ROUTE } from "@/lib/careers";
 import { SPONSORS } from "@/data/sponsors";
 import { EI_TECH_MEMES } from "@/data/eiTech";
+import { TECH_EVENTS } from "@/data/techEvents";
 import { newsLoader, newsStaticPaths, blogLoader, blogStaticPaths, blogListLoader, newsListLoader, productsListLoader, securityPageLoader, newsArchiveLoader, newsArchivePaths, blogArchiveLoader, blogArchivePaths, scamAlertLoader, scamAlertStaticPaths } from "./news-data";
 
 // Adapt our default-export pages to vite-react-ssg's lazy ({ Component }).
@@ -104,6 +105,9 @@ export const routes: RouteRecord[] = [
       // Ei Tech! funny tech memes (11 Nov 2026). One prerendered page per meme in src/data/eiTech.ts.
       { path: "ei-tech", lazy: d(() => import("../pages/ei-tech/EiTechHub")) },
       { path: "ei-tech/:slug", lazy: d(() => import("../pages/ei-tech/EiTechMemePage")), getStaticPaths: () => EI_TECH_MEMES.map((m) => `ei-tech/${m.slug}`) },
+      // Tech events across Africa (25 Nov 2026). One prerendered page per event in src/data/techEvents.ts.
+      { path: "tech-events", lazy: d(() => import("../pages/tech-events/TechEventsHub")) },
+      { path: "tech-events/:slug", lazy: d(() => import("../pages/tech-events/TechEventPage")), getStaticPaths: () => TECH_EVENTS.map((e) => `tech-events/${e.slug}`) },
       // Reviews discontinued 2026-06-21 (focus = Africa Tech News · Tools · Security).
       // Routes removed so /reviews + /reviews/* stop prerendering; nginx 301s the
       // list to /blog and 410s the old detail URLs.

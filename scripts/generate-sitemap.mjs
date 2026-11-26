@@ -106,6 +106,8 @@ for (const file of files) {
   if (EXCLUDE_PREFIX.includes(seg)) continue;
   // Ei Tech! single-meme pages are noindex (EiTechMemePage.tsx); only the /ei-tech list is listed.
   if (path.startsWith("ei-tech/")) continue;
+  // Single tech event pages are noindex (TechEventPage.tsx); only the /tech-events list is listed.
+  if (path.startsWith("tech-events/")) continue;
   if (seen.has(path)) continue;
   seen.add(path);
   const lastmod = DATES.get(path) || "";
