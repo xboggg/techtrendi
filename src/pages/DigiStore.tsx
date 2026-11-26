@@ -206,6 +206,8 @@ export default function DigiStore() {
         title="DigiStore - Digital Products & Resources"
         description="Browse digital tools, templates, and resources from TechTrendi. Quality digital products for tech enthusiasts."
         canonical="/store"
+        image="/og-store.jpg"
+        imageAlt="TechTrendi DigiStore: digital downloads, including the ebook Think Before You Click (Ghana Edition)."
       />
 
       <div className="min-h-screen">
