@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Building2, CalendarDays, Check, Clock, ExternalLink, Info, Link2, MapPin, Share2, Ticket, Users, Wifi } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  FORMAT_LABELS, KIND_LABELS, SOURCE_LABELS, TECH_EVENTS_URL, TOPIC_LABELS, type TechEvent, dateRange,
-  mapUrl, officialUrl, place, plainSummary, timeRange, flag,
-} from "@/data/techEvents";
+  FORMAT_LABELS, KIND_LABELS, TECH_EVENTS_URL, TOPIC_LABELS, type TechEvent, dateRange,
+  mapUrl, officialUrl, place, plainSummary, sourceName, timeRange } from "@/data/techEvents";
 import { AddToCalendar } from "./EventParts";
+import { Flag } from "@/components/tech-events/Flag";
 
 function Fact({ icon: Icon, label, children }: { icon: React.ComponentType<{ className?: string }>; label: string; children: React.ReactNode }) {
   return (
@@ -33,7 +33,7 @@ export function EventFacts({ e }: { e: TechEvent }) {
       <Fact icon={CalendarDays} label="Date">{dateRange(e)}</Fact>
       {t && <Fact icon={Clock} label="Time">{t}</Fact>}
       <Fact icon={e.format === "online" ? Wifi : MapPin} label="Where">
-        <span className="mr-1" aria-hidden="true">{flag(e.country_code)}</span>
+        <Flag cc={e.country_code} className="mr-1" />
         {e.venue ? `${e.venue}, ` : ""}{place(e)}
         {map && <a href={map} target="_blank" rel="noopener noreferrer" className="mt-0.5 block text-sm font-medium text-primary hover:underline">Open in Google Maps</a>}
       </Fact>
@@ -64,7 +64,7 @@ export function EventActions({ e, pageUrl }: { e: TechEvent; pageUrl: string }) 
       {url && (
         <a href={url} target="_blank" rel="noopener noreferrer nofollow"
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition hover:brightness-110 sm:col-span-2">
-          {e.event_url ? "Go to the event website" : `See it on ${SOURCE_LABELS[e.source]?.name || "the listing"}`} <ExternalLink className="h-4 w-4" />
+          {e.event_url ? "Go to the event website" : `See it on ${sourceName(e) || "the listing"}`} <ExternalLink className="h-4 w-4" />
         </a>
       )}
       <AddToCalendar e={e} />
@@ -79,7 +79,7 @@ export function EventActions({ e, pageUrl }: { e: TechEvent; pageUrl: string }) 
 }
 
 export function EventAbout({ e }: { e: TechEvent }) {
-  const src = SOURCE_LABELS[e.source];
+  const name = sourceName(e);
   return (
     <div className="space-y-4">
       <p className="whitespace-pre-line text-base leading-relaxed text-foreground/90">{plainSummary(e)}</p>
@@ -92,9 +92,18 @@ export function EventAbout({ e }: { e: TechEvent }) {
         <strong>Check before you go.</strong> Dates and places can change. Please confirm on the organiser's website before you pay or travel.
       </div>
       <p className="text-xs text-muted-foreground">
-        Listed by{" "}
-        {e.source_url ? <a href={e.source_url} target="_blank" rel="noopener noreferrer nofollow" className="underline hover:text-foreground">{src?.name || e.source}</a> : src?.name || e.source}
-        {" "}and checked by TechTrendi's event tracker. Know something is wrong? <a href="/contact" className="underline hover:text-foreground">Tell us</a>.
+        {e.source === "manual" ? (
+          <>Added by TechTrendi after checking the organiser's own page.</>
+        ) : name ? (
+          <>
+            Listed by{" "}
+            {e.source_url ? <a href={e.source_url} target="_blank" rel="noopener noreferrer nofollow" className="underline hover:text-foreground">{name}</a> : name}
+            {" "}and checked by TechTrendi's event tracker.
+          </>
+        ) : (
+          <>Found and checked by TechTrendi's event tracker.</>
+        )}{" "}
+        Know something is wrong? <a href="/contact" className="underline hover:text-foreground">Tell us</a>.
       </p>
     </div>
   );

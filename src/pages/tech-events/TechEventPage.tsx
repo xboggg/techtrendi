@@ -6,12 +6,13 @@ import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { cn } from "@/lib/utils";
 import {
-  KIND_LABELS, TECH_EVENTS_PATH, type TechEvent, dateRange, eventJsonLd, eventStatus, flag, ldJson, place,
+  KIND_LABELS, TECH_EVENTS_OG, TECH_EVENTS_OG_ALT, TECH_EVENTS_PATH, type TechEvent, dateRange, eventJsonLd, eventStatus, ldJson, place,
   plainSummary, useTechEventsLive, useToday,
 } from "@/data/techEvents";
 import { DateTile, EventRow, Extras, KindBadge, WhenBadge, kindStyle } from "@/components/tech-events/EventParts";
 import { EventAbout, EventActions, EventFacts, pageUrlFor } from "@/components/tech-events/EventDetails";
 import NotFound from "../NotFound";
+import { Flag } from "@/components/tech-events/Flag";
 
 // /tech-events/:slug — one event. Prerendered for every event in src/data/techEvents.json;
 // the live list then refreshes its facts (time, "going", sold out). noindex for now (owner's
@@ -47,6 +48,8 @@ export default function TechEventPage() {
         title={`${e.title}: ${dateRange(e)}, ${place(e)}`}
         description={plainSummary(e).slice(0, 300)}
         canonical={`${TECH_EVENTS_PATH}/${e.slug}`}
+        image={TECH_EVENTS_OG}
+        imageAlt={TECH_EVENTS_OG_ALT}
         noindex
         noindexFollow
         breadcrumbs={[{ name: "Home", path: "/" }, { name: "Tech Events", path: TECH_EVENTS_PATH }, { name: e.title, path: `${TECH_EVENTS_PATH}/${e.slug}` }]}
@@ -70,7 +73,7 @@ export default function TechEventPage() {
                 <KindBadge kind={e.kind} className="!bg-white/10 !text-white !ring-white/20" />
               </div>
               <h1 className="text-3xl font-black leading-tight tracking-tight sm:text-4xl lg:text-5xl">{e.title}</h1>
-              <p className="mt-2 text-lg text-white/80"><span aria-hidden="true">{flag(e.country_code)}</span> {place(e)} · {dateRange(e)}</p>
+              <p className="mt-2 text-lg text-white/80"><Flag cc={e.country_code} /> {place(e)} · {dateRange(e)}</p>
             </div>
           </div>
         </div>
@@ -105,7 +108,7 @@ export default function TechEventPage() {
         {more.here.length > 0 && (
           <div className="mt-12">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 className="text-xl font-bold">More tech events in {e.country} {flag(e.country_code)}</h2>
+              <h2 className="text-xl font-bold">More tech events in {e.country} <Flag cc={e.country_code} /></h2>
               <Link to={`${TECH_EVENTS_PATH}?c=${e.country_code}`} className="shrink-0 text-sm font-semibold text-primary hover:underline">See all</Link>
             </div>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">{more.here.map((x) => <EventRow key={x.slug} e={x} today={today} />)}</div>
