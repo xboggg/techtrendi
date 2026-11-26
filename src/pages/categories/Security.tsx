@@ -375,7 +375,7 @@ export default function Security() {
 
   return (
     <Layout>
-      <SEOHead title="Cyber Safety Hub — Stay Safe Online in Ghana" description="Plain-language online safety for Ghana — scams, MoMo fraud, passwords and privacy. Sourced from Ghana's CSA and SEC." canonical="/security" keywords={["cybersecurity", "online safety", "scam protection", "MoMo fraud", "phishing", "Ghana", "cyber awareness"]} />
+      <SEOHead title="Cyber Safety Hub — Stay Safe Online in Ghana" description="Plain-language online safety for Ghana — scams, MoMo fraud, passwords and privacy. Sourced from Ghana's CSA and SEC." canonical="/security" image="/og-security.jpg" imageAlt="TechTrendi Online Safety Hub: stay safe online in Ghana. Scammed? Call CSA on 292." keywords={["cybersecurity", "online safety", "scam protection", "MoMo fraud", "phishing", "Ghana", "cyber awareness"]} />
 
       {/* Sticky in-page nav */}
       <div className={`fixed top-16 inset-x-0 z-30 transition-all duration-300 ${showNav ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"}`}>

@@ -185,6 +185,8 @@ export default function Blog() {
         title="Tech Blog & Insights"
         description="Stay updated with the latest tech trends, in-depth guides, and expert reviews. Expert technology articles covering phones, security, AI, and productivity."
         canonical="/blog"
+        image="/og-blog.jpg"
+        imageAlt="The TechTrendi Blog: tech, explained plainly. How-to guides, security, AI, phones and smart income."
         keywords={["tech blog", "technology articles", "tech guides", "smartphone reviews", "AI articles", "cybersecurity tips"]}
       />
       <PageHero
