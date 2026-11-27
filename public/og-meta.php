@@ -173,7 +173,7 @@ $static_pages = [
     'store' => [
         'title' => 'DigiStore - Digital Products, Ebooks and Templates',
         'description' => 'Ebooks, templates, spreadsheets, and tools built by TechTrendi. Designed to help you work smarter.',
-        'image' => 'https://techtrendi.com/images/og-store.jpg',
+        'image' => 'https://techtrendi.com/og-store.jpg', // 27 Nov 2026, same as DigiStore.tsx
     ],
     'start-here' => [
         'title' => 'Start Here - Your Guide to TechTrendi',
@@ -199,7 +199,7 @@ $static_pages = [
     'news' => [
         'title' => 'Tech News - Latest Technology Headlines',
         'description' => 'Daily tech news from Ghana and around the world. Smartphones, AI, cybersecurity, gadgets, and more.',
-        'image' => 'https://techtrendi.com/images/og-news.jpg',
+        'image' => 'https://techtrendi.com/og-news.jpg', // 27 Nov 2026, same as News.tsx
     ],
     'reviews' => [
         'title' => 'Product Reviews - Honest Tech Reviews',

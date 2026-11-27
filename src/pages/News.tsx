@@ -200,6 +200,8 @@ export default function News() {
         title="Tech News - Breaking Tech Stories"
         description="Get the latest tech news, breaking stories about AI, Big Tech, cybersecurity, and gadgets. Stay informed with TechTrendi's daily tech news updates."
         canonical="/news"
+        image="/og-news.jpg"
+        imageAlt="Africa Tech News on TechTrendi, updated daily: the latest from Ghana and across Africa."
         keywords={["tech news", "breaking tech", "AI news", "cybersecurity news", "gadget news", "Big Tech news"]}
       />
       <PageHero
