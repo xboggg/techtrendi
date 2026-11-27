@@ -27,6 +27,7 @@ import { HeroSearch } from "@/components/home/HeroSearch";
 import { SponsoredCard } from "@/components/sponsored/SponsoredCard";
 import bakedHeroSlides from "@/data/heroSlides.json";
 import { cleanHeroSlides, FALLBACK_HERO_SLIDES, HERO_SELECT, sameHeroSlides, type HeroSlide } from "@/lib/heroSlides";
+import { newsLabel } from "@/lib/newsTopic";
 
 interface TrendingArticle {
   id: string;
@@ -80,6 +81,7 @@ interface NewsItem {
   slug: string;
   excerpt: string | null;
   category: string;
+  topic?: string | null;
   cover_image: string | null;
   read_time_minutes: number | null;
   created_at: string;
@@ -428,7 +430,7 @@ export default function Index() {
     try {
       const { data, error } = await supabase
         .from("news")
-        .select("id, title, slug, excerpt, category, cover_image, read_time_minutes, created_at")
+        .select("id, title, slug, excerpt, category, topic, cover_image, read_time_minutes, created_at")
         .eq("is_published", true)
         .eq("category", "Africa Tech")
         // The Rundown has its own box beside this grid — keep it out.
@@ -489,13 +491,20 @@ export default function Index() {
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
+  // Badge colour per news topic (27 Nov 2026), same colours as the /news topic picker.
   const newsCategoryColors: Record<string, string> = {
-    "AI Tech": "bg-purple-500",
-    "Big Tech": "bg-blue-600",
-    Cybersecurity: "bg-red-500",
-    Gadgets: "bg-teal-500",
+    "Money & Fintech": "bg-green-600",
+    "Government & Policy": "bg-slate-600",
+    AI: "bg-purple-500",
+    "Telecoms & Internet": "bg-sky-600",
+    "Startups & Funding": "bg-teal-600",
     Crypto: "bg-amber-500",
-    Gaming: "bg-rose-500",
+    "Energy & Mobility": "bg-lime-600",
+    "Cybersecurity & Scams": "bg-red-500",
+    "Skills & Education": "bg-orange-500",
+    "Economy & Business": "bg-indigo-500",
+    "Africa Tech Weekly": "bg-yellow-600",
+    "The Rundown": "bg-pink-600",
   };
 
   // Admin-managed ticker (see /admin/ticker). Rendered either pinned to the
@@ -769,9 +778,9 @@ export default function Index() {
                       <div className="absolute top-3 left-3 md:top-4 md:left-4">
                         <span className={cn(
                           "px-3 py-1 rounded-lg text-xs font-semibold text-white",
-                          newsCategoryColors[news.category] || "bg-blue-500"
+                          newsCategoryColors[newsLabel(news)] || "bg-blue-500"
                         )}>
-                          {news.category}
+                          {newsLabel(news)}
                         </span>
                       </div>
 

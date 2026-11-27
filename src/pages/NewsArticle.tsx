@@ -15,6 +15,7 @@ import { RundownTabloid } from "@/components/news/RundownTabloid";
 import { CommentsBox } from "@/components/article/CommentsBox";
 import { ImageCreditLine, ImageSourceBadge } from "@/components/article/CoverAttribution";
 import DOMPurify from "isomorphic-dompurify"; // SSG-safe: works in Node build + browser
+import { newsLabel, newsTopicHref } from "@/lib/newsTopic";
 
 /**
  * Renders content that may be HTML or Markdown.
@@ -187,7 +188,7 @@ export default function NewsArticle() {
       .catch(() => setLoading(false));
 
     // Fetch related + trending news
-    fetch(`${SUPABASE_URL}/rest/v1/news?select=id,title,slug,excerpt,category,cover_image,read_time_minutes,created_at,author&is_published=eq.true&order=created_at.desc&limit=10`, {
+    fetch(`${SUPABASE_URL}/rest/v1/news?select=id,title,slug,excerpt,category,topic,cover_image,read_time_minutes,created_at,author&is_published=eq.true&order=created_at.desc&limit=10`, {
       headers: { "apikey": SUPABASE_KEY },
       signal: controller.signal,
     })
@@ -305,7 +306,7 @@ export default function NewsArticle() {
           <span>/</span>
           <Link to="/news" className="hover:text-foreground transition-colors">News</Link>
           <span>/</span>
-          <Link to={`/news?category=${news.category}`} className="hover:text-foreground transition-colors">{news.category}</Link>
+          <Link to={newsTopicHref(news)} className="hover:text-foreground transition-colors">{newsLabel(news)}</Link>
           <span>/</span>
           <span className="text-foreground truncate max-w-[200px]">{news.title}</span>
         </nav>
@@ -314,7 +315,7 @@ export default function NewsArticle() {
           <div className="flex items-center gap-3 mb-4">
             <Badge className="bg-primary/90 text-primary-foreground">
               <Zap className="w-3 h-3 mr-1" />
-              {isRundown ? "The Rundown" : news.category}
+              {isRundown ? "The Rundown" : newsLabel(news)}
             </Badge>
             <span className="text-sm text-muted-foreground">
               {formatRelativeDate(news.created_at)}
@@ -435,7 +436,7 @@ export default function NewsArticle() {
                           onError={(e) => { (e.target as HTMLImageElement).src = categoryImages["default"]; }}
                         />
                       </div>
-                      <Badge className="mb-2 text-xs">{related.category}</Badge>
+                      <Badge className="mb-2 text-xs">{newsLabel(related)}</Badge>
                       <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">{related.title}</h3>
                       <p className="text-xs text-muted-foreground mt-2">{formatRelativeDate(related.created_at)}</p>
                     </Link>
@@ -471,7 +472,7 @@ export default function NewsArticle() {
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-primary mb-0.5">{item.category}</p>
+                          <p className="text-xs font-semibold text-primary mb-0.5">{newsLabel(item)}</p>
                           <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
                             {item.title}
                           </h4>

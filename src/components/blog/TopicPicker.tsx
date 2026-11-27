@@ -123,10 +123,12 @@ export function TopicPicker({ options, value, onChange, allName = "All", allLabe
   );
 }
 
-export function SortSelect<T extends string>({ value, onChange, options, className }: {
+export function SortSelect<T extends string>({ value, onChange, options, groups, className }: {
   value: T;
   onChange: (v: T) => void;
   options: readonly (readonly [T, string])[];
+  /** Extra headed lists under the sort choices, e.g. "Pick a month" on News (27 Nov 2026). */
+  groups?: readonly { label: string; options: readonly (readonly [T, string])[] }[];
   className?: string;
 }) {
   return (
@@ -139,6 +141,11 @@ export function SortSelect<T extends string>({ value, onChange, options, classNa
         data-testid="sort-select"
       >
         {options.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
+        {groups?.map((g) => (
+          <optgroup key={g.label} label={g.label}>
+            {g.options.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
+          </optgroup>
+        ))}
       </select>
       <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
     </div>
