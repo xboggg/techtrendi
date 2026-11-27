@@ -14,6 +14,7 @@ import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { checkMessage } from "@/lib/scamPatterns";
 import { getRiskScore, type StoredRiskScore } from "@/lib/riskScoreStorage";
 import { cn } from "@/lib/utils";
+import { ScamStoryDrawing, HelpStepsJourney, ScanOverlay, VerdictMark, LiveDot } from "@/components/security/SafetyAnimations";
 import {
   Shield, ShieldAlert, ShieldCheck, KeyRound, Lock, EyeOff, Globe, AlertTriangle,
   Smartphone, CreditCard, Phone, ArrowRight, Sparkles,
@@ -25,24 +26,35 @@ interface ScamAlert { id: string; slug?: string | null; title: string; descripti
 interface ThreatLevel { level: string; title: string; description: string; active_threats: string[]; updated_at: string; }
 interface Article { id: string; title: string; slug: string; excerpt: string | null; category: string; cover_image: string | null; created_at: string; tags: string[] | null; author?: string | null; }
 
+// Plain names for everyone (owner, 27 Nov 2026: "used by all ages"). The tool pages keep their own titles.
 const TOOLS = [
-  { name: "Cyber Risk Scorecard", href: "/tools/cyber-risk-scorecard", icon: ShieldCheck, desc: "Rate your online safety habits" },
-  { name: "Password Strength Checker", href: "/tools/password-checker", icon: KeyRound, desc: "See how strong your password really is" },
-  { name: "Password Generator", href: "/tools/password-generator", icon: Lock, desc: "Create strong passwords instantly" },
-  { name: "Phishing Quiz", href: "/tools/phishing-quiz", icon: ShieldAlert, desc: "Can you spot a fake email?" },
-  { name: "Privacy Checker", href: "/tools/privacy-checker", icon: EyeOff, desc: "Check how private your browsing is" },
-  { name: "Ghana Scam Checker", href: "/tools/ghana-scam-checker", icon: Shield, desc: "Check a suspicious message before you reply" },
+  { name: "Safety Score", href: "/tools/cyber-risk-scorecard", icon: ShieldCheck, desc: "How safe are your habits?" },
+  { name: "Password Check", href: "/tools/password-checker", icon: KeyRound, desc: "Is your password strong?" },
+  { name: "Password Maker", href: "/tools/password-generator", icon: Lock, desc: "Make a strong password" },
+  { name: "Fake Message Quiz", href: "/tools/phishing-quiz", icon: ShieldAlert, desc: "Can you spot a fake?" },
+  { name: "Privacy Check", href: "/tools/privacy-checker", icon: EyeOff, desc: "How private is your browsing?" },
+  { name: "Scam Checker", href: "/tools/ghana-scam-checker", icon: Shield, desc: "Check a strange message" },
 ];
 
 
 const NAV = [
-  { id: "help", label: "Quick Help" },
-  { id: "now", label: "What's Happening" },
-  { id: "score", label: "Your Score" },
-  { id: "tools", label: "Tools" },
-  { id: "daily", label: "Daily Check" },
+  { id: "help", label: "Get help" },
+  { id: "check", label: "Check a message" },
+  { id: "now", label: "Scams now" },
   { id: "guides", label: "Guides" },
+  { id: "tools", label: "Tools" },
+  { id: "score", label: "Your score" },
+  { id: "daily", label: "Daily tip" },
 ];
+
+// "Threat level: MODERATE" → plain words.
+const dangerWord = (level?: string | null) => {
+  const l = (level || "").toLowerCase();
+  if (l.includes("critical")) return "Very high";
+  if (l.includes("high")) return "High";
+  if (l.includes("low")) return "Low";
+  return "Medium";
+};
 
 const SEVERITY: Record<string, string> = {
   critical: "bg-red-500", high: "bg-red-500", medium: "bg-amber-500", low: "bg-emerald-500",
@@ -109,10 +121,11 @@ function MobileCarousel<T>({ items, renderItem, keyFn, accent = "bg-primary" }: 
       <div
         ref={trackRef}
         onScroll={onScroll}
-        className="flex overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4"
+        // ONE full-width card, NO peek of the next one (owner's standing rule).
+        className="flex overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {items.map((item, i) => (
-          <div key={keyFn(item, i)} className="shrink-0 w-full snap-center px-0.5">
+          <div key={keyFn(item, i)} className="shrink-0 w-full snap-center">
             {renderItem(item, i)}
           </div>
         ))}
@@ -152,10 +165,10 @@ function MobileCarousel<T>({ items, renderItem, keyFn, accent = "bg-primary" }: 
 }
 
 const VERDICT_CONFIG = {
-  high: { icon: ShieldAlert, color: "text-red-600 dark:text-red-400", bg: "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800/40", label: "High Scam Risk", msg: "Multiple serious red flags. Don't send money, click links, or share codes — report it instead." },
-  medium: { icon: AlertTriangle, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800/40", label: "Some Red Flags", msg: "Suspicious patterns found. Verify the sender through a separate, trusted channel before acting." },
-  low: { icon: AlertTriangle, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-800/40", label: "Minor Indicators", msg: "A couple of things worth noting. Use your judgment and verify if unsure." },
-  clear: { icon: ShieldCheck, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800/40", label: "No Obvious Red Flags", msg: "No known scam patterns detected — but that's never a full guarantee. Still verify anything unsolicited." },
+  high: { color: "text-red-600 dark:text-red-400", bg: "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800/40", label: "This looks like a SCAM", msg: "Do not send money, codes or your PIN. Do not tap any link. Report it: call or text 292." },
+  medium: { color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800/40", label: "Be careful: some warning signs", msg: "Before you do anything, check with the person or company another way, for example on a number you already know." },
+  low: { color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-800/40", label: "A few small warning signs", msg: "Probably fine, but if you are not sure, check before you act." },
+  clear: { color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800/40", label: "No scam signs found", msg: "No check is perfect. If someone you don't know asks for money, codes or your PIN, stop." },
 } as const;
 
 // The inline diagnostic that replaced the "Choose your path" tile picker.
@@ -166,42 +179,68 @@ const VERDICT_CONFIG = {
 // generic self-sort that just scrolls people around.
 function InlineScamCheck() {
   const [input, setInput] = useState("");
-  const [checked, setChecked] = useState(false);
+  // idle → scanning (short moving scan line) → done (answer with a drawn ✓ / ✗ / !)
+  const [phase, setPhase] = useState<"idle" | "scanning" | "done">("idle");
+  const [needText, setNeedText] = useState(false);
+  const boxRef = useRef<HTMLTextAreaElement>(null);
+  const answerRef = useRef<HTMLDivElement>(null);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(timer.current), []);
+  // On a phone the answer lands below the screen edge — bring it into view.
+  useEffect(() => {
+    if (phase === "done") answerRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [phase]);
 
-  const result = checked && input.trim() ? checkMessage(input) : null;
+  const result = phase === "done" && input.trim() ? checkMessage(input) : null;
   const cfg = result ? VERDICT_CONFIG[result.verdict] : null;
+
+  // The button always looks ready (a faded button reads as "broken" to older users);
+  // with an empty box it just says what to do.
+  const onCheck = () => {
+    if (!input.trim()) { setNeedText(true); boxRef.current?.focus(); return; }
+    setNeedText(false);
+    setPhase("scanning");
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setPhase("done"), 1200);
+  };
 
   return (
     <div className="rounded-3xl border border-border bg-card/70 backdrop-blur-xl p-5 md:p-6">
-      <textarea
-        value={input}
-        onChange={(e) => { setInput(e.target.value); setChecked(false); }}
-        placeholder="Paste the message here — e.g. 'Congratulations! You've won GHS 2,500 cashback, dial *170# to claim...'"
-        rows={4}
-        className="w-full bg-muted rounded-xl p-4 text-sm border border-border focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-      />
+      <div className="relative">
+        <textarea
+          ref={boxRef}
+          value={input}
+          onChange={(e) => { clearTimeout(timer.current); setInput(e.target.value); setPhase("idle"); setNeedText(false); }}
+          placeholder="Paste the message here. For example: 'Congratulations! You've won GHS 2,500 cashback, dial *170# to claim...'"
+          rows={4}
+          aria-label="The message you want to check"
+          className="w-full bg-muted rounded-xl p-4 text-base border border-border focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+        />
+        {phase === "scanning" && <ScanOverlay />}
+      </div>
+      {needText && <p className="mt-2 text-sm font-medium text-amber-700 dark:text-amber-400">Paste or type the message in the box first.</p>}
       <div className="flex flex-wrap items-center gap-3 mt-3">
         <button
-          onClick={() => setChecked(true)}
-          disabled={!input.trim()}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          onClick={onCheck}
+          disabled={phase === "scanning"}
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground text-base font-semibold hover:bg-primary/90 transition-all"
         >
-          <Shield className="w-4 h-4" /> Check it
+          <Shield className="w-5 h-5" /> {phase === "scanning" ? "Checking…" : "Check it"}
         </button>
         <Link to="/tools/ghana-scam-checker" className="text-sm text-muted-foreground hover:text-primary transition-colors">Have a screenshot instead? Use the full checker →</Link>
       </div>
 
       {result && cfg && (
-        <div className={cn("rounded-2xl border p-4 mt-5", cfg.bg)}>
-          <div className="flex items-center gap-2.5 mb-2">
-            <cfg.icon className={cn("w-5 h-5", cfg.color)} />
-            <h3 className={cn("font-bold", cfg.color)}>{cfg.label}</h3>
+        <div ref={answerRef} className={cn("sh-rise rounded-2xl border p-4 mt-5 scroll-mb-6", cfg.bg)} role="status">
+          <div className="flex items-center gap-3 mb-2">
+            <VerdictMark verdict={result.verdict} />
+            <h3 className={cn("text-xl font-bold leading-snug", cfg.color)}>{cfg.label}</h3>
           </div>
-          <p className="text-sm text-foreground/80">{cfg.msg}</p>
+          <p className="text-base text-foreground/85">{cfg.msg}</p>
           {result.indicators.length > 0 && (
             <ul className="mt-3 space-y-1.5">
               {result.indicators.slice(0, 3).map((ind, i) => (
-                <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                <li key={i} className="text-sm text-muted-foreground flex items-start gap-1.5">
                   <span className="mt-1 w-1 h-1 rounded-full bg-current shrink-0" /> {ind.label}
                 </li>
               ))}
@@ -377,8 +416,9 @@ export default function Security() {
     <Layout>
       <SEOHead title="Cyber Safety Hub — Stay Safe Online in Ghana" description="Plain-language online safety for Ghana — scams, MoMo fraud, passwords and privacy. Sourced from Ghana's CSA and SEC." canonical="/security" image="/og-security.jpg" imageAlt="TechTrendi Online Safety Hub: stay safe online in Ghana. Scammed? Call CSA on 292." keywords={["cybersecurity", "online safety", "scam protection", "MoMo fraud", "phishing", "Ghana", "cyber awareness"]} />
 
-      {/* Sticky in-page nav */}
-      <div className={`fixed top-16 inset-x-0 z-30 transition-all duration-300 ${showNav ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"}`}>
+      {/* Sticky in-page nav — wide screens only: on phones it sat on top of the
+          headings and ate a seventh of the screen (owner, 27 Nov 2026). */}
+      <div className={`hidden md:block fixed top-16 inset-x-0 z-30 transition-all duration-300 ${showNav ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"}`}>
         <div className="container">
           <div className="mx-auto max-w-2xl mt-3 flex items-center gap-1 rounded-full bg-slate-900/90 backdrop-blur-xl border border-white/10 p-1.5 shadow-2xl">
             <span className="shrink-0 pl-2 pr-1 text-emerald-400"><Shield className="w-4 h-4" /></span>
@@ -405,13 +445,13 @@ export default function Security() {
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px)", backgroundSize: "44px 44px", maskImage: "radial-gradient(ellipse at center, black, transparent 75%)" }} />
         </motion.div>
 
-        <div className="container relative z-10 py-20 md:py-24">
+        <div className="container relative z-10 py-12 md:py-24 md:grid md:grid-cols-[1.35fr_1fr] md:gap-10 md:items-center">
           <div className="max-w-3xl">
             {/* live threat pill with timestamp */}
             <motion.button onClick={() => jump("now")} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
               className="group inline-flex items-center gap-2.5 px-3.5 py-2 rounded-full bg-white/[0.06] border border-white/10 backdrop-blur-md mb-7 hover:bg-white/10 transition-colors">
-              <span className="relative flex h-2 w-2"><span className={`absolute inline-flex h-full w-full rounded-full ${threatColor.replace("text-", "bg-")} opacity-60 animate-ping`} /><span className={`relative inline-flex rounded-full h-2 w-2 ${threatColor.replace("text-", "bg-")}`} /></span>
-              <span className="text-xs font-medium text-white/80">Threat level: <span className={`font-bold uppercase ${threatColor}`}>{threat?.level || "Moderate"}</span></span>
+              <LiveDot color={threatColor.replace("text-", "bg-")} size="h-2 w-2" />
+              <span className="text-sm font-medium text-white/85">Scam danger today: <span className={`font-bold ${threatColor}`}>{dangerWord(threat?.level)}</span></span>
               {activeThreats.length > 0 ? (
                 <span className="hidden sm:flex items-center gap-2 text-xs text-white/50 max-w-[20rem]">
                   <span className="w-px h-3 bg-white/15" />
@@ -427,12 +467,15 @@ export default function Security() {
 
             <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
               className="text-3xl md:text-5xl font-black tracking-tight text-white leading-[1.1] mb-4">
-              Ghana's record of online scams — <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-cyan-300 to-blue-300">kept current, kept honest</span>
+              Stay safe from scams in Ghana. <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-cyan-300 to-blue-300">Get help fast.</span>
             </motion.h1>
 
+            {/* phones: the moving picture sits right under the headline */}
+            <div className="md:hidden max-w-[360px] mb-5"><ScamStoryDrawing /></div>
+
             <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-              className="text-lg text-white/65 max-w-xl mb-7 leading-relaxed">
-              Verified alerts, plain-language guides, and free tools — sourced from Ghana's Cyber Security Authority and SEC, reviewed before publication.
+              className="text-lg text-white/80 max-w-xl mb-7 leading-relaxed">
+              Simple help for everyone: the scams going round in Ghana, easy guides and free checks. Based on warnings from Ghana's Cyber Security Authority (CSA) and the SEC.
             </motion.p>
 
             {/* Search — the single most authority-signaling element: a
@@ -443,8 +486,9 @@ export default function Security() {
                 <input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search a scam, a number, or a topic — e.g. 'MTN cashback' or 'rental scam'"
-                  className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/[0.07] border border-white/15 text-white placeholder:text-white/35 text-sm backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:bg-white/10 transition-colors"
+                  placeholder="Search a scam, e.g. MoMo or rent"
+                  aria-label="Search scams and safety guides"
+                  className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/[0.07] border border-white/15 text-white placeholder:text-white/50 text-base backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:bg-white/10 transition-colors"
                 />
               </div>
               {searchQuery.trim().length >= 2 && (
@@ -489,46 +533,35 @@ export default function Security() {
                 {articleCount > 0
                   ? <AnimatedCounter end={articleCount} duration={2} className="text-2xl font-bold text-white" />
                   : <span className="inline-block w-8 h-6 rounded bg-white/10 animate-pulse" />}
-                <span className="text-sm text-white/45">safety guides</span>
+                <span className="text-sm text-white/65">safety guides</span>
               </div>
               <div className="flex items-baseline gap-1.5">
                 <AnimatedCounter end={TOOLS.length} duration={1.5} className="text-2xl font-bold text-white" />
-                <span className="text-sm text-white/45">free tools</span>
+                <span className="text-sm text-white/65">free tools</span>
               </div>
               <div className="flex items-baseline gap-1.5">
                 <span className="text-base font-semibold text-emerald-400">Updated</span>
-                <span className="text-sm text-white/45">{lastUpdated ? timeAgo(lastUpdated, now) : "regularly"}</span>
+                <span className="text-sm text-white/65">{lastUpdated ? timeAgo(lastUpdated, now) : "regularly"}</span>
               </div>
             </motion.div>
           </div>
+          {/* wide screens: the moving picture beside the words */}
+          <div className="hidden md:block"><ScamStoryDrawing /></div>
         </div>
       </section>
 
       {/* ───────── QUICK HELP / PANIC ───────── */}
-      <section id="help" className="relative bg-[#070b14] pb-16 -mt-2 scroll-mt-24">
+      <section id="help" className="relative bg-[#070b14] pb-16 -mt-2 scroll-mt-32">
         <div className="container">
           <div className="rounded-3xl border border-red-500/25 bg-gradient-to-br from-red-950/40 to-rose-950/20 p-6 md:p-9 backdrop-blur-sm">
             <div className="flex items-start gap-4">
-              <div className="shrink-0 w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/30 flex items-center justify-center"><Siren className="w-6 h-6 text-red-400" /></div>
+              <div className="hidden sm:flex shrink-0 w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/30 items-center justify-center"><Siren className="w-6 h-6 text-red-400" /></div>
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-white">Been scammed, or think you have?</h2>
-                <p className="text-white/55 mt-1">Don't panic. Move fast — these few steps limit the damage.</p>
-                <div className="grid sm:grid-cols-2 gap-3 mt-6">
-                  {[
-                    { n: "1", t: "Stop now", d: "Send no more money, codes or PINs. Whatever the story, pause." },
-                    { n: "2", t: "Freeze it", d: "Call your bank / mobile-money network to flag or block the account." },
-                    { n: "3", t: "Report to CSA", d: "Cyber Security Authority — call or text 292 (free, 24/7)." },
-                    { n: "4", t: "Investment scam?", d: "Report to the SEC on 0800 100 065 or info@sec.gov.gh." },
-                  ].map((s, si) => (
-                    <motion.div key={s.n} initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: si * 0.1, duration: 0.45 }}
-                      className="flex gap-3 rounded-2xl bg-white/[0.04] border border-white/10 p-4 hover:border-red-500/30 hover:bg-white/[0.07] transition-colors">
-                      <span className="shrink-0 w-7 h-7 rounded-full bg-red-500 text-white text-sm font-bold flex items-center justify-center">{s.n}</span>
-                      <div><p className="font-semibold text-white">{s.t}</p><p className="text-sm text-white/55 mt-0.5">{s.d}</p></div>
-                    </motion.div>
-                  ))}
-                </div>
+                <p className="text-lg text-white/80 mt-1">Don't panic. Do these steps fast to stop more loss.</p>
+                <HelpStepsJourney />
                 <div className="flex flex-wrap gap-3 mt-6">
-                  <a href="tel:292" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors"><Phone className="w-4 h-4" /> Call 292 now</a>
+                  <a href="tel:292" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-red-500 text-white text-lg font-bold hover:bg-red-600 transition-colors"><Phone className="w-5 h-5" /> Call 292 now</a>
                   <Link to="/blog/how-to-stay-safe-online-in-ghana" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 border border-white/15 text-white font-medium hover:bg-white/15 transition-colors">Full step-by-step guide <ArrowRight className="w-4 h-4" /></Link>
                 </div>
               </div>
@@ -540,22 +573,22 @@ export default function Security() {
       {/* ───────── INLINE SCAM CHECK — the actual reason most people land on
           this page: they have a message and aren't sure. Real verdict, not
           a mood-board tile picker; naturally hands off into Score/Tools. ───────── */}
-      <section className="py-16 md:py-20 bg-background">
+      <section id="check" className="py-14 md:py-20 bg-background scroll-mt-32">
         <div className="container">
           <div className="max-w-2xl mx-auto">
             <Reveal className="text-center mb-8">
-              <span className="text-xs font-semibold tracking-[0.25em] uppercase text-primary/70">Got something suspicious?</span>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 tracking-tight">Paste it. We'll check it now.</h2>
-              <p className="text-muted-foreground mt-3">No signup, nothing saved — just a straight answer on the message you're holding.</p>
+              <span className="text-sm font-semibold tracking-[0.15em] uppercase text-primary">Got a strange message?</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 tracking-tight">Paste it here. We'll check it.</h2>
+              <p className="text-lg text-muted-foreground mt-3">No sign-up. Nothing is saved.</p>
             </Reveal>
             <Reveal delay={0.1}>
               <InlineScamCheck />
             </Reveal>
             <Reveal delay={0.15} className="text-center mt-5">
               <p className="text-sm text-muted-foreground">
-                Got kids online? Teach them to spot this stuff themselves —{" "}
+                Got children online?{" "}
                 <a href="https://cyberabofra.com" target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline">CyberAbɔfra <ArrowRight className="inline w-3.5 h-3.5" /></a>{" "}
-                makes online safety fun for kids.
+                teaches kids to spot scams in a fun way.
               </p>
             </Reveal>
           </div>
@@ -566,15 +599,15 @@ export default function Security() {
           ONE beat: "this is real, current, and happening to people like you."
           Two sources (CSA + community) reinforcing the same proof point,
           instead of competing as separate sections. ───────── */}
-      <section id="now" className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30 scroll-mt-24">
+      <section id="now" className="py-14 md:py-20 bg-gradient-to-b from-background to-muted/30 scroll-mt-32">
         <div className="container">
           <Reveal className="flex items-end justify-between gap-4 mb-8 flex-wrap">
             <div>
-              <div className="flex items-center gap-2 mb-2"><span className="relative flex h-2.5 w-2.5"><span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-60 animate-ping" /><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" /></span><span className="text-xs font-bold tracking-[0.2em] uppercase text-red-500">Circulating now</span></div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">What's happening in Ghana right now</h2>
-              <p className="text-muted-foreground mt-2 flex items-center gap-1.5"><Clock className="w-4 h-4" /> Updated {timeAgo(alerts[0]?.created_at, now)} · verified by CSA, reported by the community</p>
+              <div className="flex items-center gap-2 mb-2"><LiveDot /><span className="text-sm font-bold tracking-[0.15em] uppercase text-red-600 dark:text-red-400">Going round now</span></div>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">Scams going round in Ghana now</h2>
+              <p className="text-muted-foreground mt-2 flex items-start gap-1.5"><Clock className="w-4 h-4 mt-1 shrink-0" /> <span>Updated {timeAgo(alerts[0]?.created_at, now)} · from the Cyber Security Authority and reports from the public</span></p>
             </div>
-            <Link to="/scam-alerts" className="inline-flex items-center gap-1.5 text-primary font-medium hover:gap-2.5 transition-all">See all alerts <ArrowRight className="w-4 h-4" /></Link>
+            <Link to="/scam-alerts" className="inline-flex items-center gap-1.5 text-primary text-lg font-semibold hover:gap-2.5 transition-all">See all scam alerts <ArrowRight className="w-4 h-4" /></Link>
           </Reveal>
           {alerts.length > 0 ? (
             <>
@@ -584,10 +617,10 @@ export default function Security() {
                 accent="bg-red-500"
                 renderItem={(a) => (
                   <button onClick={() => setSelectedAlert(a)} className="group h-full w-full text-left rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-5 active:scale-[0.98] transition-transform duration-150">
-                    <div className="flex items-center gap-2 mb-3"><span className="relative flex h-2 w-2"><span className={`absolute inline-flex h-full w-full rounded-full ${SEVERITY[a.severity] || "bg-amber-500"} opacity-60 animate-ping`} /><span className={`relative inline-flex h-2 w-2 rounded-full ${SEVERITY[a.severity] || "bg-amber-500"}`} /></span><span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{a.scam_type}</span></div>
+                    <div className="flex items-center gap-2 mb-3"><LiveDot color={SEVERITY[a.severity] || "bg-amber-500"} size="h-2 w-2" /><span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{a.scam_type}</span></div>
                     <h3 className="font-bold text-foreground leading-snug">{a.emoji ? `${a.emoji} ` : ""}{a.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{a.description}</p>
-                    <span className="inline-flex items-center gap-1 text-xs font-medium text-red-500 mt-3">Read full alert <ArrowRight className="w-3.5 h-3.5" /></span>
+                    <p className="text-base text-muted-foreground mt-2 line-clamp-3">{a.description}</p>
+                    <span className="inline-flex items-center gap-1 text-sm font-semibold text-red-600 dark:text-red-400 mt-3">Read full alert <ArrowRight className="w-3.5 h-3.5" /></span>
                   </button>
                 )}
               />
@@ -595,10 +628,10 @@ export default function Security() {
                 {alerts.map((a, i) => (
                   <Reveal key={a.id} delay={(i % 3) * 0.08}>
                     <button onClick={() => setSelectedAlert(a)} className="group h-full w-full text-left rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-5 hover:border-red-500/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                      <div className="flex items-center gap-2 mb-3"><span className="relative flex h-2 w-2"><span className={`absolute inline-flex h-full w-full rounded-full ${SEVERITY[a.severity] || "bg-amber-500"} opacity-60 animate-ping`} /><span className={`relative inline-flex h-2 w-2 rounded-full ${SEVERITY[a.severity] || "bg-amber-500"}`} /></span><span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{a.scam_type}</span></div>
+                      <div className="flex items-center gap-2 mb-3"><LiveDot color={SEVERITY[a.severity] || "bg-amber-500"} size="h-2 w-2" /><span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{a.scam_type}</span></div>
                       <h3 className="font-bold text-foreground leading-snug">{a.emoji ? `${a.emoji} ` : ""}{a.title}</h3>
-                      <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{a.description}</p>
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-red-500 mt-3 group-hover:gap-1.5 transition-all">Read full alert <ArrowRight className="w-3.5 h-3.5" /></span>
+                      <p className="text-base text-muted-foreground mt-2 line-clamp-3">{a.description}</p>
+                      <span className="inline-flex items-center gap-1 text-sm font-semibold text-red-600 dark:text-red-400 mt-3 group-hover:gap-1.5 transition-all">Read full alert <ArrowRight className="w-3.5 h-3.5" /></span>
                     </button>
                   </Reveal>
                 ))}
@@ -612,112 +645,12 @@ export default function Security() {
         </div>
       </section>
 
-      {/* ───────── SCORECARD CENTERPIECE ───────── */}
-      <section id="score" className="py-16 md:py-24 bg-background scroll-mt-24">
-        <div className="container">
-          <Reveal className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-white/10 p-8 md:p-12">
-            <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-emerald-500/15 blur-3xl" />
-            <div className="absolute -bottom-16 -left-16 w-72 h-72 rounded-full bg-cyan-500/10 blur-3xl" />
-            {/* floating constellation particles */}
-            {[
-              { l: "12%", t: "20%", d: 7, x: 14 }, { l: "28%", t: "70%", d: 9, x: -10 },
-              { l: "70%", t: "18%", d: 8, x: 12 }, { l: "85%", t: "62%", d: 10, x: -14 },
-              { l: "55%", t: "85%", d: 6, x: 8 }, { l: "40%", t: "30%", d: 11, x: -8 },
-            ].map((p, i) => (
-              <motion.span key={i} className="absolute w-1.5 h-1.5 rounded-full bg-emerald-300/40"
-                style={{ left: p.l, top: p.t }}
-                animate={{ y: [0, -16, 0], x: [0, p.x, 0], opacity: [0.25, 0.7, 0.25] }}
-                transition={{ duration: p.d, repeat: Infinity, ease: "easeInOut", delay: i * 0.6 }} />
-            ))}
-            <div className="relative grid md:grid-cols-[1.4fr_1fr] gap-8 items-center">
-              <div>
-                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold mb-4"><ShieldCheck className="w-3.5 h-3.5" /> 2-minute check</span>
-                <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">How safe are you online, really?</h2>
-                <p className="text-white/60 mt-3 max-w-lg">
-                  {riskScore
-                    ? "Your last real result, from your own answers. Retake it any time to see if it's improved."
-                    : "Answer a few quick questions and get your personal cyber-safety score — with exactly what to fix."}
-                </p>
-                <Link to="/tools/cyber-risk-scorecard" className="inline-flex items-center gap-2.5 mt-7 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-900 font-bold shadow-lg shadow-emerald-500/25 hover:scale-[1.02] transition-transform">
-                  {riskScore ? "Retake the check" : "Check my score"} <ArrowRight className="w-5 h-5" />
-                </Link>
-              </div>
-              {/* score ring — shows the visitor's OWN stored result if they've
-                  taken the real assessment before, otherwise an honest empty
-                  ring (never a fake pre-filled number). */}
-              <div className="flex justify-center">
-                <div className="relative w-48 h-48">
-                  <motion.div className="absolute inset-2 rounded-full bg-emerald-400/20 blur-2xl"
-                    animate={{ scale: [1, 1.12, 1], opacity: [0.4, 0.7, 0.4] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
-                  <svg viewBox="0 0 120 120" className="relative w-full h-full -rotate-90">
-                    <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="10" />
-                    {riskScore && (
-                      <motion.circle cx="60" cy="60" r="52" fill="none" stroke="url(#g)" strokeWidth="10" strokeLinecap="round"
-                        strokeDasharray="327"
-                        initial={{ strokeDashoffset: 327 }}
-                        whileInView={{ strokeDashoffset: 327 - (riskScore.score / 100) * 327 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }} />
-                    )}
-                    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#34d399" /><stop offset="1" stopColor="#22d3ee" /></linearGradient></defs>
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    {riskScore ? (
-                      <>
-                        <AnimatedCounter end={riskScore.score} duration={1.5} className="text-5xl font-black text-white" />
-                        <span className="text-xs text-white/50 mt-0.5">{timeAgo(riskScore.takenAt, now)}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-5xl font-black text-white/25">?</span>
-                        <span className="text-xs text-white/50 mt-0.5">not checked yet</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ───────── TOOLS ───────── */}
-      <section id="tools" className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30 scroll-mt-24">
-        <div className="container">
-          <Reveal className="text-center mb-12"><span className="text-xs font-semibold tracking-[0.25em] uppercase text-primary/70">Hands-on</span><h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 tracking-tight">Free safety tools</h2><p className="text-muted-foreground mt-3">Quick checks you can run right now — no signup.</p></Reveal>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {TOOLS.map((t, i) => (
-              <Reveal key={t.name} delay={(i % 3) * 0.07}><Link to={t.href} className="group flex items-start gap-4 h-full rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-5 hover:border-primary/30 hover:shadow-lg hover:-translate-y-0.5 transition-all">
-                <div className="shrink-0 w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors"><t.icon className="w-5 h-5 text-primary" /></div>
-                <div><h3 className="font-semibold text-foreground">{t.name}</h3><p className="text-sm text-muted-foreground mt-0.5">{t.desc}</p></div>
-              </Link></Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ───────── DAILY CHECK ───────── */}
-      <section id="daily" className="py-16 md:py-20 bg-background scroll-mt-24">
-        <div className="container">
-          <Reveal className="text-center mb-10">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold mb-3"><Flame className="w-3.5 h-3.5" /> Come back daily</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">Your daily safety boost</h2>
-            <p className="text-muted-foreground mt-2">A fresh tip and a quick quiz every day — build your streak.</p>
-          </Reveal>
-          <div className="grid lg:grid-cols-3 gap-5 items-start">
-            <DailyTip />
-            <DailyQuizWidget />
-            <ShareWithFamily />
-          </div>
-        </div>
-      </section>
-
       {/* ───────── GUIDES ───────── */}
-      <section id="guides" className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30 scroll-mt-24">
+      <section id="guides" className="py-14 md:py-20 bg-background scroll-mt-32">
         <div className="container">
           <Reveal className="flex items-end justify-between gap-4 mb-8 flex-wrap">
-            <div><h2 className="text-3xl md:text-4xl font-bold text-foreground">Safety guides</h2><p className="text-muted-foreground mt-2">Plain-English, made for real, everyday life.</p></div>
-            <Link to="/blog?category=Security" className="inline-flex items-center gap-1.5 text-primary font-medium hover:gap-2.5 transition-all">All {articleCount || ""} guides <ArrowRight className="w-4 h-4" /></Link>
+            <div><h2 className="text-3xl md:text-4xl font-bold text-foreground">Safety guides</h2><p className="text-lg text-muted-foreground mt-2">Simple guides for everyday life.</p></div>
+            <Link to="/blog?category=Security" className="inline-flex items-center gap-1.5 text-primary text-lg font-semibold hover:gap-2.5 transition-all">All {articleCount || ""} guides <ArrowRight className="w-4 h-4" /></Link>
           </Reveal>
           <MobileCarousel
             items={articles}
@@ -752,7 +685,107 @@ export default function Security() {
               </Link>
             ))}
           </div>
-          <p className="text-center text-xs text-muted-foreground mt-8">Written and reviewed by the <span className="font-medium text-foreground">TechTrendi Safety Desk</span> · sources: Ghana CSA, SEC</p>
+          <p className="text-center text-xs text-muted-foreground mt-8">Written and reviewed by the <span className="font-medium text-foreground">TechTrendi Safety Desk</span> · sources: Ghana's Cyber Security Authority and the SEC</p>
+        </div>
+      </section>
+
+      {/* ───────── TOOLS ───────── */}
+      <section id="tools" className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30 scroll-mt-32">
+        <div className="container">
+          <Reveal className="text-center mb-8"><h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">Free safety tools</h2><p className="text-lg text-muted-foreground mt-3">Quick checks. No sign-up.</p></Reveal>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+            {TOOLS.map((t, i) => (
+              <Reveal key={t.name} delay={(i % 3) * 0.07} className="h-full"><Link to={t.href} className="group flex flex-col sm:flex-row items-start gap-3 sm:gap-4 h-full rounded-2xl border border-border bg-card/70 backdrop-blur-xl p-4 md:p-5 hover:border-primary/30 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                <div className="shrink-0 w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors"><t.icon className="w-5 h-5 text-primary" /></div>
+                <div><h3 className="text-base font-bold text-foreground">{t.name}</h3><p className="text-sm text-muted-foreground mt-0.5">{t.desc}</p></div>
+              </Link></Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ───────── SCORECARD CENTERPIECE ───────── */}
+      <section id="score" className="py-14 md:py-24 bg-background scroll-mt-32">
+        <div className="container">
+          <Reveal className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-white/10 p-8 md:p-12">
+            <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-emerald-500/15 blur-3xl" />
+            <div className="absolute -bottom-16 -left-16 w-72 h-72 rounded-full bg-cyan-500/10 blur-3xl" />
+            {/* floating constellation particles */}
+            {[
+              { l: "12%", t: "20%", d: 7, x: 14 }, { l: "28%", t: "70%", d: 9, x: -10 },
+              { l: "70%", t: "18%", d: 8, x: 12 }, { l: "85%", t: "62%", d: 10, x: -14 },
+              { l: "55%", t: "85%", d: 6, x: 8 }, { l: "40%", t: "30%", d: 11, x: -8 },
+            ].map((p, i) => (
+              <motion.span key={i} className="absolute w-1.5 h-1.5 rounded-full bg-emerald-300/40"
+                style={{ left: p.l, top: p.t }}
+                animate={{ y: [0, -16, 0], x: [0, p.x, 0], opacity: [0.25, 0.7, 0.25] }}
+                transition={{ duration: p.d, repeat: Infinity, ease: "easeInOut", delay: i * 0.6 }} />
+            ))}
+            <div className="relative grid md:grid-cols-[1.4fr_1fr] gap-8 items-center">
+              <div>
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold mb-4"><ShieldCheck className="w-3.5 h-3.5" /> 2-minute check</span>
+                <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">How safe are you online, really?</h2>
+                <p className="text-white/60 mt-3 max-w-lg">
+                  {riskScore
+                    ? "Your last real result, from your own answers. Retake it any time to see if it's improved."
+                    : "Answer a few quick questions to get your safety score, and see exactly what to fix."}
+                </p>
+                <Link to="/tools/cyber-risk-scorecard" className="inline-flex items-center gap-2.5 mt-7 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-900 font-bold shadow-lg shadow-emerald-500/25 hover:scale-[1.02] transition-transform">
+                  {riskScore ? "Retake the check" : "Check my score"} <ArrowRight className="w-5 h-5" />
+                </Link>
+              </div>
+              {/* score ring — shows the visitor's OWN stored result if they've
+                  taken the real assessment before, otherwise an honest empty
+                  ring (never a fake pre-filled number). */}
+              <div className="flex justify-center">
+                <div className="relative w-36 h-36 md:w-48 md:h-48">
+                  <motion.div className="absolute inset-2 rounded-full bg-emerald-400/20 blur-2xl"
+                    animate={{ scale: [1, 1.12, 1], opacity: [0.4, 0.7, 0.4] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+                  <svg viewBox="0 0 120 120" className="relative w-full h-full -rotate-90">
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="10" />
+                    {riskScore && (
+                      <motion.circle cx="60" cy="60" r="52" fill="none" stroke="url(#g)" strokeWidth="10" strokeLinecap="round"
+                        strokeDasharray="327"
+                        initial={{ strokeDashoffset: 327 }}
+                        whileInView={{ strokeDashoffset: 327 - (riskScore.score / 100) * 327 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }} />
+                    )}
+                    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#34d399" /><stop offset="1" stopColor="#22d3ee" /></linearGradient></defs>
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    {riskScore ? (
+                      <>
+                        <AnimatedCounter end={riskScore.score} duration={1.5} className="text-5xl font-black text-white" />
+                        <span className="text-xs text-white/50 mt-0.5">{timeAgo(riskScore.takenAt, now)}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-5xl font-black text-white/25">?</span>
+                        <span className="text-xs text-white/50 mt-0.5">not checked yet</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ───────── DAILY CHECK ───────── */}
+      <section id="daily" className="py-16 md:py-20 bg-background scroll-mt-32">
+        <div className="container">
+          <Reveal className="text-center mb-10">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold mb-3"><Flame className="w-3.5 h-3.5" /> Come back daily</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">Your daily safety boost</h2>
+            <p className="text-muted-foreground mt-2">A new tip and a quick quiz every day.</p>
+          </Reveal>
+          <div className="grid lg:grid-cols-3 gap-5 items-start">
+            <DailyTip />
+            <DailyQuizWidget />
+            <ShareWithFamily />
+          </div>
         </div>
       </section>
 
@@ -778,7 +811,7 @@ export default function Security() {
               {/* header */}
               <div className="sticky top-0 flex items-start justify-between gap-3 p-5 bg-card/95 backdrop-blur border-b border-border">
                 <div className="flex items-center gap-2">
-                  <span className="relative flex h-2.5 w-2.5"><span className={`absolute inline-flex h-full w-full rounded-full ${SEVERITY[selectedAlert.severity] || "bg-amber-500"} opacity-60 animate-ping`} /><span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${SEVERITY[selectedAlert.severity] || "bg-amber-500"}`} /></span>
+                  <LiveDot color={SEVERITY[selectedAlert.severity] || "bg-amber-500"} />
                   <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{selectedAlert.scam_type} · {selectedAlert.severity} risk</span>
                 </div>
                 <button onClick={() => setSelectedAlert(null)} className="shrink-0 p-1.5 -mr-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"><X className="w-5 h-5" /></button>

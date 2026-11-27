@@ -18,7 +18,8 @@ import { useHideOnScroll } from "@/hooks/useHideOnScroll";
 //   lifts above it. Hidden on pages where it would get in the way (below).
 // - Sits bottom-LEFT so it never covers the AI chat button (bottom-right).
 
-const HIDE_ON = ["/ei-tech", "/admin", "/careers", "/data-bundles", "/tools-preview", "/arcade", "/auth"];
+// /security + /scam-alerts: a joke button does not belong on scam-help pages (owner, 27 Nov 2026).
+const HIDE_ON = ["/ei-tech", "/admin", "/careers", "/data-bundles", "/tools-preview", "/arcade", "/auth", "/security", "/scam-alerts"];
 const SEEN_KEY = "eitech_fab_seen";
 
 function readSeen(): string {
