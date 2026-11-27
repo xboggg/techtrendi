@@ -15,6 +15,12 @@ import staticNews from "@/data/news.json";
 import { SortSelect, TopicPicker, type TopicOption } from "@/components/blog/TopicPicker";
 
 const SORT_OPTIONS = [["latest", "Latest"], ["oldest", "Oldest"]] as const;
+// Month filter (owner, 27 Nov 2026) lives in the same box as Latest/Oldest so the phone layout
+// stays two rows. Values: "latest", "oldest" or a month "2026-10" (newest first in that month).
+function monthLabel(ym: string): string {
+  const [y, m] = ym.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+}
 
 const NEWS_PER_PAGE = 12;
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
@@ -128,7 +134,7 @@ export default function News() {
     return c && newsCountries.some((o) => o.name === c) ? c : "All";
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState<"latest" | "oldest">("latest");
+  const [sortBy, setSortBy] = useState<string>("latest");
   // "Xh ago"-style labels below depend on the current time, which differs
   // between SSG build time and client hydration time — rendering them
   // immediately causes a hydration mismatch (React errors #418/#423/#425)
@@ -175,7 +181,8 @@ export default function News() {
         item.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === "All" || topicOf(item) === selectedCategory;
       const matchesCountry = selectedCountry === "All" || countryOf(item) === selectedCountry;
-      return matchesSearch && matchesCategory && matchesCountry;
+      const matchesMonth = sortBy === "latest" || sortBy === "oldest" || item.created_at.slice(0, 7) === sortBy;
+      return matchesSearch && matchesCategory && matchesCountry && matchesMonth;
     })
     .sort((a, b) =>
       sortBy === "oldest"
@@ -190,6 +197,12 @@ export default function News() {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, selectedCategory, selectedCountry, sortBy]);
+
+  // Every month that has stories, newest first (dates are stored in UTC).
+  const monthOptions = useMemo(
+    () => [...new Set(news.map((n) => n.created_at.slice(0, 7)))].sort().reverse().map((ym) => [ym, monthLabel(ym)] as const),
+    [news]
+  );
 
   // Only offer topics (and places) that have stories, given the other choice. The chosen one
   // always stays in the list, so the button never shows a choice that is not there.
@@ -283,7 +296,13 @@ export default function News() {
                 hint="Show news from one place."
               />
             </div>
-            <SortSelect value={sortBy} onChange={(v) => setSortBy(v)} options={SORT_OPTIONS} className="w-[132px] md:w-auto" />
+            <SortSelect
+              value={sortBy}
+              onChange={(v) => setSortBy(v)}
+              options={SORT_OPTIONS}
+              groups={monthOptions.length > 1 ? [{ label: "Pick a month", options: monthOptions }] : undefined}
+              className="w-[150px] md:w-auto"
+            />
           </div>
         </div>
 
@@ -335,11 +354,15 @@ export default function News() {
                       (e.target as HTMLImageElement).src = categoryImages["default"];
                     }}
                   />
-                  <div className="absolute top-3 left-3">
-                    <Badge className="bg-primary/90 text-primary-foreground">
-                      {topicOf(item) || item.category}
-                    </Badge>
-                  </div>
+                  {/* No badge on The Rundown: its cover already says "THE RUNDOWN · WORLD TECH" in that
+                      corner and the badge covered it (owner, 27 Nov 2026). */}
+                  {topicOf(item) !== "The Rundown" && (
+                    <div className="absolute top-3 left-3">
+                      <Badge className="bg-primary/90 text-primary-foreground">
+                        {topicOf(item) || item.category}
+                      </Badge>
+                    </div>
+                  )}
                 </div>
 
                 {/* Content */}

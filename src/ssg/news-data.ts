@@ -124,7 +124,7 @@ async function getBlogMap(): Promise<Map<string, Row>> {
 // article pages linked to NO other article in the HTML Google reads, because the "Related"
 // boxes were filled in by the browser after the page loaded. Each article now carries a few
 // related cards from the build data (`_related`), so the links exist in the static HTML.
-const CARD_FIELDS = ["id", "slug", "title", "excerpt", "category", "cover_image", "read_time_minutes", "created_at", "author", "tags"];
+const CARD_FIELDS = ["id", "slug", "title", "excerpt", "category", "topic", "cover_image", "read_time_minutes", "created_at", "author", "tags"];
 function card(row: Row): Row {
   const out: Row = {};
   for (const k of CARD_FIELDS) if (k in row) out[k] = row[k];
@@ -199,7 +199,9 @@ async function archiveLoader(kind: "news" | "blog", pageParam?: string): Promise
   const totalPages = Math.max(1, Math.ceil(rows.length / ARCHIVE_PAGE_SIZE));
   const page = Math.min(Math.max(1, parseInt(pageParam || "1", 10) || 1), totalPages);
   const items = rows.slice((page - 1) * ARCHIVE_PAGE_SIZE, page * ARCHIVE_PAGE_SIZE).map((r) => ({
-    slug: String(r.slug), title: String(r.title || ""), created_at: String(r.created_at || ""), category: String(r.category || ""),
+    slug: String(r.slug), title: String(r.title || ""), created_at: String(r.created_at || ""),
+    // News shows its topic ("Money & Fintech"), not the old "Africa Tech" (27 Nov 2026).
+    category: String((kind === "news" && r.topic) || r.category || ""),
   }));
   return { kind, page, totalPages, total: rows.length, items };
 }
