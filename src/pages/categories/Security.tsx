@@ -210,7 +210,7 @@ function InlineScamCheck() {
         <textarea
           ref={boxRef}
           value={input}
-          onChange={(e) => { setInput(e.target.value); setPhase("idle"); setNeedText(false); }}
+          onChange={(e) => { clearTimeout(timer.current); setInput(e.target.value); setPhase("idle"); setNeedText(false); }}
           placeholder="Paste the message here. For example: 'Congratulations! You've won GHS 2,500 cashback, dial *170# to claim...'"
           rows={4}
           aria-label="The message you want to check"
