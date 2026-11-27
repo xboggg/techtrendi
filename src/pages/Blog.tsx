@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLoaderData, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { PageHero } from "@/components/layout/PageHero";
@@ -16,6 +16,13 @@ import { SortSelect, TopicPicker } from "@/components/blog/TopicPicker";
 
 const ARTICLES_PER_PAGE = 9;
 const SORT_OPTIONS = [["latest", "Latest"], ["oldest", "Oldest"], ["longest", "Longest read"]] as const;
+// Month filter (owner, 27 Nov 2026), same as /news: months sit in the same box as Latest/Oldest
+// so the phone layout stays two rows. A month value is "2026-10" (newest first in that month).
+function monthLabel(ym: string): string {
+  const [y, m] = ym.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+}
+const isMonth = (v: string) => /^\d{4}-\d{2}$/.test(v);
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://db2.techtrendi.com";
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 
@@ -90,7 +97,7 @@ export default function Blog() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState<"latest" | "oldest" | "longest">("latest");
+  const [sortBy, setSortBy] = useState<string>("latest");
 
   // Build-time data (vite-react-ssg loader) seeds the list into static HTML so
   // crawlers see real article cards without running JS; sessionStorage cache
@@ -153,13 +160,26 @@ export default function Blog() {
         article.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
       const selectedCat = categories.find(c => c.name === selectedCategory);
       const matchesCategory = selectedCat?.name === "All" || article.category === selectedCat?.name;
-      return matchesSearch && matchesCategory;
+      const matchesMonth = !isMonth(sortBy) || article.created_at.slice(0, 7) === sortBy;
+      return matchesSearch && matchesCategory && matchesMonth;
     })
     .sort((a, b) => {
       if (sortBy === "oldest") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       if (sortBy === "longest") return (b.read_time_minutes || 0) - (a.read_time_minutes || 0);
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime(); // latest
     });
+
+  // Months that have articles in the chosen category, newest first (dates stored in UTC).
+  // The chosen month always stays in the list, so the box never shows a choice that is not there.
+  const monthOptions = useMemo(() => {
+    const have = new Set(
+      articles
+        .filter(a => selectedCategory === "All" || a.category === selectedCategory)
+        .map(a => a.created_at.slice(0, 7))
+    );
+    if (isMonth(sortBy)) have.add(sortBy);
+    return [...have].sort().reverse().map(ym => [ym, monthLabel(ym)] as const);
+  }, [articles, selectedCategory, sortBy]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredArticles.length / ARTICLES_PER_PAGE);
@@ -214,7 +234,13 @@ export default function Blog() {
             <div className="min-w-0 flex-1">
               <TopicPicker options={categories} value={selectedCategory} onChange={setSelectedCategory} />
             </div>
-            <SortSelect value={sortBy} onChange={(v) => setSortBy(v)} options={SORT_OPTIONS} className="w-[132px] md:w-auto" />
+            <SortSelect
+              value={sortBy}
+              onChange={(v) => setSortBy(v)}
+              options={SORT_OPTIONS}
+              groups={monthOptions.length > 1 ? [{ label: "Pick a month", options: monthOptions }] : undefined}
+              className="w-[150px] md:w-auto"
+            />
           </div>
         </div>
 
