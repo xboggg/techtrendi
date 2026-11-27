@@ -70,8 +70,14 @@ const newsCountries: (TopicOption & { codes?: string[] })[] = [
   { name: "World", icon: Globe, codes: ["WORLD"], gradient: "from-pink-500 to-fuchsia-600", iconColor: "text-pink-500" },
 ];
 
+// Old links keep working: /news?category=Big Tech (old shares, Google) opens The Rundown, etc.
+const OLD_CATEGORY_TO_TOPIC: Record<string, string> = {
+  "Big Tech": "The Rundown", "AI Tech": "AI", "Cybersecurity": "Cybersecurity & Scams",
+  "Security": "Cybersecurity & Scams", "Startups": "Startups & Funding", "Crypto": "Crypto",
+};
+// Stories without a topic (only the old backup list, news.json) get one from their old category.
 function topicOf(item: NewsItem): string {
-  return item.topic || (item.category === "Big Tech" ? "The Rundown" : "");
+  return item.topic || OLD_CATEGORY_TO_TOPIC[item.category] || "";
 }
 function countryOf(item: NewsItem): string {
   const cc = (item.country || (item.category === "Big Tech" ? "WORLD" : "")).toUpperCase();
@@ -79,11 +85,6 @@ function countryOf(item: NewsItem): string {
   return newsCountries.find((c) => c.codes?.includes(cc))?.name ?? "Other African countries";
 }
 
-// Old links keep working: /news?category=Big Tech (old shares, Google) opens The Rundown, etc.
-const OLD_CATEGORY_TO_TOPIC: Record<string, string> = {
-  "Big Tech": "The Rundown", "AI Tech": "AI", "Cybersecurity": "Cybersecurity & Scams",
-  "Security": "Cybersecurity & Scams", "Startups": "Startups & Funding", "Crypto": "Crypto",
-};
 function startTopic(param: string | null): string {
   if (!param) return "All";
   if (newsTopics.some((t) => t.name === param)) return param;
