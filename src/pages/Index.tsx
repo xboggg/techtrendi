@@ -661,7 +661,7 @@ export default function Index() {
                 full size from sm: up. */}
             <div className="flex flex-wrap gap-2.5 sm:gap-3">
               <Button size="lg" asChild className="order-1 sm:order-none rounded-xl h-10 px-4 text-sm sm:h-11 sm:px-6 sm:text-base">
-                <Link to="/news?category=Africa Tech" className="flex items-center gap-2">
+                <Link to="/news" className="flex items-center gap-2">
                   <Globe className="w-4 h-4 sm:w-5 sm:h-5" /> Read the News
                 </Link>
               </Button>
@@ -713,7 +713,7 @@ export default function Index() {
               </h2>
             </div>
             <Button variant="ghost" size="sm" asChild className="self-start sm:self-auto text-blue-600 hover:text-blue-700 dark:text-blue-400">
-              <Link to="/news?category=Africa Tech" className="flex items-center gap-1 font-medium">
+              <Link to="/news" className="flex items-center gap-1 font-medium">
                 View All News
                 <ArrowRight className="w-4 h-4" />
               </Link>
