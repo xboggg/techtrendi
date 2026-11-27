@@ -14,6 +14,8 @@ export interface TopicOption {
   icon?: React.ElementType;
   /** Shown instead of an icon (Creepy Tech and Cyber Awareness topics are emojis). */
   emoji?: string;
+  /** Shown instead of an icon: a small picture, e.g. a country flag "/flags/gh.svg" (News, 27 Nov 2026). */
+  image?: string;
   /** Tailwind gradient stops, e.g. "from-amber-500 to-orange-600" (the chosen topic's square). */
   gradient: string;
   /** Tailwind text colour for the icon when not chosen, e.g. "text-amber-500". */
@@ -21,14 +23,15 @@ export interface TopicOption {
 }
 
 function TopicMark({ option, className }: { option: TopicOption; className: string }) {
+  if (option.image) return <img src={option.image} alt="" aria-hidden className="h-3.5 w-5 rounded-[3px] object-cover shadow-[0_0_0_1px_rgba(0,0,0,.15)]" />;
   if (option.emoji) return <span className="text-base leading-none" aria-hidden>{option.emoji}</span>;
   const Icon = option.icon ?? Check;
   return <Icon className={className} />;
 }
 
-function TopicList({ options, value, onPick, cols }: { options: TopicOption[]; value: string; onPick: (n: string) => void; cols: string }) {
+function TopicList({ options, value, onPick, cols, listLabel }: { options: TopicOption[]; value: string; onPick: (n: string) => void; cols: string; listLabel: string }) {
   return (
-    <div role="listbox" aria-label="Topics" className={cn("grid gap-2", cols)}>
+    <div role="listbox" aria-label={listLabel} className={cn("grid gap-2", cols)}>
       {options.map((o) => {
         const on = o.name === value;
         return (
@@ -55,7 +58,7 @@ function TopicList({ options, value, onPick, cols }: { options: TopicOption[]; v
   );
 }
 
-export function TopicPicker({ options, value, onChange, allName = "All", allLabel = "All topics", hint = "Show only the guides you want." }: {
+export function TopicPicker({ options, value, onChange, allName = "All", allLabel = "All topics", hint = "Show only the guides you want.", title = "Pick a topic", label = "Topic" }: {
   options: TopicOption[];
   value: string;
   onChange: (name: string) => void;
@@ -64,6 +67,10 @@ export function TopicPicker({ options, value, onChange, allName = "All", allLabe
   allLabel?: string;
   /** The line under "Pick a topic" in the phone panel. */
   hint?: string;
+  /** The heading of the phone panel ("Pick a country" on News). */
+  title?: string;
+  /** Read out before the chosen option by screen readers ("Topic: AI", "Country: Ghana"). */
+  label?: string;
 }) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -79,13 +86,13 @@ export function TopicPicker({ options, value, onChange, allName = "All", allLabe
       aria-expanded={open}
       onClick={isMobile ? () => setOpen(true) : undefined}
       className="flex h-11 w-full min-w-0 items-center gap-2.5 rounded-xl border-2 border-border/60 bg-card px-3 text-sm font-semibold transition-colors hover:border-primary/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-      data-testid="topic-picker"
+      data-testid={`${label.toLowerCase()}-picker`}
     >
       <span className={cn("grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-gradient-to-br text-white", current.gradient)}>
         <TopicMark option={current} className="h-3.5 w-3.5" />
       </span>
       <span className="min-w-0 flex-1 truncate text-left">
-        <span className="sr-only">Topic: </span>{current.name === allName ? allLabel : current.name}
+        <span className="sr-only">{label}: </span>{current.name === allName ? allLabel : current.name}
       </span>
       <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-180")} aria-hidden />
     </button>
@@ -98,9 +105,9 @@ export function TopicPicker({ options, value, onChange, allName = "All", allLabe
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-3xl px-4 pb-6 pt-3">
             <div className="mx-auto mb-3 h-1.5 w-11 rounded-full bg-muted" aria-hidden />
-            <SheetTitle className="mb-1 text-lg">Pick a topic</SheetTitle>
+            <SheetTitle className="mb-1 text-lg">{title}</SheetTitle>
             <SheetDescription className="mb-4">{hint}</SheetDescription>
-            <TopicList options={options} value={value} onPick={pick} cols={longNames ? "grid-cols-1" : "grid-cols-2"} />
+            <TopicList options={options} value={value} onPick={pick} cols={longNames ? "grid-cols-1" : "grid-cols-2"} listLabel={label === "Topic" ? "Topics" : label} />
           </SheetContent>
         </Sheet>
       </>
@@ -110,7 +117,7 @@ export function TopicPicker({ options, value, onChange, allName = "All", allLabe
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent align="start" sideOffset={8} className="w-[min(560px,calc(100vw-2rem))] rounded-2xl p-3">
-        <TopicList options={options} value={value} onPick={pick} cols={longNames ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-3"} />
+        <TopicList options={options} value={value} onPick={pick} cols={longNames ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-3"} listLabel={label === "Topic" ? "Topics" : label} />
       </PopoverContent>
     </Popover>
   );

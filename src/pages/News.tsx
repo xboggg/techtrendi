@@ -1,18 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useSearchParams, useLoaderData } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { PageHero } from "@/components/layout/PageHero";
 import { SEOHead } from "@/components/seo/SEOHead";
 import {
   Clock, Calendar, ArrowRight, Search, ChevronLeft, ChevronRight, Zap,
-  LayoutGrid, Brain, Building2, Shield, Cpu, Smartphone, Briefcase,
-  Gamepad2, DollarSign, Wifi, Leaf, Globe, Bitcoin, Rocket, Heart, Lightbulb
+  LayoutGrid, Brain, Shield, Wifi, Globe, Bitcoin, Rocket, Landmark,
+  Banknote, GraduationCap, TrendingUp, CalendarDays, Newspaper, MapPin
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import staticNews from "@/data/news.json";
-import { SortSelect, TopicPicker } from "@/components/blog/TopicPicker";
+import { SortSelect, TopicPicker, type TopicOption } from "@/components/blog/TopicPicker";
 
 const SORT_OPTIONS = [["latest", "Latest"], ["oldest", "Oldest"]] as const;
 
@@ -31,36 +31,64 @@ interface NewsItem {
   created_at: string;
   content: string | null;
   author: string | null;
+  /** News topic + country (27 Nov 2026), filled for every story by the database and topic_sweeper.py. */
+  topic?: string | null;
+  country?: string | null;
 }
 
-interface CategoryStyle {
-  name: string;
-  icon: React.ElementType;
-  gradient: string;
-  shadowColor: string;
-  textColor: string;
-  iconColor: string;
-}
-
-const newsCategories: CategoryStyle[] = [
-  { name: "All", icon: LayoutGrid, gradient: "from-blue-500 to-indigo-600", shadowColor: "shadow-blue-500/40", textColor: "text-blue-600 dark:text-blue-400", iconColor: "text-blue-500" },
-  { name: "AI Tech", icon: Brain, gradient: "from-violet-500 to-purple-600", shadowColor: "shadow-violet-500/40", textColor: "text-violet-600 dark:text-violet-400", iconColor: "text-violet-500" },
-  { name: "Big Tech", icon: Building2, gradient: "from-slate-500 to-zinc-700", shadowColor: "shadow-slate-500/40", textColor: "text-slate-600 dark:text-slate-400", iconColor: "text-slate-500" },
-  { name: "Cybersecurity", icon: Shield, gradient: "from-red-500 to-rose-600", shadowColor: "shadow-red-500/40", textColor: "text-red-600 dark:text-red-400", iconColor: "text-red-500" },
-  { name: "Gadgets", icon: Cpu, gradient: "from-cyan-500 to-teal-600", shadowColor: "shadow-cyan-500/40", textColor: "text-cyan-600 dark:text-cyan-400", iconColor: "text-cyan-500" },
-  { name: "Phones", icon: Smartphone, gradient: "from-sky-500 to-blue-600", shadowColor: "shadow-sky-500/40", textColor: "text-sky-600 dark:text-sky-400", iconColor: "text-sky-500" },
-  { name: "Productivity", icon: Briefcase, gradient: "from-orange-500 to-amber-600", shadowColor: "shadow-orange-500/40", textColor: "text-orange-600 dark:text-orange-400", iconColor: "text-orange-500" },
-  { name: "Security", icon: Shield, gradient: "from-amber-500 to-orange-600", shadowColor: "shadow-amber-500/40", textColor: "text-amber-600 dark:text-amber-400", iconColor: "text-amber-500" },
-  { name: "Gaming", icon: Gamepad2, gradient: "from-pink-500 to-fuchsia-600", shadowColor: "shadow-pink-500/40", textColor: "text-pink-600 dark:text-pink-400", iconColor: "text-pink-500" },
-  { name: "Smart Income", icon: DollarSign, gradient: "from-green-500 to-emerald-600", shadowColor: "shadow-green-500/40", textColor: "text-green-600 dark:text-green-400", iconColor: "text-green-500" },
-  { name: "Remote Work", icon: Wifi, gradient: "from-indigo-500 to-blue-600", shadowColor: "shadow-indigo-500/40", textColor: "text-indigo-600 dark:text-indigo-400", iconColor: "text-indigo-500" },
-  { name: "Green Tech", icon: Leaf, gradient: "from-lime-500 to-green-600", shadowColor: "shadow-lime-500/40", textColor: "text-lime-600 dark:text-lime-400", iconColor: "text-lime-500" },
-  { name: "Africa Tech", icon: Globe, gradient: "from-yellow-500 to-orange-600", shadowColor: "shadow-yellow-500/40", textColor: "text-yellow-600 dark:text-yellow-400", iconColor: "text-yellow-500" },
-  { name: "Crypto", icon: Bitcoin, gradient: "from-amber-500 to-yellow-600", shadowColor: "shadow-amber-500/40", textColor: "text-amber-600 dark:text-amber-400", iconColor: "text-amber-500" },
-  { name: "Space", icon: Rocket, gradient: "from-blue-600 to-purple-700", shadowColor: "shadow-blue-600/40", textColor: "text-blue-700 dark:text-blue-300", iconColor: "text-blue-600" },
-  { name: "Health Tech", icon: Heart, gradient: "from-rose-500 to-pink-600", shadowColor: "shadow-rose-500/40", textColor: "text-rose-600 dark:text-rose-400", iconColor: "text-rose-500" },
-  { name: "Startups", icon: Lightbulb, gradient: "from-teal-500 to-cyan-600", shadowColor: "shadow-teal-500/40", textColor: "text-teal-600 dark:text-teal-400", iconColor: "text-teal-500" },
+// News topics (owner, 27 Nov 2026). The site now publishes African tech news plus The Rundown
+// (the daily world-tech digest), so the old 17 world topics (Gadgets, Gaming, Space ...) were
+// mostly empty. These are the topics the live stories really fall into. A topic only shows in
+// the picker when it has stories, so an empty one never appears.
+const newsTopics: TopicOption[] = [
+  { name: "All", icon: LayoutGrid, gradient: "from-blue-500 to-indigo-600", iconColor: "text-blue-500" },
+  { name: "Money & Fintech", icon: Banknote, gradient: "from-green-500 to-emerald-600", iconColor: "text-green-500" },
+  { name: "Government & Policy", icon: Landmark, gradient: "from-slate-500 to-zinc-700", iconColor: "text-slate-500" },
+  { name: "AI", icon: Brain, gradient: "from-violet-500 to-purple-600", iconColor: "text-violet-500" },
+  { name: "Telecoms & Internet", icon: Wifi, gradient: "from-sky-500 to-blue-600", iconColor: "text-sky-500" },
+  { name: "Startups & Funding", icon: Rocket, gradient: "from-teal-500 to-cyan-600", iconColor: "text-teal-500" },
+  { name: "Crypto", icon: Bitcoin, gradient: "from-amber-500 to-yellow-600", iconColor: "text-amber-500" },
+  { name: "Energy & Mobility", icon: Zap, gradient: "from-lime-500 to-green-600", iconColor: "text-lime-600" },
+  { name: "Cybersecurity & Scams", icon: Shield, gradient: "from-red-500 to-rose-600", iconColor: "text-red-500" },
+  { name: "Skills & Education", icon: GraduationCap, gradient: "from-orange-500 to-amber-600", iconColor: "text-orange-500" },
+  { name: "Economy & Business", icon: TrendingUp, gradient: "from-indigo-500 to-blue-600", iconColor: "text-indigo-500" },
+  { name: "Africa Tech Weekly", icon: CalendarDays, gradient: "from-yellow-500 to-orange-600", iconColor: "text-yellow-600" },
+  { name: "The Rundown", icon: Newspaper, gradient: "from-pink-500 to-fuchsia-600", iconColor: "text-pink-500" },
 ];
+
+// Where the story is from. Two-letter codes are stored in news.country; AF = Africa-wide,
+// WORLD = not about Africa (The Rundown). Smaller countries share "Other African countries".
+const flag = (cc: string) => "/flags/" + cc + ".svg";
+const newsCountries: (TopicOption & { codes?: string[] })[] = [
+  { name: "All", icon: Globe, gradient: "from-blue-500 to-indigo-600", iconColor: "text-blue-500" },
+  { name: "Ghana", image: flag("gh"), codes: ["GH"], gradient: "from-red-500 to-green-600", iconColor: "" },
+  { name: "Nigeria", image: flag("ng"), codes: ["NG"], gradient: "from-green-600 to-emerald-700", iconColor: "" },
+  { name: "Kenya", image: flag("ke"), codes: ["KE"], gradient: "from-red-600 to-green-700", iconColor: "" },
+  { name: "South Africa", image: flag("za"), codes: ["ZA"], gradient: "from-green-600 to-yellow-500", iconColor: "" },
+  { name: "Across Africa", icon: MapPin, codes: ["AF"], gradient: "from-yellow-500 to-orange-600", iconColor: "text-yellow-600" },
+  { name: "Other African countries", icon: MapPin, gradient: "from-teal-500 to-cyan-600", iconColor: "text-teal-500" },
+  { name: "World", icon: Globe, codes: ["WORLD"], gradient: "from-pink-500 to-fuchsia-600", iconColor: "text-pink-500" },
+];
+
+function topicOf(item: NewsItem): string {
+  return item.topic || (item.category === "Big Tech" ? "The Rundown" : "");
+}
+function countryOf(item: NewsItem): string {
+  const cc = (item.country || (item.category === "Big Tech" ? "WORLD" : "")).toUpperCase();
+  if (!cc) return "";
+  return newsCountries.find((c) => c.codes?.includes(cc))?.name ?? "Other African countries";
+}
+
+// Old links keep working: /news?category=Big Tech (old shares, Google) opens The Rundown, etc.
+const OLD_CATEGORY_TO_TOPIC: Record<string, string> = {
+  "Big Tech": "The Rundown", "AI Tech": "AI", "Cybersecurity": "Cybersecurity & Scams",
+  "Security": "Cybersecurity & Scams", "Startups": "Startups & Funding", "Crypto": "Crypto",
+};
+function startTopic(param: string | null): string {
+  if (!param) return "All";
+  if (newsTopics.some((t) => t.name === param)) return param;
+  return OLD_CATEGORY_TO_TOPIC[param] ?? "All";
+}
 
 // Fallback images by category
 const categoryImages: Record<string, string> = {
@@ -92,9 +120,12 @@ function getNewsImage(news: NewsItem): string {
 
 export default function News() {
   const [searchParams] = useSearchParams();
-  const initialCategory = searchParams.get("category") || "All";
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const [selectedCategory, setSelectedCategory] = useState(() => startTopic(searchParams.get("topic") || searchParams.get("category")));
+  const [selectedCountry, setSelectedCountry] = useState(() => {
+    const c = searchParams.get("country");
+    return c && newsCountries.some((o) => o.name === c) ? c : "All";
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<"latest" | "oldest">("latest");
   // "Xh ago"-style labels below depend on the current time, which differs
@@ -117,7 +148,7 @@ export default function News() {
   useEffect(() => {
     const controller = new AbortController();
 
-    fetch(`${SUPABASE_URL}/rest/v1/news?select=id,title,slug,excerpt,category,cover_image,read_time_minutes,created_at,author&order=created_at.desc`, {
+    fetch(`${SUPABASE_URL}/rest/v1/news?select=id,title,slug,excerpt,category,topic,country,cover_image,read_time_minutes,created_at,author&order=created_at.desc`, {
       headers: { "apikey": SUPABASE_KEY },
       signal: controller.signal,
     })
@@ -126,10 +157,11 @@ export default function News() {
         if (Array.isArray(data) && data.length > 0) {
           setNews(data);
         } else {
-          setNews(staticNews as NewsItem[]);
+          // Keep the build-time stories (they have topics) if we have them; the old JSON is a last resort.
+          setNews((prev) => (prev.length ? prev : (staticNews as NewsItem[])));
         }
       })
-      .catch(() => { setNews(staticNews as NewsItem[]); })
+      .catch(() => { setNews((prev) => (prev.length ? prev : (staticNews as NewsItem[]))); })
       .finally(() => { setLoading(false); });
 
     return () => controller.abort();
@@ -140,11 +172,9 @@ export default function News() {
       const matchesSearch =
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory =
-        selectedCategory === "All" ||
-        item.category === selectedCategory ||
-        (selectedCategory === "Cybersecurity" && item.category === "Security");
-      return matchesSearch && matchesCategory;
+      const matchesCategory = selectedCategory === "All" || topicOf(item) === selectedCategory;
+      const matchesCountry = selectedCountry === "All" || countryOf(item) === selectedCountry;
+      return matchesSearch && matchesCategory && matchesCountry;
     })
     .sort((a, b) =>
       sortBy === "oldest"
@@ -158,7 +188,18 @@ export default function News() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedCategory, sortBy]);
+  }, [searchQuery, selectedCategory, selectedCountry, sortBy]);
+
+  // Only offer topics (and places) that have stories, given the other choice. The chosen one
+  // always stays in the list, so the button never shows a choice that is not there.
+  const topicOptions = useMemo(() => {
+    const have = new Set(news.filter((n) => selectedCountry === "All" || countryOf(n) === selectedCountry).map(topicOf));
+    return newsTopics.filter((t) => t.name === "All" || t.name === selectedCategory || have.has(t.name));
+  }, [news, selectedCountry, selectedCategory]);
+  const countryOptions = useMemo(() => {
+    const have = new Set(news.filter((n) => selectedCategory === "All" || topicOf(n) === selectedCategory).map(countryOf));
+    return newsCountries.filter((c) => c.name === "All" || c.name === selectedCountry || have.has(c.name));
+  }, [news, selectedCategory, selectedCountry]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -198,11 +239,11 @@ export default function News() {
     <Layout>
       <SEOHead
         title="Tech News - Breaking Tech Stories"
-        description="Get the latest tech news, breaking stories about AI, Big Tech, cybersecurity, and gadgets. Stay informed with TechTrendi's daily tech news updates."
+        description="Daily tech news from Ghana and across Africa: mobile money and fintech, AI, telecoms, startups, crypto and online safety, plus The Rundown, our daily world-tech digest."
         canonical="/news"
         image="/og-news.jpg"
         imageAlt="Africa Tech News on TechTrendi, updated daily: the latest from Ghana and across Africa."
-        keywords={["tech news", "breaking tech", "AI news", "cybersecurity news", "gadget news", "Big Tech news"]}
+        keywords={["Africa tech news", "Ghana tech news", "fintech news", "mobile money news", "AI news Africa", "Nigeria tech news", "Kenya tech news"]}
       />
       <PageHero
         variant="dark"
@@ -210,12 +251,13 @@ export default function News() {
         eyebrow="Updated daily"
         title="Africa Tech"
         accentText="News"
-        subtitle="The latest from Ghana and across Africa — AI, cybersecurity, Big Tech and gadgets."
+        subtitle="The latest from Ghana and across Africa: money and fintech, AI, telecoms, startups and online safety."
       />
       <div className="container py-12 md:py-20">
-        {/* Search, topic and sort, as on the blog page (owner, 30 Oct 2026: the 17 category pills
-            wrapped to many lines on a phone; one Topic button now opens them all). */}
-        <div className="max-w-4xl mx-auto mb-10 grid gap-3 md:grid-cols-[minmax(0,1fr)_260px_auto]">
+        {/* Search, topic, country and sort (owner, 30 Oct 2026: one Topic button instead of 17 pills;
+            27 Nov 2026: real news topics + a country button with flags). Phone: search, then topic,
+            then country + sort. Computer: one row. */}
+        <div className="max-w-5xl mx-auto mb-10 grid gap-3 md:grid-cols-[minmax(0,1fr)_240px_220px_auto]">
           <div className="relative min-w-0">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
@@ -225,9 +267,20 @@ export default function News() {
               className="pl-10 h-11 rounded-xl"
             />
           </div>
+          <div className="min-w-0">
+            <TopicPicker options={topicOptions} value={selectedCategory} onChange={setSelectedCategory} hint="Show only the news you want." />
+          </div>
           <div className="flex gap-3 min-w-0 md:contents">
             <div className="min-w-0 flex-1">
-              <TopicPicker options={newsCategories} value={selectedCategory} onChange={setSelectedCategory} />
+              <TopicPicker
+                options={countryOptions}
+                value={selectedCountry}
+                onChange={setSelectedCountry}
+                allLabel="All countries"
+                title="Pick a country"
+                label="Country"
+                hint="Show news from one place."
+              />
             </div>
             <SortSelect value={sortBy} onChange={(v) => setSortBy(v)} options={SORT_OPTIONS} className="w-[132px] md:w-auto" />
           </div>
@@ -283,7 +336,7 @@ export default function News() {
                   />
                   <div className="absolute top-3 left-3">
                     <Badge className="bg-primary/90 text-primary-foreground">
-                      {item.category}
+                      {topicOf(item) || item.category}
                     </Badge>
                   </div>
                 </div>
