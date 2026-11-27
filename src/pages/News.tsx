@@ -255,8 +255,8 @@ export default function News() {
         title="Tech News - Breaking Tech Stories"
         description="Daily tech news from Ghana and across Africa: mobile money and fintech, AI, telecoms, startups, crypto and online safety, plus The Rundown, our daily world-tech digest."
         canonical="/news"
-        image="/og-news.jpg"
-        imageAlt="Africa Tech News on TechTrendi, updated daily: the latest from Ghana and across Africa."
+        image="/og-news-v2.jpg"
+        imageAlt="Africa Tech News on TechTrendi, updated daily: AI, fintech, government and policy, cybersecurity and scams, from Ghana and across Africa."
         keywords={["Africa tech news", "Ghana tech news", "fintech news", "mobile money news", "AI news Africa", "Nigeria tech news", "Kenya tech news"]}
       />
       <PageHero

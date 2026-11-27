@@ -1,0 +1,65 @@
+<!doctype html>
+<!-- Share picture for /store, the DigiStore (public/og-store.jpg, 1200x630), 27 Nov 2026. Words from the DigiStore page
+     ("Digital downloads", its subtitle). The live store sells one product today, the ebook, so it is shown (owner's own cover). -->
+<html><head><meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { width: 1200px; height: 630px; overflow: hidden; font-family: "Segoe UI", "Inter", Arial, sans-serif;
+    background: #0a0d1c; color: #fff; position: relative; }
+  .g1 { position: absolute; right: -100px; top: -200px; width: 820px; height: 820px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,158,11,.42) 0%, rgba(245,158,11,0) 62%); }
+  .g2 { position: absolute; left: -300px; bottom: -380px; width: 820px; height: 820px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(37,99,235,.35) 0%, rgba(37,99,235,0) 65%); }
+  .rays { position: absolute; left: 640px; top: -100px; width: 700px; height: 800px; opacity: .12;
+    background: repeating-conic-gradient(from 0deg at 50% 55%, #fbbf24 0 3deg, transparent 3deg 15deg);
+    -webkit-mask-image: radial-gradient(circle at 50% 55%, #000 10%, transparent 60%); }
+
+  .wrap { position: absolute; left: 64px; top: 56px; width: 600px; }
+  .tag { display: inline-flex; align-items: center; gap: 10px; background: rgba(245,158,11,.14); border: 2px solid rgba(251,191,36,.55);
+    color: #fde68a; font-weight: 800; font-size: 19px; letter-spacing: .12em; text-transform: uppercase; padding: 8px 18px; border-radius: 999px; }
+  .tag svg { width: 20px; height: 20px; }
+  h1 { font-size: 104px; line-height: .95; font-weight: 900; margin-top: 26px; letter-spacing: -.04em; }
+  h1 span { background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #fb923c 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { font-size: 27px; margin-top: 22px; color: #cbd5e1; font-weight: 600; line-height: 1.3; }
+  .new { display: inline-flex; align-items: center; gap: 14px; margin-top: 30px; background: rgba(255,255,255,.07);
+    border: 2px solid rgba(251,191,36,.45); border-radius: 18px; padding: 12px 22px 12px 14px; }
+  .new .ic { width: 46px; height: 46px; border-radius: 13px; background: linear-gradient(135deg,#f59e0b,#d97706); display: flex; align-items: center; justify-content: center; }
+  .new small { display: block; font-size: 15px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: #fcd34d; }
+  .new b { font-size: 23px; font-weight: 900; }
+
+  .foot { position: absolute; left: 64px; bottom: 40px; font-size: 22px; font-weight: 700; color: #94a3b8; }
+  .foot b { color: #e2e8f0; }
+  .brand { position: absolute; right: 56px; bottom: 34px; font-size: 32px; font-weight: 900; letter-spacing: -.01em; }
+  .brand span { color: #fbbf24; }
+
+  /* right: the ebook as a 3D book */
+  .book { position: absolute; left: 790px; top: 42px; width: 300px; height: 480px; transform: perspective(1400px) rotateY(-22deg) rotateZ(2deg);
+    transform-style: preserve-3d; }
+  .book img { position: absolute; inset: 0; width: 300px; height: 480px; border-radius: 4px 10px 10px 4px; object-fit: cover;
+    box-shadow: 30px 40px 70px rgba(0,0,0,.65), 0 0 60px rgba(251,191,36,.25); }
+  .book .spine { position: absolute; left: 0; top: 0; width: 16px; height: 480px; border-radius: 4px 0 0 4px;
+    background: linear-gradient(90deg, rgba(0,0,0,.45), rgba(255,255,255,.18) 60%, rgba(0,0,0,.2)); }
+  .book .pages { position: absolute; right: -14px; top: 8px; width: 14px; height: 464px; border-radius: 0 4px 4px 0;
+    background: repeating-linear-gradient(0deg, #f5f5f4 0 2px, #d6d3d1 2px 3px); transform: rotateY(60deg); transform-origin: left; }
+  .badge { position: absolute; left: 690px; top: 380px; transform: rotate(-5deg); display: flex; align-items: center; gap: 10px;
+    background: #111827; border: 2px solid rgba(251,191,36,.5); border-radius: 999px; padding: 10px 20px; font-size: 19px; font-weight: 800;
+    color: #fef3c7; box-shadow: 0 16px 40px rgba(0,0,0,.55); }
+</style></head>
+<body>
+<div class="g1"></div><div class="g2"></div><div class="rays"></div>
+
+<div class="wrap">
+  <div class="tag"><svg viewBox="0 0 24 24" fill="none" stroke="#fde68a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>Digital downloads</div>
+  <h1>Digi<span>Store</span></h1>
+  <div class="sub">Digital products to boost your<br>productivity, skills and business.</div>
+  <div class="new">
+    <div class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+    <div><small>Out now · Ebook</small><b>Think Before You Click</b></div>
+  </div>
+</div>
+
+<div class="book"><img src="../../public/images/books/think-before-you-click-cover.png"><div class="spine"></div><div class="pages"></div></div>
+
+<div class="foot"><b>techtrendi.com</b>/store</div>
+<div class="brand">Tech<span>Trendi</span></div>
+</body></html>
