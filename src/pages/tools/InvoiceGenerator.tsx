@@ -143,17 +143,25 @@ export default function InvoiceGenerator() {
       const w = pageW - margin * 2;
       const h = (canvas.height * w) / canvas.width;
       // JPEG keeps the PDF small enough to send on WhatsApp (PNG made ~2 MB).
-      const img = canvas.toDataURL("image/jpeg", 0.85);
-      if (h <= pageH - margin * 2) {
-        pdf.addImage(img, "JPEG", margin, margin, w, h);
+      const usable = pageH - margin * 2;
+      if (h <= usable) {
+        pdf.addImage(canvas.toDataURL("image/jpeg", 0.85), "JPEG", margin, margin, w, h);
       } else {
-        // Long invoice: continue on more pages.
-        let y = 0;
-        const usable = pageH - margin * 2;
-        while (y < h) {
-          if (y > 0) pdf.addPage();
-          pdf.addImage(img, "JPEG", margin, margin - y, w, h);
-          y += usable;
+        // Long invoice: cut the picture into exact page-sized slices, so nothing
+        // repeats or goes missing at a page break (Codex review, PR #84).
+        const slicePx = Math.floor((usable * canvas.width) / w);
+        for (let top = 0, page = 0; top < canvas.height; top += slicePx, page++) {
+          const hPx = Math.min(slicePx, canvas.height - top);
+          const slice = document.createElement("canvas");
+          slice.width = canvas.width;
+          slice.height = hPx;
+          const ctx = slice.getContext("2d");
+          if (!ctx) throw new Error("no canvas");
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, slice.width, slice.height);
+          ctx.drawImage(canvas, 0, top, canvas.width, hPx, 0, 0, canvas.width, hPx);
+          if (page > 0) pdf.addPage();
+          pdf.addImage(slice.toDataURL("image/jpeg", 0.85), "JPEG", margin, margin, w, (hPx * w) / canvas.width);
         }
       }
       const safe = (invoice.invoiceNumber || "invoice").replace(/[^A-Za-z0-9_-]+/g, "-");
