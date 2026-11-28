@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
 import { Calculator, Smartphone, ArrowRight, CheckCircle2, XCircle, Crown } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 
 interface UpgradeResult {
@@ -25,7 +24,6 @@ export default function UpgradeCalculator() {
   const [primaryUse, setPrimaryUse] = useState("general");
   const [budget, setBudget] = useState("");
   const [result, setResult] = useState<UpgradeResult | null>(null);
-  const { subscription } = useAuth();
 
   const calculate = () => {
     let score = 50; // Start neutral
@@ -79,7 +77,7 @@ export default function UpgradeCalculator() {
     // Normalize score
     score = Math.max(0, Math.min(100, score));
 
-    let shouldUpgrade = score >= 60;
+    const shouldUpgrade = score >= 60;
     let recommendation = "";
 
     if (score >= 80) {
@@ -268,23 +266,6 @@ export default function UpgradeCalculator() {
             )}
           </div>
 
-          {/* Premium Upsell */}
-          {!subscription.subscribed && (
-            <div className="mt-8 bg-gradient-primary rounded-2xl p-8 text-center">
-              <Crown className="w-10 h-10 text-primary-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-primary-foreground mb-2">
-                Get Personalized Recommendations
-              </h3>
-              <p className="text-primary-foreground/80 mb-6 max-w-md mx-auto">
-                Premium users get AI-powered device recommendations, trade-in value estimates, and best deal alerts.
-              </p>
-              <Link to="/auth">
-                <Button variant="secondary" className="bg-background text-foreground hover:bg-background/90">
-                  Upgrade to Premium
-                </Button>
-              </Link>
-            </div>
-          )}
         </div>
       </div>
     </Layout>

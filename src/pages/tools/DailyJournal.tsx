@@ -37,6 +37,8 @@ const STORAGE_KEY = "techtrendi_journal";
 
 export default function DailyJournal() {
   const { user } = useAuth();
+  // No sign-in needed (28 Nov 2026): data stays in this browser either way.
+  const storeId = user?.id ?? "guest";
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date().toISOString().split("T")[0]);
   const [currentEntry, setCurrentEntry] = useState<JournalEntry>({
@@ -50,19 +52,19 @@ export default function DailyJournal() {
   });
 
   useEffect(() => {
-    if (user) {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_${user.id}`);
+    {
+      const saved = localStorage.getItem(`${STORAGE_KEY}_${storeId}`);
       if (saved) {
         setEntries(JSON.parse(saved));
       }
     }
-  }, [user]);
+  }, [storeId]);
 
   useEffect(() => {
-    if (user && entries.length > 0) {
-      localStorage.setItem(`${STORAGE_KEY}_${user.id}`, JSON.stringify(entries));
+    if (entries.length > 0) {
+      localStorage.setItem(`${STORAGE_KEY}_${storeId}`, JSON.stringify(entries));
     }
-  }, [entries, user]);
+  }, [entries, storeId]);
 
   useEffect(() => {
     const existingEntry = entries.find((e) => e.date === currentDate);
@@ -145,32 +147,6 @@ export default function DailyJournal() {
 
   const isToday = currentDate === new Date().toISOString().split("T")[0];
   const hasEntry = entries.some((e) => e.date === currentDate);
-
-  if (!user) {
-    return (
-      <Layout>
-        <SEOHead
-          title="Daily Journal - Gratitude & Reflection | TechTrendi"
-          description="Build a daily journaling habit. Track gratitude, mood, and reflections. Build streaks and see your progress."
-          canonicalUrl="https://techtrendi.com/tools/daily-journal"
-        />
-        <div className="container py-12 md:py-20 max-w-2xl">
-          <Card className="border-primary/30 bg-primary/5">
-            <CardContent className="pt-6 text-center">
-              <BookOpen className="w-16 h-16 text-primary mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-2">Daily Journal</h1>
-              <p className="text-muted-foreground mb-6">
-                Build a daily journaling habit. Track gratitude, mood, and reflections.
-              </p>
-              <Button asChild size="lg">
-                <a href="/auth">Sign In to Continue</a>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>

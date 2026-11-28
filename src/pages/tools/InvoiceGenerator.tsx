@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
@@ -8,12 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  Receipt, Plus, Trash2, Download, Eye, Crown, FileText,
+  Receipt, Plus, Trash2, Download, Eye, FileText,
   Building2, User, Calendar, DollarSign, Mail, Phone, MapPin
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
 
 interface LineItem {
   id: string;
@@ -44,14 +43,19 @@ interface InvoiceData {
 }
 
 export default function InvoiceGenerator() {
-  const { user, subscription } = useAuth();
-  const isPremium = subscription?.subscribed;
+  // Free for everyone since 28 Nov 2026 (the old "premium" lock had no way to pay,
+  // and its download button made no file at all).
+  const [currency, setCurrency] = useState("GHS");
+  const [downloading, setDownloading] = useState(false);
   const invoiceRef = useRef<HTMLDivElement>(null);
 
   const [invoice, setInvoice] = useState<InvoiceData>({
-    invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
-    date: new Date().toISOString().split("T")[0],
-    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    // Number and dates are filled in on the visitor's device (see useEffect below).
+    // Making them while the page is built gave a different value on the phone,
+    // which broke the page's start-up (React errors #418/#425).
+    invoiceNumber: "",
+    date: "",
+    dueDate: "",
     from: {
       name: "",
       email: "",
@@ -101,30 +105,71 @@ export default function InvoiceGenerator() {
     });
   };
 
+  useEffect(() => {
+    const now = Date.now();
+    setInvoice((inv) => ({
+      ...inv,
+      invoiceNumber: inv.invoiceNumber || `INV-${now.toString().slice(-6)}`,
+      date: inv.date || new Date(now).toISOString().split("T")[0],
+      dueDate: inv.dueDate || new Date(now + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    }));
+  }, []);
+
   const subtotal = invoice.items.reduce((sum, item) => sum + item.quantity * item.rate, 0);
   const tax = subtotal * (invoice.taxRate / 100);
   const total = subtotal + tax;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat(currency === "GHS" ? "en-GH" : "en-US", {
       style: "currency",
-      currency: "USD",
+      currency,
     }).format(amount);
   };
 
-  const handleDownload = () => {
-    if (!isPremium) {
-      toast.error("Premium required to download invoices");
-      return;
+  const handleDownload = async () => {
+    if (!invoiceRef.current) return;
+    setDownloading(true);
+    try {
+      // Loaded only when needed, so the page itself stays light.
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+      const canvas = await html2canvas(invoiceRef.current, { scale: 2, backgroundColor: "#ffffff" });
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const w = pageW - margin * 2;
+      const h = (canvas.height * w) / canvas.width;
+      // JPEG keeps the PDF small enough to send on WhatsApp (PNG made ~2 MB).
+      const img = canvas.toDataURL("image/jpeg", 0.85);
+      if (h <= pageH - margin * 2) {
+        pdf.addImage(img, "JPEG", margin, margin, w, h);
+      } else {
+        // Long invoice: continue on more pages.
+        let y = 0;
+        const usable = pageH - margin * 2;
+        while (y < h) {
+          if (y > 0) pdf.addPage();
+          pdf.addImage(img, "JPEG", margin, margin - y, w, h);
+          y += usable;
+        }
+      }
+      const safe = (invoice.invoiceNumber || "invoice").replace(/[^A-Za-z0-9_-]+/g, "-");
+      pdf.save(`${safe}.pdf`);
+      toast.success("Invoice PDF saved");
+    } catch {
+      toast.error("Could not make the PDF. Please try again.");
+    } finally {
+      setDownloading(false);
     }
-    // In a real app, this would generate a PDF
-    toast.success("Invoice downloaded!");
   };
 
   return (
     <Layout>
       <SEOHead
-        title="Invoice Generator - Create Professional Invoices | TechTrendi"
+        title="Invoice Generator - Create Professional Invoices"
         description="Create professional invoices in minutes. Customize with your logo, add line items, and download as PDF. Perfect for freelancers and small businesses."
         canonicalUrl="https://techtrendi.com/tools/invoice-generator"
       />
@@ -132,9 +177,9 @@ export default function InvoiceGenerator() {
       <div className="container py-12 md:py-20 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-12">
-          <Badge className="mb-4 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-            <Crown className="w-3 h-3 mr-1" />
-            Premium Tool
+          <Badge className="mb-4 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+            <FileText className="w-3 h-3 mr-1" />
+            Free Tool
           </Badge>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Invoice <span className="text-primary">Generator</span>
@@ -364,18 +409,22 @@ export default function InvoiceGenerator() {
 
             {/* Actions */}
             <div className="flex gap-3">
-              <Button className="flex-1" onClick={handleDownload} disabled={!isPremium}>
+              <select
+                aria-label="Currency"
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="GHS">GH₵ Cedi</option>
+                <option value="USD">US Dollar</option>
+                <option value="GBP">British Pound</option>
+                <option value="EUR">Euro</option>
+                <option value="NGN">Naira</option>
+              </select>
+              <Button className="flex-1" onClick={handleDownload} disabled={downloading}>
                 <Download className="w-4 h-4 mr-2" />
-                Download PDF
+                {downloading ? "Making PDF..." : "Download PDF"}
               </Button>
-              {!isPremium && (
-                <Button variant="outline" asChild>
-                  <a href="/auth">
-                    <Crown className="w-4 h-4 mr-2" />
-                    Upgrade to Download
-                  </a>
-                </Button>
-              )}
             </div>
           </div>
 

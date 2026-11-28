@@ -68,24 +68,26 @@ const STORAGE_KEY = "techtrendi_contract_data";
 
 export default function ContractGenerator() {
   const { user } = useAuth();
+  // No sign-in needed (28 Nov 2026): data stays in this browser either way.
+  const storeId = user?.id ?? "guest";
   const [data, setData] = useState<ContractData>(defaultData);
   const [copied, setCopied] = useState(false);
   const [step, setStep] = useState(1);
 
   useEffect(() => {
-    if (user) {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_${user.id}`);
+    {
+      const saved = localStorage.getItem(`${STORAGE_KEY}_${storeId}`);
       if (saved) {
         setData(JSON.parse(saved));
       }
     }
-  }, [user]);
+  }, [storeId]);
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem(`${STORAGE_KEY}_${user.id}`, JSON.stringify(data));
+    {
+      localStorage.setItem(`${STORAGE_KEY}_${storeId}`, JSON.stringify(data));
     }
-  }, [data, user]);
+  }, [data, storeId]);
 
   const updateData = (updates: Partial<ContractData>) => {
     setData((prev) => ({ ...prev, ...updates }));
@@ -349,32 +351,6 @@ ${data.clientName} (Client)
     URL.revokeObjectURL(url);
     toast.success("Contract downloaded!");
   };
-
-  if (!user) {
-    return (
-      <Layout>
-        <SEOHead
-          title="Contract Generator - Create Legal Contracts | TechTrendi"
-          description="Generate professional contracts for freelancers. Create NDAs, service agreements, and more."
-          canonicalUrl="https://techtrendi.com/tools/contract-generator"
-        />
-        <div className="container py-12 md:py-20 max-w-2xl">
-          <Card className="border-primary/30 bg-primary/5">
-            <CardContent className="pt-6 text-center">
-              <FileText className="w-16 h-16 text-primary mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-2">Contract Generator</h1>
-              <p className="text-muted-foreground mb-6">
-                Generate professional contracts for your freelance work. Sign in to get started.
-              </p>
-              <Button asChild size="lg">
-                <a href="/auth">Sign In to Continue</a>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>

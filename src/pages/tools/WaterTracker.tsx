@@ -30,6 +30,8 @@ const quickAddOptions = [
 
 export default function WaterTracker() {
   const { user } = useAuth();
+  // No sign-in needed (28 Nov 2026): data stays in this browser either way.
+  const storeId = user?.id ?? "guest";
   const [entries, setEntries] = useState<WaterEntry[]>([]);
   const [dailyGoal, setDailyGoal] = useState(8);
   const [todayGlasses, setTodayGlasses] = useState(0);
@@ -37,8 +39,8 @@ export default function WaterTracker() {
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    if (user) {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_${user.id}`);
+    {
+      const saved = localStorage.getItem(`${STORAGE_KEY}_${storeId}`);
       if (saved) {
         const parsed = JSON.parse(saved);
         setEntries(parsed.entries || []);
@@ -50,19 +52,19 @@ export default function WaterTracker() {
         }
       }
     }
-  }, [user, today]);
+  }, [storeId, today]);
 
   useEffect(() => {
-    if (user) {
+    {
       const updatedEntries = entries.filter((e) => e.date !== today);
       updatedEntries.unshift({ date: today, glasses: todayGlasses, goal: dailyGoal });
       setEntries(updatedEntries);
       localStorage.setItem(
-        `${STORAGE_KEY}_${user.id}`,
+        `${STORAGE_KEY}_${storeId}`,
         JSON.stringify({ entries: updatedEntries, dailyGoal })
       );
     }
-  }, [todayGlasses, dailyGoal, user, today]);
+  }, [todayGlasses, dailyGoal, storeId, today]);
 
   const addGlasses = (amount: number) => {
     const newAmount = Math.max(0, todayGlasses + amount);
@@ -120,32 +122,6 @@ export default function WaterTracker() {
 
   const waterInOz = todayGlasses * 8;
   const waterInMl = Math.round(waterInOz * 29.5735);
-
-  if (!user) {
-    return (
-      <Layout>
-        <SEOHead
-          title="Water Tracker - Stay Hydrated | TechTrendi"
-          description="Track your daily water intake. Set goals, build streaks, and stay healthy with our free water tracker."
-          canonicalUrl="https://techtrendi.com/tools/water-tracker"
-        />
-        <div className="container py-12 md:py-20 max-w-2xl">
-          <Card className="border-primary/30 bg-primary/5">
-            <CardContent className="pt-6 text-center">
-              <Droplets className="w-16 h-16 text-blue-500 mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-2">Water Tracker</h1>
-              <p className="text-muted-foreground mb-6">
-                Track your daily water intake and build healthy hydration habits.
-              </p>
-              <Button asChild size="lg">
-                <a href="/auth">Sign In to Continue</a>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>

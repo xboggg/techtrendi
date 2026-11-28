@@ -1,7 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { SpeedTest as SpeedTestComponent } from "@/components/tools/SpeedTest";
-import { ToolContentSection } from "@/components/tools/ToolContentSection";
 import { Gauge } from "lucide-react";
 
 export default function SpeedTestPage() {
@@ -53,7 +52,6 @@ export default function SpeedTestPage() {
         </div>
       </div>
 
-      <ToolContentSection toolId="speed-test" />
     </Layout>
   );
 }

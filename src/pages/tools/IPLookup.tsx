@@ -1,7 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { IPLookup as IPLookupComponent } from "@/components/tools/IPLookup";
-import { ToolContentSection } from "@/components/tools/ToolContentSection";
 import { Globe, ShieldAlert } from "lucide-react";
 
 export default function IPLookupPage() {
@@ -60,7 +59,6 @@ export default function IPLookupPage() {
         </div>
       </div>
 
-      <ToolContentSection toolId="ip-lookup" />
     </Layout>
   );
 }

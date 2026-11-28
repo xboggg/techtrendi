@@ -93,6 +93,8 @@ const improvementTips = [
 
 export default function NetWorthTracker() {
   const { user } = useAuth();
+  // No sign-in needed (28 Nov 2026): data stays in this browser either way.
+  const storeId = user?.id ?? "guest";
   const summaryRef = useRef<HTMLDivElement>(null);
 
   // State
@@ -122,17 +124,17 @@ export default function NetWorthTracker() {
 
   // Load data
   useEffect(() => {
-    if (user) {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_${user.id}`);
+    {
+      const saved = localStorage.getItem(`${STORAGE_KEY}_${storeId}`);
       if (saved) {
         setData(JSON.parse(saved));
       }
     }
-  }, [user]);
+  }, [storeId]);
 
   // Save data and record history
   useEffect(() => {
-    if (user && (data.assets.length > 0 || data.liabilities.length > 0)) {
+    if ((data.assets.length > 0 || data.liabilities.length > 0)) {
       const today = new Date().toISOString().split("T")[0];
       const totalAssets = data.assets.reduce((sum, a) => sum + a.value, 0);
       const totalLiabilities = data.liabilities.reduce((sum, l) => sum + l.value, 0);
@@ -169,14 +171,14 @@ export default function NetWorthTracker() {
         lastUpdated: new Date().toISOString(),
       };
 
-      localStorage.setItem(`${STORAGE_KEY}_${user.id}`, JSON.stringify(updatedData));
+      localStorage.setItem(`${STORAGE_KEY}_${storeId}`, JSON.stringify(updatedData));
 
       // Only update history in state if it changed
       if (JSON.stringify(updatedHistory) !== JSON.stringify(data.history)) {
         setData(updatedData);
       }
     }
-  }, [user, data.assets, data.liabilities]);
+  }, [storeId, data.assets, data.liabilities]);
 
   // Calculations
   const totalAssets = useMemo(() => {
@@ -389,34 +391,6 @@ export default function NetWorthTracker() {
       </svg>
     );
   };
-
-  if (!user) {
-    return (
-      <Layout>
-        <SEOHead
-          title="Net Worth Tracker - Track Your Financial Health | TechTrendi"
-          description="Track your net worth over time. Monitor assets, liabilities, and see your financial progress with charts and insights."
-          canonicalUrl="https://techtrendi.com/tools/net-worth-tracker"
-        />
-        <div className="container py-12 md:py-20 max-w-2xl">
-          <Card className="border-primary/30 bg-gradient-to-br from-blue-500/10 to-indigo-500/10">
-            <CardContent className="pt-6 text-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mx-auto mb-4">
-                <Landmark className="w-10 h-10 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold mb-2">Net Worth Tracker</h1>
-              <p className="text-muted-foreground mb-6">
-                Track your assets, liabilities, and net worth over time. Get insights into your financial health.
-              </p>
-              <Button asChild size="lg" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
-                <a href="/auth">Sign In to Continue</a>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>

@@ -45,6 +45,8 @@ const defaultProjects: Project[] = [
 
 export default function TimeTracker() {
   const { user } = useAuth();
+  // No sign-in needed (28 Nov 2026): data stays in this browser either way.
+  const storeId = user?.id ?? "guest";
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [projects, setProjects] = useState<Project[]>(defaultProjects);
   const [isRunning, setIsRunning] = useState(false);
@@ -59,21 +61,21 @@ export default function TimeTracker() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (user) {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_${user.id}`);
+    {
+      const saved = localStorage.getItem(`${STORAGE_KEY}_${storeId}`);
       if (saved) {
         const parsed = JSON.parse(saved);
         setEntries(parsed.entries || []);
         setProjects(parsed.projects || defaultProjects);
       }
     }
-  }, [user]);
+  }, [storeId]);
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem(`${STORAGE_KEY}_${user.id}`, JSON.stringify({ entries, projects }));
+    {
+      localStorage.setItem(`${STORAGE_KEY}_${storeId}`, JSON.stringify({ entries, projects }));
     }
-  }, [entries, projects, user]);
+  }, [entries, projects, storeId]);
 
   useEffect(() => {
     if (isRunning) {
@@ -182,32 +184,6 @@ export default function TimeTracker() {
   }, [entries]);
 
   const getProjectById = (id: string) => projects.find((p) => p.id === id);
-
-  if (!user) {
-    return (
-      <Layout>
-        <SEOHead
-          title="Time Tracker - Track Billable Hours | TechTrendi"
-          description="Track your work hours and billable time. Perfect for freelancers and consultants."
-          canonicalUrl="https://techtrendi.com/tools/time-tracker"
-        />
-        <div className="container py-12 md:py-20 max-w-2xl">
-          <Card className="border-primary/30 bg-primary/5">
-            <CardContent className="pt-6 text-center">
-              <Clock className="w-16 h-16 text-primary mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-2">Time Tracker</h1>
-              <p className="text-muted-foreground mb-6">
-                Track your work hours and billable time. Sign in to save your data.
-              </p>
-              <Button asChild size="lg">
-                <a href="/auth">Sign In to Continue</a>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>
