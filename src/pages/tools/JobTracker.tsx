@@ -29,7 +29,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
 
 type JobStatus = "saved" | "applied" | "interviewing" | "offer" | "rejected" | "withdrawn";
 
@@ -57,7 +56,6 @@ const statusConfig: Record<JobStatus, { label: string; color: string; icon: Reac
 };
 
 export default function JobTracker() {
-  const { user } = useAuth();
   const [jobs, setJobs] = useState<JobApplication[]>([]);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [editingJob, setEditingJob] = useState<JobApplication | null>(null);
@@ -487,18 +485,9 @@ export default function JobTracker() {
           </div>
         )}
 
-        {!user && jobs.length > 0 && (
-          <Card className="mt-8 border-primary/30 bg-primary/5">
-            <CardContent className="pt-6 text-center">
-              <p className="text-sm">
-                <strong>Sign in</strong> to save your job applications and access them from any device!
-              </p>
-              <Button className="mt-4" asChild>
-                <a href="/auth">Sign In Free</a>
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+            Saved on this phone or computer only. Nothing is sent to us. Clearing your browser data deletes it.
+          </p>
       </div>
     </Layout>
   );

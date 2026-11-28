@@ -1,7 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { PrivacyChecker as PrivacyCheckerComponent } from "@/components/tools/PrivacyChecker";
-import { ToolContentSection } from "@/components/tools/ToolContentSection";
 import { Eye } from "lucide-react";
 
 export default function PrivacyCheckerPage() {
@@ -60,7 +59,6 @@ export default function PrivacyCheckerPage() {
         </div>
       </div>
 
-      <ToolContentSection toolId="privacy-checker" />
     </Layout>
   );
 }

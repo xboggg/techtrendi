@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMounted } from "@/hooks/useMounted";
 
 interface DailyScore {
   date: string;
@@ -38,8 +39,11 @@ const metrics = [
   { id: "breaks", label: "Healthy Breaks", icon: Coffee, max: 5, unit: "breaks", description: "Mindful breaks taken (walks, stretches)" },
 ];
 
-export default function FocusScore() {
+function FocusScorePage() {
   const { user } = useAuth();
+  // No sign-in needed (28 Nov 2026): data stays in this browser either way.
+  const storeId = user?.id ?? "guest";
+  const mounted = useMounted();
   const [entries, setEntries] = useState<DailyScore[]>([]);
   const [currentScores, setCurrentScores] = useState({
     deepWork: 4,
@@ -53,8 +57,8 @@ export default function FocusScore() {
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    if (user) {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_${user.id}`);
+    {
+      const saved = localStorage.getItem(`${STORAGE_KEY}_${storeId}`);
       if (saved) {
         const parsed = JSON.parse(saved);
         setEntries(parsed.entries || []);
@@ -65,7 +69,7 @@ export default function FocusScore() {
         }
       }
     }
-  }, [user, today]);
+  }, [storeId, today]);
 
   const calculateScore = (scores: typeof currentScores) => {
     const weights = {
@@ -101,8 +105,8 @@ export default function FocusScore() {
     updatedEntries.unshift(newEntry);
     setEntries(updatedEntries);
 
-    if (user) {
-      localStorage.setItem(`${STORAGE_KEY}_${user.id}`, JSON.stringify({ entries: updatedEntries }));
+    {
+      localStorage.setItem(`${STORAGE_KEY}_${storeId}`, JSON.stringify({ entries: updatedEntries }));
     }
 
     toast.success("Focus score saved!");
@@ -159,32 +163,6 @@ Track your focus: techtrendi.com/tools/focus-score`;
     }
   };
 
-  if (!user) {
-    return (
-      <Layout>
-        <SEOHead
-          title="Focus Score Calculator - Rate Your Productivity | TechTrendi"
-          description="Calculate your daily focus score. Track deep work, distractions, and energy to improve your productivity."
-          canonicalUrl="https://techtrendi.com/tools/focus-score"
-        />
-        <div className="container py-12 md:py-20 max-w-2xl">
-          <Card className="border-primary/30 bg-primary/5">
-            <CardContent className="pt-6 text-center">
-              <Target className="w-16 h-16 text-primary mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-2">Focus Score Calculator</h1>
-              <p className="text-muted-foreground mb-6">
-                Rate your daily focus and productivity. Sign in to track your progress.
-              </p>
-              <Button asChild size="lg">
-                <a href="/auth">Sign In to Continue</a>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </Layout>
-    );
-  }
-
   return (
     <Layout>
       <SEOHead
@@ -192,6 +170,8 @@ Track your focus: techtrendi.com/tools/focus-score`;
         description="Calculate your daily focus score. Track deep work, distractions, and energy to improve your productivity."
         canonicalUrl="https://techtrendi.com/tools/focus-score"
       />
+      {mounted ? (
+      <>
 
       <div className="container py-12 md:py-20 max-w-4xl">
         {/* Header */}
@@ -391,6 +371,18 @@ Track your focus: techtrendi.com/tools/focus-score`;
           </div>
         </div>
       </div>
+      </>
+      ) : (
+        <div className="container py-24 text-center text-muted-foreground" aria-busy="true">Loading the tool...</div>
+      )}
     </Layout>
   );
+}
+
+// A new owner (sign in, sign out, another account) gets a fresh copy of the page,
+// so one person's saved data can never be written into another person's storage
+// (Codex review, PR #84).
+export default function FocusScore() {
+  const { user } = useAuth();
+  return <FocusScorePage key={user?.id ?? "guest"} />;
 }

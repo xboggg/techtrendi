@@ -16,7 +16,6 @@ import {
   ArrowLeftRight,
   RefreshCw,
   TrendingUp,
-  TrendingDown,
   Clock,
   Copy,
   Check,
@@ -34,10 +33,12 @@ interface ExchangeRates {
   [key: string]: number;
 }
 
+// open.er-api.com (ExchangeRate-API's free open endpoint, updated once a day).
 interface RateData {
+  result: string;
   rates: ExchangeRates;
-  base: string;
-  date: string;
+  base_code: string;
+  time_last_update_utc: string;
 }
 
 const currencies: Currency[] = [
@@ -74,6 +75,7 @@ const currencies: Currency[] = [
   { code: "NGN", name: "Nigerian Naira", flag: "\ud83c\uddf3\ud83c\uddec" },
   { code: "KES", name: "Kenyan Shilling", flag: "\ud83c\uddf0\ud83c\uddea" },
   { code: "GHS", name: "Ghanaian Cedi", flag: "\ud83c\uddec\ud83c\udded" },
+  { code: "XOF", name: "West African CFA Franc", flag: "\ud83c\udde8\ud83c\uddee" },
   { code: "PKR", name: "Pakistani Rupee", flag: "\ud83c\uddf5\ud83c\uddf0" },
   { code: "BDT", name: "Bangladeshi Taka", flag: "\ud83c\udde7\ud83c\udde9" },
   { code: "CZK", name: "Czech Koruna", flag: "\ud83c\udde8\ud83c\uddff" },
@@ -105,19 +107,19 @@ interface PopularConversion {
 }
 
 const popularConversions: PopularConversion[] = [
-  { from: "USD", to: "EUR", label: "USD to EUR" },
-  { from: "EUR", to: "GBP", label: "EUR to GBP" },
-  { from: "USD", to: "JPY", label: "USD to JPY" },
-  { from: "GBP", to: "USD", label: "GBP to USD" },
-  { from: "USD", to: "INR", label: "USD to INR" },
   { from: "USD", to: "GHS", label: "USD to GHS" },
-  { from: "EUR", to: "CHF", label: "EUR to CHF" },
-  { from: "USD", to: "CAD", label: "USD to CAD" },
+  { from: "GBP", to: "GHS", label: "GBP to GHS" },
+  { from: "EUR", to: "GHS", label: "EUR to GHS" },
+  { from: "GHS", to: "NGN", label: "GHS to NGN" },
+  { from: "CNY", to: "GHS", label: "CNY to GHS" },
+  { from: "GHS", to: "XOF", label: "GHS to CFA" },
+  { from: "USD", to: "EUR", label: "USD to EUR" },
+  { from: "GBP", to: "USD", label: "GBP to USD" },
 ];
 
 export default function CurrencyConverter() {
   const [fromCurrency, setFromCurrency] = useState("USD");
-  const [toCurrency, setToCurrency] = useState("EUR");
+  const [toCurrency, setToCurrency] = useState("GHS");
   const [amount, setAmount] = useState("1");
   const [result, setResult] = useState<number | null>(null);
   const [rates, setRates] = useState<ExchangeRates>({});
@@ -125,8 +127,6 @@ export default function CurrencyConverter() {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [historicalRate, setHistoricalRate] = useState<number | null>(null);
-  const [rateChange, setRateChange] = useState<number | null>(null);
 
   const getCurrencyData = (code: string): Currency => {
     return currencies.find((c) => c.code === code) || { code, name: code, flag: "" };
@@ -136,15 +136,21 @@ export default function CurrencyConverter() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        `https://api.exchangerate-api.com/v4/latest/${base}`
-      );
+      const response = await fetch(`https://open.er-api.com/v6/latest/${base}`);
       if (!response.ok) {
         throw new Error("Failed to fetch exchange rates");
       }
       const data: RateData = await response.json();
+      if (data.result !== "success" || !data.rates) {
+        throw new Error("Rates not available");
+      }
       setRates(data.rates);
-      setLastUpdated(data.date);
+      const when = new Date(data.time_last_update_utc);
+      setLastUpdated(
+        isNaN(when.getTime())
+          ? data.time_last_update_utc
+          : when.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
+      );
       return data.rates;
     } catch (err) {
       setError("Failed to fetch exchange rates. Please try again.");
@@ -153,23 +159,6 @@ export default function CurrencyConverter() {
       setLoading(false);
     }
   }, []);
-
-  const calculateHistoricalComparison = useCallback(async () => {
-    try {
-      // For historical comparison, we'll calculate a simulated change
-      // The free API doesn't support historical data, so we simulate it
-      const currentRate = rates[toCurrency];
-      if (currentRate) {
-        // Simulate a random historical rate change (-5% to +5%)
-        const randomChange = (Math.random() - 0.5) * 0.1;
-        const historicalRateValue = currentRate * (1 - randomChange);
-        setHistoricalRate(historicalRateValue);
-        setRateChange(((currentRate - historicalRateValue) / historicalRateValue) * 100);
-      }
-    } catch (err) {
-      // Silently fail for historical data
-    }
-  }, [rates, toCurrency]);
 
   useEffect(() => {
     fetchRates(fromCurrency);
@@ -185,12 +174,6 @@ export default function CurrencyConverter() {
       }
     }
   }, [amount, rates, toCurrency]);
-
-  useEffect(() => {
-    if (rates[toCurrency]) {
-      calculateHistoricalComparison();
-    }
-  }, [rates, toCurrency, calculateHistoricalComparison]);
 
   const swapCurrencies = () => {
     const temp = fromCurrency;
@@ -237,7 +220,7 @@ export default function CurrencyConverter() {
     <Layout>
       <SEOHead
         title="Currency Converter"
-        description="Convert between world currencies with live exchange rates. Quick, accurate, and supports all major currencies."
+        description="Convert cedis, dollars, pounds, euros, naira and 50+ other currencies with today's exchange rates. Free, quick and works on any phone."
         canonical="/tools/currency-converter"
         keywords={["currency converter", "exchange rate", "money converter", "forex rates", "currency calculator"]}
       />
@@ -252,7 +235,7 @@ export default function CurrencyConverter() {
               Currency Converter
             </h1>
             <p className="text-muted-foreground">
-              Real-time exchange rates for 50+ currencies worldwide
+              Today's exchange rates for 50+ currencies, including the cedi
             </p>
           </div>
 
@@ -398,25 +381,6 @@ export default function CurrencyConverter() {
                       <span className="text-2xl ml-2">{toData.flag}</span>
                     </p>
 
-                    {/* Historical Comparison */}
-                    {historicalRate && rateChange !== null && (
-                      <div className="mt-4 flex items-center justify-center gap-2 text-sm">
-                        {rateChange >= 0 ? (
-                          <TrendingUp className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <TrendingDown className="w-4 h-4 text-red-500" />
-                        )}
-                        <span
-                          className={
-                            rateChange >= 0 ? "text-green-500" : "text-red-500"
-                          }
-                        >
-                          {rateChange >= 0 ? "+" : ""}
-                          {rateChange.toFixed(2)}% vs last week
-                        </span>
-                      </div>
-                    )}
-
                     {lastUpdated && (
                       <p className="mt-3 text-xs text-muted-foreground flex items-center justify-center gap-1">
                         <Clock className="w-3 h-3" />
@@ -548,10 +512,10 @@ export default function CurrencyConverter() {
             <h2 className="font-semibold mb-4">About Currency Exchange</h2>
             <div className="grid md:grid-cols-2 gap-6 text-sm text-muted-foreground">
               <div>
-                <h3 className="font-medium text-foreground mb-2">Real-Time Rates</h3>
+                <h3 className="font-medium text-foreground mb-2">Daily Rates</h3>
                 <p>
-                  Our currency converter uses live exchange rates from trusted financial
-                  data providers. Rates are updated multiple times daily to ensure accuracy.
+                  Rates come from ExchangeRate-API and are updated once a day. They are
+                  mid-market rates: your bank, forex bureau or MoMo will give a slightly worse rate.
                 </p>
               </div>
               <div>

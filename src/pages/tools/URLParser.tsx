@@ -1,7 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { URLParser as URLParserComponent } from "@/components/tools/URLParser";
-import { ToolContentSection } from "@/components/tools/ToolContentSection";
 import { Link2 } from "lucide-react";
 
 export default function URLParserPage() {
@@ -53,7 +52,6 @@ export default function URLParserPage() {
         </div>
       </div>
 
-      <ToolContentSection toolId="url-parser" />
     </Layout>
   );
 }

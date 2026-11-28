@@ -15,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMounted } from "@/hooks/useMounted";
 
 interface Experience {
   id: string;
@@ -73,8 +74,11 @@ const defaultResume: ResumeData = {
   certifications: [],
 };
 
-export default function ResumeBuilder() {
+function ResumeBuilderPage() {
   const { user } = useAuth();
+  // No sign-in needed (28 Nov 2026): data stays in this browser either way.
+  const storeId = user?.id ?? "guest";
+  const mounted = useMounted();
 
   const [resume, setResume] = useState<ResumeData>(defaultResume);
   const [newSkill, setNewSkill] = useState("");
@@ -83,20 +87,20 @@ export default function ResumeBuilder() {
 
   // Load data
   useEffect(() => {
-    if (user) {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_${user.id}`);
+    {
+      const saved = localStorage.getItem(`${STORAGE_KEY}_${storeId}`);
       if (saved) {
         setResume(JSON.parse(saved));
       }
     }
-  }, [user]);
+  }, [storeId]);
 
   // Save data
   useEffect(() => {
-    if (user) {
-      localStorage.setItem(`${STORAGE_KEY}_${user.id}`, JSON.stringify(resume));
+    {
+      localStorage.setItem(`${STORAGE_KEY}_${storeId}`, JSON.stringify(resume));
     }
-  }, [resume, user]);
+  }, [resume, storeId]);
 
   const updatePersonalInfo = (field: string, value: string) => {
     setResume((prev) => ({
@@ -258,32 +262,6 @@ export default function ResumeBuilder() {
     toast.success("Resume downloaded!");
   };
 
-  if (!user) {
-    return (
-      <Layout>
-        <SEOHead
-          title="Resume Builder - Create Professional Resumes | TechTrendi"
-          description="Build a professional resume with our free resume builder. Beautiful templates, easy editing, and PDF export."
-          canonicalUrl="https://techtrendi.com/tools/resume-builder"
-        />
-        <div className="container py-12 md:py-20 max-w-2xl">
-          <Card className="border-primary/30 bg-primary/5">
-            <CardContent className="pt-6 text-center">
-              <FileText className="w-16 h-16 text-primary mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-2">Resume Builder</h1>
-              <p className="text-muted-foreground mb-6">
-                Create a professional resume and save your progress. Sign in to get started.
-              </p>
-              <Button asChild size="lg">
-                <a href="/auth">Sign In to Continue</a>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </Layout>
-    );
-  }
-
   return (
     <Layout>
       <SEOHead
@@ -291,6 +269,8 @@ export default function ResumeBuilder() {
         description="Build a professional resume with our free resume builder. Beautiful templates, easy editing, and PDF export."
         canonicalUrl="https://techtrendi.com/tools/resume-builder"
       />
+      {mounted ? (
+      <>
 
       <div className="container py-12 md:py-20 max-w-7xl">
         {/* Header */}
@@ -823,6 +803,18 @@ export default function ResumeBuilder() {
           </div>
         </div>
       </div>
+      </>
+      ) : (
+        <div className="container py-24 text-center text-muted-foreground" aria-busy="true">Loading the tool...</div>
+      )}
     </Layout>
   );
+}
+
+// A new owner (sign in, sign out, another account) gets a fresh copy of the page,
+// so one person's saved data can never be written into another person's storage
+// (Codex review, PR #84).
+export default function ResumeBuilder() {
+  const { user } = useAuth();
+  return <ResumeBuilderPage key={user?.id ?? "guest"} />;
 }

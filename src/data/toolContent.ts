@@ -488,7 +488,7 @@ export const toolContentData: Record<string, ToolContent> = {
       },
       {
         q: 'How many platforms can I repurpose for at once?',
-        a: 'All supported platforms at once if you want. Currently covers Twitter, LinkedIn, Instagram, Facebook, email newsletters, and TikTok scripts.',
+        a: 'One click gives you all of them together: three X (Twitter) posts including a short thread, a LinkedIn post, an Instagram caption, an email newsletter and a one-line summary.',
       },
     ],
   },
@@ -711,9 +711,9 @@ export const toolContentData: Record<string, ToolContent> = {
 
   'creator-analytics': {
     intro:
-      'Get a dashboard view of your content performance across platforms. Enter your stats manually or connect feeds, and see growth trends, engagement rates, and best-performing content in one place. Beats jumping between five different apps to check numbers.',
+      'Get a dashboard view of your content performance across platforms. Type in the numbers your apps already show you, and see growth trends, engagement rates, and best-performing content in one place. Beats jumping between five different apps to check numbers.',
     howTo: [
-      'Add your social platforms and enter current stats',
+      'Pick a platform and type in the numbers from its insights page',
       'Update numbers weekly to track trends over time',
       'View engagement rates, growth velocity, and comparisons',
       'Identify your best-performing content and platforms',
@@ -723,15 +723,15 @@ export const toolContentData: Record<string, ToolContent> = {
     faqs: [
       {
         q: 'Does it pull data automatically?',
-        a: 'Currently you enter stats manually. It\'s a bit of work upfront but means no API permissions or security concerns.',
+        a: 'No. You type the numbers in yourself. That means you never give us your passwords or account access, and your numbers stay on your own phone or computer.',
       },
       {
         q: 'What metrics does it track?',
-        a: 'Followers, engagement rate, posting frequency, reach, and growth percentage. You can add custom metrics too.',
+        a: 'Followers, posts, views, likes, comments and shares. From those it works out engagement per view, engagement per follower, views per post and your growth since the last entry.',
       },
       {
         q: 'Can I export reports?',
-        a: 'Yes, download your analytics as PDF or CSV. Great for brand pitches or monthly reviews.',
+        a: 'Yes, download all your entries as a CSV file that opens in Excel or Google Sheets. Handy for brand pitches or monthly reviews.',
       },
     ],
   },

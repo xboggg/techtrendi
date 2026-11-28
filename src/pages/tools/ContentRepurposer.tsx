@@ -8,11 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Share2, Copy, Check, Sparkles, Twitter, Linkedin, Mail, FileText,
-  Crown, Loader2, RefreshCw, MessageSquare, Hash, Zap
+  Loader2, RefreshCw, MessageSquare, Hash, Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
+import { AI_TOOLS_URL, AI_MODEL, AI_REASONING_EFFORT } from "@/lib/aiProxy";
 
 interface GeneratedContent {
   tweets: string[];
@@ -23,8 +23,6 @@ interface GeneratedContent {
 }
 
 export default function ContentRepurposer() {
-  const { user, subscription } = useAuth();
-  const isPremium = subscription?.subscribed;
 
   const [originalContent, setOriginalContent] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -32,39 +30,79 @@ export default function ContentRepurposer() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleGenerate = async () => {
-    if (!originalContent.trim()) {
+    const text = originalContent.trim();
+    if (!text) {
       toast.error("Please enter some content to repurpose");
       return;
     }
-
-    if (!isPremium) {
-      toast.error("Premium required to use AI content generation");
+    if (text.split(/\s+/).length < 30) {
+      toast.error("Paste at least 30 words so there is enough to work with");
       return;
     }
 
     setIsGenerating(true);
+    // Free for everyone since 28 Nov 2026. Before, it sat behind a "premium" wall
+    // and even then only filled in templates ("[Key insight from your content]").
+    const prompt = `Repurpose the content below into social posts. Use ONLY facts, numbers and claims that are in the content. Never invent statistics, quotes, names or results. Write in the same language as the content. Keep the writer's voice. No placeholders like [Your Name] or [Point 1].
 
-    // Simulate AI generation (in real app, this would call an API)
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+Return ONLY a JSON object with these keys:
+- "tweets": an array of 3 strings. The first is a short thread (3-5 numbered posts in one string, separated by blank lines). Each single post under 280 characters.
+- "linkedin": one LinkedIn post (120-220 words), short paragraphs, 3 relevant hashtags at the end.
+- "emailNewsletter": a short newsletter that starts with "Subject: ..." on the first line.
+- "instagramCaption": a caption (60-120 words) with 5-8 relevant hashtags at the end.
+- "summary": a 1-2 sentence TL;DR.
 
-    // Generate mock content based on input
-    const words = originalContent.split(" ").slice(0, 10).join(" ");
-    const shortContent = originalContent.substring(0, 200);
+CONTENT:
+"""
+${text.slice(0, 12000)}
+"""`;
 
-    setGeneratedContent({
-      tweets: [
-        `🧵 Thread: ${words}...\n\nHere's what I learned:\n\n1/ [Key insight from your content]\n2/ [Another important point]\n3/ [Actionable takeaway]\n\nSave this for later! ⬇️`,
-        `Did you know? ${shortContent.substring(0, 100)}...\n\nRetweet to share! 🔄`,
-        `Hot take: ${words}...\n\nAgree or disagree? Let me know in the replies 👇`,
-      ],
-      linkedin: `I've been thinking about ${words}...\n\n${shortContent}\n\nHere are my key takeaways:\n\n✅ Point 1\n✅ Point 2\n✅ Point 3\n\nWhat's your experience with this? Share in the comments!\n\n#Professional #Insights #Growth`,
-      emailNewsletter: `Subject: ${words}...\n\nHey there,\n\nI wanted to share something important with you today.\n\n${shortContent}\n\nHere's why this matters:\n\n1. First reason\n2. Second reason\n3. Third reason\n\nTake action today by [specific call to action].\n\nBest,\n[Your Name]`,
-      instagramCaption: `${words}... ✨\n\n${shortContent.substring(0, 150)}...\n\nDouble tap if you agree! ❤️\n\n.\n.\n.\n#ContentCreator #Tips #Motivation #Success #Growth`,
-      summary: `TL;DR: ${shortContent.substring(0, 150)}...`,
-    });
-
-    setIsGenerating(false);
-    toast.success("Content generated!");
+    try {
+      const response = await fetch(AI_TOOLS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: AI_MODEL,
+          reasoning_effort: AI_REASONING_EFFORT,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: "You turn long content into social posts. Reply with one valid JSON object only." },
+            { role: "user", content: prompt },
+          ],
+          temperature: 0.7,
+          max_tokens: 3000,
+        }),
+      });
+      if (!response.ok) {
+        if (response.status === 429) throw new Error("Too many requests. Wait a minute and try again.");
+        throw new Error(`The AI is not answering right now (${response.status}). Try again in a minute.`);
+      }
+      const data = await response.json();
+      let raw: string = data?.choices?.[0]?.message?.content ?? "";
+      raw = raw.replace(/^```[a-z]*\s*/i, "").replace(/```\s*$/, "").trim();
+      const parsed = JSON.parse(raw);
+      const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+      const tweets = Array.isArray(parsed.tweets) ? parsed.tweets.map(str).filter(Boolean).slice(0, 3) : [];
+      const out: GeneratedContent = {
+        tweets,
+        linkedin: str(parsed.linkedin),
+        emailNewsletter: str(parsed.emailNewsletter),
+        instagramCaption: str(parsed.instagramCaption),
+        summary: str(parsed.summary),
+      };
+      if (!out.tweets.length && !out.linkedin && !out.instagramCaption) {
+        throw new Error("The AI gave an empty answer. Please try again.");
+      }
+      setGeneratedContent(out);
+      toast.success("Content generated!");
+    } catch (err) {
+      const msg = err instanceof Error && !(err instanceof SyntaxError)
+        ? err.message
+        : "The AI answer came back broken. Please try again.";
+      toast.error(msg);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const copyToClipboard = (content: string, id: string) => {
@@ -92,17 +130,17 @@ export default function ContentRepurposer() {
   return (
     <Layout>
       <SEOHead
-        title="Content Repurposer - Turn One Post Into Many | TechTrendi"
+        title="Content Repurposer - Turn One Post Into Many"
         description="Turn one blog post into Twitter threads, LinkedIn posts, email newsletters, and Instagram captions with AI. Save hours of content creation."
-        canonicalUrl="https://techtrendi.com/tools/content-repurposer"
+        canonical="/tools/content-repurposer"
       />
 
       <div className="container py-12 md:py-20 max-w-5xl">
         {/* Header */}
         <div className="text-center mb-12">
-          <Badge className="mb-4 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-            <Crown className="w-3 h-3 mr-1" />
-            Premium Tool
+          <Badge className="mb-4 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+            <Sparkles className="w-3 h-3 mr-1" />
+            Free AI Tool
           </Badge>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Content <span className="text-primary">Repurposer</span>
@@ -142,7 +180,7 @@ For example:
                   </span>
                   <Button
                     onClick={handleGenerate}
-                    disabled={isGenerating || !originalContent.trim() || !isPremium}
+                    disabled={isGenerating || !originalContent.trim()}
                     className="min-w-[150px]"
                   >
                     {isGenerating ? (
@@ -303,23 +341,6 @@ For example:
           </div>
         </div>
 
-        {!isPremium && (
-          <Card className="mt-8 border-primary/30 bg-primary/5">
-            <CardContent className="pt-6 text-center">
-              <Crown className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">Upgrade to Premium</h3>
-              <p className="text-muted-foreground mb-4">
-                Unlock AI-powered content repurposing and save hours of work every week.
-              </p>
-              <Button asChild>
-                <a href="/auth">
-                  <Crown className="w-4 h-4 mr-2" />
-                  Get Premium - $4.99/month
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </Layout>
   );

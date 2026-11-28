@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { SEOHead } from "@/components/seo/SEOHead";
-import { ToolContentSection } from "@/components/tools/ToolContentSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -245,7 +244,6 @@ export default function ECGBillEstimator() {
           </div>
         </div>
 
-        <ToolContentSection toolId="ecg-bill-estimator" />
       </div>
     </Layout>
   );

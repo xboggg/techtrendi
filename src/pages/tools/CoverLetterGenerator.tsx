@@ -15,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMounted } from "@/hooks/useMounted";
 
 interface CoverLetterData {
   // Personal Info
@@ -70,26 +71,29 @@ const tones = [
 
 const STORAGE_KEY = "techtrendi_coverletter_data";
 
-export default function CoverLetterGenerator() {
+function CoverLetterGeneratorPage() {
   const { user } = useAuth();
+  // No sign-in needed (28 Nov 2026): data stays in this browser either way.
+  const storeId = user?.id ?? "guest";
+  const mounted = useMounted();
   const [data, setData] = useState<CoverLetterData>(defaultData);
   const [copied, setCopied] = useState(false);
   const [step, setStep] = useState(1);
 
   useEffect(() => {
-    if (user) {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_${user.id}`);
+    {
+      const saved = localStorage.getItem(`${STORAGE_KEY}_${storeId}`);
       if (saved) {
         setData(JSON.parse(saved));
       }
     }
-  }, [user]);
+  }, [storeId]);
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem(`${STORAGE_KEY}_${user.id}`, JSON.stringify(data));
+    {
+      localStorage.setItem(`${STORAGE_KEY}_${storeId}`, JSON.stringify(data));
     }
-  }, [data, user]);
+  }, [data, storeId]);
 
   const updateData = (updates: Partial<CoverLetterData>) => {
     setData((prev) => ({ ...prev, ...updates }));
@@ -153,7 +157,7 @@ export default function CoverLetterGenerator() {
       day: "numeric",
     });
 
-    let letter = `${data.fullName || "[Your Name]"}
+    const letter = `${data.fullName || "[Your Name]"}
 ${data.location || "[Your Location]"}
 ${data.email || "[Your Email]"}
 ${data.phone || "[Your Phone]"}
@@ -203,32 +207,6 @@ ${data.fullName || "[Your Name]"}`;
     toast.success("Form reset");
   };
 
-  if (!user) {
-    return (
-      <Layout>
-        <SEOHead
-          title="Cover Letter Generator - Create Professional Cover Letters | TechTrendi"
-          description="Generate professional cover letters instantly. Customize tone, highlight skills, and stand out from other applicants."
-          canonicalUrl="https://techtrendi.com/tools/cover-letter-generator"
-        />
-        <div className="container py-12 md:py-20 max-w-2xl">
-          <Card className="border-primary/30 bg-primary/5">
-            <CardContent className="pt-6 text-center">
-              <FileText className="w-16 h-16 text-primary mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-2">Cover Letter Generator</h1>
-              <p className="text-muted-foreground mb-6">
-                Create professional cover letters that help you stand out. Sign in to get started.
-              </p>
-              <Button asChild size="lg">
-                <a href="/auth">Sign In to Continue</a>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </Layout>
-    );
-  }
-
   return (
     <Layout>
       <SEOHead
@@ -236,6 +214,8 @@ ${data.fullName || "[Your Name]"}`;
         description="Generate professional cover letters instantly. Customize tone, highlight skills, and stand out from other applicants."
         canonicalUrl="https://techtrendi.com/tools/cover-letter-generator"
       />
+      {mounted ? (
+      <>
 
       <div className="container py-12 md:py-20 max-w-6xl">
         {/* Header */}
@@ -530,6 +510,18 @@ ${data.fullName || "[Your Name]"}`;
           </div>
         </div>
       </div>
+      </>
+      ) : (
+        <div className="container py-24 text-center text-muted-foreground" aria-busy="true">Loading the tool...</div>
+      )}
     </Layout>
   );
+}
+
+// A new owner (sign in, sign out, another account) gets a fresh copy of the page,
+// so one person's saved data can never be written into another person's storage
+// (Codex review, PR #84).
+export default function CoverLetterGenerator() {
+  const { user } = useAuth();
+  return <CoverLetterGeneratorPage key={user?.id ?? "guest"} />;
 }

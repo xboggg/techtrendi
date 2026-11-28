@@ -27,7 +27,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
 import { CurrencySelector } from "@/components/tools/CurrencySelector";
 import { getCurrencyInfo, getPreferredCurrency, setPreferredCurrency } from "@/lib/currencies";
 
@@ -72,7 +71,6 @@ const popularServices = [
 ];
 
 export default function SubscriptionTracker() {
-  const { user } = useAuth();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -495,18 +493,9 @@ export default function SubscriptionTracker() {
               </CardContent>
             </Card>
 
-            {!user && (
-              <Card className="border-primary/30 bg-primary/5">
-                <CardContent className="pt-6">
-                  <p className="text-sm text-center">
-                    <strong>Sign in</strong> to save your subscriptions and access them anywhere!
-                  </p>
-                  <Button className="w-full mt-4" asChild>
-                    <a href="/auth">Sign In Free</a>
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
+            <p className="mt-6 text-center text-xs text-muted-foreground">
+            Saved on this phone or computer only. Nothing is sent to us. Clearing your browser data deletes it.
+          </p>
           </div>
         </div>
       </div>

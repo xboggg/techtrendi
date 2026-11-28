@@ -15,17 +15,19 @@ interface HistoryEntry extends SpeedResult {
   id: string;
 }
 
-// Test file URLs - using various sized public CDN resources
-const TEST_FILES = [
-  // ~100KB files for initial calibration
-  'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js',
-  // ~200KB+ files for better measurement
-  'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
-  // Additional test endpoints
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.mjs',
-];
+// Measured against Cloudflare's public speed test service (speed.cloudflare.com),
+// which allows any website to use it (CORS *). Before 28 Nov 2026 this tool used
+// small CDN files that our Content-Security-Policy blocked, so everyone got 0 Mbps,
+// and the upload figure was a random guess. Nothing is guessed now.
+const CF = "https://speed.cloudflare.com";
+// Sizes grow until one request takes long enough to measure well. We stop early on
+// slow lines so a test never eats much mobile data.
+const DOWN_SIZES = [100_000, 1_000_000, 5_000_000, 15_000_000]; // at most ~21 MB
+const UP_SIZES = [100_000, 1_000_000, 4_000_000]; // at most ~5 MB
+const ENOUGH_SECONDS = 2.5; // a request this long is a good measurement: stop growing
+const MAX_TOTAL_SECONDS = 12; // never run a phase longer than this
 
-const PING_URL = 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.core.min.js';
+const mbps = (bytes: number, seconds: number) => (seconds > 0 ? (bytes * 8) / seconds / 1_000_000 : 0);
 
 export function SpeedTest({ className }: { className?: string }) {
   const [testing, setTesting] = useState(false);
@@ -35,177 +37,112 @@ export function SpeedTest({ className }: { className?: string }) {
   const [liveSpeed, setLiveSpeed] = useState(0);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [dataUsedMB, setDataUsedMB] = useState<number | null>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem('speed_test_history');
       if (stored) setHistory(JSON.parse(stored));
-    } catch {}
+    } catch { /* storage blocked */ }
   }, []);
 
   const saveHistory = (entry: SpeedResult) => {
     const newEntry: HistoryEntry = { ...entry, id: Date.now().toString() };
     const updated = [newEntry, ...history].slice(0, 20);
     setHistory(updated);
-    try { localStorage.setItem('speed_test_history', JSON.stringify(updated)); } catch {}
+    try { localStorage.setItem('speed_test_history', JSON.stringify(updated)); } catch { /* storage blocked */ }
   };
 
   const clearHistory = () => {
     setHistory([]);
-    try { localStorage.removeItem('speed_test_history'); } catch {}
+    try { localStorage.removeItem('speed_test_history'); } catch { /* storage blocked */ }
   };
 
   const measurePing = async (): Promise<{ ping: number; jitter: number }> => {
     const pings: number[] = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 8; i++) {
       try {
         const start = performance.now();
-        await fetch(PING_URL + `?_=${Date.now()}_${i}`, {
-          method: 'HEAD',
-          cache: 'no-store',
-          mode: 'cors',
-        });
-        const elapsed = performance.now() - start;
-        pings.push(elapsed);
+        const r = await fetch(`${CF}/__down?bytes=0&_=${Date.now()}_${i}`, { cache: "no-store" });
+        await r.arrayBuffer();
+        pings.push(performance.now() - start);
       } catch {
-        // Try no-cors as fallback
-        try {
-          const start = performance.now();
-          await fetch(`https://www.google.com/favicon.ico?_=${Date.now()}_${i}`, {
-            mode: 'no-cors',
-            cache: 'no-store',
-          });
-          pings.push(performance.now() - start);
-        } catch {}
+        // skip this sample
       }
     }
-
     if (pings.length === 0) return { ping: 0, jitter: 0 };
-
-    // Remove outliers (highest and lowest if we have enough samples)
-    const sorted = [...pings].sort((a, b) => a - b);
-    const trimmed = sorted.length > 3 ? sorted.slice(1, -1) : sorted;
-
-    const avgPing = trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
-
-    // Jitter = average deviation between consecutive pings
+    // The first request also opens the connection, so drop it when we can.
+    const samples = pings.length > 3 ? pings.slice(1) : pings;
+    const sorted = [...samples].sort((a, b) => a - b);
+    const median = sorted[Math.floor(sorted.length / 2)];
     let jitterSum = 0;
-    for (let i = 1; i < trimmed.length; i++) {
-      jitterSum += Math.abs(trimmed[i] - trimmed[i - 1]);
-    }
-    const jitter = trimmed.length > 1 ? jitterSum / (trimmed.length - 1) : 0;
-
-    return { ping: Math.round(avgPing), jitter: Math.round(jitter) };
+    for (let i = 1; i < samples.length; i++) jitterSum += Math.abs(samples[i] - samples[i - 1]);
+    const jitter = samples.length > 1 ? jitterSum / (samples.length - 1) : 0;
+    return { ping: Math.round(median), jitter: Math.round(jitter) };
   };
 
-  const measureDownload = async (onProgress: (speed: number, pct: number) => void): Promise<number> => {
-    const speeds: number[] = [];
-    let totalBytes = 0;
-    let totalTime = 0;
-
-    for (let i = 0; i < TEST_FILES.length; i++) {
+  const measureDownload = async (onProgress: (speed: number, pct: number) => void): Promise<{ speed: number; bytes: number }> => {
+    let last = 0;
+    let usedBytes = 0;
+    const phaseStart = performance.now();
+    for (let i = 0; i < DOWN_SIZES.length; i++) {
       try {
-        const cacheBust = `?_cb=${Date.now()}_${i}`;
-        const start = performance.now();
-        const response = await fetch(TEST_FILES[i] + cacheBust, { cache: 'no-store' });
-
-        if (!response.ok) continue;
-
-        const reader = response.body?.getReader();
-        if (!reader) {
-          // Fallback: just read the blob
-          const blob = await response.blob();
-          const elapsed = (performance.now() - start) / 1000;
-          const sizeMB = blob.size / (1024 * 1024);
-          totalBytes += blob.size;
-          totalTime += elapsed;
-          if (elapsed > 0) {
-            const speed = (sizeMB * 8) / elapsed; // Mbps
-            speeds.push(speed);
-            onProgress(speed, ((i + 1) / TEST_FILES.length) * 100);
-          }
-          continue;
-        }
-
-        // Stream reading for more accurate measurement
-        let receivedBytes = 0;
-        while (true) {
+        const res = await fetch(`${CF}/__down?bytes=${DOWN_SIZES[i]}&_=${Date.now()}`, { cache: "no-store" });
+        if (!res.ok || !res.body) break;
+        const reader = res.body.getReader();
+        const t0 = performance.now(); // headers are in: time only the data transfer
+        let got = 0;
+        for (;;) {
           const { done, value } = await reader.read();
           if (done) break;
-          receivedBytes += value.length;
-          const elapsed = (performance.now() - start) / 1000;
-          if (elapsed > 0) {
-            const currentSpeed = ((receivedBytes / (1024 * 1024)) * 8) / elapsed;
-            onProgress(currentSpeed, ((i + receivedBytes / (receivedBytes + 50000)) / TEST_FILES.length) * 100);
-          }
+          got += value.length;
+          const sec = (performance.now() - t0) / 1000;
+          if (sec > 0.05) onProgress(mbps(got, sec), ((i + got / DOWN_SIZES[i]) / DOWN_SIZES.length) * 100);
         }
-
-        const elapsed = (performance.now() - start) / 1000;
-        totalBytes += receivedBytes;
-        totalTime += elapsed;
-        if (elapsed > 0) {
-          const speed = ((receivedBytes / (1024 * 1024)) * 8) / elapsed;
-          speeds.push(speed);
-        }
+        const sec = (performance.now() - t0) / 1000;
+        usedBytes += got;
+        // Keep the LAST (largest) sample: sizes grow until one is long enough to
+        // measure well, and a tiny first request can be served from a buffer.
+        last = mbps(got, sec);
+        if (sec >= ENOUGH_SECONDS || (performance.now() - phaseStart) / 1000 >= MAX_TOTAL_SECONDS) break;
       } catch {
-        continue;
+        break;
       }
     }
-
-    // Use weighted average favoring later (larger) downloads
-    if (speeds.length === 0) return 0;
-    if (totalTime > 0) {
-      return (totalBytes / (1024 * 1024)) * 8 / totalTime;
-    }
-    return speeds.reduce((a, b) => a + b, 0) / speeds.length;
+    return { speed: last, bytes: usedBytes };
   };
 
-  const measureUpload = async (onProgress: (speed: number, pct: number) => void): Promise<number> => {
-    // Generate test data chunks
-    const chunkSizes = [256 * 1024, 512 * 1024, 1024 * 1024]; // 256KB, 512KB, 1MB
-    const speeds: number[] = [];
-
-    for (let i = 0; i < chunkSizes.length; i++) {
+  const measureUpload = async (
+    pingMs: number,
+    onProgress: (speed: number, pct: number) => void,
+  ): Promise<{ speed: number; bytes: number }> => {
+    let last = 0;
+    let usedBytes = 0;
+    const phaseStart = performance.now();
+    for (let i = 0; i < UP_SIZES.length; i++) {
       try {
-        const data = new Uint8Array(chunkSizes[i]);
-        // Fill with random-ish data to prevent compression
-        for (let j = 0; j < data.length; j += 4) {
-          data[j] = (j * 17 + i * 31) & 0xFF;
-          if (j + 1 < data.length) data[j + 1] = (j * 23 + i * 37) & 0xFF;
-          if (j + 2 < data.length) data[j + 2] = (j * 29 + i * 41) & 0xFF;
-          if (j + 3 < data.length) data[j + 3] = (j * 31 + i * 43) & 0xFF;
+        // Random bytes so nothing on the way can compress them.
+        const data = new Uint8Array(UP_SIZES[i]);
+        for (let off = 0; off < data.length; off += 65536) {
+          crypto.getRandomValues(data.subarray(off, Math.min(off + 65536, data.length)));
         }
-        const blob = new Blob([data]);
-
-        const start = performance.now();
-        // POST to a public endpoint that accepts data
-        // Since we can't easily upload to a server, we measure the time to create and send the request
-        // Using httpbin or similar services
-        try {
-          await fetch('https://httpbin.org/post', {
-            method: 'POST',
-            body: blob,
-            cache: 'no-store',
-          });
-          const elapsed = (performance.now() - start) / 1000;
-          if (elapsed > 0) {
-            const sizeMB = chunkSizes[i] / (1024 * 1024);
-            const speed = (sizeMB * 8) / elapsed;
-            speeds.push(speed);
-            onProgress(speed, ((i + 1) / chunkSizes.length) * 100);
-          }
-        } catch {
-          // If httpbin fails, estimate upload from download speed
-          // Typical upload is 30-50% of download for asymmetric connections
-          break;
-        }
+        const t0 = performance.now();
+        const res = await fetch(`${CF}/__up`, { method: "POST", body: data, cache: "no-store" });
+        await res.arrayBuffer();
+        if (!res.ok) break;
+        // Take away one round trip (the reply), but never more than half the time.
+        const raw = (performance.now() - t0) / 1000;
+        const sec = Math.max(raw - pingMs / 1000, raw / 2);
+        usedBytes += UP_SIZES[i];
+        last = mbps(UP_SIZES[i], sec);
+        onProgress(last, ((i + 1) / UP_SIZES.length) * 100);
+        if (raw >= ENOUGH_SECONDS || (performance.now() - phaseStart) / 1000 >= MAX_TOTAL_SECONDS) break;
       } catch {
-        continue;
+        break;
       }
     }
-
-    if (speeds.length === 0) return -1; // Signal to estimate
-    return speeds.reduce((a, b) => a + b, 0) / speeds.length;
+    return { speed: last, bytes: usedBytes };
   };
 
   const runSpeedTest = useCallback(async () => {
@@ -226,23 +163,23 @@ export function SpeedTest({ className }: { className?: string }) {
 
     // Phase 2: Download test
     setCurrentTest('download');
-    const downloadSpeed = await measureDownload((speed, pct) => {
+    const down = await measureDownload((speed, pct) => {
       setLiveSpeed(Math.round(speed * 10) / 10);
       setProgress(15 + (pct / 100) * 50);
     });
-    results.download = Math.round(downloadSpeed * 10) / 10;
+    results.download = Math.round(down.speed * 10) / 10;
     setProgress(65);
 
     // Phase 3: Upload test
     setCurrentTest('upload');
-    const uploadSpeed = await measureUpload((speed, pct) => {
+    const up = await measureUpload(results.ping, (speed, pct) => {
       setLiveSpeed(Math.round(speed * 10) / 10);
       setProgress(65 + (pct / 100) * 30);
     });
-    // If upload test failed, estimate from download
-    results.upload = uploadSpeed === -1
-      ? Math.round(results.download * (0.25 + Math.random() * 0.15) * 10) / 10
-      : Math.round(uploadSpeed * 10) / 10;
+    // A failed upload shows 0 with a note. We never make a number up.
+    results.upload = Math.round(up.speed * 10) / 10;
+    setDataUsedMB(Math.round(((down.bytes + up.bytes) / 1_000_000) * 10) / 10);
+    setFailed(results.download === 0);
     setProgress(100);
 
     setResult(results);
@@ -351,6 +288,9 @@ export function SpeedTest({ className }: { className?: string }) {
             <p className="text-muted-foreground mb-6">
               Measure your download speed, upload speed, and latency
             </p>
+            <p className="text-xs text-muted-foreground mb-6 -mt-4">
+              Uses up to about 26 MB of data on a fast line, much less on a slow one. On mobile data, that comes from your bundle.
+            </p>
             <Button onClick={runSpeedTest} size="lg" className="px-8">
               <Play className="w-5 h-5 mr-2" /> Start Speed Test
             </Button>
@@ -421,6 +361,11 @@ export function SpeedTest({ className }: { className?: string }) {
         {/* Results */}
         {result && !showHistory && (
           <div className="w-full space-y-6 animate-in fade-in duration-500">
+            {failed && (
+              <p className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm">
+                The test could not reach the speed test server. Check that you are online, turn off any ad blocker for this page, and try again.
+              </p>
+            )}
             {/* Gauges */}
             <div className="flex items-end justify-around py-4">
               <SpeedGauge
@@ -505,6 +450,10 @@ export function SpeedTest({ className }: { className?: string }) {
                 </div>
               </div>
             </div>
+
+            <p className="text-xs text-muted-foreground text-center">
+              Tested with Cloudflare's speed test server{dataUsedMB !== null ? ` · this test used about ${dataUsedMB} MB of data` : ""}.
+            </p>
 
             {/* What you can do */}
             <div className="bg-muted/30 rounded-lg p-4 border border-border">

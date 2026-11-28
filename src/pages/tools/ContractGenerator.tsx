@@ -15,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMounted } from "@/hooks/useMounted";
 
 interface ContractData {
   type: string;
@@ -66,26 +67,29 @@ const defaultData: ContractData = {
 
 const STORAGE_KEY = "techtrendi_contract_data";
 
-export default function ContractGenerator() {
+function ContractGeneratorPage() {
   const { user } = useAuth();
+  // No sign-in needed (28 Nov 2026): data stays in this browser either way.
+  const storeId = user?.id ?? "guest";
+  const mounted = useMounted();
   const [data, setData] = useState<ContractData>(defaultData);
   const [copied, setCopied] = useState(false);
   const [step, setStep] = useState(1);
 
   useEffect(() => {
-    if (user) {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_${user.id}`);
+    {
+      const saved = localStorage.getItem(`${STORAGE_KEY}_${storeId}`);
       if (saved) {
         setData(JSON.parse(saved));
       }
     }
-  }, [user]);
+  }, [storeId]);
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem(`${STORAGE_KEY}_${user.id}`, JSON.stringify(data));
+    {
+      localStorage.setItem(`${STORAGE_KEY}_${storeId}`, JSON.stringify(data));
     }
-  }, [data, user]);
+  }, [data, storeId]);
 
   const updateData = (updates: Partial<ContractData>) => {
     setData((prev) => ({ ...prev, ...updates }));
@@ -350,32 +354,6 @@ ${data.clientName} (Client)
     toast.success("Contract downloaded!");
   };
 
-  if (!user) {
-    return (
-      <Layout>
-        <SEOHead
-          title="Contract Generator - Create Legal Contracts | TechTrendi"
-          description="Generate professional contracts for freelancers. Create NDAs, service agreements, and more."
-          canonicalUrl="https://techtrendi.com/tools/contract-generator"
-        />
-        <div className="container py-12 md:py-20 max-w-2xl">
-          <Card className="border-primary/30 bg-primary/5">
-            <CardContent className="pt-6 text-center">
-              <FileText className="w-16 h-16 text-primary mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-2">Contract Generator</h1>
-              <p className="text-muted-foreground mb-6">
-                Generate professional contracts for your freelance work. Sign in to get started.
-              </p>
-              <Button asChild size="lg">
-                <a href="/auth">Sign In to Continue</a>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </Layout>
-    );
-  }
-
   return (
     <Layout>
       <SEOHead
@@ -383,6 +361,8 @@ ${data.clientName} (Client)
         description="Generate professional contracts for freelancers. Create NDAs, service agreements, consulting contracts, and more."
         canonicalUrl="https://techtrendi.com/tools/contract-generator"
       />
+      {mounted ? (
+      <>
 
       <div className="container py-12 md:py-20 max-w-5xl">
         {/* Header */}
@@ -678,6 +658,18 @@ ${data.clientName} (Client)
           </div>
         </div>
       </div>
+      </>
+      ) : (
+        <div className="container py-24 text-center text-muted-foreground" aria-busy="true">Loading the tool...</div>
+      )}
     </Layout>
   );
+}
+
+// A new owner (sign in, sign out, another account) gets a fresh copy of the page,
+// so one person's saved data can never be written into another person's storage
+// (Codex review, PR #84).
+export default function ContractGenerator() {
+  const { user } = useAuth();
+  return <ContractGeneratorPage key={user?.id ?? "guest"} />;
 }
