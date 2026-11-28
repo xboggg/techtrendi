@@ -53,11 +53,12 @@ const host = (u: string) => u.replace(/^https?:\/\/(www\.)?/, "").split("/")[0];
 const day = (iso: string) =>
   new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
-function readParam(name: string): string {
+// null = the link has no such parameter; "" = the parameter is there but empty
+function readParam(name: string): string | null {
   try {
-    return new URLSearchParams(window.location.search).get(name) || "";
+    return new URLSearchParams(window.location.search).get(name);
   } catch {
-    return "";
+    return null;
   }
 }
 
@@ -112,26 +113,33 @@ export default function PhoneComparison() {
         const slugs = new Set(data.map((p) => p.slug));
         const qa = readParam("a");
         const qb = readParam("b");
-        setA(slugs.has(qa) ? qa : data[0]?.slug ?? "");
-        setB(slugs.has(qb) ? qb : data[1]?.slug ?? "");
+        // Default pair only when the link names no phones at all; a shared link keeps
+        // exactly what it says, including an empty choice.
+        const fromLink = qa !== null || qb !== null;
+        const pick = (q: string | null, fallback: string) =>
+          q !== null && slugs.has(q) ? q : fromLink ? "" : fallback;
+        setA(pick(qa, data[0]?.slug ?? ""));
+        setB(pick(qb, data[1]?.slug ?? ""));
       });
     return () => {
       alive = false;
     };
   }, []);
 
-  // Shareable link: ?a=<slug>&b=<slug>
+  // Shareable link: ?a=<slug>&b=<slug>. Written only after the list has loaded, so the
+  // link a visitor arrived with is never overwritten before it is read. A cleared choice
+  // is kept as an empty parameter (a=) so a reload or a shared link stays cleared.
   useEffect(() => {
-    if (!a && !b) return;
+    if (!phones || failed) return;
     try {
       const u = new URL(window.location.href);
-      if (a) u.searchParams.set("a", a);
-      if (b) u.searchParams.set("b", b);
+      u.searchParams.set("a", a);
+      u.searchParams.set("b", b);
       window.history.replaceState(null, "", u.toString());
     } catch {
       // ignore
     }
-  }, [a, b]);
+  }, [a, b, phones, failed]);
 
   const pa = phones?.find((p) => p.slug === a);
   const pb = phones?.find((p) => p.slug === b);
