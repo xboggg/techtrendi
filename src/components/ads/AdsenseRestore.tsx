@@ -5,8 +5,9 @@ import { useLocation } from "react-router-dom";
 const ADSENSE_SRC = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3437377907350211";
 const RELOADED_KEY = "tt-adfree-reload";
 
-/** Paid sponsor pages: no Google ads (their HTML has no AdSense loader, see scripts/strip-ads-sponsored.mjs). */
-const isAdFreePath =(path: string) => path.startsWith("/sponsored/");
+/** No Google ads on: paid sponsor pages (their HTML has no AdSense loader, see scripts/strip-ads-sponsored.mjs),
+ *  and the short-link safety page /s/<code>, whose only job is to show where a link goes. */
+const isAdFreePath = (path: string) => path.startsWith("/sponsored/") || path.startsWith("/s/");
 
 // Starts Google AdSense once the page has started (this runs only after hydration,
 // inside <ClientOnly>), and keeps Auto ads off sponsor pages:

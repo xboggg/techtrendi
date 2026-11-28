@@ -59,7 +59,8 @@ const EXCLUDE_EXACT = new Set(["404", "200", "offline", "design-demo", "reading-
 // "sponsored": paid ad pages (src/data/sponsors.ts) are noindex, so never listed.
 // "careers": the jobs board is noindex until CAREERS_INDEXED (src/lib/careers.ts; D-025).
 // Keep "tools-preview" last (checked by the data bundles launch test L4).
-const EXCLUDE_PREFIX = ["admin", "auth", "profile", "dashboard", "arcade", "sponsored", "careers", "tools-preview"];
+// "s": the short-link safety page shell (s/check.html, noindex) is not a real page.
+const EXCLUDE_PREFIX = ["admin", "auth", "profile", "dashboard", "arcade", "sponsored", "careers", "s", "tools-preview"];
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
