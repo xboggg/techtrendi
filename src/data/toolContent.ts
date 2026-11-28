@@ -2178,20 +2178,6 @@ export const toolContentData: Record<string, ToolContent> = {
     { q: "Can I compare different crops?", a: "Yes. Run the calculator for each crop you are considering and compare the projected profits. This helps you decide what to plant if you have limited land." },
   ],
 },
-"phone-comparison": {
-  intro: "Compare smartphones side by side — specs, prices, cameras, battery life, and more. Enter two or more models and get a clear breakdown of how they stack up against each other.",
-  howTo: [
-    "Search for and select the phones you want to compare.",
-    "View the side-by-side spec comparison.",
-    "Read the summary highlighting key differences and which phone wins in each category.",
-  ],
-  whyNeedIt: "Choosing a new phone is overwhelming with hundreds of models on the market. Spec sheets are hard to compare when they are on different websites in different formats. This tool puts everything in one table so the differences are obvious.",
-  faqs: [
-    { q: "How many phones can I compare at once?", a: "You can compare two or more phones simultaneously. Comparing more than three at once gets crowded, so two or three is the sweet spot for readability." },
-    { q: "Does it include phone prices?", a: "Yes, where available. Prices vary by region and retailer, so use them as a general guide. The tool tries to show current market prices." },
-    { q: "Are budget phones included?", a: "Yes. The database covers phones across all price ranges, from budget devices to flagships. Not everyone needs the most expensive phone — sometimes a mid-range model does everything you need." },
-  ],
-},
 "upgrade-calculator": {
   intro: "Trying to decide whether to upgrade your phone, laptop, or other tech? Enter your current device and the upgrade you are considering, and see if the performance improvement justifies the cost.",
   howTo: [
