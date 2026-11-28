@@ -327,9 +327,32 @@ switch ($section) {
                 exit;
             }
         }
-        // Tools are not in DB — generate title from slug
-        $tool_title = ucwords(str_replace('-', ' ', $slug));
+        // Every tool page is prerendered with its own title, description and share picture
+        // (/og/tools/<id>.jpg, 28 Nov 2026), so read them from that page, like the memes below.
         $og_url = $SITE_URL . '/tools/' . $slug;
+        if (preg_match('#^[a-z0-9-]{2,80}$#', $slug)) {
+            $html = @file_get_contents(__DIR__ . '/tools/' . $slug . '.html');
+            $og = [];
+            if ($html !== false) {
+                foreach (['title', 'description', 'image'] as $k) {
+                    if (preg_match('#<meta[^>]*property="og:' . $k . '"[^>]*content="([^"]*)"#', $html, $mm)
+                        || preg_match('#<meta[^>]*content="([^"]*)"[^>]*property="og:' . $k . '"#', $html, $mm)) {
+                        $og[$k] = html_entity_decode($mm[1], ENT_QUOTES, 'UTF-8');
+                    }
+                }
+            }
+            if (count($og) === 3) {
+                $t = preg_replace('/\s*\|\s*TechTrendi\s*$/i', '', $og['title']);
+                serve_og(
+                    htmlspecialchars($t, ENT_QUOTES, 'UTF-8'),
+                    htmlspecialchars($og['description'], ENT_QUOTES, 'UTF-8'),
+                    $og['image'], 'image/jpeg', $og_url, '', '', '', 'website'
+                );
+                exit;
+            }
+        }
+        // Fallback: title from the address
+        $tool_title = ucwords(str_replace('-', ' ', $slug));
         serve_og(
             htmlspecialchars($tool_title . ' - Free Online Tool', ENT_QUOTES, 'UTF-8'),
             htmlspecialchars($tool_title . ' - Free online tool by TechTrendi. No signup required.', ENT_QUOTES, 'UTF-8'),
