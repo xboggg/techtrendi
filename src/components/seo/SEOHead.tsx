@@ -3,6 +3,7 @@
 // the SSG build, which is why per-page titles were generic. Same JSX children.
 import { Head } from 'vite-react-ssg';
 import { useLocation } from 'react-router-dom';
+import { TOOL_OG_IMAGES } from '@/data/toolOgImages';
 
 interface SEOHeadProps {
   title: string;
@@ -84,7 +85,12 @@ export function SEOHead({
   const fullUrl = canonicalPath.startsWith('http')
     ? canonicalPath
     : `${SITE_URL}${canonicalPath.startsWith('/') ? canonicalPath : `/${canonicalPath}`}`;
-  const imageUrl = image ? (image.startsWith('http') ? image : `${SITE_URL}${image}`) : `${SITE_URL}${DEFAULT_IMAGE}`;
+  // Tool pages get their own share picture (scripts/og-tools/render.py, 28 Nov 2026)
+  // unless the page passes one itself.
+  const toolId = /^\/tools\/([a-z0-9-]+)$/.exec(ownPath)?.[1];
+  const toolImage = toolId && TOOL_OG_IMAGES.has(toolId) ? `/og/tools/${toolId}.jpg` : undefined;
+  const pickedImage = image || toolImage;
+  const imageUrl = pickedImage ? (pickedImage.startsWith('http') ? pickedImage : `${SITE_URL}${pickedImage}`) : `${SITE_URL}${DEFAULT_IMAGE}`;
   // Some pages pass keywords as one comma string; spreading a string gave "g, h, a, n, ..." (audit 28 Nov 2026).
   const keywordList: string[] = typeof keywords === 'string'
     ? (keywords as string).split(',').map((k) => k.trim()).filter(Boolean)
