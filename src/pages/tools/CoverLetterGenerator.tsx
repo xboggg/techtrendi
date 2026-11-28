@@ -70,7 +70,7 @@ const tones = [
 
 const STORAGE_KEY = "techtrendi_coverletter_data";
 
-export default function CoverLetterGenerator() {
+function CoverLetterGeneratorPage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
@@ -508,4 +508,12 @@ ${data.fullName || "[Your Name]"}`;
       </div>
     </Layout>
   );
+}
+
+// A new owner (sign in, sign out, another account) gets a fresh copy of the page,
+// so one person's saved data can never be written into another person's storage
+// (Codex review, PR #84).
+export default function CoverLetterGenerator() {
+  const { user } = useAuth();
+  return <CoverLetterGeneratorPage key={user?.id ?? "guest"} />;
 }

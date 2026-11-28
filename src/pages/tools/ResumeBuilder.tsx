@@ -73,7 +73,7 @@ const defaultResume: ResumeData = {
   certifications: [],
 };
 
-export default function ResumeBuilder() {
+function ResumeBuilderPage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
@@ -801,4 +801,12 @@ export default function ResumeBuilder() {
       </div>
     </Layout>
   );
+}
+
+// A new owner (sign in, sign out, another account) gets a fresh copy of the page,
+// so one person's saved data can never be written into another person's storage
+// (Codex review, PR #84).
+export default function ResumeBuilder() {
+  const { user } = useAuth();
+  return <ResumeBuilderPage key={user?.id ?? "guest"} />;
 }

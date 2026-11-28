@@ -38,7 +38,7 @@ const metrics = [
   { id: "breaks", label: "Healthy Breaks", icon: Coffee, max: 5, unit: "breaks", description: "Mindful breaks taken (walks, stretches)" },
 ];
 
-export default function FocusScore() {
+function FocusScorePage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
@@ -369,4 +369,12 @@ Track your focus: techtrendi.com/tools/focus-score`;
       </div>
     </Layout>
   );
+}
+
+// A new owner (sign in, sign out, another account) gets a fresh copy of the page,
+// so one person's saved data can never be written into another person's storage
+// (Codex review, PR #84).
+export default function FocusScore() {
+  const { user } = useAuth();
+  return <FocusScorePage key={user?.id ?? "guest"} />;
 }

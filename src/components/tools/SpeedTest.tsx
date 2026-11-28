@@ -83,7 +83,7 @@ export function SpeedTest({ className }: { className?: string }) {
   };
 
   const measureDownload = async (onProgress: (speed: number, pct: number) => void): Promise<{ speed: number; bytes: number }> => {
-    let best = 0;
+    let last = 0;
     let usedBytes = 0;
     const phaseStart = performance.now();
     for (let i = 0; i < DOWN_SIZES.length; i++) {
@@ -102,21 +102,22 @@ export function SpeedTest({ className }: { className?: string }) {
         }
         const sec = (performance.now() - t0) / 1000;
         usedBytes += got;
-        const speed = mbps(got, sec);
-        if (speed > best) best = speed;
+        // Keep the LAST (largest) sample: sizes grow until one is long enough to
+        // measure well, and a tiny first request can be served from a buffer.
+        last = mbps(got, sec);
         if (sec >= ENOUGH_SECONDS || (performance.now() - phaseStart) / 1000 >= MAX_TOTAL_SECONDS) break;
       } catch {
         break;
       }
     }
-    return { speed: best, bytes: usedBytes };
+    return { speed: last, bytes: usedBytes };
   };
 
   const measureUpload = async (
     pingMs: number,
     onProgress: (speed: number, pct: number) => void,
   ): Promise<{ speed: number; bytes: number }> => {
-    let best = 0;
+    let last = 0;
     let usedBytes = 0;
     const phaseStart = performance.now();
     for (let i = 0; i < UP_SIZES.length; i++) {
@@ -134,15 +135,14 @@ export function SpeedTest({ className }: { className?: string }) {
         const raw = (performance.now() - t0) / 1000;
         const sec = Math.max(raw - pingMs / 1000, raw / 2);
         usedBytes += UP_SIZES[i];
-        const speed = mbps(UP_SIZES[i], sec);
-        if (speed > best) best = speed;
-        onProgress(speed, ((i + 1) / UP_SIZES.length) * 100);
+        last = mbps(UP_SIZES[i], sec);
+        onProgress(last, ((i + 1) / UP_SIZES.length) * 100);
         if (raw >= ENOUGH_SECONDS || (performance.now() - phaseStart) / 1000 >= MAX_TOTAL_SECONDS) break;
       } catch {
         break;
       }
     }
-    return { speed: best, bytes: usedBytes };
+    return { speed: last, bytes: usedBytes };
   };
 
   const runSpeedTest = useCallback(async () => {

@@ -66,7 +66,7 @@ const defaultData: ContractData = {
 
 const STORAGE_KEY = "techtrendi_contract_data";
 
-export default function ContractGenerator() {
+function ContractGeneratorPage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
@@ -656,4 +656,12 @@ ${data.clientName} (Client)
       </div>
     </Layout>
   );
+}
+
+// A new owner (sign in, sign out, another account) gets a fresh copy of the page,
+// so one person's saved data can never be written into another person's storage
+// (Codex review, PR #84).
+export default function ContractGenerator() {
+  const { user } = useAuth();
+  return <ContractGeneratorPage key={user?.id ?? "guest"} />;
 }

@@ -91,7 +91,7 @@ const improvementTips = [
   { icon: Target, title: "Track Everything", tip: "Monitor your net worth monthly to stay motivated and catch issues early." },
 ];
 
-export default function NetWorthTracker() {
+function NetWorthTrackerPage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
@@ -908,4 +908,12 @@ export default function NetWorthTracker() {
       </div>
     </Layout>
   );
+}
+
+// A new owner (sign in, sign out, another account) gets a fresh copy of the page,
+// so one person's saved data can never be written into another person's storage
+// (Codex review, PR #84).
+export default function NetWorthTracker() {
+  const { user } = useAuth();
+  return <NetWorthTrackerPage key={user?.id ?? "guest"} />;
 }

@@ -43,7 +43,7 @@ const defaultProjects: Project[] = [
   { id: "internal", name: "Internal", color: "bg-purple-500" },
 ];
 
-export default function TimeTracker() {
+function TimeTrackerPage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
@@ -356,4 +356,12 @@ export default function TimeTracker() {
       </div>
     </Layout>
   );
+}
+
+// A new owner (sign in, sign out, another account) gets a fresh copy of the page,
+// so one person's saved data can never be written into another person's storage
+// (Codex review, PR #84).
+export default function TimeTracker() {
+  const { user } = useAuth();
+  return <TimeTrackerPage key={user?.id ?? "guest"} />;
 }

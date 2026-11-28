@@ -28,7 +28,7 @@ const quickAddOptions = [
   { icon: Droplets, label: "Bottle", amount: 2, color: "bg-cyan-500" },
 ];
 
-export default function WaterTracker() {
+function WaterTrackerPage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
@@ -383,4 +383,12 @@ export default function WaterTracker() {
       </div>
     </Layout>
   );
+}
+
+// A new owner (sign in, sign out, another account) gets a fresh copy of the page,
+// so one person's saved data can never be written into another person's storage
+// (Codex review, PR #84).
+export default function WaterTracker() {
+  const { user } = useAuth();
+  return <WaterTrackerPage key={user?.id ?? "guest"} />;
 }
