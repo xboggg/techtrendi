@@ -10,6 +10,33 @@ export const toolContentData: Record<string, ToolContent> = {
   // BUSINESS & FREELANCER TOOLS
   // ==========================================
 
+  'phone-comparison': {
+    intro:
+      'Compare two phones side by side before you buy: screen, processor, memory, cameras, battery, charging and more. The list covers the phones that Samsung, Tecno, Infinix, itel, Apple and Xiaomi show on their own websites, including the cheaper models most people in Ghana buy.',
+    howTo: [
+      'Pick the first phone from the list',
+      'Pick the second phone',
+      'Read the specs side by side; the bigger battery and faster charging are shown in green',
+      'Tap the source link under each phone to see the maker\'s own page',
+    ],
+    whyNeedIt:
+      'Shop adverts often show only the good numbers. Seeing two phones next to each other, with specs taken from the makers themselves, makes it easier to see what you are really paying for.',
+    faqs: [
+      {
+        q: 'Where do the specs come from?',
+        a: 'From each phone maker\'s own website. Our system copies the specs from that page and then checks every value against the page again. If the maker does not say something, we leave it blank instead of guessing.',
+      },
+      {
+        q: 'Why is a new phone not in the list yet?',
+        a: 'We look for new models every week. Each new phone is checked by a person before it appears, so it can take a few days.',
+      },
+      {
+        q: 'Why are there no prices?',
+        a: 'Prices change from shop to shop and week to week in Ghana, so a price here would soon be wrong. Compare the specs here, then check prices with a trusted seller.',
+      },
+    ],
+  },
+
   'momo-fee-calculator': {
     intro:
       'Mobile money runs daily life in Ghana, but the fees can be confusing — and most calculators online are flat-out wrong because they still add the E-Levy, which was abolished back in April 2025. This one is current. Pick your network, choose whether you are sending or cashing out, type the amount, and you will see the exact fee before you ever dial *170#. No sign-up, no stored data.',
