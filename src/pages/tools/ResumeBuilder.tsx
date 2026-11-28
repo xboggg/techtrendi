@@ -15,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMounted } from "@/hooks/useMounted";
 
 interface Experience {
   id: string;
@@ -77,6 +78,7 @@ function ResumeBuilderPage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
+  const mounted = useMounted();
 
   const [resume, setResume] = useState<ResumeData>(defaultResume);
   const [newSkill, setNewSkill] = useState("");
@@ -267,6 +269,8 @@ function ResumeBuilderPage() {
         description="Build a professional resume with our free resume builder. Beautiful templates, easy editing, and PDF export."
         canonicalUrl="https://techtrendi.com/tools/resume-builder"
       />
+      {mounted ? (
+      <>
 
       <div className="container py-12 md:py-20 max-w-7xl">
         {/* Header */}
@@ -799,6 +803,10 @@ function ResumeBuilderPage() {
           </div>
         </div>
       </div>
+      </>
+      ) : (
+        <div className="container py-24 text-center text-muted-foreground" aria-busy="true">Loading the tool...</div>
+      )}
     </Layout>
   );
 }

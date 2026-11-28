@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMounted } from "@/hooks/useMounted";
 
 interface StandupEntry {
   id: string;
@@ -29,6 +30,7 @@ function DailyStandupPage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
+  const mounted = useMounted();
   const [entries, setEntries] = useState<StandupEntry[]>([]);
   const [currentEntry, setCurrentEntry] = useState<StandupEntry>({
     id: "",
@@ -171,6 +173,8 @@ function DailyStandupPage() {
         description="Generate formatted daily standup notes for your team. Track what you did, what you're doing, and any blockers."
         canonicalUrl="https://techtrendi.com/tools/daily-standup"
       />
+      {mounted ? (
+      <>
 
       <div className="container py-12 md:py-20 max-w-4xl">
         {/* Header */}
@@ -409,6 +413,10 @@ function DailyStandupPage() {
           </div>
         </div>
       </div>
+      </>
+      ) : (
+        <div className="container py-24 text-center text-muted-foreground" aria-busy="true">Loading the tool...</div>
+      )}
     </Layout>
   );
 }

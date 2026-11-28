@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMounted } from "@/hooks/useMounted";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
@@ -95,6 +96,7 @@ function NetWorthTrackerPage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
+  const mounted = useMounted();
   const summaryRef = useRef<HTMLDivElement>(null);
 
   // State
@@ -399,6 +401,8 @@ function NetWorthTrackerPage() {
         description="Track your net worth over time. Monitor assets, liabilities, and see your financial progress with charts and insights."
         canonicalUrl="https://techtrendi.com/tools/net-worth-tracker"
       />
+      {mounted ? (
+      <>
 
       <div className="container py-12 md:py-20 max-w-7xl">
         {/* Header */}
@@ -906,6 +910,10 @@ function NetWorthTrackerPage() {
           <p>Your data is stored locally on this device. Last updated: {data.lastUpdated ? new Date(data.lastUpdated).toLocaleString() : "Never"}</p>
         </div>
       </div>
+      </>
+      ) : (
+        <div className="container py-24 text-center text-muted-foreground" aria-busy="true">Loading the tool...</div>
+      )}
     </Layout>
   );
 }

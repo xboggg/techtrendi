@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMounted } from "@/hooks/useMounted";
 
 interface WaterEntry {
   date: string;
@@ -32,6 +33,7 @@ function WaterTrackerPage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
+  const mounted = useMounted();
   const [entries, setEntries] = useState<WaterEntry[]>([]);
   const [dailyGoal, setDailyGoal] = useState(8);
   const [todayGlasses, setTodayGlasses] = useState(0);
@@ -130,6 +132,8 @@ function WaterTrackerPage() {
         description="Track your daily water intake. Set goals, build streaks, and stay healthy with our free water tracker."
         canonicalUrl="https://techtrendi.com/tools/water-tracker"
       />
+      {mounted ? (
+      <>
 
       <div className="container py-12 md:py-20 max-w-4xl">
         {/* Header */}
@@ -381,6 +385,10 @@ function WaterTrackerPage() {
           </div>
         </div>
       </div>
+      </>
+      ) : (
+        <div className="container py-24 text-center text-muted-foreground" aria-busy="true">Loading the tool...</div>
+      )}
     </Layout>
   );
 }

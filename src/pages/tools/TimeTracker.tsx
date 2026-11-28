@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMounted } from "@/hooks/useMounted";
 
 interface TimeEntry {
   id: string;
@@ -47,6 +48,7 @@ function TimeTrackerPage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
+  const mounted = useMounted();
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [projects, setProjects] = useState<Project[]>(defaultProjects);
   const [isRunning, setIsRunning] = useState(false);
@@ -192,6 +194,8 @@ function TimeTrackerPage() {
         description="Track your work hours and billable time. Perfect for freelancers and consultants."
         canonicalUrl="https://techtrendi.com/tools/time-tracker"
       />
+      {mounted ? (
+      <>
 
       <div className="container py-12 md:py-20 max-w-5xl">
         {/* Header */}
@@ -354,6 +358,10 @@ function TimeTrackerPage() {
           </CardContent>
         </Card>
       </div>
+      </>
+      ) : (
+        <div className="container py-24 text-center text-muted-foreground" aria-busy="true">Loading the tool...</div>
+      )}
     </Layout>
   );
 }

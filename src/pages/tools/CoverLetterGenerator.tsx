@@ -15,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMounted } from "@/hooks/useMounted";
 
 interface CoverLetterData {
   // Personal Info
@@ -74,6 +75,7 @@ function CoverLetterGeneratorPage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
+  const mounted = useMounted();
   const [data, setData] = useState<CoverLetterData>(defaultData);
   const [copied, setCopied] = useState(false);
   const [step, setStep] = useState(1);
@@ -212,6 +214,8 @@ ${data.fullName || "[Your Name]"}`;
         description="Generate professional cover letters instantly. Customize tone, highlight skills, and stand out from other applicants."
         canonicalUrl="https://techtrendi.com/tools/cover-letter-generator"
       />
+      {mounted ? (
+      <>
 
       <div className="container py-12 md:py-20 max-w-6xl">
         {/* Header */}
@@ -506,6 +510,10 @@ ${data.fullName || "[Your Name]"}`;
           </div>
         </div>
       </div>
+      </>
+      ) : (
+        <div className="container py-24 text-center text-muted-foreground" aria-busy="true">Loading the tool...</div>
+      )}
     </Layout>
   );
 }

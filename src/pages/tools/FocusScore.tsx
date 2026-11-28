@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMounted } from "@/hooks/useMounted";
 
 interface DailyScore {
   date: string;
@@ -42,6 +43,7 @@ function FocusScorePage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
+  const mounted = useMounted();
   const [entries, setEntries] = useState<DailyScore[]>([]);
   const [currentScores, setCurrentScores] = useState({
     deepWork: 4,
@@ -168,6 +170,8 @@ Track your focus: techtrendi.com/tools/focus-score`;
         description="Calculate your daily focus score. Track deep work, distractions, and energy to improve your productivity."
         canonicalUrl="https://techtrendi.com/tools/focus-score"
       />
+      {mounted ? (
+      <>
 
       <div className="container py-12 md:py-20 max-w-4xl">
         {/* Header */}
@@ -367,6 +371,10 @@ Track your focus: techtrendi.com/tools/focus-score`;
           </div>
         </div>
       </div>
+      </>
+      ) : (
+        <div className="container py-24 text-center text-muted-foreground" aria-busy="true">Loading the tool...</div>
+      )}
     </Layout>
   );
 }

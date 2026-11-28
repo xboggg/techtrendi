@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMounted } from "@/hooks/useMounted";
 
 interface JournalEntry {
   id: string;
@@ -39,6 +40,7 @@ function DailyJournalPage() {
   const { user } = useAuth();
   // No sign-in needed (28 Nov 2026): data stays in this browser either way.
   const storeId = user?.id ?? "guest";
+  const mounted = useMounted();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date().toISOString().split("T")[0]);
   const [currentEntry, setCurrentEntry] = useState<JournalEntry>({
@@ -155,6 +157,8 @@ function DailyJournalPage() {
         description="Build a daily journaling habit. Track gratitude, mood, and reflections. Build streaks and see your progress."
         canonicalUrl="https://techtrendi.com/tools/daily-journal"
       />
+      {mounted ? (
+      <>
 
       <div className="container py-12 md:py-20 max-w-4xl">
         {/* Header */}
@@ -439,6 +443,10 @@ function DailyJournalPage() {
           </div>
         </div>
       </div>
+      </>
+      ) : (
+        <div className="container py-24 text-center text-muted-foreground" aria-busy="true">Loading the tool...</div>
+      )}
     </Layout>
   );
 }
