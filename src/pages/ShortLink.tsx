@@ -16,6 +16,7 @@ export default function ShortLink() {
   const [going, setGoing] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [reported, setReported] = useState(false);
+  const [reportFailed, setReportFailed] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -57,7 +58,12 @@ export default function ShortLink() {
   };
 
   const report = async (reason: string) => {
-    await reportShortLink(code, reason);
+    setReportFailed(false);
+    const ok = await reportShortLink(code, reason);
+    if (!ok) {
+      setReportFailed(true); // keep the choices open so the visitor can try again
+      return;
+    }
     setReported(true);
     setReportOpen(false);
   };
@@ -148,6 +154,11 @@ export default function ShortLink() {
               ) : reportOpen ? (
                 <div className="space-y-2">
                   <p className="font-medium">What is wrong with this link?</p>
+                  {reportFailed && (
+                    <p role="alert" className="text-red-600 dark:text-red-400">
+                      We couldn't send your report. Check your internet and tap again.
+                    </p>
+                  )}
                   <div className="flex flex-wrap gap-2">
                     {["It's a scam or fake site", "It has bad or adult content", "Something else"].map((r) => (
                       <button

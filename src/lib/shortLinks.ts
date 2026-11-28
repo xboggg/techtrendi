@@ -74,8 +74,12 @@ export async function followShortLink(code: string): Promise<string | null> {
 }
 
 export async function reportShortLink(code: string, reason: string): Promise<boolean> {
-  const { error } = await rpc("report_short_link", { p_code: code, p_reason: reason });
-  return !error;
+  try {
+    const { data, error } = await rpc("report_short_link", { p_code: code, p_reason: reason });
+    return !error && (data === "thanks" || data === "missing");
+  } catch {
+    return false;
+  }
 }
 
 export async function linkStats(links: SavedLink[]): Promise<LinkStats[] | null> {
