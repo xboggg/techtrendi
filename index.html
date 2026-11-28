@@ -76,7 +76,7 @@
       setTimeout(function () {
         try {
           var src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3437377907350211";
-          if (window.location.hostname !== "techtrendi.com" || /^\/sponsored\//.test(window.location.pathname)) return;
+          if (window.location.hostname !== "techtrendi.com" || /^\/(sponsored|s)\//.test(window.location.pathname)) return;
           if (document.querySelector('script[src^="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]')) return;
           var s = document.createElement("script");
           s.async = true;

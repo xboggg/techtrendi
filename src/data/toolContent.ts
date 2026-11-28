@@ -2039,17 +2039,20 @@ export const toolContentData: Record<string, ToolContent> = {
   ],
 },
 "url-shortener": {
-  intro: "Shorten long URLs into clean, short links that are easy to share. No sign-up needed. Just paste your long URL and get a short one back instantly.",
+  intro: "Turn a long link into a short techtrendi.com/s/ link that is easy to share on WhatsApp, flyers and social media. It is free and you don't need to sign up. Every short link first shows people the real site it opens, so nobody can hide a scam behind it.",
   howTo: [
-    "Paste the long URL you want to shorten.",
-    "Click Shorten to generate the short link.",
-    "Copy the short link and share it anywhere.",
+    "Paste your long link.",
+    "If you like, type a custom name, for example my-shop.",
+    "Tap Make short link, then copy it, share it on WhatsApp or save its QR code.",
+    "Come back to this page on the same phone or computer to see how many times your links were opened.",
   ],
-  whyNeedIt: "Long URLs with tracking parameters and query strings look messy in messages, presentations, and print materials. A short link is cleaner, easier to type, and does not break across line wraps in emails.",
+  whyNeedIt: "Long links with lots of letters and numbers look messy and are hard to type from a poster. A short link is clean and easy to remember. And because scammers love short links, ours always show the real site name first, so the people you send it to can trust it.",
   faqs: [
-    { q: "Do short links expire?", a: "It depends on the service used. Most short links remain active indefinitely, but check the specific terms. If the shortening service shuts down, the links stop working." },
-    { q: "Can I track clicks?", a: "Basic click tracking is available, showing how many times your link was used. For detailed analytics, dedicated URL shortening services offer more features." },
-    { q: "Are shortened URLs safe to click?", a: "As safe as the destination URL. Short links just redirect — they do not add any risk themselves. But because they hide the destination, always be cautious clicking short links from unknown sources." },
+    { q: "Do I need an account?", a: "No. Your links and their click counts are kept on the phone or computer you made them on. If you clear your browser you lose that list, but the links themselves keep working." },
+    { q: "Why does my link show a page before opening the site?", a: "That page shows the real site name and address, and the person taps Continue. Scammers hide fake bank and MoMo pages behind short links, so this check protects the people you share with. It only takes one tap." },
+    { q: "Why was my link or custom name refused?", a: "We don't shorten links that are already short links (like bit.ly), addresses that hide their real site name, or number addresses. Custom names that could be mistaken for a bank, MoMo, a government office or a big company are also refused." },
+    { q: "What happens if someone reports a link?", a: "If several different people report a link, it is paused and we check it. A paused link shows a warning instead of opening the site." },
+    { q: "Do short links expire?", a: "No. A link keeps working until you remove it, or until we pause it because it was reported." },
   ],
 },
 "math-tug-of-war": {

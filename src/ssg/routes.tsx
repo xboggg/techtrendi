@@ -72,6 +72,10 @@ export const routes: RouteRecord[] = [
       { path: "security", lazy: d(() => import("../pages/categories/Security")), loader: securityPageLoader },
       { path: "scam-alerts", lazy: d(() => import("../pages/ScamAlerts")) },
       // One page per scam alert (21 Nov 2026), so each can be shared with its own title and picture.
+      // Short links: the "You are going to:" safety page (no ads). One shell is prebuilt at
+      // s/check.html ("Checking this link…") and nginx serves it for every /s/<code>, so
+      // visitors never see the homepage flash first (the router reads the real code).
+      { path: "s/:code", lazy: d(() => import("../pages/ShortLink")), getStaticPaths: () => ["s/check"] },
       { path: "scam-alerts/:slug", lazy: d(() => import("../pages/ScamAlertPage")), loader: scamAlertLoader, getStaticPaths: scamAlertStaticPaths },
       { path: "tools-preview", lazy: d(() => import("../pages/ToolsPreview")) },
       // Careers jobs board: "careers" since 8 Nov 2026 (src/lib/careers.ts CAREERS_LAUNCHED). Prerendered
