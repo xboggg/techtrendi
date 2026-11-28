@@ -174,15 +174,15 @@ Daily: ${formatCurrency(freelanceCalc.dailyRate)}
 Weekly: ${formatCurrency(freelanceCalc.weeklyRate)}
 Project (${freelance.averageProjectHours}h): ${formatCurrency(freelanceCalc.projectWithProfit)}
 
-Calculated with TechTrendi Pricing Calculator`;
+Calculated with TechTrendi Product Pricing Calculator`;
     } else {
       text = `Pricing Analysis:
-Cost per unit: $${productCalc.totalCost}
-Suggested price: $${productCalc.suggestedPrice}
-Profit per unit: $${productCalc.profitPerUnit}
+Cost per unit: GH₵${productCalc.totalCost}
+Suggested price: GH₵${productCalc.suggestedPrice}
+Profit per unit: GH₵${productCalc.profitPerUnit}
 Target margin: ${product.desiredMargin}%
 
-Calculated with TechTrendi Pricing Calculator`;
+Calculated with TechTrendi Product Pricing Calculator`;
     }
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -362,11 +362,11 @@ Calculated with TechTrendi Pricing Calculator`;
                   <CardHeader className="text-center">
                     <CardTitle className="text-muted-foreground text-sm">Suggested Price</CardTitle>
                     <p className="text-5xl font-bold text-primary">
-                      ${productCalc.suggestedPrice}
+                      GH₵{productCalc.suggestedPrice}
                     </p>
                     {product.includeTax && (
                       <p className="text-sm text-muted-foreground">
-                        (${productCalc.priceWithTax} with tax)
+                        (GH₵{productCalc.priceWithTax} with tax)
                       </p>
                     )}
                   </CardHeader>
