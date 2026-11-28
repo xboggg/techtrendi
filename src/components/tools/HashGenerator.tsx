@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { md5 } from "@/lib/md5";
 import { Copy, Check, RefreshCw, FileText, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,8 +37,8 @@ export function HashGenerator({ className }: { className?: string }) {
 
     try {
       if (algorithm === 'MD5') {
-        // Simple MD5 fallback (not cryptographically secure, for demo only)
-        return simpleMD5(text);
+        // Web Crypto has no MD5, so use our own RFC 1321 implementation.
+        return md5(text);
       }
 
       const hashBuffer = await crypto.subtle.digest(algoMap[algorithm], data);
@@ -47,18 +48,6 @@ export function HashGenerator({ className }: { className?: string }) {
       console.error(`Error generating ${algorithm} hash:`, error);
       return 'Error generating hash';
     }
-  };
-
-  // Simple MD5 implementation for demo (not for production use)
-  const simpleMD5 = (text: string): string => {
-    // This is a simplified placeholder - in production, use a proper MD5 library
-    let hash = 0;
-    for (let i = 0; i < text.length; i++) {
-      const char = text.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
-    }
-    return Math.abs(hash).toString(16).padStart(32, '0').slice(0, 32);
   };
 
   const handleGenerate = async () => {

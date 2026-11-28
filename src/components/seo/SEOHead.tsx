@@ -19,7 +19,7 @@ interface SEOHeadProps {
   /** With `noindex`: still let crawlers follow the page's links ("noindex, follow"). The jobs
    *  board needs it: Remote OK's terms ask for normal, followed links back to its jobs. */
   noindexFollow?: boolean;
-  keywords?: string[];
+  keywords?: string[] | string;
   /** Use `keywords` as given, without the site's default words (data bundle pages). */
   keywordsOnly?: boolean;
   author?: string;
@@ -71,18 +71,27 @@ export function SEOHead({
 }: SEOHeadProps) {
   // Some pages pass a title that already ends in "| TechTrendi"; strip it so we
   // never emit "... | TechTrendi | TechTrendi".
-  const baseTitle = title.replace(/\s*\|\s*TechTrendi\s*$/i, '').trim();
+  // Also strips "| TechTrendi Tools | TechTrendi" (4 tool pages, audit 28 Nov 2026).
+  const baseTitle = title.replace(/(\s*\|\s*TechTrendi(\s+Tools)?\s*)+$/i, '').trim();
   const fullTitle = `${baseTitle} | ${SITE_NAME}`;
   const noindexValue = noindexFollow ? 'noindex, follow' : 'noindex, nofollow';
-  const canonicalPath = canonical || canonicalUrl;
-  const fullUrl = canonicalPath
-    ? (canonicalPath.startsWith('http') ? canonicalPath : `${SITE_URL}${canonicalPath.startsWith('/') ? canonicalPath : `/${canonicalPath}`}`)
-    : SITE_URL;
+  // Pages that pass no canonical now get their OWN address (path, no query string),
+  // not the homepage: before 28 Nov 2026 ~36 tool pages told Google and WhatsApp
+  // that they were the homepage.
+  const { pathname } = useLocation();
+  const ownPath = pathname.length > 1 ? pathname.replace(/\/+$/, '') : '/';
+  const canonicalPath = canonical || canonicalUrl || ownPath;
+  const fullUrl = canonicalPath.startsWith('http')
+    ? canonicalPath
+    : `${SITE_URL}${canonicalPath.startsWith('/') ? canonicalPath : `/${canonicalPath}`}`;
   const imageUrl = image ? (image.startsWith('http') ? image : `${SITE_URL}${image}`) : `${SITE_URL}${DEFAULT_IMAGE}`;
-  const allKeywords = keywordsOnly ? keywords.join(', ') : [...new Set([...keywords, ...tags, 'tech', 'technology', 'guide', 'review'])].join(', ');
+  // Some pages pass keywords as one comma string; spreading a string gave "g, h, a, n, ..." (audit 28 Nov 2026).
+  const keywordList: string[] = typeof keywords === 'string'
+    ? (keywords as string).split(',').map((k) => k.trim()).filter(Boolean)
+    : keywords;
+  const allKeywords = keywordsOnly ? keywordList.join(', ') : [...new Set([...keywordList, ...tags, 'tech', 'technology', 'guide', 'review'])].join(', ');
 
   // Tool pages get SoftwareApplication structured data (free web utility).
-  const { pathname } = useLocation();
   const toolSchema = pathname.startsWith('/tools/')
     ? {
         '@context': 'https://schema.org',
@@ -185,7 +194,7 @@ export function SEOHead({
       <meta name="bingbot" content={noindex ? noindexValue : 'index, follow'} />
 
       {/* Canonical URL */}
-      {(canonical || canonicalUrl) && <link rel="canonical" href={fullUrl} />}
+      <link rel="canonical" href={fullUrl} />
 
       {/* Language */}
       <meta property="og:locale" content={locale} />

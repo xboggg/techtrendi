@@ -70,12 +70,14 @@ export default function GhanaScamChecker() {
       }
       const highCount = indicators.filter(i => i.risk === "high").length;
       const medCount = indicators.filter(i => i.risk === "medium").length;
-      verdict = highCount >= 2 ? "high" : highCount === 1 || medCount >= 2 ? "medium" : indicators.length === 0 ? "clear" : "low";
+      // An ordinary Ghana number is not a warning sign, so it never raises the verdict.
+      const warnings = indicators.filter(i => i.risk !== "low").length;
+      verdict = highCount >= 2 ? "high" : highCount === 1 || medCount >= 2 ? "medium" : warnings > 0 ? "low" : "clear";
     }
   }
 
   const RISK_CONFIG = {
-    high: { icon: ShieldAlert, color: "text-red-600", bg: "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800/40", label: "High Scam Risk", msg: "Multiple serious red flags detected. Do not send money, click links, or share personal information. Report to Ghana Police cybercrime unit." },
+    high: { icon: ShieldAlert, color: "text-red-600", bg: "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800/40", label: "High Scam Risk", msg: "Multiple serious red flags detected. Do not send money, click links, or share your PIN. Report it: call or text 292 (Cyber Security Authority, free, day and night)." },
     medium: { icon: AlertTriangle, color: "text-amber-600", bg: "bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800/40", label: "Some Red Flags", msg: "Suspicious patterns detected. Verify the sender's identity through a separate, trusted channel before taking any action." },
     low: { icon: AlertTriangle, color: "text-blue-600", bg: "bg-blue-50 border-blue-200", label: "Minor Indicators", msg: "A few patterns worth noting. Use your judgment and verify independently if unsure." },
     clear: { icon: ShieldCheck, color: "text-green-600", bg: "bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800/40", label: "No Obvious Red Flags", msg: "No known scam patterns detected. This does not guarantee legitimacy — always verify before acting on any unsolicited contact." },
@@ -239,7 +241,7 @@ export default function GhanaScamChecker() {
               ["📦 Advance Payment Trap", "Any seller asking you to pay before delivery or inspection — especially for electronics, phones, clothing, or house rentals — is high risk. Inspect before you pay."],
               ["📲 MoMo Reversal", "Someone sends you money 'by mistake' and asks you to return it. The original transfer later reverses."],
               ["💸 Fake Delivery Fee", "SMS claiming your package needs a small fee (GHS 3–10) to be released. Link steals your card details."],
-              ["🎰 Lottery/Telecom Prize", "You've 'won' a prize from MTN/Vodafone. Requires a fee to claim. There is no prize."],
+              ["🎰 Lottery/Telecom Prize", "You've 'won' a prize from MTN, Telecel or AT. Requires a fee to claim. There is no prize."],
               ["🐷 Pig Butchering", "Friendly 'wrong number' contact that builds trust before introducing a guaranteed crypto investment."],
               ["💼 Fake Job Offer", "Work-from-home job requiring an upfront payment for 'registration' or 'training materials.'"],
               ["🔑 OTP Phishing", "Caller claims to be your bank and needs the code sent to your phone to 'verify' your account."],

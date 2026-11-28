@@ -252,7 +252,7 @@ Rules:
       <SEOHead
         title="Tech Trivia Quiz"
         description="Test your tech knowledge with fun trivia questions. Multiple difficulty levels, score tracking, and detailed explanations."
-        canonical="/tools/tech-trivia"
+        canonical="/tools/tech-trivia-generator"
         keywords={["tech trivia", "tech quiz", "technology questions", "geek trivia", "computer quiz"]}
       />
       <div className="container py-8 max-w-4xl">

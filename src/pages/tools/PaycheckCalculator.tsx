@@ -53,7 +53,7 @@ interface CountryTaxConfig {
   currency: string;
   symbol: string;
   brackets: Record<FilingStatus, TaxBracket[]>;
-  socialSecurity?: { rate: number; maxWage: number; name: string };
+  socialSecurity?: { rate: number; maxWage: number; name: string; minWage?: number; upperRate?: number };
   medicare?: { rate: number; additionalRate?: number; threshold?: number; name: string };
   stateTax?: { averageRate: number };
   hasPension?: boolean;
@@ -126,7 +126,8 @@ const taxConfigs: Record<Country, CountryTaxConfig> = {
         { min: 125140, max: Infinity, rate: 45 },
       ],
     },
-    socialSecurity: { rate: 12, maxWage: 50270, name: "National Insurance" },
+    // UK employee NI 2026/27 (gov.uk): 8% from £12,570 to £50,270 a year, then 2%.
+    socialSecurity: { rate: 8, maxWage: 50270, minWage: 12570, upperRate: 2, name: "National Insurance" },
   },
   GH: {
     name: "Ghana",
@@ -295,17 +296,31 @@ export default function PaycheckCalculator() {
   const [showBreakdown, setShowBreakdown] = useState(true);
 
   // Inputs
-  const [grossSalary, setGrossSalary] = useState(75000);
-  const [salaryType, setSalaryType] = useState<SalaryType>("annual");
-  const [country, setCountry] = useState<Country>("US");
+  // Ghana first: most visitors are in Ghana. US-only deductions start at 0 and are
+  // reset whenever the country changes, so they never leak into a Ghana answer.
+  const [grossSalary, setGrossSalary] = useState(5000);
+  const [salaryType, setSalaryType] = useState<SalaryType>("monthly");
+  const [country, setCountryRaw] = useState<Country>("GH");
   const [filingStatus, setFilingStatus] = useState<FilingStatus>("single");
-  const [payFrequency, setPayFrequency] = useState<PayFrequency>("biweekly");
+  const [payFrequency, setPayFrequency] = useState<PayFrequency>("monthly");
 
   // Deductions
-  const [retirement401k, setRetirement401k] = useState(6);
-  const [healthInsurance, setHealthInsurance] = useState(200);
+  const [retirement401k, setRetirement401k] = useState(0);
+  const [healthInsurance, setHealthInsurance] = useState(0);
   const [otherDeductions, setOtherDeductions] = useState(0);
-  const [stateTaxRate, setStateTaxRate] = useState(4.5);
+  const [stateTaxRate, setStateTaxRate] = useState(0);
+
+  const setCountry = (c: Country) => {
+    setCountryRaw(c);
+    if (c === "US") {
+      setRetirement401k(6); setHealthInsurance(200); setStateTaxRate(4.5);
+    } else if (c === "CA") {
+      setRetirement401k(0); setHealthInsurance(0); setStateTaxRate(10);
+    } else {
+      setRetirement401k(0); setHealthInsurance(0); setStateTaxRate(0);
+    }
+  };
+  const incomeTaxLabel = country === "US" ? "Federal Tax" : country === "GH" || country === "NG" ? "Income tax (PAYE)" : "Income tax";
 
   const config = taxConfigs[country];
   const symbol = config.symbol;
@@ -349,8 +364,10 @@ export default function PaycheckCalculator() {
     // Social Security
     let socialSecurityTax = 0;
     if (config.socialSecurity) {
-      const ssWage = Math.min(annualGross, config.socialSecurity.maxWage);
-      socialSecurityTax = ssWage * (config.socialSecurity.rate / 100);
+      const ss = config.socialSecurity;
+      const ssWage = Math.max(0, Math.min(annualGross, ss.maxWage) - (ss.minWage ?? 0));
+      socialSecurityTax = ssWage * (ss.rate / 100);
+      if (ss.upperRate && annualGross > ss.maxWage) socialSecurityTax += (annualGross - ss.maxWage) * (ss.upperRate / 100);
     }
 
 
@@ -469,7 +486,7 @@ export default function PaycheckCalculator() {
       "",
       "DEDUCTIONS",
       "----------",
-      `Federal Tax: ${fmt(results.annual.federalTax)} (${results.percentages.federalTax.toFixed(1)}%)`,
+      `${incomeTaxLabel}: ${fmt(results.annual.federalTax)} (${results.percentages.federalTax.toFixed(1)}%)`,
     ];
 
     if (results.annual.stateTax > 0) {
@@ -541,7 +558,7 @@ export default function PaycheckCalculator() {
   const pieData = useMemo(() => {
     const items = [];
     if (results.percentages.federalTax > 0) {
-      items.push({ name: "Federal Tax", value: results.percentages.federalTax, color: "#ef4444" });
+      items.push({ name: incomeTaxLabel, value: results.percentages.federalTax, color: "#ef4444" });
     }
     if (results.percentages.stateTax > 0) {
       items.push({ name: "State Tax", value: results.percentages.stateTax, color: "#f97316" });
@@ -566,7 +583,7 @@ export default function PaycheckCalculator() {
     }
     items.push({ name: "Take-Home Pay", value: results.percentages.takeHome, color: "#3b82f6" });
     return items;
-  }, [results, config]);
+  }, [results, config, incomeTaxLabel]);
 
   // Generate pie chart SVG
   const renderPieChart = () => {
@@ -703,6 +720,12 @@ export default function PaycheckCalculator() {
                     </SelectContent>
                   </Select>
                 </div>
+                {country === "GH" && (
+                  <p className="text-sm text-muted-foreground">
+                    Ghana: PAYE (Act 1178 bands) and SSNIT 5.5% are worked out on your whole salary as if it were all basic salary. For allowances, bonuses and Tier 3, use the{" "}
+                    <a href="/tools/ghana-tax-calculator" className="font-medium text-primary underline">Ghana Tax Calculator</a>.
+                  </p>
+                )}
 
                 <div className="space-y-2">
                   <Label>Filing Status</Label>
@@ -781,7 +804,7 @@ export default function PaycheckCalculator() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>401(k) / Pension Contribution: {retirement401k}%</Label>
+                  <Label>{country === "US" ? "401(k)" : "Extra pension (voluntary)"} contribution: {retirement401k}%</Label>
                   <Slider
                     min={0}
                     max={25}
@@ -964,7 +987,7 @@ export default function PaycheckCalculator() {
 
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between text-red-600">
-                        <span>Federal Tax</span>
+                        <span>{incomeTaxLabel}</span>
                         <span>- {fmt(results.annual.federalTax)}</span>
                       </div>
                       {results.annual.stateTax > 0 && (

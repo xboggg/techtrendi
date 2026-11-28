@@ -37,7 +37,7 @@ type IncidentType =
 interface Contact {
   name: string;
   value: string;
-  type: "phone" | "email" | "url";
+  type: "phone" | "email" | "url" | "whatsapp";
 }
 
 interface Step {
@@ -76,13 +76,13 @@ const incidents: Incident[] = [
       {
         title: "Go to a network store in person",
         description:
-          "Visit the nearest MTN, Vodafone, or AirtelTigo store with your Ghana Card. Request a full account audit and new SIM if your number was ported.",
+          "Visit the nearest MTN, Telecel or AT office with your Ghana Card. Request a full account audit and new SIM if your number was ported.",
         urgency: "first",
       },
       {
-        title: "Report to Cyber & Financial Crime (CARF)",
+        title: "Report it: call or text 292",
         description:
-          "Call the toll-free line 0800-111-000 to report the incident. They can trace transactions and coordinate with banks and telcos to recover funds.",
+          "Call or text 292, the Cyber Security Authority. It is free, day and night. You can also WhatsApp 0501603111 or email report@csa.gov.gh. Tell them what happened and keep your evidence.",
         urgency: "next",
       },
       {
@@ -99,9 +99,10 @@ const incidents: Incident[] = [
       },
     ],
     contacts: [
-      { name: "MTN / Vodafone / AirtelTigo", value: "100", type: "phone" },
-      { name: "CERT-GH (Cyber Security)", value: "0800-111-000", type: "phone" },
-      { name: "Ghana Police CID", value: "0302-773-906", type: "phone" },
+      { name: "Cyber Security Authority: call or text (free, day and night)", value: "292", type: "phone" },
+      { name: "Cyber Security Authority on WhatsApp", value: "0501603111", type: "whatsapp" },
+      { name: "Your network: MTN, Telecel or AT (customer care)", value: "100", type: "phone" },
+      { name: "Ghana Police (free on all networks)", value: "191", type: "phone" },
     ],
     preventionTip:
       "Never share your MoMo PIN with anyone, not even someone claiming to be from the network. Legitimate agents will never ask for your PIN over the phone.",
@@ -152,8 +153,9 @@ const incidents: Incident[] = [
         value: "support@whatsapp.com",
         type: "email",
       },
-      { name: "CERT-GH (Cyber Security)", value: "0800-111-000", type: "phone" },
-      { name: "Ghana Police CID", value: "0302-773-906", type: "phone" },
+      { name: "Cyber Security Authority: call or text (free, day and night)", value: "292", type: "phone" },
+      { name: "Cyber Security Authority on WhatsApp", value: "0501603111", type: "whatsapp" },
+      { name: "Ghana Police (free on all networks)", value: "191", type: "phone" },
     ],
     preventionTip:
       "Never share your WhatsApp verification code with anyone. WhatsApp will never call or message you asking for your code. Enable 2-step verification now.",
@@ -199,10 +201,9 @@ const incidents: Incident[] = [
       },
     ],
     contacts: [
-      { name: "MTN / Vodafone / AirtelTigo", value: "100", type: "phone" },
-      { name: "Ecobank Ghana", value: "0800-100-100", type: "phone" },
-      { name: "GCB Bank", value: "0302-673-980", type: "phone" },
-      { name: "CERT-GH (Cyber Security)", value: "0800-111-000", type: "phone" },
+      { name: "Cyber Security Authority: call or text (free, day and night)", value: "292", type: "phone" },
+      { name: "Cyber Security Authority on WhatsApp", value: "0501603111", type: "whatsapp" },
+      { name: "Your network: MTN, Telecel or AT (customer care)", value: "100", type: "phone" },
     ],
     preventionTip:
       "Before clicking any link, hover over it to see the actual URL. Look for misspellings (e.g., 'g00gle.com'). When in doubt, go directly to the website by typing the address yourself.",
@@ -248,10 +249,9 @@ const incidents: Incident[] = [
       },
     ],
     contacts: [
-      { name: "MTN / Vodafone / AirtelTigo", value: "100", type: "phone" },
-      { name: "Ecobank Ghana", value: "0800-100-100", type: "phone" },
-      { name: "GCB Bank", value: "0302-673-980", type: "phone" },
-      { name: "CERT-GH (Cyber Security)", value: "0800-111-000", type: "phone" },
+      { name: "Cyber Security Authority: call or text (free, day and night)", value: "292", type: "phone" },
+      { name: "Cyber Security Authority on WhatsApp", value: "0501603111", type: "whatsapp" },
+      { name: "Your network: MTN, Telecel or AT (customer care)", value: "100", type: "phone" },
     ],
     preventionTip:
       "OTPs are like digital keys -- they unlock your accounts. No legitimate company, bank, or network provider will ever ask you to share an OTP. If someone asks, it is a scam.",
@@ -268,7 +268,7 @@ const incidents: Incident[] = [
       {
         title: "Ghana Card shared: Report to NIA",
         description:
-          "Call the National Identification Authority at 0302-770-424. Report that your Ghana Card details were compromised. They can flag your ID against fraudulent use.",
+          "Contact the National Identification Authority (NIA) through nia.gov.gh or visit an NIA office. Report that your Ghana Card details were shared so they can watch for misuse.",
         urgency: "first",
       },
       {
@@ -292,20 +292,19 @@ const incidents: Incident[] = [
       {
         title: "File a police report",
         description:
-          "Visit your nearest police station or call CID at 0302-773-906. A police report creates an official record and can help if the scammer uses your identity for fraud.",
+          "Visit your nearest police station or call the police on 191 (free). A police report creates an official record and can help if the scammer uses your identity for fraud.",
         urgency: "today",
       },
     ],
     contacts: [
       {
         name: "National Identification Authority (NIA)",
-        value: "0302-770-424",
-        type: "phone",
+        value: "nia.gov.gh",
+        type: "url",
       },
-      { name: "GCB Bank", value: "0302-673-980", type: "phone" },
-      { name: "Ecobank Ghana", value: "0800-100-100", type: "phone" },
-      { name: "Ghana Police CID", value: "0302-773-906", type: "phone" },
-      { name: "CERT-GH (Cyber Security)", value: "0800-111-000", type: "phone" },
+      { name: "Ghana Police (free on all networks)", value: "191", type: "phone" },
+      { name: "Cyber Security Authority: call or text (free, day and night)", value: "292", type: "phone" },
+      { name: "Cyber Security Authority on WhatsApp", value: "0501603111", type: "whatsapp" },
     ],
     preventionTip:
       "Be very careful about who you share your Ghana Card number, date of birth, or bank details with. Legitimate organizations already have your details on file and will not ask you to send them via chat or phone.",
@@ -356,8 +355,9 @@ const incidents: Incident[] = [
         value: "accounts.google.com/signin/recovery",
         type: "url",
       },
-      { name: "CERT-GH (Cyber Security)", value: "0800-111-000", type: "phone" },
-      { name: "Ghana Police CID", value: "0302-773-906", type: "phone" },
+      { name: "Cyber Security Authority: call or text (free, day and night)", value: "292", type: "phone" },
+      { name: "Cyber Security Authority on WhatsApp", value: "0501603111", type: "whatsapp" },
+      { name: "Ghana Police (free on all networks)", value: "191", type: "phone" },
     ],
     preventionTip:
       "Use a unique, strong password for your email -- it is the master key to your digital life. Enable 2-factor authentication and never use public Wi-Fi to log in without a VPN.",
@@ -714,17 +714,34 @@ export default function IncidentResponse() {
                             : contact.value}
                         </p>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="gap-1.5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                        onClick={() =>
-                          copyToClipboard(contact.value, contact.name)
-                        }
-                      >
-                        <Copy className="h-4 w-4" />
-                        Copy
-                      </Button>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {contact.type !== "email" && (
+                          <a
+                            href={
+                              contact.type === "phone" ? `tel:${contact.value.replace(/[^0-9+]/g, "")}`
+                              : contact.type === "whatsapp" ? `https://wa.me/233${contact.value.replace(/[^0-9]/g, "").replace(/^0/, "")}`
+                              : `https://${contact.value}`
+                            }
+                            target={contact.type === "phone" ? undefined : "_blank"}
+                            rel={contact.type === "phone" ? undefined : "noopener noreferrer"}
+                            className="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                          >
+                            {contact.type === "phone" ? <Phone className="h-4 w-4" /> : null}
+                            {contact.type === "phone" ? "Call" : contact.type === "whatsapp" ? "Chat" : "Open"}
+                          </a>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1.5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                          onClick={() =>
+                            copyToClipboard(contact.value, contact.name)
+                          }
+                        >
+                          <Copy className="h-4 w-4" />
+                          Copy
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </CardContent>
