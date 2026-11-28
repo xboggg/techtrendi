@@ -169,7 +169,9 @@ begin
     end if;
   end if;
 
-  -- Flood brakes
+  -- Flood brakes. One creation at a time (until this transaction ends), so requests sent
+  -- at the same moment cannot all pass the counts before any of them is saved.
+  perform pg_advisory_xact_lock(hashtext('techtrendi.create_short_link'));
   if (select count(*) from techtrendi.short_links where creator_hash = who and created_at > now() - interval '1 hour') >= 10
      or (select count(*) from techtrendi.short_links where creator_hash = who and created_at > now() - interval '1 day') >= 30 then
     return jsonb_build_object('error', 'too_many');

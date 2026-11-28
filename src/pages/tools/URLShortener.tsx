@@ -79,6 +79,9 @@ export default function URLShortener() {
   const [saved, setSaved] = useState<SavedLink[]>([]);
   const [stats, setStats] = useState<Record<string, LinkStats>>({});
   const [statsFailed, setStatsFailed] = useState(false);
+  // Codes the server has answered for. A link counts as removed only if the server was asked
+  // about it and did not return it, never while the counts are still loading.
+  const [checked, setChecked] = useState<Set<string>>(new Set());
   const [qrFor, setQrFor] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
@@ -91,6 +94,7 @@ export default function URLShortener() {
     }
     setStatsFailed(false);
     setStats(Object.fromEntries(s.map((x) => [x.code, x])));
+    setChecked(new Set(links.map((l) => l.code)));
   }, []);
 
   useEffect(() => {
@@ -253,7 +257,7 @@ export default function URLShortener() {
               <ul className="mt-4 space-y-3">
                 {saved.map((link) => {
                   const s = stats[link.code];
-                  const gone = !statsFailed && !s;
+                  const gone = checked.has(link.code) && !s;
                   return (
                     <li key={link.code} className="rounded-xl border bg-card p-4">
                       <div className="flex flex-wrap items-start justify-between gap-3">
