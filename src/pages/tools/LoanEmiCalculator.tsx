@@ -339,7 +339,7 @@ export default function LoanEmiCalculator() {
   return (
     <Layout>
       <SEOHead
-        title="Loan EMI Calculator - Calculate Monthly Payments & Interest"
+        title="Loan Calculator - Monthly Payments, Interest & Repayment Table"
         description="Free online Loan EMI Calculator. Calculate your monthly EMI, total interest, view amortization schedule, compare scenarios, and plan prepayments."
         canonical="/tools/loan-emi-calculator"
         keywords={["loan calculator", "EMI calculator", "monthly payment calculator", "amortization schedule", "loan interest calculator", "prepayment calculator"]}
@@ -357,7 +357,7 @@ export default function LoanEmiCalculator() {
               <Calculator className="w-8 h-8" />
             </div>
             <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-teal-600 to-green-600 bg-clip-text text-transparent mb-2">
-              Loan EMI Calculator
+              Loan Calculator
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Calculate your monthly EMI, view detailed amortization schedule, compare loan scenarios, and plan prepayments to save on interest.

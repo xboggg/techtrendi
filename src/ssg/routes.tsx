@@ -231,7 +231,8 @@ export const routes: RouteRecord[] = [
           { path: "tools/meeting-notes-summarizer", lazy: t(() => import("../pages/tools/MeetingNotesSummarizer")) },
           { path: "tools/ai-content-idea-generator", lazy: t(() => import("../pages/tools/AIContentIdeaGenerator")) },
           { path: "tools/ai-prompt-generator", lazy: t(() => import("../pages/tools/AIPromptImprover")) },
-          { path: "tools/ai-startup-name-generator", lazy: t(() => import("../pages/tools/AIStartupNameGenerator")) },
+          // ai-startup-name-generator merged 2026-11-28 into business-name-generator (nginx 301);
+          // AIStartupNameGenerator.tsx kept so this can be undone.
           { path: "tools/adsense-calculator", lazy: t(() => import("../pages/tools/AdSenseCalculator")) },
           { path: "tools/bill-splitter", lazy: t(() => import("../pages/tools/BillSplitter")) },
           { path: "tools/bmi-calculator", lazy: t(() => import("../pages/tools/BmiCalculator")) },
@@ -242,7 +243,8 @@ export const routes: RouteRecord[] = [
           { path: "tools/freelance-rate-calculator", lazy: t(() => import("../pages/tools/FreelanceRateCalculator")) },
           { path: "tools/image-converter", lazy: t(() => import("../pages/tools/ImageConverter")) },
           { path: "tools/meme-generator", lazy: t(() => import("../pages/tools/MemeGenerator")) },
-          { path: "tools/mortgage-calculator", lazy: t(() => import("../pages/tools/LoanCalculator")) },
+          // mortgage-calculator (served LoanCalculator.tsx, titled "Loan Calculator") merged
+          // 2026-11-28 into loan-emi-calculator (nginx 301); LoanCalculator.tsx kept.
           { path: "tools/startup-cost-calculator", lazy: t(() => import("../pages/tools/StartupCostCalculator")) },
           { path: "tools/text-to-speech", lazy: t(() => import("../pages/tools/TextToSpeech")) },
           { path: "tools/world-clock", lazy: t(() => import("../pages/tools/WorldClock")) },
