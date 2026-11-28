@@ -10,6 +10,33 @@ export const toolContentData: Record<string, ToolContent> = {
   // BUSINESS & FREELANCER TOOLS
   // ==========================================
 
+  'phone-comparison': {
+    intro:
+      'Compare two phones side by side before you buy: screen, processor, memory, cameras, battery, charging and more. The list covers the phones that Samsung, Tecno, Infinix, itel, Apple and Xiaomi show on their own websites, including the cheaper models most people in Ghana buy.',
+    howTo: [
+      'Pick the first phone from the list',
+      'Pick the second phone',
+      'Read the specs side by side; the bigger battery and faster charging are shown in green',
+      'Tap the source link under each phone to see the maker\'s own page',
+    ],
+    whyNeedIt:
+      'Shop adverts often show only the good numbers. Seeing two phones next to each other, with specs taken from the makers themselves, makes it easier to see what you are really paying for.',
+    faqs: [
+      {
+        q: 'Where do the specs come from?',
+        a: 'From each phone maker\'s own website. Our system copies the specs from that page and then checks every value against the page again. If the maker does not say something, we leave it blank instead of guessing.',
+      },
+      {
+        q: 'Why is a new phone not in the list yet?',
+        a: 'We look for new models every week. Each new phone is checked by a person before it appears, so it can take a few days.',
+      },
+      {
+        q: 'Why are there no prices?',
+        a: 'Prices change from shop to shop and week to week in Ghana, so a price here would soon be wrong. Compare the specs here, then check prices with a trusted seller.',
+      },
+    ],
+  },
+
   'momo-fee-calculator': {
     intro:
       'Mobile money runs daily life in Ghana, but the fees can be confusing — and most calculators online are flat-out wrong because they still add the E-Levy, which was abolished back in April 2025. This one is current. Pick your network, choose whether you are sending or cashing out, type the amount, and you will see the exact fee before you ever dial *170#. No sign-up, no stored data.',
@@ -2149,20 +2176,6 @@ export const toolContentData: Record<string, ToolContent> = {
     { q: "Does this work for Ghanaian crops?", a: "Yes. It includes common crops grown in Ghana like maize, cassava, cocoa, rice, and vegetables. You can also enter custom crop data for anything not listed." },
     { q: "How accurate are the yield estimates?", a: "They are based on average yields for each crop. Your actual yield depends on soil quality, weather, farming practices, and many other factors. Use the estimates as a starting point and adjust based on your experience." },
     { q: "Can I compare different crops?", a: "Yes. Run the calculator for each crop you are considering and compare the projected profits. This helps you decide what to plant if you have limited land." },
-  ],
-},
-"phone-comparison": {
-  intro: "Compare smartphones side by side — specs, prices, cameras, battery life, and more. Enter two or more models and get a clear breakdown of how they stack up against each other.",
-  howTo: [
-    "Search for and select the phones you want to compare.",
-    "View the side-by-side spec comparison.",
-    "Read the summary highlighting key differences and which phone wins in each category.",
-  ],
-  whyNeedIt: "Choosing a new phone is overwhelming with hundreds of models on the market. Spec sheets are hard to compare when they are on different websites in different formats. This tool puts everything in one table so the differences are obvious.",
-  faqs: [
-    { q: "How many phones can I compare at once?", a: "You can compare two or more phones simultaneously. Comparing more than three at once gets crowded, so two or three is the sweet spot for readability." },
-    { q: "Does it include phone prices?", a: "Yes, where available. Prices vary by region and retailer, so use them as a general guide. The tool tries to show current market prices." },
-    { q: "Are budget phones included?", a: "Yes. The database covers phones across all price ranges, from budget devices to flagships. Not everyone needs the most expensive phone — sometimes a mid-range model does everything you need." },
   ],
 },
 "upgrade-calculator": {
