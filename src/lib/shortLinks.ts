@@ -82,13 +82,20 @@ export async function reportShortLink(code: string, reason: string): Promise<boo
   }
 }
 
+// The database answers for at most 200 links per call, so ask in batches.
+const STATS_BATCH = 150;
+
 export async function linkStats(links: SavedLink[]): Promise<LinkStats[] | null> {
-  if (!links.length) return [];
-  const { data, error } = await rpc("short_link_stats", {
-    p_items: links.map(({ code, token }) => ({ code, token })),
-  });
-  if (error || !Array.isArray(data)) return null;
-  return data as LinkStats[];
+  const out: LinkStats[] = [];
+  for (let i = 0; i < links.length; i += STATS_BATCH) {
+    const batch = links.slice(i, i + STATS_BATCH);
+    const { data, error } = await rpc("short_link_stats", {
+      p_items: batch.map(({ code, token }) => ({ code, token })),
+    });
+    if (error || !Array.isArray(data)) return null;
+    out.push(...(data as LinkStats[]));
+  }
+  return out;
 }
 
 export async function deleteShortLink(link: SavedLink): Promise<boolean> {
@@ -115,7 +122,9 @@ export function forgetLink(code: string) {
 
 function saveLinks(links: SavedLink[]) {
   try {
-    localStorage.setItem(STORE_KEY, JSON.stringify(links.slice(0, 200)));
+    // Keep every link: dropping one would lose its private key, and with it the only way
+    // to see its clicks or remove it. (A visitor can make at most 30 links a day.)
+    localStorage.setItem(STORE_KEY, JSON.stringify(links));
   } catch {
     // storage blocked (private window): the link still works, only the list is not kept
   }
