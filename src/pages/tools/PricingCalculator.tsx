@@ -80,7 +80,7 @@ const defaultProduct: ProductData = {
 };
 
 export default function PricingCalculator() {
-  const [mode, setMode] = useState<"freelance" | "product">("freelance");
+  const [mode, setMode] = useState<"freelance" | "product">("product");
   const [freelance, setFreelance] = useState<FreelanceData>(defaultFreelance);
   const [product, setProduct] = useState<ProductData>(defaultProduct);
   const [copied, setCopied] = useState(false);
@@ -158,9 +158,9 @@ export default function PricingCalculator() {
   }, [product]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-GH", {
       style: "currency",
-      currency: "USD",
+      currency: "GHS",
       maximumFractionDigits: 0,
     }).format(amount);
   };
@@ -193,8 +193,8 @@ Calculated with TechTrendi Pricing Calculator`;
   return (
     <Layout>
       <SEOHead
-        title="Pricing Calculator - Calculate Your Rates | TechTrendi"
-        description="Calculate your freelance hourly rate or product pricing. Factor in expenses, taxes, and profit margins to price your services correctly."
+        title="Product Pricing Calculator - Set a Price That Makes Profit"
+        description="Work out the right selling price for a product: cost, overheads, profit margin and how you compare with competitors."
         canonicalUrl="https://techtrendi.com/tools/pricing-calculator"
       />
 
@@ -205,280 +205,19 @@ Calculated with TechTrendi Pricing Calculator`;
             Free Tool
           </Badge>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Pricing <span className="text-primary">Calculator</span>
+            Product Pricing <span className="text-primary">Calculator</span>
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Calculate the right price for your services or products
+            Work out a selling price that covers your costs and leaves a profit
           </p>
         </div>
 
         <Tabs value={mode} onValueChange={(v) => setMode(v as "freelance" | "product")}>
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
-            <TabsTrigger value="freelance">
-              <Briefcase className="w-4 h-4 mr-2" />
-              Freelance Rates
-            </TabsTrigger>
-            <TabsTrigger value="product">
-              <DollarSign className="w-4 h-4 mr-2" />
-              Product Pricing
-            </TabsTrigger>
-          </TabsList>
+          <p className="mb-8 text-center text-sm text-muted-foreground">
+            Pricing your time instead of a product? Use the{" "}
+            <a href="/tools/freelance-rate-calculator" className="font-medium text-primary underline">Freelance Rate Calculator</a>.
+          </p>
 
-          {/* Freelance Calculator */}
-          <TabsContent value="freelance">
-            <div className="grid lg:grid-cols-2 gap-8">
-              {/* Input */}
-              <div className="space-y-6">
-                {/* Income Goal */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Target className="w-4 h-4" />
-                      Income Goal
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div>
-                      <Label>Annual Take-Home Income Goal</Label>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="text-muted-foreground">$</span>
-                        <Input
-                          type="number"
-                          value={freelance.annualIncomeGoal}
-                          onChange={(e) =>
-                            setFreelance((prev) => ({
-                              ...prev,
-                              annualIncomeGoal: parseInt(e.target.value) || 0,
-                            }))
-                          }
-                          className="text-xl font-bold"
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Work Schedule */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      Work Schedule
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div>
-                      <Label>Work Hours Per Day: {freelance.workHoursPerDay}</Label>
-                      <Slider
-                        value={[freelance.workHoursPerDay]}
-                        onValueChange={([v]) =>
-                          setFreelance((prev) => ({ ...prev, workHoursPerDay: v }))
-                        }
-                        min={4}
-                        max={12}
-                        step={1}
-                        className="mt-2"
-                      />
-                    </div>
-                    <div>
-                      <Label>Work Days Per Week: {freelance.workDaysPerWeek}</Label>
-                      <Slider
-                        value={[freelance.workDaysPerWeek]}
-                        onValueChange={([v]) =>
-                          setFreelance((prev) => ({ ...prev, workDaysPerWeek: v }))
-                        }
-                        min={1}
-                        max={7}
-                        step={1}
-                        className="mt-2"
-                      />
-                    </div>
-                    <div>
-                      <Label>Vacation Weeks Per Year: {freelance.vacationWeeksPerYear}</Label>
-                      <Slider
-                        value={[freelance.vacationWeeksPerYear]}
-                        onValueChange={([v]) =>
-                          setFreelance((prev) => ({ ...prev, vacationWeeksPerYear: v }))
-                        }
-                        min={0}
-                        max={12}
-                        step={1}
-                        className="mt-2"
-                      />
-                    </div>
-                    <div>
-                      <Label>Billable Hours: {freelance.billablePercentage}%</Label>
-                      <p className="text-xs text-muted-foreground mb-2">
-                        Time actually spent on client work
-                      </p>
-                      <Slider
-                        value={[freelance.billablePercentage]}
-                        onValueChange={([v]) =>
-                          setFreelance((prev) => ({ ...prev, billablePercentage: v }))
-                        }
-                        min={30}
-                        max={90}
-                        step={5}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Expenses & Taxes */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <PiggyBank className="w-4 h-4" />
-                      Expenses & Taxes
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label>Monthly Business Expenses ($)</Label>
-                      <Input
-                        type="number"
-                        value={freelance.monthlyExpenses}
-                        onChange={(e) =>
-                          setFreelance((prev) => ({
-                            ...prev,
-                            monthlyExpenses: parseInt(e.target.value) || 0,
-                          }))
-                        }
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Software, tools, workspace, insurance, etc.
-                      </p>
-                    </div>
-                    <div>
-                      <Label>Estimated Tax Rate: {freelance.taxRate}%</Label>
-                      <Slider
-                        value={[freelance.taxRate]}
-                        onValueChange={([v]) =>
-                          setFreelance((prev) => ({ ...prev, taxRate: v }))
-                        }
-                        min={10}
-                        max={50}
-                        step={1}
-                        className="mt-2"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Project Settings */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Project Pricing</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label>Average Project Hours: {freelance.averageProjectHours}</Label>
-                      <Slider
-                        value={[freelance.averageProjectHours]}
-                        onValueChange={([v]) =>
-                          setFreelance((prev) => ({ ...prev, averageProjectHours: v }))
-                        }
-                        min={5}
-                        max={200}
-                        step={5}
-                        className="mt-2"
-                      />
-                    </div>
-                    <div>
-                      <Label>Desired Profit Margin: {freelance.desiredProfitMargin}%</Label>
-                      <Slider
-                        value={[freelance.desiredProfitMargin]}
-                        onValueChange={([v]) =>
-                          setFreelance((prev) => ({ ...prev, desiredProfitMargin: v }))
-                        }
-                        min={0}
-                        max={50}
-                        step={5}
-                        className="mt-2"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Results */}
-              <div className="space-y-6">
-                <Card className="border-primary/30">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-muted-foreground text-sm">Your Minimum Hourly Rate</CardTitle>
-                    <p className="text-5xl font-bold text-primary">
-                      {formatCurrency(freelanceCalc.hourlyRate)}
-                    </p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center p-4 bg-muted/50 rounded-lg">
-                        <p className="text-2xl font-bold">{formatCurrency(freelanceCalc.dailyRate)}</p>
-                        <p className="text-sm text-muted-foreground">Daily</p>
-                      </div>
-                      <div className="text-center p-4 bg-muted/50 rounded-lg">
-                        <p className="text-2xl font-bold">{formatCurrency(freelanceCalc.weeklyRate)}</p>
-                        <p className="text-sm text-muted-foreground">Weekly</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Project Pricing</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center p-3 bg-muted/50 rounded-lg">
-                        <span>Base Project Rate ({freelance.averageProjectHours}h)</span>
-                        <span className="font-bold">{formatCurrency(freelanceCalc.projectRate)}</span>
-                      </div>
-                      <div className="flex justify-between items-center p-3 bg-primary/10 rounded-lg border border-primary/30">
-                        <span>With {freelance.desiredProfitMargin}% Profit Margin</span>
-                        <span className="font-bold text-primary">
-                          {formatCurrency(freelanceCalc.projectWithProfit)}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Annual Breakdown</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Billable Hours</span>
-                        <span>{freelanceCalc.billableHours} hours</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Annual Overhead</span>
-                        <span>{formatCurrency(freelanceCalc.annualOverhead)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Estimated Taxes</span>
-                        <span>{formatCurrency(freelanceCalc.effectiveTaxAmount)}</span>
-                      </div>
-                      <div className="border-t pt-2 flex justify-between font-bold">
-                        <span>Total Revenue Needed</span>
-                        <span className="text-primary">{formatCurrency(freelanceCalc.totalRevenue)}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Button onClick={copyRates} className="w-full">
-                  {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-                  Copy My Rates
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Product Pricing Calculator */}
           <TabsContent value="product">
             <div className="grid lg:grid-cols-2 gap-8">
               {/* Input */}
@@ -489,7 +228,7 @@ Calculated with TechTrendi Pricing Calculator`;
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label>Production Cost Per Unit ($)</Label>
+                      <Label>Production Cost Per Unit (GH₵)</Label>
                       <Input
                         type="number"
                         step="0.01"
@@ -503,7 +242,7 @@ Calculated with TechTrendi Pricing Calculator`;
                       />
                     </div>
                     <div>
-                      <Label>Shipping Cost Per Unit ($)</Label>
+                      <Label>Shipping Cost Per Unit (GH₵)</Label>
                       <Input
                         type="number"
                         step="0.01"
@@ -517,7 +256,7 @@ Calculated with TechTrendi Pricing Calculator`;
                       />
                     </div>
                     <div>
-                      <Label>Overhead Per Unit ($)</Label>
+                      <Label>Overhead Per Unit (GH₵)</Label>
                       <Input
                         type="number"
                         step="0.01"
@@ -555,7 +294,7 @@ Calculated with TechTrendi Pricing Calculator`;
                       />
                     </div>
                     <div>
-                      <Label>Competitor Price ($)</Label>
+                      <Label>Competitor Price (GH₵)</Label>
                       <Input
                         type="number"
                         step="0.01"
@@ -634,7 +373,7 @@ Calculated with TechTrendi Pricing Calculator`;
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="text-center p-4 bg-muted/50 rounded-lg">
-                        <p className="text-2xl font-bold">${productCalc.profitPerUnit}</p>
+                        <p className="text-2xl font-bold">GH₵{productCalc.profitPerUnit}</p>
                         <p className="text-sm text-muted-foreground">Profit/Unit</p>
                       </div>
                       <div className="text-center p-4 bg-muted/50 rounded-lg">
@@ -679,7 +418,7 @@ Calculated with TechTrendi Pricing Calculator`;
                     <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                       <div>
                         <p className="text-sm text-muted-foreground">vs Competitor Price</p>
-                        <p className="font-bold">${product.competitorPrice}</p>
+                        <p className="font-bold">GH₵{product.competitorPrice}</p>
                       </div>
                       <div className={cn(
                         "text-lg font-bold",
@@ -707,19 +446,19 @@ Calculated with TechTrendi Pricing Calculator`;
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Production</span>
-                        <span>${product.productionCost.toFixed(2)}</span>
+                        <span>GH₵{product.productionCost.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Shipping</span>
-                        <span>${product.shippingCost.toFixed(2)}</span>
+                        <span>GH₵{product.shippingCost.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Overhead</span>
-                        <span>${product.overheadPerUnit.toFixed(2)}</span>
+                        <span>GH₵{product.overheadPerUnit.toFixed(2)}</span>
                       </div>
                       <div className="border-t pt-2 flex justify-between font-bold">
                         <span>Total Cost</span>
-                        <span>${productCalc.totalCost}</span>
+                        <span>GH₵{productCalc.totalCost}</span>
                       </div>
                     </div>
                   </CardContent>

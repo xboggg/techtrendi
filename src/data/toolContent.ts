@@ -185,27 +185,27 @@ export const toolContentData: Record<string, ToolContent> = {
 
   'pricing-calculator': {
     intro:
-      'Calculate project-based pricing that actually covers your costs and leaves a profit margin. Enter your time estimate, expenses, and desired margin, and get a price you can confidently quote. Stops the guesswork that leads to undercharging.',
+      'Work out a selling price for a product that covers what it costs you and still leaves a profit. Enter the cost to make or buy one item, delivery, a share of your running costs (rent, data, transport), and the margin you want. You also see how your price compares with a competitor.',
     howTo: [
-      'Estimate the hours the project will take',
-      'Add any direct costs like software, materials, or subcontractors',
-      'Set your desired profit margin',
-      'Get a total project price broken down by component',
+      'Enter what one item costs you to make or buy',
+      'Add delivery and a share of your running costs per item',
+      'Set the profit margin you want',
+      'Compare the suggested price with what competitors charge',
     ],
     whyNeedIt:
-      'Flat-rate pricing sounds great until you\'re 40 hours deep on a "quick project" that you quoted too low. Running the numbers first means you actually get paid fairly and can explain your pricing to clients.',
+      'Many small sellers copy the market price and only find out later that they were losing money on every sale once transport and data were counted. Doing the sums first shows the lowest price you can safely sell at.',
     faqs: [
       {
         q: 'What profit margin should I aim for?',
-        a: 'Most service businesses target 20-40%. The tool lets you try different margins to see what feels right for your market.',
+        a: 'It depends on your trade. Try a few margins and check the price against what customers already pay for similar items.',
       },
       {
-        q: 'Can I factor in revisions?',
-        a: 'Yes. Add a revision buffer to your hours estimate — most projects need 10-20% extra for changes.',
+        q: 'What are running costs per item?',
+        a: 'Your monthly costs such as rent, data, electricity and transport, divided by how many items you sell in a month.',
       },
       {
-        q: 'Does it work for product pricing too?',
-        a: 'It\'s geared toward service pricing, but the cost-plus-margin approach works for physical or digital products as well.',
+        q: 'Can I price my time or a service here?',
+        a: 'For an hourly or day rate, use the Freelance Rate Calculator. This page is for products.',
       },
     ],
   },
