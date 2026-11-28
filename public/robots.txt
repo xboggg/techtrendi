@@ -1,18 +1,18 @@
 # robots.txt for TechTrendi
 # https://techtrendi.com
 
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
+# Social preview bots may fetch everything (WhatsApp/Facebook/X link cards).
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
 
+# Search engines and everyone else. Googlebot and Bingbot are in THIS group on
+# purpose: a separate "User-agent: Googlebot / Allow: /" group made Google
+# ignore the Disallow lines below (audit 28 Nov 2026).
+User-agent: Googlebot
+User-agent: Bingbot
 User-agent: *
 Allow: /
 

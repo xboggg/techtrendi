@@ -172,7 +172,7 @@ export default function BudgetTracker() {
       <SEOHead
         title="Budget Tracker - Manage Your Budget | TechTrendi"
         description="Track your budget with category breakdowns, progress bars, and visual charts. Free budget management tool with spending analysis."
-        canonicalUrl="https://techtrendi.com/tools/budget-tracker"
+        canonicalUrl="https://techtrendi.com/tools/expense-tracker"
       />
 
       <div className="container py-12 md:py-20 max-w-6xl">

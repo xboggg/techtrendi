@@ -9,16 +9,19 @@ import { Zap, Info } from "lucide-react";
 import { GhanaFlag } from "@/components/ui/ghana-flag";
 
 // ---------------------------------------------------------------------------
-// TARIFF — official PURC "2026 Second Quarter Tariff Review Decision",
-// effective 1 April 2026 (residential). Values converted from pesewas (GHp) to
-// cedis. Maintainer: PURC reviews quarterly — update TARIFF_AS_OF + the rates.
+// TARIFF — PURC Q3 2026 review, effective 1 July 2026, kept for Q4 2026.
+// PURC raised energy charges 3.49% for ALL customer categories and left service
+// charges unchanged (Graphic/Citi 22 Jun 2026; GNA Sep 2026). The one band PURC
+// quoted (lifeline 86.9 → 89.93 GHp/kWh) is exactly Q2 × 1.0349, so the other
+// bands below are the Q2 2026 values × 1.0349 (checked 28 Nov 2026).
+// Maintainer: PURC reviews quarterly — update TARIFF_AS_OF + the rates.
 // ---------------------------------------------------------------------------
-const TARIFF_AS_OF = "PURC Q2 2026 (effective 1 April 2026)";
+const TARIFF_AS_OF = "PURC Q3 2026 (effective 1 July 2026, unchanged for Q4)";
 
-const RATE_LIFELINE = 0.8690; // GHS/kWh, for total monthly use ≤ 30 kWh
+const RATE_LIFELINE = 0.8993; // GHS/kWh, for total monthly use ≤ 30 kWh
 const SERVICE_LIFELINE = 2.13; // GHS/month
-const RATE_TIER1 = 1.968825; // GHS/kWh, first 300 kWh (non-lifeline)
-const RATE_TIER2 = 2.601481; // GHS/kWh, above 300 kWh
+const RATE_TIER1 = 2.037537; // GHS/kWh, first 300 kWh (non-lifeline)
+const RATE_TIER2 = 2.692273; // GHS/kWh, above 300 kWh
 const SERVICE_RESIDENTIAL = 10.730886; // GHS/month
 
 function computeBill(kwh: number) {

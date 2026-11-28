@@ -23,9 +23,9 @@ export const SCAM_PATTERNS = [
   { pattern: /click.*link|tap.*link|visit.*link|follow.*link/i, label: "Link click request", risk: "high" as const, description: "Scam messages almost always ask you to click an external link urgently." },
   { pattern: /congratulations.*won|you have won|prize.*claim|lottery.*winner/i, label: "Prize/lottery claim", risk: "high" as const, description: "You cannot win a lottery you did not enter. These are universally fraudulent." },
   { pattern: /bitcoin|crypto.*invest|forex.*profit|investment.*guaranteed|daily.*returns/i, label: "Crypto/forex investment", risk: "high" as const, description: "Guaranteed investment returns are a hallmark of financial fraud." },
-  { pattern: /your (mtn|vodafone|airteltigo|glo).*number.*selected|sim.*prize/i, label: "Telecom prize claim", risk: "high" as const, description: "Telecom companies do not award prizes via random SMS to selected numbers." },
+  { pattern: /your (mtn|telecel|vodafone|airteltigo|at|glo).*number.*selected|sim.*prize/i, label: "Telecom prize claim", risk: "high" as const, description: "Telecom companies do not award prizes via random SMS to selected numbers." },
   { pattern: /job offer|work from home.*earn|earn.*per day|earn.*cedis.*daily/i, label: "Too-good-to-be-true job", risk: "high" as const, description: "Legitimate employers advertise jobs through proper channels, not unsolicited messages." },
-  { pattern: /urgent|immediately|expire.*today|last chance|act now|within.*hours/i, label: "Artificial urgency", risk: "medium" as const, description: "Creating panic to prevent you from thinking clearly is a core scam technique." },
+  { pattern: /urgent|immediately|expire.*today|last chance|act now|within.*hours|ends? (in|today|tonight|soon)|offer ends|\d+\s*(hours?|hrs?|minutes?|mins?) (left|only|remaining)/i, label: "Artificial urgency", risk: "medium" as const, description: "Creating panic to prevent you from thinking clearly is a core scam technique." },
   { pattern: /wrong.*number|hello dear|hello friend|dear customer/i, label: "Generic opener / wrong number approach", risk: "medium" as const, description: "'Wrong number' followed by friendship is a known pig-butchering scam entry point." },
   // The "send it back" reversal trick. The old pattern required the literal
   // word "momo", or the exact sequences "mistaken transfer" / "sent wrong",
@@ -41,6 +41,9 @@ export const SCAM_PATTERNS = [
   // someone promising to repay *you*, the opposite of the scam, and flagging a
   // friend settling a debt would train people to ignore this tool.
   { pattern: /(?<!i['’]?(ll| will) )(?<!i )(send|give|return|reverse|transfer)\s+(it|me|the|my)?\s*(money|cash|amount|funds|cedis|ghs|ghc)?\s*back\b|kindly (return|reverse|send.{0,15}back)|return (it|the money|my money)\b/i, label: "Request to send money back", risk: "high" as const, description: "Being asked to send money 'back' to someone you do not know is a hallmark of the reversal scam. Legitimate mis-sent mobile money is recovered through the network's own reversal process, not by you transferring it yourself." },
+  // PIN request (audit 28 Nov 2026: "send your MoMo PIN" was not flagged at all).
+  // Skips warnings like "Do not share your PIN" / "never give your PIN".
+  { pattern: /(?<!(not|never|n't|dont|don't)\s)(send|give|share|tell|enter|type|confirm|provide|input|reply with)\s+(me\s+|us\s+)?(your|the|ur|ya)\s+(momo\s+|mobile money\s+|atm\s+|card\s+|secret\s+|wallet\s+)?(pin|pin code|secret code)\b/i, label: "Asks for your PIN", risk: "high" as const, description: "Never give your MoMo or bank PIN to anyone, for any reason. MTN, Telecel, AT and the banks will never ask for it. Anyone who asks for your PIN is trying to empty your wallet." },
   { pattern: /otp|one.time.*password|code.*sent|verify.*code/i, label: "OTP/code request", risk: "high" as const, description: "No legitimate service will ask you for an OTP sent to your phone. If they ask, hang up or ignore." },
   { pattern: /your package|parcel.*held|dhl|fedex|gha.*post.*delivery/i, label: "Fake delivery fee", risk: "high" as const, description: "Courier companies do not send payment links via SMS for delivery fees." },
 
@@ -87,12 +90,15 @@ export function isTrusted(domain: string): boolean {
 }
 
 export const NUMBER_PATTERNS = [
-  { pattern: /^(\+?233|0)(20|24|54|55|59)\d{7}$/, label: "MTN Ghana number", risk: "low" as const, description: "Standard MTN Ghana mobile number format." },
-  { pattern: /^(\+?233|0)(30|50)\d{7}$/, label: "Vodafone Ghana number", risk: "low" as const, description: "Standard Vodafone Ghana number format." },
-  { pattern: /^(\+?233|0)(27|57|26|56)\d{7}$/, label: "AirtelTigo Ghana number", risk: "low" as const, description: "Standard AirtelTigo Ghana number format." },
-  { pattern: /^\+?44\d{10}$/, label: "UK international number", risk: "medium" as const, description: "International number from UK. Use caution with unexpected contact from overseas numbers." },
-  { pattern: /^\+?1\d{10}$/, label: "US/Canada number", risk: "medium" as const, description: "North American number. Scammers frequently spoof or use US numbers." },
-  { pattern: /^\+?(234)\d{10}$/, label: "Nigerian number", risk: "medium" as const, description: "Nigerian number. Many legitimate Ghanaians have Nigerian contacts, but verify identity independently." },
+  // Ghana mobile ranges (checked 28 Nov 2026: Wikipedia "Telephone numbers in Ghana",
+  // NCA numbering plan). People can move numbers between networks, so the first
+  // network is only a hint. A normal Ghana number is NOT a warning sign by itself.
+  { pattern: /^(\+?233|0)(24|25|53|54|55|59)\d{7}$/, label: "Ordinary Ghana mobile number (first given to MTN)", risk: "low" as const, ghana: true, description: "This is a normal Ghana mobile number. That does NOT prove the person is honest: scammers use ordinary local numbers too. Judge the message, not the number." },
+  { pattern: /^(\+?233|0)(20|50)\d{7}$/, label: "Ordinary Ghana mobile number (first given to Telecel)", risk: "low" as const, ghana: true, description: "This is a normal Ghana mobile number (Telecel was called Vodafone before 2024). That does NOT prove the person is honest: scammers use ordinary local numbers too." },
+  { pattern: /^(\+?233|0)(26|27|56|57)\d{7}$/, label: "Ordinary Ghana mobile number (first given to AT)", risk: "low" as const, ghana: true, description: "This is a normal Ghana mobile number (AT was called AirtelTigo before). That does NOT prove the person is honest: scammers use ordinary local numbers too." },
+  { pattern: /^\+?44\d{10}$/, label: "UK international number", risk: "medium" as const, ghana: false, description: "International number from UK. Use caution with unexpected contact from overseas numbers." },
+  { pattern: /^\+?1\d{10}$/, label: "US/Canada number", risk: "medium" as const, ghana: false, description: "North American number. Scammers frequently spoof or use US numbers." },
+  { pattern: /^\+?(234)\d{10}$/, label: "Nigerian number", risk: "medium" as const, ghana: false, description: "Nigerian number. Many legitimate Ghanaians have Nigerian contacts, but verify identity independently." },
 ];
 
 export type ScamVerdict = "high" | "medium" | "low" | "clear";
@@ -117,7 +123,9 @@ export function checkMessage(input: string): { indicators: ScamIndicator[]; verd
 
   const highCount = indicators.filter(i => i.risk === "high").length;
   const medCount = indicators.filter(i => i.risk === "medium").length;
-  const verdict: ScamVerdict = highCount >= 2 ? "high"
+  // Asking for a PIN is never innocent, so on its own it gives the strongest warning.
+  const asksForPin = indicators.some(i => i.label === "Asks for your PIN");
+  const verdict: ScamVerdict = highCount >= 2 || asksForPin ? "high"
     : highCount === 1 || medCount >= 2 ? "medium"
     : indicators.length === 0 ? "clear"
     : "low";

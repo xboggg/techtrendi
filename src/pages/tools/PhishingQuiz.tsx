@@ -132,12 +132,12 @@ const allQuestions: QuizMessage[] = [
   {
     id: 9,
     type: "Email",
-    from: "billing@vodafone.com.gh",
-    text: "Dear Customer, your Vodafone postpaid bill for March 2026 is ready. Amount due: GHS 89.50. Payment deadline: 28 March 2026. View your bill at My Vodafone App or visit any Vodafone shop. Thank you.",
+    from: "billing@telecel.com.gh",
+    text: "Dear Customer, your Telecel postpaid bill for October 2026 is ready. Amount due: GHS 89.50. Payment deadline: 28 November 2026. View your bill in the official Telecel app or visit any Telecel shop. Thank you.",
     time: "7:30 AM",
     isScam: false,
     explanation:
-      "This is a legitimate billing notification from Vodafone. It comes from the official domain, references a specific billing period and amount, and directs you to official channels (app or shop) rather than suspicious links.",
+      "This is a legitimate billing notification from Telecel (formerly Vodafone Ghana). It comes from the official domain, references a specific billing period and amount, and directs you to official channels (app or shop) rather than suspicious links.",
     verdictEmoji: "\u2705",
   },
   {
@@ -154,8 +154,8 @@ const allQuestions: QuizMessage[] = [
   {
     id: 11,
     type: "SMS",
-    from: "AirtelTigo",
-    text: "You have received GHS 50 in your AirtelTigo Money wallet from AKOSUA D. New Balance: GHS 173.20. Dial *110# for help. Thank you for choosing AirtelTigo Money.",
+    from: "AT Money",
+    text: "You have received GHS 50 in your AT Money wallet from AKOSUA D. New Balance: GHS 173.20. Dial *110# for help. Thank you for choosing AT Money.",
     time: "9:41 AM",
     isScam: false,
     explanation:
@@ -264,12 +264,12 @@ const allQuestions: QuizMessage[] = [
   {
     id: 21,
     type: "Email",
-    from: "hr@vodafone-ghana-recruitment.com",
-    text: "Your CV has been shortlisted for a Customer Service role at Vodafone Ghana (Remote, GHS 6,500/month). To confirm your interview slot, complete the attached form with your Ghana Card number, bank account, and a GHS 250 'training kit' fee.",
+    from: "hr@telecel-ghana-recruitment.com",
+    text: "Your CV has been shortlisted for a Customer Service role at Telecel Ghana (Remote, GHS 6,500/month). To confirm your interview slot, complete the attached form with your Ghana Card number, bank account, and a GHS 250 'training kit' fee.",
     time: "5:40 PM",
     isScam: true,
     explanation:
-      "Legitimate employers never charge candidates a fee for a 'training kit' before hiring, and this comes from a lookalike domain, not vodafone.com.gh. Combined with a request for your Ghana Card and bank details upfront, this is a job scam.",
+      "Legitimate employers never charge candidates a fee for a 'training kit' before hiring, and this comes from a lookalike domain, not telecel.com.gh. Combined with a request for your Ghana Card and bank details upfront, this is a job scam.",
     verdictEmoji: "\u{1F6A8}",
   },
   {

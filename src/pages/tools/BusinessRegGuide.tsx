@@ -69,6 +69,15 @@ interface GuideResult {
   commonMistakes: string[];
 }
 
+// Checked facts for Ghana (28 Nov 2026), given to the AI so it does not guess.
+// Sources: ORC "Fees and Charges 2026" (orc.gov.gh/wp-content/uploads/2026/07/FINAL-FEES-AND-CHARGES-2026.pdf)
+// and orc.gov.gh/service/business-registration. Update when ORC changes its fees.
+const GHANA_FACTS = `Checked facts for Ghana (use these, do not contradict them):
+- The Office of the Registrar of Companies (ORC, orc.gov.gh) registers ALL businesses: business names (sole proprietorships), partnerships and companies. The old Registrar General's Department (RGD) no longer does this.
+- ORC 2026 fee to register a business name (sole proprietorship): GH₵130. Certified copy of a business name: GH₵30.
+- Registration is done online on the ORC portal at orc.gov.gh. A Ghana Card (which is also your TIN) is needed.
+- For any other fee you are not sure of, say "check the current fee on orc.gov.gh".`;
+
 export default function BusinessRegGuide() {
   const [country, setCountry] = useState("");
   const [structure, setStructure] = useState("");
@@ -103,13 +112,14 @@ Business Structure: ${structure}
 Business Type: ${businessType.trim()}
 Starting Capital: ${capital || "Not specified"}
 ${questions.trim() ? `Additional Questions: ${questions.trim()}` : ""}
+${country === "Ghana" ? GHANA_FACTS : ""}
 
 Provide 4-7 clear, numbered steps. For each step include:
 - name: Short step title (e.g., "Reserve Business Name")
 - description: 2-3 sentence explanation of what to do
 - duration: Estimated time (e.g., "1-3 business days")
-- cost: Estimated cost in local currency with USD equivalent (e.g., "GHS 50 (~$4)")
-- where: Where to go / website (e.g., "Registrar General's Department (rgd.gov.gh)")
+- cost: Estimated cost in local currency (e.g., "GH₵130")
+- where: Where to go / website (e.g., "Office of the Registrar of Companies (orc.gov.gh)")
 - documents: Array of required documents for this step
 
 Also provide:
@@ -135,7 +145,7 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
               {
                 role: "system",
                 content:
-                  "You are a business registration expert for African countries. Respond with valid JSON only. Be specific about offices, websites, fees, and required documents. Use current 2025/2026 information.",
+                  "You are a business registration expert for African countries. Respond with valid JSON only. Be specific about offices, websites, fees, and required documents. Use current 2026 information. If you are not sure of a fee, say it is an estimate and tell the user to confirm with the official office.",
               },
               { role: "user", content: prompt },
             ],
@@ -548,7 +558,7 @@ Return ONLY valid JSON with keys: steps (array), totalTimeline (string), totalCo
                     <strong className="text-foreground">
                       RGD vs ORC in Ghana:
                     </strong>{" "}
-                    In Ghana, the Registrar General's Department (RGD) handles business name registration and company incorporation. The Office of the Registrar of Companies (ORC) was created in 2020 to take over company-related functions from RGD. For sole proprietorships, you still go to RGD. For LLCs, check with ORC at orc.gov.gh.
+                    The old Registrar General's Department (RGD) no longer registers businesses. Since 2020 the Office of the Registrar of Companies (ORC) handles everything: business names (sole proprietors), partnerships and companies. Register online at orc.gov.gh. ORC's 2026 fee for registering a business name is GH₵130.
                   </span>
                 </li>
                 <li className="flex gap-2">

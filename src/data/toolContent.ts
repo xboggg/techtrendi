@@ -41,7 +41,7 @@ export const toolContentData: Record<string, ToolContent> = {
     whyNeedIt:
       'Electricity is one of the hardest bills to predict, and ECG\'s tariff is tiered — the more you use, the higher the rate on the extra units. Seeing the estimate helps you decide how much credit to load, spot which appliance is quietly draining your wallet (looking at you, water heater), and avoid running out of power at the worst possible moment.',
     faqs: [
-      { q: 'How accurate is this?', a: 'It uses the official PURC Q2 2026 residential tariff (energy charge + monthly service charge). Your actual bill also adds small statutory levies — street-lighting, national-electrification and applicable VAT/NHIL — so the real figure is a little higher.' },
+      { q: 'How accurate is this?', a: 'It uses the PURC residential tariff in force since 1 July 2026 (Q3 2026, unchanged for Q4) (energy charge + monthly service charge). Your actual bill also adds small statutory levies — street-lighting, national-electrification and applicable VAT/NHIL — so the real figure is a little higher.' },
       { q: 'What is the lifeline rate?', a: 'Households using 30 units (kWh) or less in a month qualify for a much cheaper "lifeline" rate. Use even one unit above 30 and you move onto the standard residential tiers.' },
       { q: 'Where do I find my units?', a: 'Your prepaid meter shows remaining units in kWh, and your ECG bill lists units consumed. If you are not sure, use the appliance mode to estimate.' },
       { q: 'Why does the rate jump after 300 units?', a: 'The tariff is stepped: the first 300 kWh are charged at one rate, and every unit above 300 is charged at a higher rate. That is why heavy months cost more per unit.' },
@@ -324,7 +324,7 @@ export const toolContentData: Record<string, ToolContent> = {
 
   'business-registration': {
     intro:
-      'Walk through the steps to register a business in Ghana — from choosing a structure to filing with the Registrar General\'s Department. This is a step-by-step checklist, not legal advice, but it covers what most people get confused about when starting out.',
+      'Walk through the steps to register a business in Ghana — from choosing a structure to registering with the Office of the Registrar of Companies (ORC). This is a step-by-step checklist, not legal advice, but it covers what most people get confused about when starting out.',
     howTo: [
       'Select your business type (sole proprietorship, limited company, etc.)',
       'Follow the checklist of required documents and forms',
@@ -336,7 +336,7 @@ export const toolContentData: Record<string, ToolContent> = {
     faqs: [
       {
         q: 'Is this specific to Ghana?',
-        a: 'Yes, the steps and fees are based on Ghana\'s Registrar General\'s Department requirements. Other countries will have different processes.',
+        a: 'Yes. For Ghana, the guide uses the Office of the Registrar of Companies (ORC) and its 2026 fees (GH₵130 to register a business name). Other countries will have different processes.',
       },
       {
         q: 'How much does it cost to register a business in Ghana?',

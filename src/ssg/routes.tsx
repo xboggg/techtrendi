@@ -58,7 +58,9 @@ export const routes: RouteRecord[] = [
       { path: "profile", lazy: d(() => import("../pages/Profile")) },
       { path: "dashboard", lazy: d(() => import("../pages/Dashboard")) },
       { path: "tools", element: <Tools /> },
-      { path: "tools/:categoryId", lazy: d(() => import("../pages/ToolCategory")) },
+      // The 8 tool category pages are prerendered too (audit 28 Nov 2026: Google used to get the
+      // homepage's HTML at these addresses). Ids come from the one main tool list.
+      { path: "tools/:categoryId", lazy: d(() => import("../pages/ToolCategory")), getStaticPaths: async () => (await import("../data/tools")).categories.map((c) => `tools/${c.id}`) },
       { path: "blog", lazy: d(() => import("../pages/Blog")), loader: blogListLoader },
       { path: "blog/:slug", lazy: d(() => import("../pages/BlogArticle")), loader: blogLoader, getStaticPaths: blogStaticPaths },
       { path: "news", lazy: d(() => import("../pages/News")), loader: newsListLoader },
@@ -300,7 +302,6 @@ export const routes: RouteRecord[] = [
           { path: "tools/life-progress-bar", lazy: t(() => import("../pages/tools/LifeProgressBar")) },
           { path: "tools/life-calculators", lazy: t(() => import("../pages/tools/LifeCalculatorsHub")) },
           { path: "tools/cybersecurity-playbook", lazy: t(() => import("../pages/tools/CybersecurityPlaybook")) },
-          { path: "tools/momo-fee-calculator", lazy: t(() => import("../pages/tools/MoMoFeeCalculator")) },
           // ghana-electricity-calculator removed 2026-06-21: stale/inaccurate tariff
           // (orphan, never in catalog). Superseded by /tools/ecg-bill-estimator
           // (PURC-verified). nginx 301s the old URL to the new one.
